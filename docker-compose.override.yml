@@ -1,0 +1,9 @@
+# Yerel geliştirme override'ı (docker compose up ile otomatik birleşir).
+# Kaynak bağlanır + hot-reload açılır.
+services:
+  api:
+    volumes:
+      - ./backend:/code/backend
+    environment:
+      DEBUG: "true"
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

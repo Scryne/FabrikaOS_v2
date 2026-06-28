@@ -1,0 +1,24 @@
+.git/
+.gitignore
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Frontend bu imaja girmez
+frontend/
+node_modules/
+
+# Dokümanlar ve plan
+docs/
+*.pdf
+*.md
+
+# Yerel veriler
+.docker-data/
+.env

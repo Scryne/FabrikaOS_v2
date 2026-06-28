@@ -1,0 +1,8 @@
+# Tüm metin dosyaları depoda LF; ikili dosyalar dokunulmaz.
+* text=auto eol=lf
+
+*.pdf binary
+*.png binary
+*.jpg binary
+*.ico binary
+*.excalidraw binary

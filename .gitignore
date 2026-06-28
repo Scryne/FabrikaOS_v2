@@ -1,0 +1,45 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# --- Node / Frontend ---
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.local
+
+# --- Docker / Data ---
+.docker-data/
+*.pid
+
+# --- IDE / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Gizli / üretim ---
+*.pem
+*.key
+secrets/
+
+# --- Claude Code / araç ve skill dosyaları (proje kodu değil) ---
+.claude/
+.agents/
+.codex/
+.impeccable/
+skills-lock.json
