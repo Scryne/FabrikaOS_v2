@@ -1,45 +1,71 @@
 # FabrikaOS
 
-Çok kiracılı (multi-tenant) **MES + ERP hibrit** endüstriyel yönetim platformu (B2B SaaS).
-Türkiye'deki orta/büyük ölçekli metal sanayi tesisleri için; KVKK uyumlu, modül modül
-lisanslanabilir.
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20TimescaleDB-336791?logo=postgresql&logoColor=white)
 
-> Bu depo, `FabrikaOS_Proje_Plani.pdf` şartnamesinin faz-faz uygulamasıdır. Geliştirme planı:
-> `~/.claude/plans/...buzzing-cake.md` (faz/sprint kırılımı, kabul kriterleri, DoD).
+Çok kiracılı (multi-tenant) **MES + ERP hibrit** endüstriyel yönetim platformu (B2B SaaS).
+Türkiye'deki orta/büyük ölçekli metal sanayi tesisleri için; KVKK uyumlu, **modül modül
+lisanslanabilir**. Operatör bir olayı saniyeler içinde görüp aksiyona dönüştürür; yönetici
+dağınık tablolar yerine tek panodan tesisi yönetir.
+
+> Bu depo, `FabrikaOS_Proje_Plani.pdf` şartnamesinin **faz-faz** uygulamasıdır.
+> Tam yol haritası (6 faz / 22 sprint, kabul kriterleri + DoD): **[`docs/yol-haritasi.md`](docs/yol-haritasi.md)**.
+
+## Durum
+
+**Faz 0 (Temel) ✅ tamam · Faz 1 (MVP) sürüyor.**
+
+| Sprint | Konu | Durum |
+|---|---|---|
+| S1–S2 | Çekirdek + çok kiracılılık + kimlik/RBAC | ✅ |
+| S3–S4 | Üretim/OEE + İş emri/Bakım (backend) | ✅ |
+| S5 | SPA iskeleti + Auth (frontend) | ✅ |
+| S6 | Üretim/İş emri ekranları + sayfalama/filtre | ▶ sıradaki |
+| S7 → S22 | Gerçek zaman, saha, modüller, AI, lisanslama, GA | ⬜ planlı |
+
+Backend testleri: izolasyon + RBAC + fan-out + OEE + iş emri yaşam döngüsü dahil geçer.
+Frontend: 32 test (Vitest + RTL), `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
 
-- **Modüler Monolit** · Python 3.12 / FastAPI (async)
+- **Modüler Monolit** · Python 3.12 / FastAPI (async) · SQLAlchemy 2.0 + Alembic
 - **Çok kiracılılık:** şema-başına-tenant — `public` (control-plane) + `tenant_<slug>` (her fabrika)
 - **Tenant çözümleme:** subdomain (`fabrika-a.fabrikaos.com`) veya `X-Tenant` header → `search_path`
-- **Veri:** PostgreSQL 16 + TimescaleDB · Redis · MinIO (S3)
-- **Saha:** MQTT + Edge Gateway (OPC-UA/Modbus)
-- **Frontend:** React + TypeScript + Vite + Ant Design
+- **Veri:** PostgreSQL 16 + TimescaleDB (hypertable) · Redis · MinIO (S3 uyumlu)
+- **Saha:** MQTT + Edge Gateway (OPC-UA/Modbus) — *Faz 2*
+- **Frontend:** React 18 + TypeScript (strict) + Vite + Ant Design v5 (özel koyu tema)
+- **Kimlik:** OAuth2/JWT + RBAC, argon2id, rotasyonlu refresh (Redis iptal listesi)
 
 ## Dizin yapısı
 
 ```
 backend/app/        # FastAPI uygulaması
-  core/             # çekirdek (config, logging, exceptions, responses, middleware)
-    db/             # base/metadata, session, tenancy (search_path), fanout, audit
+  core/             # çekirdek (config, logging, exceptions, responses, middleware, olaylar)
+    db/             # base/metadata, session, tenancy (search_path), fanout
     security/       # parola (argon2id), jwt, rbac (deps), ratelimit, token deposu
-  api/              # /api/v1 router toplayıcı (S1: saglik)
-  control_plane/    # public şema: Tenant, Abonelik + provizyonlama (S2)
-  kimlik/           # tenant kimlik & RBAC: Kullanici/Rol/Izin + /kimlik, /kullanicilar (S2)
-  modules/          # tenant iş modülleri (S3+)
+  api/              # /api/v1 router toplayıcı
+  control_plane/    # public şema: Tenant, Abonelik + provizyonlama
+  kimlik/           # tenant kimlik & RBAC: Kullanici/Rol/Izin + /kimlik, /kullanicilar
+  modules/          # tenant iş modülleri: uretim/, isemri/, bakim/ (S3+)
 backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
-docs/adr/           # mimari karar kayıtları
+frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
+docs/adr/           # mimari karar kayıtları (0001–0008)
+docs/yol-haritasi.md# faz/sprint planı
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
 ```
 
 ## Geliştirme ortamı
 
 ### Gereksinimler
-- **Docker Desktop** (zorunlu — tüm yığını çalıştırmak için)
+- **Docker Desktop** (backend yığını için zorunlu)
+- **Node.js 20+** (frontend için)
 - (Opsiyonel) Python 3.12 — yerel hızlı test/lint için
 
-### Çalıştırma (Docker)
+### Backend (Docker)
 ```bash
 cp .env.example .env
 docker compose up --build
@@ -49,9 +75,24 @@ docker compose up --build
 - Swagger/OpenAPI: http://localhost:8000/docs
 - Traefik panosu (dev): http://localhost:8080
 
-### Yerel test/lint (Python kuruluysa)
-Entegrasyon testleri çalışan bir PostgreSQL ister (`fabrikaos_test` veritabanını otomatik
-oluşturur). Önce altyapıyı kaldır:
+### Frontend
+```bash
+cd frontend
+cp .env.example .env        # API taban adresi vb.
+npm install
+npm run dev                 # http://localhost:5173
+```
+- Giriş: `/giris` · Uygulama: korunan rotalar (RBAC'a göre menü)
+- Tasarım önizleme (yalnız DEV, backend gerektirmez): `/onizleme` — KPI / OEE / pano
+- Görsel sistem: **nötr antrasit koyu tema, mavi yalnızca vurgu** (bkz. [`DESIGN.md`](DESIGN.md))
+
+Frontend kalite:
+```bash
+npm run lint && npm run typecheck && npm test
+```
+
+### Backend test/lint (Python kuruluysa)
+Entegrasyon testleri çalışan bir PostgreSQL ister (`fabrikaos_test` veritabanını otomatik oluşturur):
 ```bash
 docker compose up -d db redis
 pip install -e ".[dev]"
@@ -59,16 +100,12 @@ ruff check backend && ruff format --check backend
 mypy
 pytest                       # TEST_DATABASE_URL ile override edilebilir (CI)
 ```
+Docker içinde: `docker compose run --rm api pytest`
 
-### Docker içinde test
-```bash
-docker compose run --rm api pytest
-```
-
-## Veritabanı, migrasyon ve provizyonlama (S2)
+## Veritabanı, migrasyon ve provizyonlama
 
 Çok kiracılılık **şema-başına-tenant**'tır: control-plane `public`, her fabrika `tenant_<slug>`.
-Migrasyonlar iki Alembic ağacında tutulur ve **fan-out** edilir (bkz. `docs/adr/0004-*`).
+Migrasyonlar iki Alembic ağacında tutulur ve **fan-out** edilir (bkz. [`docs/adr/0004-*`](docs/adr/0004-alembic-fan-out.md)).
 
 ```bash
 # Control-plane (public) şemasını yükselt
@@ -87,11 +124,14 @@ Tenant'a istek atarken `X-Tenant: <slug>` başlığı (veya `<slug>.fabrikaos.lo
 kullanılır. Kimlik: `POST /api/v1/kimlik/token` (OAuth2 şifre akışı) → `Authorization: Bearer`.
 
 ## Konvansiyonlar
-- **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. `docs/veri-sozlugu.md`
-- **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success,message,data,meta}`
+- **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
+- **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** `docs/adr/NNNN-*.md`
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0008 mevcut)
 
-## Yol haritası (fazlar)
-Faz 0 Temel → Faz 1 MVP → Faz 2 Saha & Modüller → Faz 3 Zekâ → Faz 4 Lisanslama → Faz 5 Operasyon & GA.
-Detay için geliştirme planına bakınız.
+## Yol haritası
+
+**Faz 0** Temel → **Faz 1** MVP → **Faz 2** Saha & Modüller → **Faz 3** Zekâ →
+**Faz 4** Lisanslama & Dış Entegrasyon → **Faz 5** Operasyon & GA (`v1.0.0`).
+
+Sprint-sprint kapsam, kabul kriterleri, DoD ve geçiş kapıları: **[`docs/yol-haritasi.md`](docs/yol-haritasi.md)**.
