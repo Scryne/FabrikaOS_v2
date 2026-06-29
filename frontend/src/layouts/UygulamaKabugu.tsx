@@ -27,6 +27,7 @@ import { cozumleTenant } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { DILLER, dilDegistir } from '@/i18n';
 import { gorunurMenu, MENU } from '@/layouts/menu';
+import { useGercekZaman } from '@/modules/ortak/gercekZamanBaglam';
 import { useAuthStore } from '@/store/authStore';
 
 const IKONLAR: Record<string, React.ReactNode> = {
@@ -58,6 +59,7 @@ export function UygulamaKabugu() {
   // izinler'e (Set) abone ol: oturum/izinler değişince menü yeniden hesaplanır
   // (s.izinVar sabit fonksiyon referansıdır; memo'yu tetiklemez).
   const izinler = useAuthStore((s) => s.izinler);
+  const { bagli } = useGercekZaman();
 
   const tenant = cozumleTenant();
   const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
@@ -149,7 +151,20 @@ export function UygulamaKabugu() {
                   borderRadius: 12,
                 }}
               >
-                <span className="canli-nokta" aria-hidden="true" />
+                {bagli ? (
+                  <span className="canli-nokta" aria-hidden="true" />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: '50%',
+                      background: 'var(--uyari)',
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
                 <div style={{ lineHeight: 1.25, overflow: 'hidden' }}>
                   <div
                     className="sayisal"
@@ -158,7 +173,7 @@ export function UygulamaKabugu() {
                     {tenant}
                   </div>
                   <div style={{ color: 'var(--metin-soluk)', fontSize: 11 }}>
-                    {t('ortak.sistem_cevrimici')}
+                    {t(bagli ? 'ortak.sistem_cevrimici' : 'ortak.baglaniyor')}
                   </div>
                 </div>
               </div>

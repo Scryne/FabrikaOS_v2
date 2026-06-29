@@ -12,10 +12,12 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli
+from app.core.deps import izin_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.uretim import repository, service
@@ -114,6 +116,7 @@ async def makine_durum_guncelle(
     govde: MakineDurumDTO,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:yaz"))],
     db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     if govde.durum not in MAKINE_DURUMLARI:
         raise DogrulamaHatasi(
@@ -133,6 +136,10 @@ async def makine_durum_guncelle(
         kaynak_id=str(makine.id),
         kullanici=kullanici,
         detay={"durum": govde.durum},
+    )
+    await yayinla(
+        tenant.slug,
+        {"tur": "makine.durum", "makine_id": makine.id, "durum": makine.durum},
     )
     return basari(_makine_cevap(makine), mesaj="Durum güncellendi")
 
@@ -171,6 +178,7 @@ async def uretim_girisi(
     govde: UretimGirisDTO,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:yaz"))],
     db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     if govde.saglam_adet > govde.toplam_adet:
         raise DogrulamaHatasi(
@@ -196,6 +204,7 @@ async def uretim_girisi(
     await denetim_yaz(
         db, eylem="olustur", kaynak="uretim_verisi", kaynak_id=str(kayit.id), kullanici=kullanici
     )
+    await yayinla(tenant.slug, {"tur": "uretim.eklendi", "makine_id": kayit.makine_id})
     return basari(_uretim_cevap(kayit), mesaj="Üretim verisi kaydedildi")
 
 

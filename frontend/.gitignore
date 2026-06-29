@@ -12,3 +12,9 @@ yarn-error.log*
 
 # Editor
 .DS_Store
+
+# Playwright (E2E)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

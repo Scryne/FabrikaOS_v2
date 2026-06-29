@@ -11,10 +11,12 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli
+from app.core.deps import izin_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.isemri import repository, service
@@ -93,6 +95,7 @@ async def is_emri_olustur(
     govde: IsEmriOlusturDTO,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("isemri:yaz"))],
     db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     if govde.oncelik not in ONCELIKLER:
         raise DogrulamaHatasi(
@@ -124,6 +127,7 @@ async def is_emri_olustur(
     await denetim_yaz(
         db, eylem="olustur", kaynak="is_emri", kaynak_id=str(is_emri.id), kullanici=kullanici
     )
+    await yayinla(tenant.slug, {"tur": "isemri.olusturuldu", "id": is_emri.id})
     return basari(_cevap(is_emri), mesaj="İş emri oluşturuldu")
 
 
@@ -184,6 +188,7 @@ async def is_emri_durum(
     govde: DurumGuncelleDTO,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("isemri:yaz"))],
     db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     is_emri = await repository.getir_kilitli(db, is_emri_id)
     if is_emri is None:
@@ -199,6 +204,7 @@ async def is_emri_durum(
         kullanici=kullanici,
         detay={"durum": is_emri.durum},
     )
+    await yayinla(tenant.slug, {"tur": "isemri.durum", "id": is_emri.id, "durum": is_emri.durum})
     return basari(_cevap(is_emri), mesaj="Durum güncellendi")
 
 

@@ -17,6 +17,7 @@ import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
+import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
@@ -47,6 +48,15 @@ function OnizlemeOturum() {
     });
   }, [ayarlaOturum]);
   return <Outlet />;
+}
+
+/** Uygulama kabuğu + gerçek-zaman sağlayıcı (canlı WS aboneliği). */
+function CanliKabuk() {
+  return (
+    <GercekZamanSaglayici>
+      <UygulamaKabugu />
+    </GercekZamanSaglayici>
+  );
 }
 
 function TamEkranYukleniyor() {
@@ -82,7 +92,7 @@ export function App() {
       <Route path="/giris" element={<GirisSayfasi />} />
 
       <Route element={<KorunanRota />}>
-        <Route element={<UygulamaKabugu />}>
+        <Route element={<CanliKabuk />}>
           <Route index element={<PanoSayfasi />} />
           <Route
             path="makineler"
@@ -137,7 +147,7 @@ export function App() {
 
       {import.meta.env.DEV && (
         <Route path="/onizleme" element={<OnizlemeOturum />}>
-          <Route element={<UygulamaKabugu />}>
+          <Route element={<CanliKabuk />}>
             <Route index element={<OnizlemePano />} />
           </Route>
         </Route>

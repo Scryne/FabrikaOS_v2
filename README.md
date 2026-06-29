@@ -16,18 +16,20 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ tamam · Faz 1 (MVP) sürüyor.**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır.**
 
 | Sprint | Konu | Durum |
 |---|---|---|
 | S1–S2 | Çekirdek + çok kiracılılık + kimlik/RBAC | ✅ |
 | S3–S4 | Üretim/OEE + İş emri/Bakım (backend) | ✅ |
 | S5 | SPA iskeleti + Auth (frontend) | ✅ |
-| S6 | Üretim/İş emri ekranları + sayfalama/filtre | ▶ sıradaki |
-| S7 → S22 | Gerçek zaman, saha, modüller, AI, lisanslama, GA | ⬜ planlı |
+| S6 | Üretim/İş emri ekranları + ECharts pano + sunucu-taraflı tablo | ✅ |
+| S7 | Gerçek zaman (WebSocket + Redis pub/sub) + uçtan uca + izolasyon | ✅ |
+| S8 → S22 | Saha & ingestion, modüller, AI, lisanslama, GA | ⬜ planlı |
 
-Backend testleri: izolasyon + RBAC + fan-out + OEE + iş emri yaşam döngüsü dahil geçer.
-Frontend: 32 test (Vitest + RTL), `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
+Backend: **76 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+gerçek-zaman). Frontend: **57 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+`tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
 
@@ -35,25 +37,27 @@ Frontend: 32 test (Vitest + RTL), `tsc --strict` + ESLint temiz. Ayrıntı: [yol
 - **Çok kiracılılık:** şema-başına-tenant — `public` (control-plane) + `tenant_<slug>` (her fabrika)
 - **Tenant çözümleme:** subdomain (`fabrika-a.fabrikaos.com`) veya `X-Tenant` header → `search_path`
 - **Veri:** PostgreSQL 16 + TimescaleDB (hypertable) · Redis · MinIO (S3 uyumlu)
+- **Gerçek zaman:** FastAPI WebSocket + Redis pub/sub, tenant-kapsamlı kanallar (`tenant:<slug>:olaylar`) — canlı OEE/durum/iş emri
 - **Saha:** MQTT + Edge Gateway (OPC-UA/Modbus) — *Faz 2*
-- **Frontend:** React 18 + TypeScript (strict) + Vite + Ant Design v5 (özel koyu tema)
+- **Frontend:** React 18 + TypeScript (strict) + Vite + Ant Design v5 (özel koyu tema) + ECharts + TanStack Query
 - **Kimlik:** OAuth2/JWT + RBAC, argon2id, rotasyonlu refresh (Redis iptal listesi)
 
 ## Dizin yapısı
 
 ```
 backend/app/        # FastAPI uygulaması
-  core/             # çekirdek (config, logging, exceptions, responses, middleware, olaylar)
+  core/             # çekirdek (config, logging, exceptions, responses, middleware, olaylar, gercekzaman, sorgu)
     db/             # base/metadata, session, tenancy (search_path), fanout
-    security/       # parola (argon2id), jwt, rbac (deps), ratelimit, token deposu
-  api/              # /api/v1 router toplayıcı
+    security/       # parola (argon2id), jwt, rbac (deps), ratelimit, token deposu, redis
+  api/              # /api/v1 router toplayıcı + ws (gerçek-zaman WebSocket)
   control_plane/    # public şema: Tenant, Abonelik + provizyonlama
   kimlik/           # tenant kimlik & RBAC: Kullanici/Rol/Izin + /kimlik, /kullanicilar
   modules/          # tenant iş modülleri: uretim/, isemri/, bakim/ (S3+)
 backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
 frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
-docs/adr/           # mimari karar kayıtları (0001–0008)
+frontend/e2e/       # Playwright E2E (gerçek-zaman canlı güncelleme)
+docs/adr/           # mimari karar kayıtları (0001–0009)
 docs/yol-haritasi.md# faz/sprint planı
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
 ```
@@ -89,6 +93,7 @@ npm run dev                 # http://localhost:5173
 Frontend kalite:
 ```bash
 npm run lint && npm run typecheck && npm test
+npm run test:e2e            # Playwright E2E — çalışan yığın + seed'li tenant ister (E2E_BASE/E2E_API ile origin)
 ```
 
 ### Backend test/lint (Python kuruluysa)
@@ -127,7 +132,7 @@ kullanılır. Kimlik: `POST /api/v1/kimlik/token` (OAuth2 şifre akışı) → `
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
 - **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0008 mevcut)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0009 mevcut)
 
 ## Yol haritası
 

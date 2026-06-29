@@ -31,5 +31,7 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // Vitest yalnız src birim/komponent testlerini çalıştırır; e2e Playwright'a aittir.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

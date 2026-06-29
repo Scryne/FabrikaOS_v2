@@ -18,8 +18,8 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S4 | İş Emirleri & Bakım (backend) | ✅ `b0284c4` |
 | | S5 | SPA iskeleti + Auth (frontend) | ✅ `715211d` |
 | | — | Tasarım geçişi: nötr antrasit tema + pano önizleme | ✅ `9fb9454` |
-| | **S6** | Üretim/İş emri ekranları + sayfalama/filtre | ▶ **sıradaki** |
-| | S7 | Gerçek zaman çekirdeği + uçtan uca + izolasyon | ⬜ |
+| | S6 | Üretim/İş emri ekranları + sayfalama/filtre | ✅ `a9fc5e6` |
+| | **S7** | Gerçek zaman çekirdeği + uçtan uca + izolasyon | ✅ |
 | **2 — Saha & Modüller** | S8 | Edge & Ingestion | ⬜ |
 | | S9 | Stok & Satınalma | ⬜ |
 | | S10 | Kalite & Enerji | ⬜ |
@@ -144,21 +144,25 @@ referans #101010/#181818; body mavi parıltı kaldırıldı). Pano önizleme `/o
 KPI kartları, OEE donut, üretim trendi, son üretim tablosu (statik demo veri). `KpiKart` +
 `grafik/{Donut,SutunGrafik}`; Inter + JetBrains Mono.
 
-#### ▶ S6 — Üretim/İş emri ekranları + sayfalama/filtre (frontend) · **sıradaki**
-Makine listesi/detay, OEE panosu (ECharts), üretim verisi giriş/liste, iş emri kanban/liste;
-standart tablo bileşeni (sunucu-taraflı sayfalama/sıralama/arama/filtre — `meta` uyumlu);
-yönetici 360° özet kartlar. Modül hook'ları (TanStack Query) burada yazılır.
-**Kabul:** Listeler sunucu-taraflı sayfalama/filtre kullanır; OEE grafiği gerçek veriyle çizilir;
-responsive.
+#### ✅ S6 — Üretim/İş emri ekranları + sayfalama/filtre (frontend) (`a9fc5e6`)
+Makine listesi/detay (OEE gauge), OEE panosu (**ECharts** gauge/çubuk/donut), üretim verisi
+giriş/liste, iş emri **liste + kanban** (durum makinesi aynası, atama-duyarlı geçişler) +
+detay çekmecesi; standart **`SunucuTablo`** (sunucu-taraflı sayfalama/sıralama/arama/filtre,
+`meta` uyumlu); yönetici 360° pano gerçek veriyle; modül hook'ları (TanStack Query). Backend'e
+migrationsız, beyaz-listeli `arama`/`siralama`/`yon` eklendi (uçların gerçekten desteklemesi için).
+**Kabul (karşılandı):** Listeler sunucu-taraflı; OEE grafiği gerçek veriyle çizilir; responsive.
 
-#### ⬜ S7 — Gerçek zaman çekirdeği + uçtan uca + izolasyon testi
-FastAPI **WebSocket** + Redis pub/sub (tenant-kapsamlı kanallar): canlı OEE/durum/bildirim;
-frontend canlı abonelik; uçtan uca akış (makine→üretim→OEE→pano); kapsamlı tenant izolasyon paketi;
-ilk Playwright kritik E2E.
-**Kabul:** Olay yalnızca ilgili tenant'a yayılır; canlı OEE panoda güncellenir; E2E yeşil.
+#### ✅ S7 — Gerçek zaman çekirdeği + uçtan uca + izolasyon (ADR-0009)
+FastAPI **WebSocket** (`/api/v1/ws/olaylar`) + Redis pub/sub, **tenant-kapsamlı kanallar**
+(`tenant:<slug>:olaylar` → izolasyon yapısal); yazma uçlarından best-effort yayın
+(makine.durum / uretim.eklendi / isemri.durum / isemri.olusturuldu); frontend canlı abonelik
+(`GercekZamanSaglayici` → olay başına TanStack Query invalidate) + canlı gösterge; ilk
+**Playwright E2E** (başka istemcinin durum değişikliği listede manuel yenileme olmadan görünür).
+**Kabul (karşılandı):** Olay yalnız ilgili tenant'a yayılır (izolasyon testi); canlı OEE/durum
+panoda güncellenir; WS auth + çapraz-tenant reddi testli; E2E yeşil.
 
-> **🚦 Faz 1 / MVP Geçiş Kapısı:** Çok-kiracılı üretim/OEE + iş emri uçtan uca, canlı, izole,
-> korumalı → demo/portföy için kullanılabilir.
+> **🚦 Faz 1 / MVP Geçiş Kapısı (GEÇİLDİ):** Çok-kiracılı üretim/OEE + iş emri uçtan uca,
+> **canlı**, izole, korumalı → demo/portföy için kullanılabilir.
 
 ---
 
@@ -282,7 +286,7 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 | Kapı | Şart | Durum |
 |---|---|---|
 | Faz 0 | İzolasyon + provizyonlama + RBAC + fan-out testleri yeşil | ✅ geçildi |
-| Faz 1 (MVP) | Üretim/OEE + iş emri uçtan uca, canlı, izole, korumalı | ◔ S6-S7 kaldı |
+| Faz 1 (MVP) | Üretim/OEE + iş emri uçtan uca, canlı, izole, korumalı | ✅ geçildi |
 | Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ⬜ |
 | Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ⬜ |
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
