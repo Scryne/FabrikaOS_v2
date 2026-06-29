@@ -1,0 +1,40 @@
+{
+  "ortak": {
+    "uygulama_adi": "FabrikaOS",
+    "cikis": "Sign out",
+    "yukleniyor": "Loading…",
+    "sistem_cevrimici": "System online",
+    "dil": "Language"
+  },
+  "kimlik": {
+    "giris_basligi": "Sign in to the control panel",
+    "giris_aciklama": "Connect to your factory’s production intelligence.",
+    "firma_kodu": "Company code",
+    "firma_kodu_ipucu": "e.g. alfa",
+    "eposta": "Email",
+    "parola": "Password",
+    "giris_yap": "Sign in",
+    "hatali_giris": "Sign-in failed. Check company code, email or password.",
+    "firma_kodu_gerekli": "Company code is required",
+    "eposta_gerekli": "Email is required",
+    "parola_gerekli": "Password is required"
+  },
+  "menu": {
+    "pano": "Dashboard",
+    "makineler": "Machines",
+    "is_emirleri": "Work orders",
+    "bakim": "Maintenance",
+    "kullanicilar": "Users"
+  },
+  "yetki": {
+    "yetkisiz_baslik": "You don’t have access to this page",
+    "yetkisiz_aciklama": "You lack the required permission. Contact your administrator.",
+    "panoya_don": "Back to dashboard"
+  },
+  "pano": {
+    "baslik": "Dashboard",
+    "hosgeldin": "Welcome, {{ad}}",
+    "yakinda": "Production dashboard and module screens arrive in sprint S6.",
+    "yakinda_modul": "This module screen arrives in a later sprint."
+  }
+}

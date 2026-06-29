@@ -1,0 +1,132 @@
+/*
+ * FabrikaOS global stiller — endüstriyel kontrol odası (koyu).
+ * Tasarım token'ları CSS değişkeni olarak; AntD token'ları src/tema/tema.ts ile eşlenir.
+ * Bkz. DESIGN.md.
+ */
+
+:root {
+  /* Nötr rampa */
+  --zemin: #0b0f14;
+  --yuzey: #131a24;
+  --yuzey-2: #1a2330;
+  --kenarlik: #26303f;
+  --kenarlik-parlak: #324155;
+  --metin: #e6edf3;
+  --metin-soluk: #94a3b8;
+
+  /* Sinyal vurguları + semantik */
+  --amber: #f5a524;
+  --cyan: #22d3ee;
+  --basari: #10b981;
+  --uyari: #fb923c;
+  --hata: #ef4444;
+
+  --font-govde: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+
+  /* Hareket */
+  --gecis: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-govde);
+  color: var(--metin);
+  background-color: var(--zemin);
+  /* Kontrol odası dokusu: çok soluk grid (sinyal değil zemin; ~%3). */
+  background-image:
+    linear-gradient(transparent calc(100% - 1px), rgba(148, 163, 184, 0.04) 100%),
+    linear-gradient(90deg, transparent calc(100% - 1px), rgba(148, 163, 184, 0.04) 100%);
+  background-size: 44px 44px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Sayısal/veri değerleri: hizalı monospace (OEE, sayaç, kod, zaman). */
+.sayisal {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Görünür odak halkası (klavye erişilebilirliği) — cyan sinyal. */
+:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/* İnce, koyu kaydırma çubuğu. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--kenarlik-parlak) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--kenarlik-parlak);
+  border-radius: 6px;
+  border: 2px solid var(--zemin);
+}
+
+/* "Sistem çevrimiçi" canlı göstergesi (durum taşır, dekorasyon değil). */
+.canli-nokta {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--basari);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  animation: nabiz 2.4s ease-out infinite;
+}
+@keyframes nabiz {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* Rota içeriği için sakin açılış (durum: yeni içerik). */
+.icerik-acilis {
+  animation: yumusakGiris var(--gecis);
+}
+@keyframes yumusakGiris {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .icerik-acilis {
+    animation: none;
+  }
+}

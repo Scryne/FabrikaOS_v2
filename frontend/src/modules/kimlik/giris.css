@@ -1,0 +1,82 @@
+.giris-sayfa {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  min-height: 100vh;
+}
+
+.giris-marka {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 48px;
+  background: var(--yuzey);
+  border-right: 1px solid var(--kenarlik);
+  overflow: hidden;
+}
+
+/* Kontrol odası nokta-grid dokusu (zemin, sinyal değil). */
+.giris-marka::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(148, 163, 184, 0.06) 1px,
+    transparent 0
+  );
+  background-size: 22px 22px;
+  pointer-events: none;
+}
+.giris-marka > * {
+  position: relative;
+  z-index: 1;
+}
+
+.giris-baslik-buyuk {
+  margin: 0 0 12px;
+  max-width: 16ch;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.giris-durum {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--metin-soluk);
+  font-size: 13px;
+}
+
+.giris-form-alan {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.giris-form {
+  width: 100%;
+  max-width: 360px;
+}
+
+.giris-form-marka {
+  display: none;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 880px) {
+  .giris-sayfa {
+    grid-template-columns: 1fr;
+  }
+  .giris-marka {
+    display: none;
+  }
+  .giris-form-marka {
+    display: block;
+  }
+}

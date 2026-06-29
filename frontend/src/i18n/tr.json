@@ -1,0 +1,40 @@
+{
+  "ortak": {
+    "uygulama_adi": "FabrikaOS",
+    "cikis": "Çıkış",
+    "yukleniyor": "Yükleniyor…",
+    "sistem_cevrimici": "Sistem çevrimiçi",
+    "dil": "Dil"
+  },
+  "kimlik": {
+    "giris_basligi": "Kontrol paneline giriş",
+    "giris_aciklama": "Fabrikanızın üretim zekâsına bağlanın.",
+    "firma_kodu": "Firma kodu",
+    "firma_kodu_ipucu": "Örn. alfa",
+    "eposta": "E-posta",
+    "parola": "Parola",
+    "giris_yap": "Giriş yap",
+    "hatali_giris": "Giriş başarısız. Firma kodu, e-posta veya parolayı kontrol edin.",
+    "firma_kodu_gerekli": "Firma kodu gerekli",
+    "eposta_gerekli": "E-posta gerekli",
+    "parola_gerekli": "Parola gerekli"
+  },
+  "menu": {
+    "pano": "Pano",
+    "makineler": "Makineler",
+    "is_emirleri": "İş emirleri",
+    "bakim": "Bakım",
+    "kullanicilar": "Kullanıcılar"
+  },
+  "yetki": {
+    "yetkisiz_baslik": "Bu sayfaya yetkiniz yok",
+    "yetkisiz_aciklama": "Gerekli izne sahip değilsiniz. Yöneticinizle görüşün.",
+    "panoya_don": "Panoya dön"
+  },
+  "pano": {
+    "baslik": "Pano",
+    "hosgeldin": "Hoş geldiniz, {{ad}}",
+    "yakinda": "Üretim panosu ve modül ekranları S6 sprint'inde gelecek.",
+    "yakinda_modul": "Bu modül ekranı sonraki sprintte gelecek."
+  }
+}

@@ -31,5 +31,37 @@ jobs:
       - name: pytest (birim + entegrasyon)
         run: pytest
 
-  # NOT: Güvenlik (pip-audit/bandit), build ve deploy adımları sonraki
-  # sprintlerde eklenecek (S2'de CI'ya postgres+migrasyon fan-out testi gelir).
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Bağımlılıkları kur
+        run: npm ci
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Prettier (biçim kontrolü)
+        run: npm run format:check
+
+      - name: TypeScript (tsc --noEmit, strict)
+        run: npm run typecheck
+
+      - name: Vitest (birim + bileşen)
+        run: npm test
+
+      - name: Vite build
+        run: npm run build
+
+  # NOT: Güvenlik (pip-audit/bandit), Playwright E2E (S7), build ve deploy adımları
+  # sonraki sprintlerde eklenecek.
