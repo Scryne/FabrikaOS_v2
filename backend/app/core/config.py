@@ -31,9 +31,18 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = Field(default_factory=list)
 
-    # --- Veri/cache (S2+ sprintlerinde kullanılacak) ---
+    # --- Veri/cache ---
     database_url: str = "postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos"
     redis_url: str = "redis://redis:6379/0"
+
+    # --- Kimlik / JWT (S2) ---
+    jwt_algoritma: str = "HS256"
+    access_token_dakika: int = 15  # kısa ömürlü access token
+    refresh_token_gun: int = 7  # rotasyonlu refresh token
+
+    # --- Rate limit (S2) ---
+    rate_limit_istek: int = 100  # pencere başına izinli istek
+    rate_limit_pencere_sn: int = 60  # pencere süresi (saniye)
 
     @property
     def is_prod(self) -> bool:

@@ -7,3 +7,8 @@ services:
     environment:
       DEBUG: "true"
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Dev'de host'tan (alembic, provizyonlama betikleri, REPL) erişim için Redis portunu aç.
+  redis:
+    ports:
+      - "6379:6379"

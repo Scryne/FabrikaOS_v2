@@ -17,6 +17,10 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | RBAC | Role-Based Access Control — rol tabanlı yetkilendirme |
 | Digital twin | Dijital ikiz — tesisin canlı sayısal yansıması |
 | Provisioning | Yeni tenant'ın otomatik kurulumu (şema + migrate + seed) |
+| search_path | PostgreSQL şema arama yolu; tenant izolasyonu burada `tenant_<slug>, public` olur |
+| Fan-out | Bir migrasyonu `public` + tüm aktif tenant şemalarına uygulama |
+| JWT | JSON Web Token; access (kısa) + refresh (rotasyonlu) |
+| Refresh rotasyonu | Yenilemede eski refresh'i iptal edip yeni çift üretme (Redis iptal listesi) |
 | RPO / RTO | Kabul edilebilir veri kaybı / kurtarma süresi (DR) |
 
 ## Identifier sözlüğü (tablo/model/kolon)

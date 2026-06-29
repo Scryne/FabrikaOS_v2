@@ -20,10 +20,14 @@ lisanslanabilir.
 
 ```
 backend/app/        # FastAPI uygulaması
-  core/             # çekirdek (config, logging, exceptions, responses, middleware, db, security)
-  api/              # /api/v1 router'ları (S1: saglik)
-  control_plane/    # public şema (S2+)
-  modules/          # tenant modülleri (S3+)
+  core/             # çekirdek (config, logging, exceptions, responses, middleware)
+    db/             # base/metadata, session, tenancy (search_path), fanout, audit
+    security/       # parola (argon2id), jwt, rbac (deps), ratelimit, token deposu
+  api/              # /api/v1 router toplayıcı (S1: saglik)
+  control_plane/    # public şema: Tenant, Abonelik + provizyonlama (S2)
+  kimlik/           # tenant kimlik & RBAC: Kullanici/Rol/Izin + /kimlik, /kullanicilar (S2)
+  modules/          # tenant iş modülleri (S3+)
+backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
 docs/adr/           # mimari karar kayıtları
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
@@ -46,17 +50,41 @@ docker compose up --build
 - Traefik panosu (dev): http://localhost:8080
 
 ### Yerel test/lint (Python kuruluysa)
+Entegrasyon testleri çalışan bir PostgreSQL ister (`fabrikaos_test` veritabanını otomatik
+oluşturur). Önce altyapıyı kaldır:
 ```bash
+docker compose up -d db redis
 pip install -e ".[dev]"
-ruff check backend
+ruff check backend && ruff format --check backend
 mypy
-pytest
+pytest                       # TEST_DATABASE_URL ile override edilebilir (CI)
 ```
 
 ### Docker içinde test
 ```bash
 docker compose run --rm api pytest
 ```
+
+## Veritabanı, migrasyon ve provizyonlama (S2)
+
+Çok kiracılılık **şema-başına-tenant**'tır: control-plane `public`, her fabrika `tenant_<slug>`.
+Migrasyonlar iki Alembic ağacında tutulur ve **fan-out** edilir (bkz. `docs/adr/0004-*`).
+
+```bash
+# Control-plane (public) şemasını yükselt
+python -m alembic --name public upgrade head
+
+# Tüm aktif tenant şemalarına fan-out
+python -m alembic --name tenant upgrade head
+
+# Yeni tenant provizyonla (public kayıt + şema + migrate + seed; idempotent)
+python -c "import asyncio; from app.control_plane.provizyon import tenant_provizyonla; \
+asyncio.run(tenant_provizyonla(slug='fabrika-a', ad='Fabrika A', \
+admin_eposta='admin@fabrika-a.test', admin_parola='Parola123!'))"
+```
+
+Tenant'a istek atarken `X-Tenant: <slug>` başlığı (veya `<slug>.fabrikaos.localhost` subdomain)
+kullanılır. Kimlik: `POST /api/v1/kimlik/token` (OAuth2 şifre akışı) → `Authorization: Bearer`.
 
 ## Konvansiyonlar
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. `docs/veri-sozlugu.md`

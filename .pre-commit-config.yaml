@@ -21,5 +21,13 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
-        additional_dependencies: ["pydantic>=2.9", "pydantic-settings>=2.6"]
+        additional_dependencies:
+          - "pydantic>=2.9"
+          - "pydantic-settings>=2.6"
+          - "sqlalchemy>=2.0"
+          - "fastapi>=0.115"
+          - "alembic>=1.13"
+          - "redis>=5.0"
+          - "pyjwt>=2.9"
+          - "argon2-cffi>=23.1"
         files: ^backend/app/

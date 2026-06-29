@@ -1,0 +1,97 @@
+"""Kullanıcı yönetimi uçları: ``/api/v1/kullanicilar``.
+
+Tenant-kapsamlı ve RBAC korumalı (altın kural): GET ``kullanici:oku``, POST ``kullanici:yaz``.
+Bu uçlar aynı zamanda tenant izolasyonu ve RBAC için referans/test yüzeyidir.
+"""
+
+from __future__ import annotations
+
+from typing import Annotated, Any
+
+from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.audit import denetim_yaz
+from app.core.db.session import get_session
+from app.core.deps import izin_gerekli
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
+from app.core.responses import Zarf, basari, sayfali
+from app.core.security.parola import parola_ozetle
+from app.kimlik.models import Kullanici, Rol
+from app.kimlik.schemas import KullaniciCevapDTO, KullaniciOlusturDTO
+
+router = APIRouter(prefix="/kullanicilar", tags=["Kullanıcılar"])
+
+
+def _cevap(kullanici: Kullanici) -> dict[str, Any]:
+    return KullaniciCevapDTO(
+        id=kullanici.id,
+        eposta=kullanici.eposta,
+        ad_soyad=kullanici.ad_soyad,
+        aktif=kullanici.aktif,
+        roller=sorted(r.ad for r in kullanici.roller),
+    ).model_dump()
+
+
+@router.get("", response_model=Zarf[list[KullaniciCevapDTO]], summary="Kullanıcıları listele")
+async def listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("kullanici:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    sayfa: int = 1,
+    adet: int = 20,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    toplam = await db.scalar(select(func.count()).select_from(Kullanici)) or 0
+    sonuc = await db.execute(
+        select(Kullanici).order_by(Kullanici.id).offset((sayfa - 1) * adet).limit(adet)
+    )
+    kayitlar = [_cevap(k) for k in sonuc.scalars()]
+    return sayfali(kayitlar, sayfa=sayfa, adet=adet, toplam=int(toplam))
+
+
+@router.post(
+    "",
+    response_model=Zarf[KullaniciCevapDTO],
+    status_code=201,
+    summary="Kullanıcı oluştur",
+)
+async def olustur(
+    govde: KullaniciOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("kullanici:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    var = await db.scalar(select(Kullanici).where(Kullanici.eposta == govde.eposta))
+    if var is not None:
+        raise CakismaHatasi("Bu e-posta ile kullanıcı zaten var")
+
+    roller: list[Rol] = []
+    if govde.roller:
+        bulunan = (await db.execute(select(Rol).where(Rol.ad.in_(govde.roller)))).scalars().all()
+        eksik = set(govde.roller) - {r.ad for r in bulunan}
+        if eksik:
+            raise DogrulamaHatasi(
+                "Tanımsız rol(ler)",
+                detaylar=[{"alan": "roller", "mesaj": f"Bulunamadı: {', '.join(sorted(eksik))}"}],
+            )
+        roller = list(bulunan)
+
+    yeni = Kullanici(
+        eposta=govde.eposta,
+        parola_ozet=parola_ozetle(govde.parola),
+        ad_soyad=govde.ad_soyad,
+        aktif=True,
+        roller=roller,
+    )
+    db.add(yeni)
+    await db.flush()
+    await denetim_yaz(
+        db,
+        eylem="olustur",
+        kaynak="kullanici",
+        kaynak_id=str(yeni.id),
+        kullanici=kullanici,
+        detay={"eposta": yeni.eposta},
+    )
+    return basari(_cevap(yeni), mesaj="Kullanıcı oluşturuldu")
