@@ -12,6 +12,7 @@ import {
   DownOutlined,
   FileDoneOutlined,
   GlobalOutlined,
+  LineChartOutlined,
   LogoutOutlined,
   SearchOutlined,
   TeamOutlined,
@@ -31,6 +32,7 @@ import { useAuthStore } from '@/store/authStore';
 const IKONLAR: Record<string, React.ReactNode> = {
   pano: <DashboardOutlined />,
   makineler: <ToolOutlined />,
+  'uretim-verileri': <LineChartOutlined />,
   'is-emirleri': <FileDoneOutlined />,
   bakim: <ToolOutlined />,
   kullanicilar: <TeamOutlined />,

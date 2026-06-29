@@ -10,10 +10,25 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.sorgu import siralama_uygula
 from app.modules.uretim.models import Makine, UretimVerisi
+
+# Sıralanabilir kolon beyaz-listeleri (istemci adı -> kolon).
+_MAKINE_SIRALAMA = {
+    "id": Makine.id,
+    "kod": Makine.kod,
+    "ad": Makine.ad,
+    "durum": Makine.durum,
+}
+_URETIM_SIRALAMA = {
+    "zaman": UretimVerisi.zaman,
+    "toplam_adet": UretimVerisi.toplam_adet,
+    "saglam_adet": UretimVerisi.saglam_adet,
+    "durus_sure_dk": UretimVerisi.durus_sure_dk,
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,15 +58,30 @@ async def makine_getir(db: AsyncSession, makine_id: int) -> Makine | None:
 
 
 async def makine_listele(
-    db: AsyncSession, *, sayfa: int, adet: int, durum: str | None = None
+    db: AsyncSession,
+    *,
+    sayfa: int,
+    adet: int,
+    durum: str | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> tuple[Sequence[Makine], int]:
     kosul = select(Makine)
     sayim = select(func.count()).select_from(Makine)
     if durum is not None:
         kosul = kosul.where(Makine.durum == durum)
         sayim = sayim.where(Makine.durum == durum)
+    if arama:
+        kalip = f"%{arama}%"
+        filtre = or_(Makine.kod.ilike(kalip), Makine.ad.ilike(kalip))
+        kosul = kosul.where(filtre)
+        sayim = sayim.where(filtre)
     toplam = await db.scalar(sayim) or 0
-    sonuc = await db.execute(kosul.order_by(Makine.id).offset((sayfa - 1) * adet).limit(adet))
+    kosul = siralama_uygula(
+        kosul, siralama=siralama, yon=yon, izinli=_MAKINE_SIRALAMA, varsayilan=Makine.id
+    )
+    sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))
     return sonuc.scalars().all(), int(toplam)
 
 
@@ -69,6 +99,8 @@ async def uretim_listele(
     makine_id: int | None = None,
     baslangic: datetime | None = None,
     bitis: datetime | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> tuple[Sequence[UretimVerisi], int]:
     kosul = select(UretimVerisi)
     sayim = select(func.count()).select_from(UretimVerisi)
@@ -76,9 +108,15 @@ async def uretim_listele(
         kosul = kosul.where(filtre)
         sayim = sayim.where(filtre)
     toplam = await db.scalar(sayim) or 0
-    sonuc = await db.execute(
-        kosul.order_by(UretimVerisi.zaman.desc()).offset((sayfa - 1) * adet).limit(adet)
+    kosul = siralama_uygula(
+        kosul,
+        siralama=siralama,
+        yon=yon,
+        izinli=_URETIM_SIRALAMA,
+        varsayilan=UretimVerisi.zaman,
+        varsayilan_yon="desc",
     )
+    sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))
     return sonuc.scalars().all(), int(toplam)
 
 

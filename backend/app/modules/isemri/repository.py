@@ -9,12 +9,23 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.sorgu import siralama_uygula
 from app.kimlik.models import Kullanici
 from app.modules.isemri.models import IsEmri, IsEmriYorum
+
+# Sıralanabilir kolon beyaz-listesi (istemci adı -> kolon).
+_SIRALAMA = {
+    "id": IsEmri.id,
+    "kod": IsEmri.kod,
+    "baslik": IsEmri.baslik,
+    "durum": IsEmri.durum,
+    "oncelik": IsEmri.oncelik,
+    "olusturma_tarihi": IsEmri.olusturma_tarihi,
+}
 
 
 async def kod_var_mi(db: AsyncSession, kod: str) -> bool:
@@ -57,6 +68,9 @@ async def listele(
     durum: str | None = None,
     makine_id: int | None = None,
     atanan_kullanici_id: int | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> tuple[Sequence[IsEmri], int]:
     filtreler: list[Any] = []
     if durum is not None:
@@ -65,6 +79,9 @@ async def listele(
         filtreler.append(IsEmri.makine_id == makine_id)
     if atanan_kullanici_id is not None:
         filtreler.append(IsEmri.atanan_kullanici_id == atanan_kullanici_id)
+    if arama:
+        kalip = f"%{arama}%"
+        filtreler.append(or_(IsEmri.kod.ilike(kalip), IsEmri.baslik.ilike(kalip)))
 
     kosul = select(IsEmri)
     sayim = select(func.count()).select_from(IsEmri)
@@ -72,9 +89,15 @@ async def listele(
         kosul = kosul.where(f)
         sayim = sayim.where(f)
     toplam = await db.scalar(sayim) or 0
-    sonuc = await db.execute(
-        kosul.order_by(IsEmri.id.desc()).offset((sayfa - 1) * adet).limit(adet)
+    kosul = siralama_uygula(
+        kosul,
+        siralama=siralama,
+        yon=yon,
+        izinli=_SIRALAMA,
+        varsayilan=IsEmri.id,
+        varsayilan_yon="desc",
     )
+    sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))
     return sonuc.scalars().all(), int(toplam)
 
 

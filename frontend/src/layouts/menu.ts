@@ -26,6 +26,13 @@ export const MENU: MenuOgesi[] = [
     izin: 'uretim:oku',
   },
   {
+    anahtar: 'uretim-verileri',
+    etiketAnahtari: 'menu.uretim_verileri',
+    bolum: 'menu.bolum_uretim',
+    yol: '/uretim-verileri',
+    izin: 'uretim:oku',
+  },
+  {
     anahtar: 'is-emirleri',
     etiketAnahtari: 'menu.is_emirleri',
     bolum: 'menu.bolum_uretim',

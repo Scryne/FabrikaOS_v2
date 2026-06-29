@@ -138,6 +138,9 @@ async def is_emri_listele(
     durum: str | None = None,
     makine_id: int | None = None,
     atanan_kullanici_id: int | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> dict[str, Any]:
     sayfa = max(sayfa, 1)
     adet = min(max(adet, 1), 100)
@@ -148,6 +151,9 @@ async def is_emri_listele(
         durum=durum,
         makine_id=makine_id,
         atanan_kullanici_id=atanan_kullanici_id,
+        arama=arama,
+        siralama=siralama,
+        yon=yon,
     )
     return sayfali([_cevap(e) for e in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
 

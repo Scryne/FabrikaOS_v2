@@ -5,6 +5,9 @@
  * **401** alındığında bir kez ``/kimlik/yenile`` (refresh rotasyonu) denenir, başarılıysa orijinal
  * istek yeni access ile tekrarlanır; refresh de düşerse oturum düşürülür. Eşzamanlı 401'ler için
  * yenileme tek-uçuşludur (single-flight), böylece tek bir refresh çağrısı yapılır.
+ *
+ * İki çözücü vardır: ``istek`` yalnız ``data``yı döndürür; ``istekSayfali`` ``data`` + ``meta``
+ * (sunucu-taraflı sayfalama: sayfa/adet/toplam) döndürür.
  */
 
 import { useAuthStore } from '@/store/authStore';
@@ -17,7 +20,14 @@ const API_TABANI = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 const PREFIX = '/api/v1';
 
 type Jeton = components['schemas']['TokenCevapDTO'];
-type Zarf<T> = { success: boolean; message: string; data: T | null };
+export type SayfaMeta = { sayfa: number; adet: number; toplam: number };
+type Zarf<T> = {
+  success: boolean;
+  message: string;
+  data: T | null;
+  meta?: SayfaMeta | null;
+  hata_kodu?: string;
+};
 
 export type Yontem = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
@@ -68,7 +78,7 @@ async function hamIstek(
   return fetch(`${API_TABANI}${yol}`, { method: yontem, headers, body });
 }
 
-async function zarfCoz<T>(cevap: Response): Promise<T> {
+async function zarfOku<T>(cevap: Response): Promise<Zarf<T>> {
   let zarf: Zarf<T> | null = null;
   try {
     zarf = (await cevap.json()) as Zarf<T>;
@@ -77,9 +87,9 @@ async function zarfCoz<T>(cevap: Response): Promise<T> {
   }
   if (!cevap.ok || !zarf || zarf.success === false) {
     const mesaj = zarf?.message ?? `İstek başarısız (${cevap.status})`;
-    throw new ApiHata(cevap.status, mesaj);
+    throw new ApiHata(cevap.status, mesaj, zarf?.hata_kodu);
   }
-  return zarf.data as T;
+  return zarf;
 }
 
 /** Tek-uçuşlu (single-flight) access yenileme; yeni access döner, başarısızsa null. */
@@ -95,7 +105,8 @@ async function accessYenile(): Promise<string | null> {
         { refresh_token: refresh },
         false,
       );
-      const jeton = await zarfCoz<Jeton>(cevap);
+      const zarf = await zarfOku<Jeton>(cevap);
+      const jeton = zarf.data as Jeton;
       useAuthStore.getState().ayarlaAccess(jeton.access_token);
       refreshSakla(jeton.refresh_token);
       return jeton.access_token;
@@ -112,15 +123,15 @@ async function accessYenile(): Promise<string | null> {
 }
 
 /**
- * Tiplenmiş API isteği. ``yol`` ``/api/v1`` ile başlamalıdır. ``data`` zarfı çözülür.
- * 401 → refresh → tek tekrar; başarısızsa oturum düşürülür ve ``ApiHata`` fırlatılır.
+ * İsteği gönderir; 401 + kimlikli ise bir kez refresh + tekrar dener. Refresh düşerse
+ * oturumu düşürür ve ``ApiHata`` fırlatır. Zarf çözümü çağırana bırakılır.
  */
-export async function istek<T>(
+async function istekCevap(
   yontem: Yontem,
   yol: string,
   govde?: unknown,
   kimlikli = true,
-): Promise<T> {
+): Promise<Response> {
   let cevap = await hamIstek(yontem, yol, govde, kimlikli);
 
   if (cevap.status === 401 && kimlikli) {
@@ -133,7 +144,34 @@ export async function istek<T>(
     }
   }
 
-  return zarfCoz<T>(cevap);
+  return cevap;
+}
+
+/**
+ * Tiplenmiş API isteği. ``yol`` ``/api/v1`` ile başlamalıdır. Yanıt zarfının ``data``sı çözülür.
+ */
+export async function istek<T>(
+  yontem: Yontem,
+  yol: string,
+  govde?: unknown,
+  kimlikli = true,
+): Promise<T> {
+  const cevap = await istekCevap(yontem, yol, govde, kimlikli);
+  const zarf = await zarfOku<T>(cevap);
+  return zarf.data as T;
+}
+
+/** Sayfalı liste isteği — ``data`` (liste) + ``meta`` (sayfa/adet/toplam) birlikte döner. */
+export async function istekSayfali<T>(
+  yol: string,
+  kimlikli = true,
+): Promise<{ veri: T[]; meta: SayfaMeta }> {
+  const cevap = await istekCevap('GET', yol, undefined, kimlikli);
+  const zarf = await zarfOku<T[]>(cevap);
+  return {
+    veri: zarf.data ?? [],
+    meta: zarf.meta ?? { sayfa: 1, adet: 0, toplam: 0 },
+  };
 }
 
 export { oturumDusur, PREFIX, tenantTemizle };

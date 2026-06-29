@@ -13,6 +13,19 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  build: {
+    // Büyük satıcıları ayrı, önbellek-dostu parçalara böl (echarts ~1MB tek başına).
+    chunkSizeWarningLimit: 1100,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          echarts: ['echarts'],
+          antd: ['antd', '@ant-design/icons'],
+          react: ['react', 'react-dom', 'react-router-dom'],
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

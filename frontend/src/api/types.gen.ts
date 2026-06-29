@@ -1294,6 +1294,9 @@ export interface operations {
                 sayfa?: number;
                 adet?: number;
                 durum?: string | null;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
             };
             header?: never;
             path?: never;
@@ -1462,6 +1465,8 @@ export interface operations {
                 makine_id?: number | null;
                 baslangic?: string | null;
                 bitis?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
             };
             header?: never;
             path?: never;
@@ -1562,6 +1567,9 @@ export interface operations {
                 durum?: string | null;
                 makine_id?: number | null;
                 atanan_kullanici_id?: number | null;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
             };
             header?: never;
             path?: never;
@@ -1730,6 +1738,9 @@ export interface operations {
                 adet?: number;
                 makine_id?: number | null;
                 aktif?: boolean | null;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
             };
             header?: never;
             path?: never;

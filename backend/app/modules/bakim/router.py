@@ -93,11 +93,21 @@ async def bakim_listele(
     adet: int = 20,
     makine_id: int | None = None,
     aktif: bool | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> dict[str, Any]:
     sayfa = max(sayfa, 1)
     adet = min(max(adet, 1), 100)
     kayitlar, toplam = await repository.listele(
-        db, sayfa=sayfa, adet=adet, makine_id=makine_id, aktif=aktif
+        db,
+        sayfa=sayfa,
+        adet=adet,
+        makine_id=makine_id,
+        aktif=aktif,
+        arama=arama,
+        siralama=siralama,
+        yon=yon,
     )
     return sayfali([_cevap(p) for p in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
 

@@ -80,10 +80,15 @@ async def makine_listele(
     sayfa: int = 1,
     adet: int = 20,
     durum: str | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> dict[str, Any]:
     sayfa = max(sayfa, 1)
     adet = min(max(adet, 1), 100)
-    kayitlar, toplam = await repository.makine_listele(db, sayfa=sayfa, adet=adet, durum=durum)
+    kayitlar, toplam = await repository.makine_listele(
+        db, sayfa=sayfa, adet=adet, durum=durum, arama=arama, siralama=siralama, yon=yon
+    )
     return sayfali([_makine_cevap(m) for m in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
 
 
@@ -207,11 +212,20 @@ async def uretim_listele(
     makine_id: int | None = None,
     baslangic: Annotated[datetime | None, Query()] = None,
     bitis: Annotated[datetime | None, Query()] = None,
+    siralama: str | None = None,
+    yon: str | None = None,
 ) -> dict[str, Any]:
     sayfa = max(sayfa, 1)
     adet = min(max(adet, 1), 100)
     kayitlar, toplam = await repository.uretim_listele(
-        db, sayfa=sayfa, adet=adet, makine_id=makine_id, baslangic=baslangic, bitis=bitis
+        db,
+        sayfa=sayfa,
+        adet=adet,
+        makine_id=makine_id,
+        baslangic=baslangic,
+        bitis=bitis,
+        siralama=siralama,
+        yon=yon,
     )
     return sayfali([_uretim_cevap(u) for u in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
 

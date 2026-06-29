@@ -15,8 +15,13 @@ import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
+import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
+import { MakineDetay } from '@/modules/uretim/MakineDetay';
+import { MakineListesi } from '@/modules/uretim/MakineListesi';
+import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
 import { IzinKapisi, KorunanRota } from '@/routes/KorunanRota';
 import { useAuthStore } from '@/store/authStore';
 
@@ -83,7 +88,23 @@ export function App() {
             path="makineler"
             element={
               <IzinKapisi izin="uretim:oku">
-                <ModulYerTutucu baslikAnahtari="menu.makineler" />
+                <MakineListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="makineler/:id"
+            element={
+              <IzinKapisi izin="uretim:oku">
+                <MakineDetay />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="uretim-verileri"
+            element={
+              <IzinKapisi izin="uretim:oku">
+                <UretimVerileri />
               </IzinKapisi>
             }
           />
@@ -91,7 +112,7 @@ export function App() {
             path="is-emirleri"
             element={
               <IzinKapisi izin="isemri:oku">
-                <ModulYerTutucu baslikAnahtari="menu.is_emirleri" />
+                <IsEmriEkrani />
               </IzinKapisi>
             }
           />
@@ -117,7 +138,7 @@ export function App() {
       {import.meta.env.DEV && (
         <Route path="/onizleme" element={<OnizlemeOturum />}>
           <Route element={<UygulamaKabugu />}>
-            <Route index element={<PanoSayfasi />} />
+            <Route index element={<OnizlemePano />} />
           </Route>
         </Route>
       )}

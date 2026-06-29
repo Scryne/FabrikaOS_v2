@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Kullanici } from '@/store/authStore';
 import { useAuthStore } from '@/store/authStore';
 
-import { ApiHata, istek } from './client';
+import { ApiHata, istek, istekSayfali } from './client';
 import { refreshOku, refreshSakla } from './jeton';
 import { tenantSakla } from './tenant';
 
@@ -60,6 +60,21 @@ describe('api client interceptor', () => {
 
     const data = await istek<{ deger: number }>('GET', '/api/v1/deneme');
     expect(data).toEqual({ deger: 42 });
+  });
+
+  it('istekSayfali data listesini ve meta’yı birlikte döndürür', async () => {
+    const govde = {
+      success: true,
+      message: 'tamam',
+      data: [{ id: 1 }, { id: 2 }],
+      meta: { sayfa: 2, adet: 20, toplam: 137 },
+    };
+    const fetchMock = vi.fn().mockResolvedValue(jsonCevap(200, govde));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { veri, meta } = await istekSayfali<{ id: number }>('/api/v1/makineler?sayfa=2&adet=20');
+    expect(veri).toHaveLength(2);
+    expect(meta).toEqual({ sayfa: 2, adet: 20, toplam: 137 });
   });
 
   it('401’de refresh ile yeni access alır ve orijinali tekrar dener', async () => {
