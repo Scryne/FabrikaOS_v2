@@ -13,6 +13,7 @@ import app.control_plane.models  # noqa: F401
 # tenant şeması modelleri
 import app.core.audit  # noqa: F401
 import app.kimlik.models  # noqa: F401
+import app.modules.uretim.models  # noqa: F401
 from app.core.db.base import PublicBase, TenantBase
 
 public_metadata = PublicBase.metadata

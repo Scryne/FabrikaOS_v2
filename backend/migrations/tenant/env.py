@@ -18,13 +18,17 @@ from sqlalchemy import Connection, pool, text
 from sqlalchemy.ext.asyncio import create_async_engine
 
 from app.core.config import get_settings
-from app.core.db.registry import tenant_metadata
+from app.core.db.registry import public_metadata, tenant_metadata
 
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
 target_metadata = tenant_metadata
+
+# Tenant search_path'i 'public'i de içerir; public (control-plane) tabloları autogenerate
+# karşılaştırmasında tenant ağacına AİT DEĞİLDİR → dışlanır. Alembic sürüm tablosu da öyle.
+_DISLANAN_TABLOLAR = {t.name for t in public_metadata.sorted_tables} | {"alembic_version"}
 
 
 def _db_url() -> str:
@@ -46,8 +50,11 @@ def _hedef_semalar(connection: Connection) -> list[str]:
 
 
 def _dahil_et(obj: object, ad: str | None, tur: str, *_: object) -> bool:
-    # Alembic'in kendi sürüm tablosunu autogenerate karşılaştırmasından dışla.
-    return not (tur == "table" and ad == "alembic_version")
+    # public tabloları (ve onların indeks/kısıtlarını) ve alembic_version'ı dışla.
+    if tur == "table":
+        return ad not in _DISLANAN_TABLOLAR
+    tablo = getattr(obj, "table", None)
+    return not (tablo is not None and tablo.name in _DISLANAN_TABLOLAR)
 
 
 def _do_run_migrations(connection: Connection) -> None:
