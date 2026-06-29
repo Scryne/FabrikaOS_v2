@@ -19,6 +19,9 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Provisioning | Yeni tenant'ın otomatik kurulumu (şema + migrate + seed) |
 | search_path | PostgreSQL şema arama yolu; tenant izolasyonu burada `tenant_<slug>, public` olur |
 | Fan-out | Bir migrasyonu `public` + tüm aktif tenant şemalarına uygulama |
+| Durum makinesi | İş emri yaşam döngüsü geçiş kuralları (`acik→atandi→devam_ediyor→kapandi`, `iptal`) |
+| Domain olayı | İş kuralı sonucu üretilen olay (ör. `is_emri.kapandi`); webhook'la dışa iletilir (S18) |
+| Transactional outbox | Olayı üreten iş ile aynı transaction'da `giden_olaylar`'a yazma deseni (kayıpsız teslim) |
 | JWT | JSON Web Token; access (kısa) + refresh (rotasyonlu) |
 | Refresh rotasyonu | Yenilemede eski refresh'i iptal edip yeni çift üretme (Redis iptal listesi) |
 | RPO / RTO | Kabul edilebilir veri kaybı / kurtarma süresi (DR) |
@@ -29,7 +32,9 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Makine | `makine` / `makineler` |
 | Üretim verisi | `uretim_verisi` / `uretim_verileri` |
 | İş emri | `is_emri` / `is_emirleri` |
-| Bakım | `bakim` / `bakim_planlari` |
+| İş emri yorumu | `is_emri_yorum` / `is_emri_yorumlari` |
+| Bakım planı | `bakim_plani` / `bakim_planlari` |
+| Giden olay (outbox) | `giden_olay` / `giden_olaylar` |
 | Arıza | `ariza` / `arizalar` |
 | Malzeme | `malzeme` / `malzemeler` |
 | Stok hareketi | `stok_hareketi` / `stok_hareketleri` |
