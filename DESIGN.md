@@ -1,59 +1,61 @@
 # Design
 
-Görsel sistem: **endüstriyel kontrol odası** — koyu (dark-only), yüksek kontrast, amber/cyan
-sinyal vurgusu, sayısal değerlerde monospace. Ant Design v5 motor; bu token'lar onun üstüne
-giydirilen "deri"dir (ConfigProvider + CSS değişkenleri). Tek doğruluk kaynağı: `src/tema/tema.ts`
-(AntD token'ları) + `src/index.css` (CSS değişkenleri).
+Görsel sistem: **premium dark SaaS** — **nötr antrasit** zemin (R=G=B, lacivert değil), **mavi
+YALNIZCA vurgu** (aksiyon/aktif/seçim), yumuşak büyük yuvarlak kartlar, ince düşük-kontrast
+kenarlık, Inter tipografi, sayısal değerlerde JetBrains Mono. Zemin rampası referansı: koyu
+kontrol-odası panoları (#101010/#181818 ailesi, mükemmel nötr gri). Ant Design v5 motor; bu
+token'lar onun üstüne giydirilen "deri"dir. Tek doğruluk kaynağı: `frontend/src/tema/tema.ts`
+(AntD token'ları) + `frontend/src/index.css` (CSS değişkenleri).
 
 ## Theme
-- **Mod:** yalnızca koyu (light yok). Senaryo: fabrika zemini/kontrol odası, değişken ortam
-  ışığı, çoğu zaman büyük ekran; koyu zemin parlamayı azaltır ve canlı veriyi öne çıkarır.
-- **Color strategy:** Restrained — sakin koyu nötr yüzeyler + amber birincil ve cyan info
-  yalnızca durum/aksiyon için (yüzeyin <%10'u). Vurgu = sinyal, dekorasyon değil.
+- **Mod:** yalnızca koyu. Senaryo: fabrika/kontrol odası + masabaşı yönetim; koyu zemin canlı
+  veriyi öne çıkarır, uzun bakışta yormaz.
+- **Color strategy:** Restrained — sakin koyu nötr yüzeyler + tek mavi vurgu (yüzeyin <%10'u)
+  yalnızca aksiyon/aktif/seçim için. Renk = sinyal, dekorasyon değil. Grafiklerde kategorik
+  çok-renk (mavi/yeşil/amber/mor) yalnızca veri serilerini ayırmak için.
 
 ## Color
-Koyu slate nötr rampa + iki sinyal vurgu + semantik durumlar. (AntD renk algoritması hex bekler;
-değerler hex tutulur, CSS değişkenleri olarak da açılır.)
+Nötr antrasit rampa (R=G=B; lacivert/mavi kayması YOK) + mavi vurgu + semantik durumlar
+(AntD hex bekler; CSS değişkeni olarak da açılır).
 
-| Rol | Token | Değer | Not |
-|---|---|---|---|
-| Zemin | `--zemin` | `#0B0F14` | en koyu slate, app arka planı |
-| Yüzey | `--yuzey` | `#131A24` | kart/panel |
-| Yüzey-2 | `--yuzey-2` | `#1A2330` | kenar çubuğu/araç çubuğu (ikinci nötr katman) |
-| Kenarlık | `--kenarlik` | `#26303F` | ince ayraçlar |
-| Metin | `--metin` | `#E6EDF3` | gövde, yüksek kontrast (≥4.5:1) |
-| Metin-soluk | `--metin-soluk` | `#94A3B8` | ikincil; AA gövde sınırında, etiketler için |
-| Birincil (amber) | `colorPrimary` | `#F5A524` | aksiyon, aktif, marka sinyali |
-| Info (cyan) | `colorInfo` | `#22D3EE` | seçim, bağlantı, canlı/info |
-| Başarı | `colorSuccess` | `#10B981` | çalışıyor/onaylı |
-| Uyarı | `colorWarning` | `#FB923C` | dikkat (amberden ayrı, daha turuncu) |
-| Hata | `colorError` | `#EF4444` | arıza/hata |
+| Rol | Token | Değer |
+|---|---|---|
+| Zemin | `--zemin` | `#0e0e0f` |
+| Yüzey (kart) | `--yuzey` | `#161617` |
+| Yüzey-2 (sidebar) | `--yuzey-2` | `#0b0b0c` |
+| Yüzey-üst (input/elevated) | `--yuzey-ust` | `#1d1d1f` |
+| Kenarlık | `--kenarlik` | `#262628` (düşük kontrast, yumuşak) |
+| Metin | `--metin` | `#f4f4f6` (≥4.5:1) |
+| Metin-soluk | `--metin-soluk` | `#8c8c92` (~5.6:1) |
+| Birincil (mavi) | `colorPrimary` | `#3b6ef6` — aksiyon/aktif/seçim |
+| Info (cyan) | `colorInfo` | `#38bdf8` |
+| Başarı | `colorSuccess` | `#22c55e` |
+| Uyarı | `colorWarning` | `#f59e0b` |
+| Hata | `colorError` | `#ef4444` |
+| Ek (mor, data-viz) | `--mor` | `#8b5cf6` |
 
-Durum-zengin semantik (her interaktif öğede): default/hover/focus/active/disabled/selected/
-loading/error. Vurgu yalnız birincil aksiyon, geçerli seçim, durum göstergesinde; pasif
-durumlarda tam-doygunluk yok.
+Durum-zengin semantik (default/hover/focus/active/disabled/selected/loading/error).
+Mavi buton üzerinde beyaz metin AA geçer (~4.8:1). Durum göstergeleri renk + nokta/etiket
+(renk körlüğü için renk tek başına anlam taşımaz).
 
 ## Typography
-- **Gövde/UI:** tek aile, sistem sans yığını: `system-ui, 'Segoe UI', Roboto, ...`. Ürün UI'ı
-  display/body eşleşmesine ihtiyaç duymaz.
-- **Sayısal/veri:** monospace yığını (`ui-monospace, 'Cascadia Code', 'Consolas', monospace`),
-  `.sayisal` sınıfı / AntD `Statistic`. OEE, sayaç, kod, zaman damgası hizalı okunur.
-- **Ölçek:** sabit rem (akışkan değil), 1.2 oran. Gövde 14px (AntD varsayılanı), yoğun UI'a uygun.
-- Prose satır uzunluğu 65–75ch; tablolar daha yoğun olabilir.
+- **Gövde/UI:** `Inter Variable` (system-ui fallback). Tek aile; ürün UI'ı display/body
+  eşleşmesine ihtiyaç duymaz.
+- **Sayısal/veri:** `JetBrains Mono Variable` (`.sayisal` sınıfı, `tabular-nums`) — KPI,
+  OEE, sayaç, kod, zaman hizalı okunur.
+- **Ölçek:** sabit rem (akışkan değil), gövde 14px. Başlık `-0.02em` letter-spacing.
 
-## Components
-AntD v5 bileşenleri + koyu tema token'ları. `borderRadius` 6px (sıkı, teknik), `wireframe:false`.
-Her interaktif bileşen: default/hover/focus/active/disabled/loading/error. Yükleme için skeleton,
-içerik ortasında spinner değil. Boş durumlar arayüzü öğretir. App kabuğu: sol kenar çubuğu (RBAC
-menü) + üst bar (tenant/kullanıcı/dil/çıkış); kabuk `--yuzey-2` ikinci nötr katmanda.
+## Components (AntD token'ları)
+`borderRadius` 10, kart `borderRadiusLG` 16, `wireframe:false`. Kabuk: bölümlü sol sidebar
+(grup başlıkları + **mavi aktif pill** `itemSelectedBg` rgba(59,110,246,0.14) + alt tenant
+kartı) + üst bar (arama + bildirim + dil + kullanıcı/rol). KPI kartı (büyük mono sayı +
+renkli delta), donut/sütun grafikleri (hafif, bağımsız; gerçek ECharts S6'da), durum
+nokta/pill'li tablolar. Her interaktif bileşen default→error tüm durumlarda.
 
 ## Motion
-- 150–250 ms; kullanıcı akışta, koreografi bekletmez. Hareket durum taşır (durum değişimi,
-  geri bildirim, yükleme, açılış), dekorasyon değil. Sayfa-yükü koreografisi yok.
-- Easing: ease-out (expo/quart); bounce/elastic yok.
-- `prefers-reduced-motion: reduce` → anında/çapraz geçiş alternatifi (zorunlu).
+- 150–250 ms; hareket durum taşır (içerik açılışı, sütun büyümesi `transform: scaleY` ile —
+  layout animasyonu değil). Easing ease-out; bounce yok. `prefers-reduced-motion` zorunlu.
 
 ## Layout
-- Responsive yapısaldır: kenar çubuğu daraltma/çekmece, responsive tablo, breakpoint sütunları —
-  akışkan tipografi değil.
-- Z-index semantik ölçek: dropdown → sticky → modal-backdrop → modal → toast → tooltip.
+- Responsive yapısaldır: `lg` breakpoint'te sidebar çekmeceye çöker; KPI/grafik/tablo
+  AntD Row/Col grid ile yeniden dizilir. Akışkan tipografi yok.

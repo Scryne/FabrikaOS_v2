@@ -1,30 +1,33 @@
 /*
- * FabrikaOS global stiller — endüstriyel kontrol odası (koyu).
- * Tasarım token'ları CSS değişkeni olarak; AntD token'ları src/tema/tema.ts ile eşlenir.
- * Bkz. DESIGN.md.
+ * FabrikaOS global stiller — premium dark SaaS, nötr antrasit (mavi yalnızca vurgu).
+ * Tasarım token'ları CSS değişkeni; AntD token'ları src/tema/tema.ts ile eşlenir. Bkz. DESIGN.md.
  */
 
 :root {
-  /* Nötr rampa */
-  --zemin: #0b0f14;
-  --yuzey: #131a24;
-  --yuzey-2: #1a2330;
-  --kenarlik: #26303f;
-  --kenarlik-parlak: #324155;
-  --metin: #e6edf3;
-  --metin-soluk: #94a3b8;
+  /* Nötr antrasit rampa (R=G=B; lacivert değil — referans #101010/#181818) */
+  --zemin: #0e0e0f;
+  --yuzey: #161617;
+  --yuzey-2: #0b0b0c;
+  --yuzey-ust: #1d1d1f;
+  --kenarlik: #262628;
+  --kenarlik-parlak: #34343a;
+  --metin: #f4f4f6;
+  --metin-soluk: #8c8c92;
 
-  /* Sinyal vurguları + semantik */
-  --amber: #f5a524;
-  --cyan: #22d3ee;
-  --basari: #10b981;
-  --uyari: #fb923c;
+  /* Vurgu + semantik */
+  --mavi: #3b6ef6;
+  --mavi-koyu: #315fd6;
+  --cyan: #38bdf8;
+  --basari: #22c55e;
+  --uyari: #f59e0b;
   --hata: #ef4444;
+  --mor: #8b5cf6;
 
-  --font-govde: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+  --font-govde:
+    'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', 'Consolas', monospace;
 
-  /* Hareket */
   --gecis: 180ms cubic-bezier(0.22, 1, 0.36, 1);
 
   color-scheme: dark;
@@ -45,11 +48,13 @@ body {
   font-family: var(--font-govde);
   color: var(--metin);
   background-color: var(--zemin);
-  /* Kontrol odası dokusu: çok soluk grid (sinyal değil zemin; ~%3). */
-  background-image:
-    linear-gradient(transparent calc(100% - 1px), rgba(148, 163, 184, 0.04) 100%),
-    linear-gradient(90deg, transparent calc(100% - 1px), rgba(148, 163, 184, 0.04) 100%);
-  background-size: 44px 44px;
+  /* Çok hafif derinlik: üstte sönük NÖTR parıltı (renksiz; mavi parıltı yok, dekor değil). */
+  background-image: radial-gradient(
+    120% 80% at 50% -20%,
+    rgba(255, 255, 255, 0.022),
+    transparent 55%
+  );
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -61,9 +66,9 @@ body {
   letter-spacing: 0.01em;
 }
 
-/* Görünür odak halkası (klavye erişilebilirliği) — cyan sinyal. */
+/* Görünür odak halkası (klavye erişilebilirliği). */
 :focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid var(--mavi);
   outline-offset: 2px;
 }
 
@@ -82,28 +87,38 @@ body {
   border: 2px solid var(--zemin);
 }
 
-/* "Sistem çevrimiçi" canlı göstergesi (durum taşır, dekorasyon değil). */
+/* "Sistem çevrimiçi" canlı göstergesi (durum taşır). */
 .canli-nokta {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--basari);
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
   animation: nabiz 2.4s ease-out infinite;
 }
 @keyframes nabiz {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
   }
   70% {
-    box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
   }
 }
 
-/* Rota içeriği için sakin açılış (durum: yeni içerik). */
+/* Sütun grafiği: yükseklik yerine transform ile büyüme (performanslı). */
+@keyframes sutunGiris {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Rota içeriği için sakin açılış. */
 .icerik-acilis {
   animation: yumusakGiris var(--gecis);
 }

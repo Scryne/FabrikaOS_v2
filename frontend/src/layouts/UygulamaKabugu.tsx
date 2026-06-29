@@ -1,21 +1,24 @@
 /**
- * Uygulama kabuğu — sol kenar çubuğu (RBAC'a göre filtrelenmiş menü) + üst bar
- * (tenant rozeti, canlı gösterge, dil, kullanıcı/çıkış) + içerik (Outlet).
+ * Uygulama kabuğu — bölümlü sol kenar çubuğu (RBAC filtreli menü + grup başlıkları + alt
+ * tenant kartı) + üst bar (arama, bildirim, dil, kullanıcı+rol) + içerik (Outlet).
  */
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
+  BellOutlined,
   DashboardOutlined,
+  DownOutlined,
   FileDoneOutlined,
   GlobalOutlined,
   LogoutOutlined,
+  SearchOutlined,
   TeamOutlined,
   ToolOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Dropdown, Layout, Menu, Space, Typography } from 'antd';
+import { Avatar, Badge, Dropdown, Input, Layout, Menu, Space } from 'antd';
 import type { MenuProps } from 'antd';
 
 import { cikisYap } from '@/api/kimlik';
@@ -50,20 +53,28 @@ export function UygulamaKabugu() {
   const navigate = useNavigate();
   const konum = useLocation();
   const kullanici = useAuthStore((s) => s.kullanici);
-  const izinVar = useAuthStore((s) => s.izinVar);
+  // izinler'e (Set) abone ol: oturum/izinler değişince menü yeniden hesaplanır
+  // (s.izinVar sabit fonksiyon referansıdır; memo'yu tetiklemez).
+  const izinler = useAuthStore((s) => s.izinler);
 
   const tenant = cozumleTenant();
-  const ogeler = useMemo(() => gorunurMenu(MENU, izinVar), [izinVar]);
+  const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
 
-  const menuOgeleri: MenuProps['items'] = ogeler.map((o) => ({
-    key: o.yol,
-    icon: IKONLAR[o.anahtar],
-    label: t(o.etiketAnahtari),
-  }));
+  // Bölümlere göre grupla (sidebar grup başlıkları).
+  const menuOgeleri: MenuProps['items'] = useMemo(() => {
+    const bolumler = [...new Set(gorunur.map((o) => o.bolum))];
+    return bolumler.map((b) => ({
+      type: 'group' as const,
+      key: b,
+      label: t(b),
+      children: gorunur
+        .filter((o) => o.bolum === b)
+        .map((o) => ({ key: o.yol, icon: IKONLAR[o.anahtar], label: t(o.etiketAnahtari) })),
+    }));
+  }, [gorunur, t]);
 
-  // En uzun eşleşen yolu seçili göster (örn. /is-emirleri/5 → /is-emirleri).
   const seciliYol =
-    ogeler
+    gorunur
       .map((o) => o.yol)
       .filter((y) => konum.pathname === y || (y !== '/' && konum.pathname.startsWith(y)))
       .sort((a, b) => b.length - a.length)[0] ?? '/';
@@ -86,36 +97,72 @@ export function UygulamaKabugu() {
     },
   ];
 
+  const rol = kullanici?.roller[0];
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Layout.Sider
         breakpoint="lg"
         collapsedWidth="0"
-        width={232}
+        width={248}
         style={{ borderRight: '1px solid var(--kenarlik)' }}
       >
-        <div
-          style={{
-            height: 56,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '0 18px',
-            borderBottom: '1px solid var(--kenarlik)',
-          }}
-        >
-          <LogoIsareti boyut={26} />
-          <span style={{ fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--metin)' }}>
-            Fabrika<span style={{ color: 'var(--amber)' }}>OS</span>
-          </span>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          {/* Marka */}
+          <div
+            style={{
+              height: 64,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              padding: '0 20px',
+            }}
+          >
+            <LogoIsareti boyut={26} />
+            <span style={{ fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--metin)' }}>
+              Fabrika<span style={{ color: 'var(--mavi)' }}>OS</span>
+            </span>
+          </div>
+
+          {/* Bölümlü menü */}
+          <Menu
+            mode="inline"
+            selectedKeys={[seciliYol]}
+            items={menuOgeleri}
+            onClick={({ key }) => navigate(key)}
+            style={{ borderInlineEnd: 'none', flex: 1, padding: '4px 12px', overflowY: 'auto' }}
+          />
+
+          {/* Alt: tenant kartı */}
+          {tenant && (
+            <div style={{ padding: 12 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '12px 14px',
+                  background: 'var(--yuzey)',
+                  border: '1px solid var(--kenarlik)',
+                  borderRadius: 12,
+                }}
+              >
+                <span className="canli-nokta" aria-hidden="true" />
+                <div style={{ lineHeight: 1.25, overflow: 'hidden' }}>
+                  <div
+                    className="sayisal"
+                    style={{ color: 'var(--metin)', fontWeight: 600, fontSize: 13 }}
+                  >
+                    {tenant}
+                  </div>
+                  <div style={{ color: 'var(--metin-soluk)', fontSize: 11 }}>
+                    {t('ortak.sistem_cevrimici')}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[seciliYol]}
-          items={menuOgeleri}
-          onClick={({ key }) => navigate(key)}
-          style={{ borderInlineEnd: 'none', paddingTop: 8 }}
-        />
       </Layout.Sider>
 
       <Layout>
@@ -124,36 +171,65 @@ export function UygulamaKabugu() {
             display: 'flex',
             alignItems: 'center',
             gap: 16,
-            padding: '0 20px',
+            padding: '0 24px',
             borderBottom: '1px solid var(--kenarlik)',
           }}
         >
-          {tenant && (
-            <Space size={8} className="giris-durum">
-              <span className="canli-nokta" aria-hidden="true" />
-              <span className="sayisal" style={{ color: 'var(--metin)', fontWeight: 600 }}>
-                {tenant}
-              </span>
-            </Space>
-          )}
+          <Input
+            prefix={<SearchOutlined style={{ color: 'var(--metin-soluk)' }} />}
+            placeholder={t('ortak.ara')}
+            variant="filled"
+            style={{ maxWidth: 320 }}
+          />
           <div style={{ flex: 1 }} />
 
           <Dropdown menu={{ items: dilMenusu }} trigger={['click']}>
-            <Typography.Link aria-label={t('ortak.dil')} style={{ color: 'var(--metin-soluk)' }}>
+            <button
+              type="button"
+              aria-label={t('ortak.dil')}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: 'var(--metin-soluk)',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
               <GlobalOutlined style={{ fontSize: 18 }} />
-            </Typography.Link>
+            </button>
           </Dropdown>
 
+          <Badge dot offset={[-2, 4]} color="var(--mavi)">
+            <BellOutlined style={{ fontSize: 18, color: 'var(--metin-soluk)' }} />
+          </Badge>
+
           <Dropdown menu={{ items: kullaniciMenusu }} trigger={['click']}>
-            <Space style={{ cursor: 'pointer' }}>
+            <Space style={{ cursor: 'pointer' }} size={10}>
               <Avatar
-                size="small"
-                style={{ backgroundColor: 'rgba(245,165,36,0.18)', color: 'var(--amber)' }}
+                size={34}
+                style={{ backgroundColor: 'rgba(59,110,246,0.18)', color: 'var(--mavi)' }}
                 icon={kullanici ? undefined : <UserOutlined />}
               >
                 {kullanici ? basharfler(kullanici.ad_soyad || kullanici.eposta) : null}
               </Avatar>
-              <span style={{ color: 'var(--metin)' }}>{kullanici?.ad_soyad}</span>
+              <span style={{ lineHeight: 1.2, textAlign: 'right' }}>
+                <div style={{ color: 'var(--metin)', fontSize: 13, fontWeight: 600 }}>
+                  {kullanici?.ad_soyad}
+                </div>
+                {rol && (
+                  <div
+                    style={{
+                      color: 'var(--metin-soluk)',
+                      fontSize: 11,
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {rol}
+                  </div>
+                )}
+              </span>
+              <DownOutlined style={{ fontSize: 10, color: 'var(--metin-soluk)' }} />
             </Space>
           </Dropdown>
         </Layout.Header>

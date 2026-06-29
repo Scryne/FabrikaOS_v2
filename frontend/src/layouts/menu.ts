@@ -9,24 +9,40 @@ export type MenuOgesi = {
   anahtar: string;
   /** i18n çeviri anahtarı (ör. 'menu.makineler'). */
   etiketAnahtari: string;
+  /** Bölüm başlığı i18n anahtarı (sidebar gruplaması). */
+  bolum: string;
   yol: string;
   /** Gerekli RBAC izni; yoksa öğe herkese görünür (yalnız oturum yeterli). */
   izin?: string;
 };
 
 export const MENU: MenuOgesi[] = [
-  { anahtar: 'pano', etiketAnahtari: 'menu.pano', yol: '/' },
-  { anahtar: 'makineler', etiketAnahtari: 'menu.makineler', yol: '/makineler', izin: 'uretim:oku' },
+  { anahtar: 'pano', etiketAnahtari: 'menu.pano', bolum: 'menu.bolum_genel', yol: '/' },
+  {
+    anahtar: 'makineler',
+    etiketAnahtari: 'menu.makineler',
+    bolum: 'menu.bolum_uretim',
+    yol: '/makineler',
+    izin: 'uretim:oku',
+  },
   {
     anahtar: 'is-emirleri',
     etiketAnahtari: 'menu.is_emirleri',
+    bolum: 'menu.bolum_uretim',
     yol: '/is-emirleri',
     izin: 'isemri:oku',
   },
-  { anahtar: 'bakim', etiketAnahtari: 'menu.bakim', yol: '/bakim-planlari', izin: 'bakim:oku' },
+  {
+    anahtar: 'bakim',
+    etiketAnahtari: 'menu.bakim',
+    bolum: 'menu.bolum_uretim',
+    yol: '/bakim-planlari',
+    izin: 'bakim:oku',
+  },
   {
     anahtar: 'kullanicilar',
     etiketAnahtari: 'menu.kullanicilar',
+    bolum: 'menu.bolum_yonetim',
     yol: '/kullanicilar',
     izin: 'kullanici:oku',
   },

@@ -7,16 +7,42 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { Spin } from 'antd';
 
 import { oturumBaslat } from '@/api/kimlik';
+import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { IzinKapisi, KorunanRota } from '@/routes/KorunanRota';
+import { useAuthStore } from '@/store/authStore';
+
+/** Yalnız geliştirme: gerçek backend olmadan kabuk + pano tasarımını önizler (auth bypass). */
+function OnizlemeOturum() {
+  const ayarlaOturum = useAuthStore((s) => s.ayarlaOturum);
+  useEffect(() => {
+    tenantSakla('alfa');
+    ayarlaOturum('onizleme', {
+      id: 0,
+      eposta: 'demo@alfa.test',
+      ad_soyad: 'Demo Yönetici',
+      roller: ['admin'],
+      izinler: [
+        'uretim:oku',
+        'uretim:yaz',
+        'isemri:oku',
+        'isemri:yaz',
+        'bakim:oku',
+        'bakim:yaz',
+        'kullanici:oku',
+      ],
+    });
+  }, [ayarlaOturum]);
+  return <Outlet />;
+}
 
 function TamEkranYukleniyor() {
   const { t } = useTranslation();
@@ -87,6 +113,14 @@ export function App() {
           />
         </Route>
       </Route>
+
+      {import.meta.env.DEV && (
+        <Route path="/onizleme" element={<OnizlemeOturum />}>
+          <Route element={<UygulamaKabugu />}>
+            <Route index element={<PanoSayfasi />} />
+          </Route>
+        </Route>
+      )}
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

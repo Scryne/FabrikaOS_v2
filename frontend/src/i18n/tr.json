@@ -4,7 +4,16 @@
     "cikis": "Çıkış",
     "yukleniyor": "Yükleniyor…",
     "sistem_cevrimici": "Sistem çevrimiçi",
-    "dil": "Dil"
+    "dil": "Dil",
+    "ara": "Ara…",
+    "bildirimler": "Bildirimler",
+    "demo_veri": "Demo veri",
+    "disa_aktar": "Dışa aktar",
+    "bu_ay": "Bu ay",
+    "tumunu_gor": "Tümünü gör",
+    "gun": "Gün",
+    "hafta": "Hafta",
+    "ay": "Ay"
   },
   "kimlik": {
     "giris_basligi": "Kontrol paneline giriş",
@@ -20,6 +29,9 @@
     "parola_gerekli": "Parola gerekli"
   },
   "menu": {
+    "bolum_genel": "Genel",
+    "bolum_uretim": "Üretim",
+    "bolum_yonetim": "Yönetim",
     "pano": "Pano",
     "makineler": "Makineler",
     "is_emirleri": "İş emirleri",
@@ -32,9 +44,29 @@
     "panoya_don": "Panoya dön"
   },
   "pano": {
-    "baslik": "Pano",
-    "hosgeldin": "Hoş geldiniz, {{ad}}",
-    "yakinda": "Üretim panosu ve modül ekranları S6 sprint'inde gelecek.",
-    "yakinda_modul": "Bu modül ekranı sonraki sprintte gelecek."
+    "hosgeldin": "Tekrar hoş geldiniz, {{ad}}",
+    "alt_baslik": "Bugün fabrikanızda olup biten her şey tek bakışta.",
+    "yakinda_modul": "Bu modül ekranı sonraki sprintte gelecek.",
+    "kpi_toplam_uretim": "Toplam üretim",
+    "kpi_oee": "OEE skoru",
+    "kpi_durus": "Duruş",
+    "kpi_kalite": "Kalite oranı",
+    "birim_adet": "adet",
+    "birim_dk": "dk",
+    "dune_gore": "düne göre",
+    "oee_kirilim": "OEE kırılımı",
+    "kullanilabilirlik": "Kullanılabilirlik",
+    "performans": "Performans",
+    "kalite": "Kalite",
+    "uretim_trendi": "Üretim trendi",
+    "son_uretim": "Son üretim kayıtları",
+    "t_makine": "Makine",
+    "t_vardiya": "Vardiya",
+    "t_adet": "Adet",
+    "t_oee": "OEE",
+    "t_durum": "Durum",
+    "durum_calisiyor": "Çalışıyor",
+    "durum_durdu": "Durdu",
+    "durum_bakimda": "Bakımda"
   }
 }

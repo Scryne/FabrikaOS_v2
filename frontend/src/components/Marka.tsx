@@ -21,9 +21,9 @@ export function LogoIsareti({ boyut = 28 }: { boyut?: number }) {
         strokeWidth="2"
         strokeLinecap="round"
       />
-      {/* ibre (amber) */}
-      <path d="M16 16 L 21.5 11.5" stroke="var(--amber)" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="16" cy="16" r="1.7" fill="var(--amber)" />
+      {/* ibre (mavi) */}
+      <path d="M16 16 L 21.5 11.5" stroke="var(--mavi)" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="16" cy="16" r="1.7" fill="var(--mavi)" />
     </svg>
   );
 }
@@ -40,7 +40,7 @@ export function Marka({ boyut = 28 }: { boyut?: number }) {
           color: 'var(--metin)',
         }}
       >
-        Fabrika<span style={{ color: 'var(--amber)' }}>OS</span>
+        Fabrika<span style={{ color: 'var(--mavi)' }}>OS</span>
       </span>
     </span>
   );

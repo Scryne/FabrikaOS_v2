@@ -10,6 +10,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as AntdApp, ConfigProvider } from 'antd';
 import trTR from 'antd/locale/tr_TR';
 
+import '@fontsource-variable/inter';
+import '@fontsource-variable/jetbrains-mono';
 import 'antd/dist/reset.css';
 import './index.css';
 import './i18n';

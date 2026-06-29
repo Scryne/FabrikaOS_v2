@@ -4,7 +4,16 @@
     "cikis": "Sign out",
     "yukleniyor": "Loading…",
     "sistem_cevrimici": "System online",
-    "dil": "Language"
+    "dil": "Language",
+    "ara": "Search…",
+    "bildirimler": "Notifications",
+    "demo_veri": "Demo data",
+    "disa_aktar": "Export",
+    "bu_ay": "This month",
+    "tumunu_gor": "View all",
+    "gun": "Day",
+    "hafta": "Week",
+    "ay": "Month"
   },
   "kimlik": {
     "giris_basligi": "Sign in to the control panel",
@@ -20,6 +29,9 @@
     "parola_gerekli": "Password is required"
   },
   "menu": {
+    "bolum_genel": "General",
+    "bolum_uretim": "Production",
+    "bolum_yonetim": "Management",
     "pano": "Dashboard",
     "makineler": "Machines",
     "is_emirleri": "Work orders",
@@ -32,9 +44,29 @@
     "panoya_don": "Back to dashboard"
   },
   "pano": {
-    "baslik": "Dashboard",
-    "hosgeldin": "Welcome, {{ad}}",
-    "yakinda": "Production dashboard and module screens arrive in sprint S6.",
-    "yakinda_modul": "This module screen arrives in a later sprint."
+    "hosgeldin": "Welcome back, {{ad}}",
+    "alt_baslik": "Everything happening on your floor today, at a glance.",
+    "yakinda_modul": "This module screen arrives in a later sprint.",
+    "kpi_toplam_uretim": "Total output",
+    "kpi_oee": "OEE score",
+    "kpi_durus": "Downtime",
+    "kpi_kalite": "Quality rate",
+    "birim_adet": "units",
+    "birim_dk": "min",
+    "dune_gore": "vs yesterday",
+    "oee_kirilim": "OEE breakdown",
+    "kullanilabilirlik": "Availability",
+    "performans": "Performance",
+    "kalite": "Quality",
+    "uretim_trendi": "Production trend",
+    "son_uretim": "Recent production",
+    "t_makine": "Machine",
+    "t_vardiya": "Shift",
+    "t_adet": "Units",
+    "t_oee": "OEE",
+    "t_durum": "Status",
+    "durum_calisiyor": "Running",
+    "durum_durdu": "Stopped",
+    "durum_bakimda": "Maintenance"
   }
 }
