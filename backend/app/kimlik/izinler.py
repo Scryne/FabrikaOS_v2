@@ -16,6 +16,9 @@ IZIN_KATALOGU: dict[str, str] = {
     "rol:yaz": "Rol/izin atama",
     "uretim:oku": "Üretim verilerini görüntüleme",
     "uretim:yaz": "Üretim verisi girişi",
+    "saha:oku": "Saha cihazlarını görüntüleme",
+    "saha:yaz": "Saha cihazı oluşturma/güncelleme",
+    "edge": "Saha ölçümü gönderme (edge ingestion)",
     "isemri:oku": "İş emirlerini görüntüleme",
     "isemri:yaz": "İş emri oluşturma/güncelleme",
     "bakim:oku": "Bakım planlarını görüntüleme",
@@ -49,4 +52,6 @@ _OKU_IZINLERI = frozenset(k for k in IZIN_KATALOGU if k.endswith(":oku"))
 VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "admin": frozenset(IZIN_KATALOGU.keys()),
     "izleyici": _OKU_IZINLERI,
+    # Saha/cihaz servis hesapları (REST/MQTT ingestion için yalnız edge izni).
+    "saha-cihaz": frozenset({"edge"}),
 }
