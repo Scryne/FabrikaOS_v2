@@ -19,9 +19,7 @@ async def _tablo_var_mi(tablo: str) -> bool:
     conn = await asyncpg.connect(_DSN)
     try:
         return bool(
-            await conn.fetchval(
-                "SELECT to_regclass($1) IS NOT NULL", f"tenant_alfa.{tablo}"
-            )
+            await conn.fetchval("SELECT to_regclass($1) IS NOT NULL", f"tenant_alfa.{tablo}")
         )
     finally:
         await conn.close()

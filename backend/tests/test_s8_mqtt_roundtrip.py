@@ -36,7 +36,7 @@ def mosquitto() -> Iterator[tuple[str, int]]:
         DockerContainer("eclipse-mosquitto:2")
         .with_exposed_ports(1883)
         .with_command(
-            "sh -c 'printf \"listener 1883\\nallow_anonymous true\\n\" > /m.conf "
+            'sh -c \'printf "listener 1883\\nallow_anonymous true\\n" > /m.conf '
             "&& mosquitto -c /m.conf'"
         )
     )
