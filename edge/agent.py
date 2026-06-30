@@ -68,8 +68,9 @@ async def calistir(ayar: EdgeAyar, *, dur: asyncio.Event) -> None:
                     logger.info("%d ölçüm yayınlandı", gonderilen)
         with contextlib.suppress(TimeoutError):
             await asyncio.wait_for(dur.wait(), timeout=ayar.aralik_sn)
+    bekleyen = tampon.bekleyen_sayisi()
     tampon.kapat()
-    logger.info("edge ajanı durdu (%d bekleyen tamponda)", tampon.bekleyen_sayisi())
+    logger.info("edge ajanı durdu (%d bekleyen tamponda)", bekleyen)
 
 
 def main() -> None:

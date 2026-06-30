@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 import pytest
 
-from edge.agent import dongu_adimi, surucu_yap
+from edge.agent import calistir, dongu_adimi, surucu_yap
 from edge.ayar import EdgeAyar
 from edge.paket import HamOkuma
 from edge.tampon import Tampon
@@ -27,3 +28,12 @@ def test_ikinci_okumada_tampona_yazar(tmp_path: Path) -> None:
 def test_surucu_yap_bilinmeyen_hata() -> None:
     with pytest.raises(ValueError, match="Bilinmeyen sürücü"):
         surucu_yap(EdgeAyar(surucu="yok"))
+
+
+@pytest.mark.asyncio
+async def test_calistir_temiz_kapanir(tmp_path: Path) -> None:
+    # dur önceden set → döngü gövdesi atlanır; tamponu kapatma sırası hatasız olmalı.
+    ayar = EdgeAyar(makine_kodlari=["MAK-1"], tampon_yolu=str(tmp_path / "t.sqlite"))
+    dur = asyncio.Event()
+    dur.set()
+    await calistir(ayar, dur=dur)  # hata fırlatmamalı (regresyon: kapat→bekleyen_sayisi)
