@@ -20,7 +20,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | — | Tasarım geçişi: nötr antrasit tema + pano önizleme | ✅ `9fb9454` |
 | | S6 | Üretim/İş emri ekranları + sayfalama/filtre | ✅ `a9fc5e6` |
 | | **S7** | Gerçek zaman çekirdeği + uçtan uca + izolasyon | ✅ |
-| **2 — Saha & Modüller** | S8 | Edge & Ingestion | ⬜ |
+| **2 — Saha & Modüller** | S8 | Edge & Ingestion | ✅ ADR-0010 |
 | | S9 | Stok & Satınalma | ⬜ |
 | | S10 | Kalite & Enerji | ⬜ |
 | | S11 | İSG & İK | ⬜ |
@@ -169,12 +169,17 @@ panoda güncellenir; WS auth + çapraz-tenant reddi testli; E2E yeşil.
 ### FAZ 2 — Saha & Modüller · ~5 sprint
 **Amaç:** Sahadan otomatik veri akışı + iş modüllerinin çekirdek üzerinde tamamlanması.
 
-#### ⬜ S8 — Edge & Ingestion
-**Edge Gateway Agent** (`edge/`): OPC-UA/Modbus → MQTT (store-and-forward + mTLS); bulut
-**Ingestion Worker** (MQTT abone → doğrula → tenant-aware hypertable yazımı); ayrıca REST
-`POST /saha/olcumler` (edge sertifikası) + CSV içe aktarma; cihaz yönetimi `/saha/cihazlar`.
-**Kabul:** Simüle PLC verisi MQTT→ingestion→OEE panosuna **elle giriş olmadan** akar; bağlantı
-kopunca store-and-forward kayıpsız.
+#### ✅ S8 — Edge & Ingestion (ADR-0010)
+**Edge Gateway Agent** (`edge/`, bağımsız paket): pluggable `SahaSurucu` (simülatör + OPC-UA/
+Modbus iskelet) → edge-side aralık özeti → MQTT (`fabrikaos/<tenant>/<cihaz>/olcum`, QoS1) +
+**store-and-forward** (sqlite tampon, kayıpsız replay). Bulut **Ingestion Worker** (aiomqtt;
+tenant doğrula → `search_path` → **idempotent** yaz → `uretim.eklendi` yayını). Üç ingestion
+yolu tek serviste: MQTT, REST `POST /saha/olcumler` (`edge` izni, toplu), CSV içe aktarma.
+Cihaz yönetimi `GET/POST /saha/cihazlar` (`saha:oku/yaz`). Frontend salt-okunur Saha Cihazları
+ekranı (canlı `son_gorulme`). Veri `uretim_verileri`'ne yazıldığı için OEE hattı değişmedi.
+**Kabul (karşılandı):** Simüle PLC verisi MQTT→ingestion→OEE panosuna **elle giriş olmadan**
+akar (gerçek broker round-trip testi); ingestion tenant-aware (izolasyon testli); store-and-forward
+kayıpsız + idempotency çift-saymayı önler. mTLS/gerçek OPC-UA/Modbus Faz 5'e ertelendi.
 
 #### ⬜ S9 — Stok & Satınalma
 `Malzeme`, `StokHareketi` (min/max/kritik); `SatinalmaTalebi` + onay akışı. Uçlar: `/malzemeler`,

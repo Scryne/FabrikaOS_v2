@@ -36,6 +36,9 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Bakım planı | `bakim_plani` / `bakim_planlari` |
 | Giden olay (outbox) | `giden_olay` / `giden_olaylar` |
 | Arıza | `ariza` / `arizalar` |
+| Saha cihazı (edge gateway) | `cihaz` / `saha_cihazlar` |
+| Alınan ölçüm (idempotency defteri) | `alinan_olcum` / `saha_alinan_olcum` |
+| Ölçüm paketi (kontrat DTO) | `OlcumPaketi` (`olcum_id`, `makine_kod`, OEE girdileri) |
 | Malzeme | `malzeme` / `malzemeler` |
 | Stok hareketi | `stok_hareketi` / `stok_hareketleri` |
 | Satınalma talebi | `satinalma_talebi` / `satinalma_talepleri` |

@@ -16,7 +16,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır.**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 başladı (S8 ✅).**
 
 | Sprint | Konu | Durum |
 |---|---|---|
@@ -25,7 +25,8 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S5 | SPA iskeleti + Auth (frontend) | ✅ |
 | S6 | Üretim/İş emri ekranları + ECharts pano + sunucu-taraflı tablo | ✅ |
 | S7 | Gerçek zaman (WebSocket + Redis pub/sub) + uçtan uca + izolasyon | ✅ |
-| S8 → S22 | Saha & ingestion, modüller, AI, lisanslama, GA | ⬜ planlı |
+| S8 | Edge & Ingestion (MQTT + store-and-forward + cihaz yönetimi) | ✅ |
+| S9 → S22 | Stok/satınalma, kalite, modüller, AI, lisanslama, GA | ⬜ planlı |
 
 Backend: **76 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman). Frontend: **57 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
@@ -128,11 +129,29 @@ admin_eposta='admin@fabrika-a.test', admin_parola='Parola123!'))"
 Tenant'a istek atarken `X-Tenant: <slug>` başlığı (veya `<slug>.fabrikaos.localhost` subdomain)
 kullanılır. Kimlik: `POST /api/v1/kimlik/token` (OAuth2 şifre akışı) → `Authorization: Bearer`.
 
+## Saha & Ingestion (S8)
+
+Sahadan otomatik veri akışı (bkz. [`docs/adr/0010-*`](docs/adr/0010-edge-ingestion-mqtt.md)).
+`docker compose up -d db redis mqtt` sonrası:
+
+```bash
+# Bulut Ingestion Worker (MQTT abonesi → tenant şemasına idempotent yazım)
+MQTT_HOST=localhost python -m app.ingestion.worker
+
+# Edge Gateway Agent (simülatör PLC → store-and-forward → MQTT)
+EDGE_BROKER_HOST=localhost EDGE_TENANT_SLUG=<slug> EDGE_CIHAZ_KOD=GW-1 \
+  python -m edge.agent
+```
+
+Cihaz önce kaydedilir (`POST /api/v1/saha/cihazlar`, `saha:yaz`) ve `makine_kod`'lar `makineler`'de
+var olmalıdır. Ölçümler `uretim_verileri`'ne yazılır → OEE panosu elle giriş olmadan güncellenir.
+REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcumler` (+`/csv`, `edge` izni).
+
 ## Konvansiyonlar
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
 - **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0009 mevcut)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0010 mevcut)
 
 ## Yol haritası
 
