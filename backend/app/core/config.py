@@ -7,8 +7,11 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# Üretimde MUTLAKA override edilmesi gereken güvensiz varsayılan secret.
+VARSAYILAN_SECRET = "degistir-bu-degeri-uretimde"
 
 
 class Settings(BaseSettings):
@@ -26,8 +29,8 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     log_level: str = "INFO"
 
-    # Üretimde MUTLAKA override edilir.
-    secret_key: str = "degistir-bu-degeri-uretimde"
+    # Üretimde MUTLAKA override edilir (bkz. _guvenlik_dogrula).
+    secret_key: str = VARSAYILAN_SECRET
 
     cors_origins: list[str] = Field(default_factory=list)
 
@@ -47,6 +50,20 @@ class Settings(BaseSettings):
     @property
     def is_prod(self) -> bool:
         return self.app_env == "prod"
+
+    @model_validator(mode="after")
+    def _guvenlik_dogrula(self) -> Settings:
+        """Üretimde güvensiz secret ile başlamayı engeller (fail-fast).
+
+        ``app_env=prod`` iken ``secret_key`` varsayılan/zayıf (≥32 karakter değil) ise
+        açılış reddedilir — aksi hâlde JWT'ler taklit edilebilirdi.
+        """
+        if self.is_prod and (self.secret_key == VARSAYILAN_SECRET or len(self.secret_key) < 32):
+            raise ValueError(
+                "Üretim ortamında SECRET_KEY override edilmeli: varsayılan/zayıf değer "
+                "reddedildi (en az 32 karakterlik güçlü bir secret verin)."
+            )
+        return self
 
 
 @lru_cache

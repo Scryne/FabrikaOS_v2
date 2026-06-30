@@ -16,7 +16,7 @@ import uuid
 from collections.abc import Awaitable, Callable, MutableMapping
 from typing import Any
 
-from app.core.context import request_id_ctx, tenant_slug_ctx
+from app.core.context import istemci_ip_ctx, request_id_ctx, tenant_slug_ctx
 
 Scope = MutableMapping[str, Any]
 Message = MutableMapping[str, Any]
@@ -53,6 +53,10 @@ class RequestContextMiddleware:
 
         request_id_ctx.set(request_id)
         tenant_slug_ctx.set(_tenant_slug(headers))
+        # ASGI ``client`` = (host, port) | None. Proxy başlığı çözümlemesi ASGI sunucusuna
+        # (uvicorn --proxy-headers) bırakılır; burada doğrudan eş IP'si yakalanır.
+        istemci = scope.get("client")
+        istemci_ip_ctx.set(istemci[0] if istemci else None)
 
         async def send_wrapper(message: Message) -> None:
             if message["type"] == "http.response.start":
