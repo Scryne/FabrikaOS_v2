@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos"
     redis_url: str = "redis://redis:6379/0"
 
+    # --- Saha / MQTT (S8) ---
+    mqtt_host: str = "mqtt"
+    mqtt_port: int = 1883
+
     # --- Kimlik / JWT (S2) ---
     jwt_algoritma: str = "HS256"
     access_token_dakika: int = 15  # kısa ömürlü access token
