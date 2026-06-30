@@ -25,6 +25,27 @@ services:
       - "traefik.http.services.fabrikaos-api.loadbalancer.server.port=8000"
     networks: [fabrikaos]
 
+  # S8: Bulut Ingestion Worker — MQTT abonesi, saha ölçümlerini tenant şemasına yazar.
+  ingestion:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
+      REDIS_URL: redis://redis:6379/0
+      MQTT_HOST: mqtt
+      MQTT_PORT: "1883"
+    command: ["python", "-m", "app.ingestion.worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+    networks: [fabrikaos]
+
   db:
     image: timescale/timescaledb:latest-pg16
     environment:

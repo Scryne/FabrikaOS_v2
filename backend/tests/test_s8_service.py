@@ -56,7 +56,13 @@ async def alfa(test_engine: object) -> AsyncIterator[AsyncSession]:
 async def test_yazma_oee_girdisi_olusturur(alfa: AsyncSession) -> None:
     sonuc = await olcum_yaz_toplu(alfa, cihaz_kod="GW-SVC", paketler=[_paket("MAK-SVC")])
     assert sonuc.yazilan == 1 and sonuc.atlanan == 0 and sonuc.hatali == 0
-    sayi = await alfa.scalar(select(func.count()).select_from(UretimVerisi))
+    # Yalnız bu testin makinesini say (alfa şeması diğer testlerle paylaşılır).
+    sayi = await alfa.scalar(
+        select(func.count())
+        .select_from(UretimVerisi)
+        .join(Makine, Makine.id == UretimVerisi.makine_id)
+        .where(Makine.kod == "MAK-SVC")
+    )
     assert sayi == 1
 
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import sys
 from collections.abc import AsyncIterator, Iterator
 
 import asyncpg
@@ -30,6 +31,11 @@ from app.core.db import fanout
 from app.core.db.session import get_session
 from app.core.security import redis_istemci
 from app.main import create_app
+
+# aiomqtt/paho, Windows ProactorEventLoop'ta add_reader/add_writer desteklemez (S8 round-trip).
+# SelectorEventLoop'a geç → yerel Windows'u Linux CI ile hizalar (Linux varsayılanı zaten Selector).
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 _SUNUCU = "postgresql://fabrikaos:fabrikaos@localhost:5432"
 _TEST_DB = "fabrikaos_test"

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import sys
 from uuid import uuid4
 
 import aiomqtt
@@ -75,6 +76,9 @@ async def calistir(*, broker_host: str, broker_port: int, db_url: str) -> None:
 def main() -> None:
     s = get_settings()
     yapilandir_loglama(s.log_level)
+    # aiomqtt/paho, Windows ProactorEventLoop'ta soket okuma/yazma kaydını desteklemez.
+    if sys.platform == "win32":
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(calistir(broker_host=s.mqtt_host, broker_port=s.mqtt_port, db_url=s.database_url))
 
 
