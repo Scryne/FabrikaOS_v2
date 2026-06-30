@@ -46,3 +46,21 @@ def test_json_round_trip() -> None:
     p = OlcumPaketi.model_validate(_gecerli())
     geri = OlcumPaketi.model_validate_json(p.model_dump_json())
     assert geri.olcum_id == p.olcum_id
+
+
+def test_edge_paketi_backend_ile_uyumlu() -> None:
+    """Edge'in ürettiği JSON, backend OlcumPaketi ile bire bir doğrulanır (kontrat)."""
+    from edge.paket import OlcumPaketi as EdgePaket
+
+    ep = EdgePaket(
+        olcum_id=uuid.uuid4(),
+        makine_kod="MAK-1",
+        zaman=datetime.now(UTC),
+        vardiya="A",
+        planlanan_sure_dk=60,
+        durus_sure_dk=5,
+        toplam_adet=100,
+        saglam_adet=98,
+        ideal_cevrim_sn=30,
+    )
+    OlcumPaketi.model_validate_json(ep.model_dump_json())
