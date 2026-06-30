@@ -245,6 +245,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/saha/cihazlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cihazları listele */
+        get: operations["cihaz_listele_api_v1_saha_cihazlar_get"];
+        put?: never;
+        /** Saha cihazı oluştur */
+        post: operations["cihaz_olustur_api_v1_saha_cihazlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saha/cihazlar/{cihaz_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cihaz detayı */
+        get: operations["cihaz_detay_api_v1_saha_cihazlar__cihaz_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saha/olcumler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Saha ölçümü gönder */
+        post: operations["olcum_gonder_api_v1_saha_olcumler_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saha/olcumler/csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** CSV ile ölçüm yükle */
+        post: operations["olcum_csv_api_v1_saha_olcumler_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/is-emirleri": {
         parameters: {
             query?: never;
@@ -430,6 +499,11 @@ export interface components {
             /** Son Giris Tarihi */
             son_giris_tarihi?: string | null;
         };
+        /** Body_olcum_csv_api_v1_saha_olcumler_csv_post */
+        Body_olcum_csv_api_v1_saha_olcumler_csv_post: {
+            /** Dosya */
+            dosya: string;
+        };
         /** Body_token_api_v1_kimlik_token_post */
         Body_token_api_v1_kimlik_token_post: {
             /** Grant Type */
@@ -453,6 +527,33 @@ export interface components {
              * Format: password
              */
             client_secret?: string | null;
+        };
+        /** CihazCevapDTO */
+        CihazCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Protokol */
+            protokol: string;
+            /** Aktif */
+            aktif: boolean;
+            /** Son Gorulme */
+            son_gorulme?: string | null;
+        };
+        /** CihazOlusturDTO */
+        CihazOlusturDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /**
+             * Protokol
+             * @default simulasyon
+             */
+            protokol: string;
         };
         /** CikisGirdiDTO */
         CikisGirdiDTO: {
@@ -648,6 +749,46 @@ export interface components {
             /** Kayit Sayisi */
             kayit_sayisi: number;
         };
+        /**
+         * OlcumKabulDTO
+         * @description REST toplu ingestion gövdesi: bir gateway'in bir veya çok ölçümü.
+         */
+        OlcumKabulDTO: {
+            /** Cihaz Kod */
+            cihaz_kod: string;
+            /** Olcumler */
+            olcumler: components["schemas"]["OlcumPaketi"][];
+        };
+        /**
+         * OlcumPaketi
+         * @description Bir makinenin tek aralık üretim özeti (UretimVerisi şekli + idempotency kimliği).
+         */
+        OlcumPaketi: {
+            /**
+             * Olcum Id
+             * Format: uuid
+             */
+            olcum_id: string;
+            /** Makine Kod */
+            makine_kod: string;
+            /**
+             * Zaman
+             * Format: date-time
+             */
+            zaman: string;
+            /** Vardiya */
+            vardiya?: string | null;
+            /** Planlanan Sure Dk */
+            planlanan_sure_dk: number;
+            /** Durus Sure Dk */
+            durus_sure_dk: number;
+            /** Toplam Adet */
+            toplam_adet: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Ideal Cevrim Sn */
+            ideal_cevrim_sn: number;
+        };
         /** ParolaDegistirDTO */
         ParolaDegistirDTO: {
             /** Eski Parola */
@@ -770,6 +911,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["BenCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[CihazCevapDTO] */
+        Zarf_CihazCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["CihazCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[IsEmriCevapDTO] */
@@ -940,6 +1096,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["BakimPlaniCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[CihazCevapDTO]] */
+        Zarf_list_CihazCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["CihazCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[IsEmriCevapDTO]] */
@@ -1546,6 +1718,173 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_list_OeeOzetSatirDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cihaz_listele_api_v1_saha_cihazlar_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_CihazCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cihaz_olustur_api_v1_saha_cihazlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CihazOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_CihazCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cihaz_detay_api_v1_saha_cihazlar__cihaz_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                cihaz_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_CihazCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    olcum_gonder_api_v1_saha_olcumler_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OlcumKabulDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_dict_str__Any__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    olcum_csv_api_v1_saha_olcumler_csv_post: {
+        parameters: {
+            query: {
+                cihaz_kod: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_olcum_csv_api_v1_saha_olcumler_csv_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_dict_str__Any__"];
                 };
             };
             /** @description Validation Error */

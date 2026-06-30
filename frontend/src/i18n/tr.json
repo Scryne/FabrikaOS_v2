@@ -50,8 +50,24 @@
     "makineler": "Makineler",
     "uretim_verileri": "Üretim verileri",
     "is_emirleri": "İş emirleri",
+    "saha": "Saha cihazları",
     "bakim": "Bakım",
     "kullanicilar": "Kullanıcılar"
+  },
+  "saha": {
+    "alt": "Sahadan otomatik veri akıtan gateway/cihazlar ve son görülme zamanları.",
+    "kod": "Kod",
+    "ad": "Ad",
+    "protokol": "Protokol",
+    "protokol_simulasyon": "Simülasyon",
+    "protokol_opcua": "OPC-UA",
+    "protokol_modbus": "Modbus",
+    "durum": "Durum",
+    "aktif": "Aktif",
+    "pasif": "Pasif",
+    "son_gorulme": "Son görülme",
+    "ara": "Kod veya ada göre ara",
+    "bos": "Henüz saha cihazı eklenmemiş."
   },
   "uretim": {
     "durum_calisiyor": "Çalışıyor",

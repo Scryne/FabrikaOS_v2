@@ -13,11 +13,12 @@ function sahteQc() {
 }
 
 describe('olayIsle (gerçek-zaman olay → query invalidation)', () => {
-  it('uretim.eklendi → oee-ozet + uretim-verileri + makine oee', () => {
+  it('uretim.eklendi → oee-ozet + uretim-verileri + saha-cihazlar + makine oee', () => {
     const { qc, anahtarlar } = sahteQc();
     olayIsle(qc, { tur: 'uretim.eklendi', makine_id: 5 });
     expect(anahtarlar()).toContainEqual(['oee-ozet']);
     expect(anahtarlar()).toContainEqual(['uretim-verileri']);
+    expect(anahtarlar()).toContainEqual(['saha-cihazlar']);
     expect(anahtarlar()).toContainEqual(['makine', 5, 'oee']);
   });
 

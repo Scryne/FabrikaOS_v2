@@ -20,6 +20,7 @@ import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
+import { CihazListesi } from '@/modules/saha/CihazListesi';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
@@ -123,6 +124,14 @@ export function App() {
             element={
               <IzinKapisi izin="isemri:oku">
                 <IsEmriEkrani />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="saha/cihazlar"
+            element={
+              <IzinKapisi izin="saha:oku">
+                <CihazListesi />
               </IzinKapisi>
             }
           />

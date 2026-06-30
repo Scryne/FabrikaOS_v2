@@ -17,6 +17,8 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'uretim.eklendi':
       void qc.invalidateQueries({ queryKey: ['oee-ozet'] });
       void qc.invalidateQueries({ queryKey: ['uretim-verileri'] });
+      // Saha ölçümü cihazın son_gorulme'sini günceller → liste canlı yansısın.
+      void qc.invalidateQueries({ queryKey: ['saha-cihazlar'] });
       if (makineId !== undefined)
         void qc.invalidateQueries({ queryKey: ['makine', makineId, 'oee'] });
       break;

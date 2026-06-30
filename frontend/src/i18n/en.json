@@ -50,8 +50,24 @@
     "makineler": "Machines",
     "uretim_verileri": "Production data",
     "is_emirleri": "Work orders",
+    "saha": "Field devices",
     "bakim": "Maintenance",
     "kullanicilar": "Users"
+  },
+  "saha": {
+    "alt": "Gateways/devices streaming field data automatically, with last-seen times.",
+    "kod": "Code",
+    "ad": "Name",
+    "protokol": "Protocol",
+    "protokol_simulasyon": "Simulation",
+    "protokol_opcua": "OPC-UA",
+    "protokol_modbus": "Modbus",
+    "durum": "Status",
+    "aktif": "Active",
+    "pasif": "Inactive",
+    "son_gorulme": "Last seen",
+    "ara": "Search by code or name",
+    "bos": "No field devices yet."
   },
   "uretim": {
     "durum_calisiyor": "Running",
