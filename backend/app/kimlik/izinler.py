@@ -59,4 +59,8 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "depo": frozenset({"stok:oku", "stok:yaz", "satinalma:oku", "satinalma:yaz"}),
     # Satınalma onaylayan: yalnız talep görüntüleme + onay.
     "satinalma-onaylayan": frozenset({"satinalma:oku", "satinalma:onay"}),
+    # Kalite sorumlusu: denetim + uygunsuzluk/CAPA yönetir.
+    "kalite": frozenset({"kalite:oku", "kalite:yaz"}),
+    # Enerji sorumlusu: tüketim görüntüler + girer.
+    "enerji": frozenset({"enerji:oku", "enerji:yaz"}),
 }
