@@ -35,6 +35,7 @@ IZIN_KATALOGU: dict[str, str] = {
     "ik:oku": "İK kayıtlarını görüntüleme",
     "ik:yaz": "İK kaydı girişi",
     "enerji:oku": "Enerji tüketimini görüntüleme",
+    "enerji:yaz": "Enerji tüketimi girişi",
     "crm:oku": "CRM kayıtlarını görüntüleme",
     "talep:yaz": "Talep oluşturma",
     "dys:oku": "Belgeleri görüntüleme",
