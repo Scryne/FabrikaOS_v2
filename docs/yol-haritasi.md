@@ -21,7 +21,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S6 | Üretim/İş emri ekranları + sayfalama/filtre | ✅ `a9fc5e6` |
 | | **S7** | Gerçek zaman çekirdeği + uçtan uca + izolasyon | ✅ |
 | **2 — Saha & Modüller** | S8 | Edge & Ingestion | ✅ ADR-0010 |
-| | S9 | Stok & Satınalma | ⬜ |
+| | S9 | Stok & Satınalma | ✅ ADR-0011 |
 | | S10 | Kalite & Enerji | ⬜ |
 | | S11 | İSG & İK | ⬜ |
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru | ⬜ |
@@ -181,10 +181,12 @@ ekranı (canlı `son_gorulme`). Veri `uretim_verileri`'ne yazıldığı için OE
 akar (gerçek broker round-trip testi); ingestion tenant-aware (izolasyon testli); store-and-forward
 kayıpsız + idempotency çift-saymayı önler. mTLS/gerçek OPC-UA/Modbus Faz 5'e ertelendi.
 
-#### ⬜ S9 — Stok & Satınalma
+#### ✅ S9 — Stok & Satınalma (karşılandı — ADR-0011)
 `Malzeme`, `StokHareketi` (min/max/kritik); `SatinalmaTalebi` + onay akışı. Uçlar: `/malzemeler`,
 `/stok-hareketleri`, `/stok/kritik`, `/satinalma-talepleri` (+`/{id}/onayla`). Olay `stok.kritik`.
-**Kabul:** Stok hareketi bakiyeyi doğru günceller; kritik eşik tetikler; `satinalma:onay` ayrı izin.
+**Kabul (karşılandı):** tutulan bakiye + `FOR UPDATE` doğru günceller; kenar-tetikli kritik eşik
+uyarısı (bir kez); `satinalma:onay` ayrı izin (görev ayrımı, `depo` rolü 403). Backend + frontend
+uçtan uca; fan-out migration + ~29 yeni test.
 
 #### ⬜ S10 — Kalite & Enerji
 Kalite: `KaliteKontrol`, `Uygunsuzluk`/CAPA. Enerji: `EnerjiTuketim` (hypertable) + trend

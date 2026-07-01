@@ -42,6 +42,7 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Malzeme | `malzeme` / `malzemeler` |
 | Stok hareketi | `stok_hareketi` / `stok_hareketleri` |
 | Satınalma talebi | `satinalma_talebi` / `satinalma_talepleri` |
+| Satınalma talebi kalemi | `satinalma_talebi_kalemi` / `satinalma_talebi_kalemleri` |
 | Kullanıcı | `kullanici` / `kullanicilar` |
 | Rol / İzin | `rol` / `roller`, `izin` / `izinler` |
 | Personel | `personel` / `personeller` |
