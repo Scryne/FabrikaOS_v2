@@ -12,9 +12,10 @@ from typing import Any
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.sorgu import siralama_uygula
-from app.modules.stok.models import Malzeme, StokHareketi
+from app.modules.stok.models import Malzeme, SatinalmaTalebi, StokHareketi
 
 _MALZEME_SIRALAMA = {
     "id": Malzeme.id,
@@ -152,6 +153,82 @@ async def hareket_listele(
         yon=yon,
         izinli=_HAREKET_SIRALAMA,
         varsayilan=StokHareketi.id,
+        varsayilan_yon="desc",
+    )
+    sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))
+    return sonuc.scalars().all(), int(toplam)
+
+
+_TALEP_SIRALAMA = {
+    "id": SatinalmaTalebi.id,
+    "kod": SatinalmaTalebi.kod,
+    "baslik": SatinalmaTalebi.baslik,
+    "durum": SatinalmaTalebi.durum,
+    "olusturma_tarihi": SatinalmaTalebi.olusturma_tarihi,
+}
+
+
+async def talep_kod_var_mi(db: AsyncSession, kod: str) -> bool:
+    return (
+        await db.scalar(select(SatinalmaTalebi.id).where(SatinalmaTalebi.kod == kod))
+    ) is not None
+
+
+async def talep_ekle(db: AsyncSession, talep: SatinalmaTalebi) -> SatinalmaTalebi:
+    db.add(talep)
+    await db.flush()
+    return talep
+
+
+async def talep_getir(db: AsyncSession, talep_id: int) -> SatinalmaTalebi | None:
+    return await db.get(SatinalmaTalebi, talep_id)
+
+
+async def talep_getir_kilitli(db: AsyncSession, talep_id: int) -> SatinalmaTalebi | None:
+    sonuc = await db.execute(
+        select(SatinalmaTalebi).where(SatinalmaTalebi.id == talep_id).with_for_update()
+    )
+    return sonuc.scalar_one_or_none()
+
+
+async def talep_getir_kalemli(db: AsyncSession, talep_id: int) -> SatinalmaTalebi | None:
+    sonuc = await db.execute(
+        select(SatinalmaTalebi)
+        .where(SatinalmaTalebi.id == talep_id)
+        .options(selectinload(SatinalmaTalebi.kalemler))
+    )
+    return sonuc.scalar_one_or_none()
+
+
+async def talep_listele(
+    db: AsyncSession,
+    *,
+    sayfa: int,
+    adet: int,
+    durum: str | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
+) -> tuple[Sequence[SatinalmaTalebi], int]:
+    filtreler: list[Any] = []
+    if durum is not None:
+        filtreler.append(SatinalmaTalebi.durum == durum)
+    if arama:
+        kalip = f"%{arama}%"
+        filtreler.append(or_(SatinalmaTalebi.kod.ilike(kalip), SatinalmaTalebi.baslik.ilike(kalip)))
+
+    kosul = select(SatinalmaTalebi)
+    sayim = select(func.count()).select_from(SatinalmaTalebi)
+    for f in filtreler:
+        kosul = kosul.where(f)
+        sayim = sayim.where(f)
+    toplam = await db.scalar(sayim) or 0
+    kosul = siralama_uygula(
+        kosul,
+        siralama=siralama,
+        yon=yon,
+        izinli=_TALEP_SIRALAMA,
+        varsayilan=SatinalmaTalebi.id,
         varsayilan_yon="desc",
     )
     sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))

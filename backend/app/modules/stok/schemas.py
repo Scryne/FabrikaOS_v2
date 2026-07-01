@@ -65,3 +65,57 @@ class StokHareketiCevapDTO(BaseModel):
     kaynak: str | None = None
     olusturan_kullanici_id: int | None = None
     olusturma_tarihi: datetime
+
+
+class SatinalmaKalemDTO(BaseModel):
+    malzeme_id: int
+    miktar: Decimal = Field(gt=0)
+    birim: str = Field(min_length=1, max_length=20)
+    tahmini_birim_fiyat: Decimal | None = Field(default=None, ge=0)
+    aciklama: str = Field(default="", max_length=500)
+
+
+class SatinalmaTalebiOlusturDTO(BaseModel):
+    baslik: str = Field(min_length=1, max_length=200)
+    aciklama: str = Field(default="", max_length=1000)
+    para_birimi: str = Field(default="TRY", min_length=3, max_length=3)
+    kalemler: list[SatinalmaKalemDTO] = Field(min_length=1)
+
+
+class SatinalmaTalebiGuncelleDTO(BaseModel):
+    baslik: str | None = Field(default=None, min_length=1, max_length=200)
+    aciklama: str | None = Field(default=None, max_length=1000)
+    para_birimi: str | None = Field(default=None, min_length=3, max_length=3)
+    kalemler: list[SatinalmaKalemDTO] | None = Field(default=None, min_length=1)
+
+
+class RedDTO(BaseModel):
+    red_nedeni: str = Field(default="", max_length=500)
+
+
+class SatinalmaKalemCevapDTO(BaseModel):
+    id: int
+    malzeme_id: int
+    miktar: float
+    birim: str
+    tahmini_birim_fiyat: float | None = None
+    aciklama: str
+
+
+class SatinalmaTalebiCevapDTO(BaseModel):
+    id: int
+    kod: str
+    baslik: str
+    aciklama: str
+    durum: str
+    para_birimi: str
+    talep_eden_kullanici_id: int | None = None
+    onaylayan_kullanici_id: int | None = None
+    onay_tarihi: datetime | None = None
+    red_nedeni: str | None = None
+    tahmini_toplam: float | None = None
+    olusturma_tarihi: datetime
+
+
+class SatinalmaTalebiDetayDTO(SatinalmaTalebiCevapDTO):
+    kalemler: list[SatinalmaKalemCevapDTO] = Field(default_factory=list)

@@ -22,11 +22,23 @@ from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.stok import repository, service
 from app.modules.stok.birimler import BIRIMLER, STOK_HAREKET_TURLERI
-from app.modules.stok.models import Malzeme, StokHareketi
+from app.modules.stok.models import (
+    Malzeme,
+    SatinalmaTalebi,
+    SatinalmaTalebiKalemi,
+    StokHareketi,
+)
 from app.modules.stok.schemas import (
     MalzemeCevapDTO,
     MalzemeGuncelleDTO,
     MalzemeOlusturDTO,
+    RedDTO,
+    SatinalmaKalemCevapDTO,
+    SatinalmaKalemDTO,
+    SatinalmaTalebiCevapDTO,
+    SatinalmaTalebiDetayDTO,
+    SatinalmaTalebiGuncelleDTO,
+    SatinalmaTalebiOlusturDTO,
     StokHareketiCevapDTO,
     StokHareketiOlusturDTO,
 )
@@ -274,3 +286,294 @@ async def stok_hareketi_listele(
         yon=yon,
     )
     return sayfali([_hareket_cevap(x) for x in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+# --- Satınalma talebi ---
+def _tahmini_toplam(kalemler: list[SatinalmaTalebiKalemi]) -> float | None:
+    parcalar = [
+        k.miktar * k.tahmini_birim_fiyat for k in kalemler if k.tahmini_birim_fiyat is not None
+    ]
+    return float(sum(parcalar)) if parcalar else None
+
+
+def _talep_cevap(t: SatinalmaTalebi) -> dict[str, Any]:
+    return SatinalmaTalebiCevapDTO(
+        id=t.id,
+        kod=t.kod,
+        baslik=t.baslik,
+        aciklama=t.aciklama,
+        durum=t.durum,
+        para_birimi=t.para_birimi,
+        talep_eden_kullanici_id=t.talep_eden_kullanici_id,
+        onaylayan_kullanici_id=t.onaylayan_kullanici_id,
+        onay_tarihi=t.onay_tarihi,
+        red_nedeni=t.red_nedeni,
+        olusturma_tarihi=t.olusturma_tarihi,
+    ).model_dump()
+
+
+def _talep_detay_cevap(t: SatinalmaTalebi) -> dict[str, Any]:
+    return SatinalmaTalebiDetayDTO(
+        id=t.id,
+        kod=t.kod,
+        baslik=t.baslik,
+        aciklama=t.aciklama,
+        durum=t.durum,
+        para_birimi=t.para_birimi,
+        talep_eden_kullanici_id=t.talep_eden_kullanici_id,
+        onaylayan_kullanici_id=t.onaylayan_kullanici_id,
+        onay_tarihi=t.onay_tarihi,
+        red_nedeni=t.red_nedeni,
+        tahmini_toplam=_tahmini_toplam(list(t.kalemler)),
+        olusturma_tarihi=t.olusturma_tarihi,
+        kalemler=[
+            SatinalmaKalemCevapDTO(
+                id=k.id,
+                malzeme_id=k.malzeme_id,
+                miktar=float(k.miktar),
+                birim=k.birim,
+                tahmini_birim_fiyat=(
+                    float(k.tahmini_birim_fiyat) if k.tahmini_birim_fiyat is not None else None
+                ),
+                aciklama=k.aciklama,
+            )
+            for k in t.kalemler
+        ],
+    ).model_dump()
+
+
+async def _kalemleri_dogrula(db: AsyncSession, kalemler: list[SatinalmaKalemDTO]) -> None:
+    for k in kalemler:
+        if k.birim not in BIRIMLER:
+            raise DogrulamaHatasi(
+                "Geçersiz birim",
+                detaylar=[
+                    {"alan": "kalemler.birim", "mesaj": f"Geçerli: {', '.join(sorted(BIRIMLER))}"}
+                ],
+            )
+        if await repository.malzeme_getir(db, k.malzeme_id) is None:
+            raise KaynakBulunamadi(f"Malzeme bulunamadı: {k.malzeme_id}")
+
+
+@router.post(
+    "/satinalma-talepleri",
+    response_model=Zarf[SatinalmaTalebiDetayDTO],
+    status_code=201,
+    summary="Satınalma talebi oluştur (çok-kalemli)",
+)
+async def talep_olustur(
+    govde: SatinalmaTalebiOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    await _kalemleri_dogrula(db, govde.kalemler)
+    talep = SatinalmaTalebi(
+        kod=service.talep_gecici_kod(),
+        baslik=govde.baslik,
+        aciklama=govde.aciklama,
+        para_birimi=govde.para_birimi,
+        talep_eden_kullanici_id=kullanici.id,
+        kalemler=[
+            SatinalmaTalebiKalemi(
+                malzeme_id=k.malzeme_id,
+                miktar=k.miktar,
+                birim=k.birim,
+                tahmini_birim_fiyat=k.tahmini_birim_fiyat,
+                aciklama=k.aciklama,
+            )
+            for k in govde.kalemler
+        ],
+    )
+    await repository.talep_ekle(db, talep)
+    talep.kod = service.talep_kalici_kod(talep.id)
+    await db.flush()
+    await denetim_yaz(
+        db, eylem="olustur", kaynak="satinalma_talebi", kaynak_id=str(talep.id), kullanici=kullanici
+    )
+    await yayinla(tenant.slug, {"tur": "satinalma.durum", "id": talep.id, "durum": talep.durum})
+    talep_tam = await repository.talep_getir_kalemli(db, talep.id)
+    assert talep_tam is not None
+    return basari(_talep_detay_cevap(talep_tam), mesaj="Satınalma talebi oluşturuldu")
+
+
+@router.get(
+    "/satinalma-talepleri",
+    response_model=Zarf[list[SatinalmaTalebiCevapDTO]],
+    summary="Satınalma taleplerini listele",
+)
+async def talep_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+    sayfa: int = 1,
+    adet: int = 20,
+    durum: str | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    kayitlar, toplam = await repository.talep_listele(
+        db, sayfa=sayfa, adet=adet, durum=durum, arama=arama, siralama=siralama, yon=yon
+    )
+    return sayfali([_talep_cevap(t) for t in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.get(
+    "/satinalma-talepleri/{talep_id}",
+    response_model=Zarf[SatinalmaTalebiDetayDTO],
+    summary="Satınalma talebi detayı (kalemlerle)",
+)
+async def talep_detay(
+    talep_id: int,
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    talep = await repository.talep_getir_kalemli(db, talep_id)
+    if talep is None:
+        raise KaynakBulunamadi("Satınalma talebi bulunamadı")
+    return basari(_talep_detay_cevap(talep), mesaj="Satınalma talebi detayı")
+
+
+@router.patch(
+    "/satinalma-talepleri/{talep_id}",
+    response_model=Zarf[SatinalmaTalebiDetayDTO],
+    summary="Satınalma talebini düzenle (yalnız taslak)",
+)
+async def talep_guncelle(
+    talep_id: int,
+    govde: SatinalmaTalebiGuncelleDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    talep = await repository.talep_getir_kalemli(db, talep_id)
+    if talep is None:
+        raise KaynakBulunamadi("Satınalma talebi bulunamadı")
+    if talep.durum != "taslak":
+        raise CakismaHatasi("Yalnız taslak talep düzenlenebilir")
+    if govde.baslik is not None:
+        talep.baslik = govde.baslik
+    if govde.aciklama is not None:
+        talep.aciklama = govde.aciklama
+    if govde.para_birimi is not None:
+        talep.para_birimi = govde.para_birimi
+    if govde.kalemler is not None:
+        await _kalemleri_dogrula(db, govde.kalemler)
+        talep.kalemler = [
+            SatinalmaTalebiKalemi(
+                malzeme_id=k.malzeme_id,
+                miktar=k.miktar,
+                birim=k.birim,
+                tahmini_birim_fiyat=k.tahmini_birim_fiyat,
+                aciklama=k.aciklama,
+            )
+            for k in govde.kalemler
+        ]
+    await db.flush()
+    await denetim_yaz(
+        db,
+        eylem="guncelle",
+        kaynak="satinalma_talebi",
+        kaynak_id=str(talep.id),
+        kullanici=kullanici,
+    )
+    talep_tam = await repository.talep_getir_kalemli(db, talep.id)
+    assert talep_tam is not None
+    return basari(_talep_detay_cevap(talep_tam), mesaj="Satınalma talebi güncellendi")
+
+
+async def _gecis(
+    db: AsyncSession,
+    tenant: Tenant,
+    kullanici: Kullanici,
+    talep_id: int,
+    hedef: str,
+    *,
+    onaylayan: Kullanici | None = None,
+    red_nedeni: str | None = None,
+) -> dict[str, Any]:
+    talep = await repository.talep_getir_kilitli(db, talep_id)
+    if talep is None:
+        raise KaynakBulunamadi("Satınalma talebi bulunamadı")
+    await service.talep_durum_gecisi(
+        db, talep, hedef=hedef, onaylayan=onaylayan, red_nedeni=red_nedeni
+    )
+    await denetim_yaz(
+        db,
+        eylem="durum_guncelle",
+        kaynak="satinalma_talebi",
+        kaynak_id=str(talep.id),
+        kullanici=kullanici,
+        detay={"durum": talep.durum},
+    )
+    await yayinla(tenant.slug, {"tur": "satinalma.durum", "id": talep.id, "durum": talep.durum})
+    return basari(_talep_cevap(talep), mesaj="Durum güncellendi")
+
+
+@router.post(
+    "/satinalma-talepleri/{talep_id}/gonder",
+    response_model=Zarf[SatinalmaTalebiCevapDTO],
+    summary="Talebi onaya gönder",
+)
+async def talep_gonder(
+    talep_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _gecis(db, tenant, kullanici, talep_id, "onay_bekliyor")
+
+
+@router.post(
+    "/satinalma-talepleri/{talep_id}/onayla",
+    response_model=Zarf[SatinalmaTalebiCevapDTO],
+    summary="Talebi onayla",
+)
+async def talep_onayla(
+    talep_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:onay"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _gecis(db, tenant, kullanici, talep_id, "onaylandi", onaylayan=kullanici)
+
+
+@router.post(
+    "/satinalma-talepleri/{talep_id}/reddet",
+    response_model=Zarf[SatinalmaTalebiCevapDTO],
+    summary="Talebi reddet",
+)
+async def talep_reddet(
+    talep_id: int,
+    govde: RedDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:onay"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _gecis(
+        db,
+        tenant,
+        kullanici,
+        talep_id,
+        "reddedildi",
+        onaylayan=kullanici,
+        red_nedeni=govde.red_nedeni,
+    )
+
+
+@router.post(
+    "/satinalma-talepleri/{talep_id}/iptal",
+    response_model=Zarf[SatinalmaTalebiCevapDTO],
+    summary="Talebi iptal et",
+)
+async def talep_iptal(
+    talep_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _gecis(db, tenant, kullanici, talep_id, "iptal")
