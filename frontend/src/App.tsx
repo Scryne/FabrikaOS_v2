@@ -21,6 +21,9 @@ import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { CihazListesi } from '@/modules/saha/CihazListesi';
+import { KritikStok } from '@/modules/stok/KritikStok';
+import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
+import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
@@ -44,6 +47,11 @@ function OnizlemeOturum() {
         'isemri:yaz',
         'bakim:oku',
         'bakim:yaz',
+        'stok:oku',
+        'stok:yaz',
+        'satinalma:oku',
+        'satinalma:yaz',
+        'satinalma:onay',
         'kullanici:oku',
       ],
     });
@@ -132,6 +140,30 @@ export function App() {
             element={
               <IzinKapisi izin="saha:oku">
                 <CihazListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="malzemeler"
+            element={
+              <IzinKapisi izin="stok:oku">
+                <MalzemeListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="malzemeler/:id"
+            element={
+              <IzinKapisi izin="stok:oku">
+                <MalzemeDetay />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="stok/kritik"
+            element={
+              <IzinKapisi izin="stok:oku">
+                <KritikStok />
               </IzinKapisi>
             }
           />

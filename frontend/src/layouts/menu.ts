@@ -54,6 +54,27 @@ export const MENU: MenuOgesi[] = [
     izin: 'bakim:oku',
   },
   {
+    anahtar: 'malzemeler',
+    etiketAnahtari: 'menu.malzemeler',
+    bolum: 'menu.bolum_stok',
+    yol: '/malzemeler',
+    izin: 'stok:oku',
+  },
+  {
+    anahtar: 'kritik-stok',
+    etiketAnahtari: 'menu.kritik_stok',
+    bolum: 'menu.bolum_stok',
+    yol: '/stok/kritik',
+    izin: 'stok:oku',
+  },
+  {
+    anahtar: 'satinalma',
+    etiketAnahtari: 'menu.satinalma',
+    bolum: 'menu.bolum_stok',
+    yol: '/satinalma-talepleri',
+    izin: 'satinalma:oku',
+  },
+  {
     anahtar: 'kullanicilar',
     etiketAnahtari: 'menu.kullanicilar',
     bolum: 'menu.bolum_yonetim',
