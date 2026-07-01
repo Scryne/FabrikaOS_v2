@@ -24,6 +24,7 @@ import { CihazListesi } from '@/modules/saha/CihazListesi';
 import { KritikStok } from '@/modules/stok/KritikStok';
 import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
 import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
+import { SatinalmaTalepListesi } from '@/modules/stok/SatinalmaTalepListesi';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
@@ -164,6 +165,14 @@ export function App() {
             element={
               <IzinKapisi izin="stok:oku">
                 <KritikStok />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="satinalma-talepleri"
+            element={
+              <IzinKapisi izin="satinalma:oku">
+                <SatinalmaTalepListesi />
               </IzinKapisi>
             }
           />
