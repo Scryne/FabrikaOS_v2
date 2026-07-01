@@ -32,6 +32,19 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       void qc.invalidateQueries({ queryKey: ['is-emirleri'] });
       if (isEmriId !== undefined) void qc.invalidateQueries({ queryKey: ['is-emri', isEmriId] });
       break;
+    case 'stok.hareket':
+    case 'stok.kritik':
+      void qc.invalidateQueries({ queryKey: ['malzemeler'] });
+      void qc.invalidateQueries({ queryKey: ['stok-kritik'] });
+      void qc.invalidateQueries({ queryKey: ['stok-hareketleri'] });
+      break;
+    case 'satinalma.durum': {
+      void qc.invalidateQueries({ queryKey: ['satinalma-talepleri'] });
+      const talepId = typeof olay.id === 'number' ? olay.id : undefined;
+      if (talepId !== undefined)
+        void qc.invalidateQueries({ queryKey: ['satinalma-talebi', talepId] });
+      break;
+    }
     default:
       break;
   }

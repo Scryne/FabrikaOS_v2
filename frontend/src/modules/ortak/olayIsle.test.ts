@@ -37,6 +37,21 @@ describe('olayIsle (gerçek-zaman olay → query invalidation)', () => {
     expect(anahtarlar()).toContainEqual(['is-emri', 9]);
   });
 
+  it('stok.kritik → malzeme + kritik + hareket sorgularını invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'stok.kritik', malzeme_id: 3 });
+    expect(anahtarlar()).toContainEqual(['malzemeler']);
+    expect(anahtarlar()).toContainEqual(['stok-kritik']);
+    expect(anahtarlar()).toContainEqual(['stok-hareketleri']);
+  });
+
+  it('satinalma.durum → talep listesi + detayını invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'satinalma.durum', id: 7 });
+    expect(anahtarlar()).toContainEqual(['satinalma-talepleri']);
+    expect(anahtarlar()).toContainEqual(['satinalma-talebi', 7]);
+  });
+
   it('bilinmeyen olay türü hiçbir şeyi geçersizleştirmez', () => {
     const { qc, invalidateQueries } = sahteQc();
     olayIsle(qc, { tur: 'bilinmeyen.olay' });
