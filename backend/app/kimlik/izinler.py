@@ -54,4 +54,8 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "izleyici": _OKU_IZINLERI,
     # Saha/cihaz servis hesapları (REST/MQTT ingestion için yalnız edge izni).
     "saha-cihaz": frozenset({"edge"}),
+    # Depo sorumlusu: stok + talep oluşturur, ONAYLAYAMAZ (görev ayrımı).
+    "depo": frozenset({"stok:oku", "stok:yaz", "satinalma:oku", "satinalma:yaz"}),
+    # Satınalma onaylayan: yalnız talep görüntüleme + onay.
+    "satinalma-onaylayan": frozenset({"satinalma:oku", "satinalma:onay"}),
 }
