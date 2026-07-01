@@ -95,3 +95,23 @@ async def test_kontrol_tenant_izolasyonu(kurulu_istemci: AsyncClient) -> None:
     assert (
         await kurulu_istemci.get(f"/api/v1/kalite-kontrolleri/{da['id']}", headers=hb)
     ).status_code == 404
+
+
+async def test_kontrol_gecersiz_tur_422(kurulu_istemci: AsyncClient) -> None:
+    h = _h("alfa", await _giris(kurulu_istemci, ALFA))
+    r = await kurulu_istemci.post(
+        "/api/v1/kalite-kontrolleri",
+        json={"sonuc": "gecti", "kontrol_turu": "sihirli", "numune_adedi": 1},
+        headers=h,
+    )
+    assert r.status_code == 422, r.text
+
+
+async def test_kontrol_limit_ters_422(kurulu_istemci: AsyncClient) -> None:
+    h = _h("alfa", await _giris(kurulu_istemci, ALFA))
+    r = await kurulu_istemci.post(
+        "/api/v1/kalite-kontrolleri",
+        json={"sonuc": "gecti", "numune_adedi": 1, "alt_limit": 10, "ust_limit": 5},
+        headers=h,
+    )
+    assert r.status_code == 422, r.text
