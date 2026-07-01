@@ -59,8 +59,16 @@ def _dahil_et(obj: object, ad: str | None, tur: str, *_: object) -> bool:
 
 def _do_run_migrations(connection: Connection) -> None:
     semalar = _hedef_semalar(connection)
+    # _hedef_semalar may have executed a SELECT (full fan-out path) which triggers SQLAlchemy
+    # autobegin. Commit to end any implicit transaction so that context.configure() below
+    # sees a clean connection. This is required for autocommit_block() to work correctly:
+    # if context.configure() sees _in_external_transaction=True it returns nullcontext() from
+    # begin_transaction(), leaving _transaction=None, which causes autocommit_block() to fail
+    # with AssertionError. search_path is SET session-level (not LOCAL) so it survives
+    # across transaction boundaries → CAGG is created in the correct tenant schema.
+    if connection.in_transaction():
+        connection.commit()
     for sema in semalar:
-        connection.exec_driver_sql(f'SET search_path TO "{sema}", public')
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
@@ -70,6 +78,7 @@ def _do_run_migrations(connection: Connection) -> None:
             include_object=_dahil_et,
         )
         with context.begin_transaction():
+            connection.exec_driver_sql(f'SET search_path TO "{sema}", public')
             context.run_migrations()
 
 

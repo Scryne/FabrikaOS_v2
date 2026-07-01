@@ -15,7 +15,9 @@ import app.core.audit  # noqa: F401
 import app.core.olaylar  # noqa: F401
 import app.kimlik.models  # noqa: F401
 import app.modules.bakim.models  # noqa: F401
+import app.modules.enerji.models  # noqa: F401
 import app.modules.isemri.models  # noqa: F401
+import app.modules.kalite.models  # noqa: F401
 import app.modules.saha.models  # noqa: F401
 import app.modules.stok.models  # noqa: F401
 import app.modules.uretim.models  # noqa: F401
