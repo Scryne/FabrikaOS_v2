@@ -45,3 +45,23 @@ class MalzemeCevapDTO(BaseModel):
     aktif: bool
     kritik: bool
     olusturma_tarihi: datetime
+
+
+class StokHareketiOlusturDTO(BaseModel):
+    malzeme_id: int
+    tur: str = Field(min_length=1, max_length=10)
+    miktar: Decimal = Field(gt=0)
+    aciklama: str = Field(default="", max_length=500)
+    kaynak: str | None = Field(default=None, max_length=50)
+
+
+class StokHareketiCevapDTO(BaseModel):
+    id: int
+    malzeme_id: int
+    tur: str
+    miktar: float
+    bakiye_sonrasi: float
+    aciklama: str
+    kaynak: str | None = None
+    olusturan_kullanici_id: int | None = None
+    olusturma_tarihi: datetime

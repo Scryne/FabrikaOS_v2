@@ -7,13 +7,14 @@ satınalma sorguları sonraki task'larda eklenir.
 from __future__ import annotations
 
 from collections.abc import Sequence
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.sorgu import siralama_uygula
-from app.modules.stok.models import Malzeme
+from app.modules.stok.models import Malzeme, StokHareketi
 
 _MALZEME_SIRALAMA = {
     "id": Malzeme.id,
@@ -94,3 +95,64 @@ async def kritik_listele(db: AsyncSession) -> Sequence[Malzeme]:
         .order_by(Malzeme.kod)
     )
     return (await db.execute(kosul)).scalars().all()
+
+
+_HAREKET_SIRALAMA = {
+    "id": StokHareketi.id,
+    "tur": StokHareketi.tur,
+    "miktar": StokHareketi.miktar,
+    "olusturma_tarihi": StokHareketi.olusturma_tarihi,
+}
+
+
+async def hareket_ekle(db: AsyncSession, hareket: StokHareketi) -> StokHareketi:
+    db.add(hareket)
+    await db.flush()
+    return hareket
+
+
+async def hareket_idempotent_getir(db: AsyncSession, anahtar: str) -> StokHareketi | None:
+    sonuc = await db.execute(
+        select(StokHareketi).where(StokHareketi.idempotency_anahtari == anahtar)
+    )
+    return sonuc.scalar_one_or_none()
+
+
+async def hareket_listele(
+    db: AsyncSession,
+    *,
+    sayfa: int,
+    adet: int,
+    malzeme_id: int | None = None,
+    tur: str | None = None,
+    baslangic: datetime | None = None,
+    bitis: datetime | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
+) -> tuple[Sequence[StokHareketi], int]:
+    filtreler: list[Any] = []
+    if malzeme_id is not None:
+        filtreler.append(StokHareketi.malzeme_id == malzeme_id)
+    if tur is not None:
+        filtreler.append(StokHareketi.tur == tur)
+    if baslangic is not None:
+        filtreler.append(StokHareketi.olusturma_tarihi >= baslangic)
+    if bitis is not None:
+        filtreler.append(StokHareketi.olusturma_tarihi <= bitis)
+
+    kosul = select(StokHareketi)
+    sayim = select(func.count()).select_from(StokHareketi)
+    for f in filtreler:
+        kosul = kosul.where(f)
+        sayim = sayim.where(f)
+    toplam = await db.scalar(sayim) or 0
+    kosul = siralama_uygula(
+        kosul,
+        siralama=siralama,
+        yon=yon,
+        izinli=_HAREKET_SIRALAMA,
+        varsayilan=StokHareketi.id,
+        varsayilan_yon="desc",
+    )
+    sonuc = await db.execute(kosul.offset((sayfa - 1) * adet).limit(adet))
+    return sonuc.scalars().all(), int(toplam)
