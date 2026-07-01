@@ -41,3 +41,70 @@ class KaliteKontrolCevapDTO(BaseModel):
     aciklama: str
     kontrol_eden_kullanici_id: int | None = None
     zaman: datetime
+
+
+class UygunsuzlukOlusturDTO(BaseModel):
+    baslik: str = Field(min_length=1, max_length=200)
+    aciklama: str = Field(default="", max_length=2000)
+    onem: str = Field(default="orta", max_length=20)
+    kaynak_kontrol_id: int | None = None
+    makine_id: int | None = None
+    sorumlu_kullanici_id: int | None = None
+
+
+class UygunsuzlukGuncelleDTO(BaseModel):
+    baslik: str | None = Field(default=None, min_length=1, max_length=200)
+    aciklama: str | None = Field(default=None, max_length=2000)
+    onem: str | None = Field(default=None, max_length=20)
+    sorumlu_kullanici_id: int | None = None
+
+
+class DurumGecisDTO(BaseModel):
+    hedef: str = Field(min_length=1, max_length=20)
+    kok_neden: str | None = Field(default=None, max_length=2000)
+    dogrulama_notu: str | None = Field(default=None, max_length=2000)
+
+
+class AksiyonOlusturDTO(BaseModel):
+    tur: str = Field(min_length=1, max_length=20)
+    aciklama: str = Field(min_length=1, max_length=1000)
+    sorumlu_kullanici_id: int | None = None
+    termin_tarihi: datetime | None = None
+
+
+class AksiyonGuncelleDTO(BaseModel):
+    durum: str | None = Field(default=None, max_length=20)
+    aciklama: str | None = Field(default=None, min_length=1, max_length=1000)
+    sorumlu_kullanici_id: int | None = None
+    termin_tarihi: datetime | None = None
+
+
+class AksiyonCevapDTO(BaseModel):
+    id: int
+    tur: str
+    aciklama: str
+    sorumlu_kullanici_id: int | None = None
+    termin_tarihi: datetime | None = None
+    durum: str
+    tamamlanma_tarihi: datetime | None = None
+
+
+class UygunsuzlukCevapDTO(BaseModel):
+    id: int
+    kod: str
+    baslik: str
+    aciklama: str
+    kaynak_kontrol_id: int | None = None
+    makine_id: int | None = None
+    onem: str
+    durum: str
+    kok_neden: str
+    acan_kullanici_id: int | None = None
+    sorumlu_kullanici_id: int | None = None
+    dogrulama_notu: str
+    kapanis_tarihi: datetime | None = None
+    olusturma_tarihi: datetime
+
+
+class UygunsuzlukDetayDTO(UygunsuzlukCevapDTO):
+    aksiyonlar: list[AksiyonCevapDTO] = Field(default_factory=list)
