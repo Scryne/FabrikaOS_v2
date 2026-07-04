@@ -34,6 +34,7 @@ IZIN_KATALOGU: dict[str, str] = {
     "isg:yaz": "İSG kaydı girişi",
     "ik:oku": "İK kayıtlarını görüntüleme",
     "ik:yaz": "İK kaydı girişi",
+    "ik:onay": "İzin talebini onaylama",
     "enerji:oku": "Enerji tüketimini görüntüleme",
     "enerji:yaz": "Enerji tüketimi girişi",
     "crm:oku": "CRM kayıtlarını görüntüleme",
@@ -63,4 +64,10 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "kalite": frozenset({"kalite:oku", "kalite:yaz"}),
     # Enerji sorumlusu: tüketim görüntüler + girer.
     "enerji": frozenset({"enerji:oku", "enerji:yaz"}),
+    # İSG uzmanı: kaza + risk değerlendirme girer/görüntüler.
+    "isg": frozenset({"isg:oku", "isg:yaz"}),
+    # İK sorumlusu: personel/izin girer, izin ONAYLAYAMAZ (görev ayrımı).
+    "ik": frozenset({"ik:oku", "ik:yaz"}),
+    # İK onaylayan (yönetici): personel görüntüler + izin talebini onaylar/reddeder.
+    "ik-onaylayan": frozenset({"ik:oku", "ik:onay"}),
 }

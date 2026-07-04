@@ -12,18 +12,25 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, KaynakBulunamadi
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.ik import repository, service
-from app.modules.ik.models import Personel
+from app.modules.ik.birimler import IZIN_TURLERI
+from app.modules.ik.models import IzinTalebi, Personel
 from app.modules.ik.schemas import (
+    IzinTalebiCevapDTO,
+    IzinTalebiGuncelleDTO,
+    IzinTalebiOlusturDTO,
     PersonelCevapDTO,
     PersonelGuncelleDTO,
     PersonelOlusturDTO,
+    RedDTO,
 )
 
 router = APIRouter(tags=["İK"])
@@ -172,3 +179,257 @@ async def personel_guncelle(
         db, eylem="guncelle", kaynak="personel", kaynak_id=str(personel.id), kullanici=kullanici
     )
     return basari(_personel_cevap(personel), mesaj="Personel güncellendi")
+
+
+# --- İzin talebi (onay akışı: gönder → onayla/reddet; onay ik:onay ister) ---
+def _izin_cevap(i: IzinTalebi) -> dict[str, Any]:
+    return IzinTalebiCevapDTO(
+        id=i.id,
+        kod=i.kod,
+        personel_id=i.personel_id,
+        izin_turu=i.izin_turu,
+        baslangic_tarihi=i.baslangic_tarihi,
+        bitis_tarihi=i.bitis_tarihi,
+        gun_sayisi=i.gun_sayisi,
+        aciklama=i.aciklama,
+        durum=i.durum,
+        talep_eden_kullanici_id=i.talep_eden_kullanici_id,
+        onaylayan_kullanici_id=i.onaylayan_kullanici_id,
+        onay_tarihi=i.onay_tarihi,
+        red_nedeni=i.red_nedeni,
+        olusturma_tarihi=i.olusturma_tarihi,
+    ).model_dump()
+
+
+@router.post(
+    "/izin-talepleri",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    status_code=201,
+    summary="İzin talebi oluştur",
+)
+async def izin_olustur(
+    govde: IzinTalebiOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    if govde.izin_turu not in IZIN_TURLERI:
+        raise DogrulamaHatasi(
+            "Geçersiz izin türü",
+            detaylar=[
+                {"alan": "izin_turu", "mesaj": f"Geçerli: {', '.join(sorted(IZIN_TURLERI))}"}
+            ],
+        )
+    if govde.bitis_tarihi < govde.baslangic_tarihi:
+        raise DogrulamaHatasi(
+            "Bitiş tarihi başlangıçtan önce olamaz",
+            detaylar=[{"alan": "bitis_tarihi", "mesaj": ">= baslangic_tarihi"}],
+        )
+    if await repository.personel_getir(db, govde.personel_id) is None:
+        raise KaynakBulunamadi("Personel bulunamadı")
+    izin = IzinTalebi(
+        kod=service.izin_gecici_kod(),
+        personel_id=govde.personel_id,
+        izin_turu=govde.izin_turu,
+        baslangic_tarihi=govde.baslangic_tarihi,
+        bitis_tarihi=govde.bitis_tarihi,
+        gun_sayisi=service.izin_gun_sayisi(govde.baslangic_tarihi, govde.bitis_tarihi),
+        aciklama=govde.aciklama,
+        talep_eden_kullanici_id=kullanici.id,
+    )
+    await repository.izin_ekle(db, izin)
+    izin.kod = service.izin_kalici_kod(izin.id)
+    await db.flush()
+    await denetim_yaz(
+        db, eylem="olustur", kaynak="izin_talebi", kaynak_id=str(izin.id), kullanici=kullanici
+    )
+    await yayinla(tenant.slug, {"tur": "ik.izin", "id": izin.id, "durum": izin.durum})
+    return basari(_izin_cevap(izin), mesaj="İzin talebi oluşturuldu")
+
+
+@router.get(
+    "/izin-talepleri",
+    response_model=Zarf[list[IzinTalebiCevapDTO]],
+    summary="İzin taleplerini listele",
+)
+async def izin_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+    sayfa: int = 1,
+    adet: int = 20,
+    personel_id: int | None = None,
+    durum: str | None = None,
+    arama: str | None = None,
+    siralama: str | None = None,
+    yon: str | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    kayitlar, toplam = await repository.izin_listele(
+        db,
+        sayfa=sayfa,
+        adet=adet,
+        personel_id=personel_id,
+        durum=durum,
+        arama=arama,
+        siralama=siralama,
+        yon=yon,
+    )
+    return sayfali([_izin_cevap(i) for i in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.get(
+    "/izin-talepleri/{izin_id}",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebi detayı",
+)
+async def izin_detay(
+    izin_id: int,
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    izin = await repository.izin_getir(db, izin_id)
+    if izin is None:
+        raise KaynakBulunamadi("İzin talebi bulunamadı")
+    return basari(_izin_cevap(izin), mesaj="İzin talebi detayı")
+
+
+@router.patch(
+    "/izin-talepleri/{izin_id}",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebini düzenle (yalnız taslak)",
+)
+async def izin_guncelle(
+    izin_id: int,
+    govde: IzinTalebiGuncelleDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    izin = await repository.izin_getir(db, izin_id)
+    if izin is None:
+        raise KaynakBulunamadi("İzin talebi bulunamadı")
+    if izin.durum != "taslak":
+        raise CakismaHatasi("Yalnız taslak izin talebi düzenlenebilir")
+    if govde.izin_turu is not None:
+        if govde.izin_turu not in IZIN_TURLERI:
+            raise DogrulamaHatasi(
+                "Geçersiz izin türü",
+                detaylar=[
+                    {"alan": "izin_turu", "mesaj": f"Geçerli: {', '.join(sorted(IZIN_TURLERI))}"}
+                ],
+            )
+        izin.izin_turu = govde.izin_turu
+    if govde.aciklama is not None:
+        izin.aciklama = govde.aciklama
+    if govde.baslangic_tarihi is not None:
+        izin.baslangic_tarihi = govde.baslangic_tarihi
+    if govde.bitis_tarihi is not None:
+        izin.bitis_tarihi = govde.bitis_tarihi
+    if govde.baslangic_tarihi is not None or govde.bitis_tarihi is not None:
+        if izin.bitis_tarihi < izin.baslangic_tarihi:
+            raise DogrulamaHatasi(
+                "Bitiş tarihi başlangıçtan önce olamaz",
+                detaylar=[{"alan": "bitis_tarihi", "mesaj": ">= baslangic_tarihi"}],
+            )
+        izin.gun_sayisi = service.izin_gun_sayisi(izin.baslangic_tarihi, izin.bitis_tarihi)
+    await db.flush()
+    await denetim_yaz(
+        db, eylem="guncelle", kaynak="izin_talebi", kaynak_id=str(izin.id), kullanici=kullanici
+    )
+    return basari(_izin_cevap(izin), mesaj="İzin talebi güncellendi")
+
+
+async def _izin_gecis(
+    db: AsyncSession,
+    tenant: Tenant,
+    kullanici: Kullanici,
+    izin_id: int,
+    hedef: str,
+    *,
+    onaylayan: Kullanici | None = None,
+    red_nedeni: str | None = None,
+) -> dict[str, Any]:
+    izin = await repository.izin_getir_kilitli(db, izin_id)
+    if izin is None:
+        raise KaynakBulunamadi("İzin talebi bulunamadı")
+    await service.izin_durum_gecisi(
+        db, izin, hedef=hedef, onaylayan=onaylayan, red_nedeni=red_nedeni
+    )
+    await denetim_yaz(
+        db,
+        eylem="durum_guncelle",
+        kaynak="izin_talebi",
+        kaynak_id=str(izin.id),
+        kullanici=kullanici,
+        detay={"durum": izin.durum},
+    )
+    await yayinla(tenant.slug, {"tur": "ik.izin", "id": izin.id, "durum": izin.durum})
+    return basari(_izin_cevap(izin), mesaj="Durum güncellendi")
+
+
+@router.post(
+    "/izin-talepleri/{izin_id}/gonder",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebini onaya gönder",
+)
+async def izin_gonder(
+    izin_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _izin_gecis(db, tenant, kullanici, izin_id, "onay_bekliyor")
+
+
+@router.post(
+    "/izin-talepleri/{izin_id}/onayla",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebini onayla (ik:onay)",
+)
+async def izin_onayla(
+    izin_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:onay"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _izin_gecis(db, tenant, kullanici, izin_id, "onaylandi", onaylayan=kullanici)
+
+
+@router.post(
+    "/izin-talepleri/{izin_id}/reddet",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebini reddet (ik:onay)",
+)
+async def izin_reddet(
+    izin_id: int,
+    govde: RedDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:onay"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _izin_gecis(
+        db,
+        tenant,
+        kullanici,
+        izin_id,
+        "reddedildi",
+        onaylayan=kullanici,
+        red_nedeni=govde.red_nedeni,
+    )
+
+
+@router.post(
+    "/izin-talepleri/{izin_id}/iptal",
+    response_model=Zarf[IzinTalebiCevapDTO],
+    summary="İzin talebini iptal et",
+)
+async def izin_iptal(
+    izin_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    return await _izin_gecis(db, tenant, kullanici, izin_id, "iptal")
