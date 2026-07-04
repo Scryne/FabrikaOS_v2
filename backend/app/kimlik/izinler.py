@@ -37,10 +37,16 @@ IZIN_KATALOGU: dict[str, str] = {
     "ik:onay": "İzin talebini onaylama",
     "enerji:oku": "Enerji tüketimini görüntüleme",
     "enerji:yaz": "Enerji tüketimi girişi",
-    "crm:oku": "CRM kayıtlarını görüntüleme",
-    "talep:yaz": "Talep oluşturma",
+    "crm:oku": "CRM (firma/ortak) kayıtlarını görüntüleme",
+    "crm:yaz": "CRM (firma/ortak) kaydı girişi",
+    "sozlesme:oku": "Sözleşmeleri görüntüleme",
+    "sozlesme:yaz": "Sözleşme oluşturma/güncelleme",
+    "talep:oku": "Talepleri görüntüleme",
+    "talep:yaz": "Talep oluşturma/güncelleme",
     "dys:oku": "Belgeleri görüntüleme",
     "dys:yaz": "Belge yükleme/güncelleme",
+    "duyuru:oku": "Duyuruları görüntüleme",
+    "duyuru:yaz": "Duyuru oluşturma/yayınlama",
     "ai:oku": "AI tahminlerini görüntüleme",
     "analitik:oku": "Analitik panoları görüntüleme",
     "rapor:oku": "Raporları görüntüleme",
@@ -70,4 +76,19 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "ik": frozenset({"ik:oku", "ik:yaz"}),
     # İK onaylayan (yönetici): personel görüntüler + izin talebini onaylar/reddeder.
     "ik-onaylayan": frozenset({"ik:oku", "ik:onay"}),
+    # CRM/satış sorumlusu: firma/ortak + sözleşme + talep yönetir.
+    "crm": frozenset(
+        {
+            "crm:oku",
+            "crm:yaz",
+            "sozlesme:oku",
+            "sozlesme:yaz",
+            "talep:oku",
+            "talep:yaz",
+        }
+    ),
+    # Doküman sorumlusu: DYS belge/sürüm yükler + görüntüler.
+    "dokuman": frozenset({"dys:oku", "dys:yaz"}),
+    # Duyuru sorumlusu: duyuru oluşturur + yayınlar.
+    "duyuru": frozenset({"duyuru:oku", "duyuru:yaz"}),
 }
