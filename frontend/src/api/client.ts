@@ -70,6 +70,9 @@ async function hamIstek(
   if (govde instanceof URLSearchParams) {
     headers['Content-Type'] = 'application/x-www-form-urlencoded';
     body = govde;
+  } else if (govde instanceof FormData) {
+    // Content-Type ayarlanmaz: tarayıcı multipart sınırını (boundary) kendi ekler.
+    body = govde;
   } else if (govde !== undefined) {
     headers['Content-Type'] = 'application/json';
     body = JSON.stringify(govde);
@@ -172,6 +175,21 @@ export async function istekSayfali<T>(
     veri: zarf.data ?? [],
     meta: zarf.meta ?? { sayfa: 1, adet: 0, toplam: 0 },
   };
+}
+
+/**
+ * İkili içerik indirir (DYS belge sürümü). Yanıt standart zarf değil ham dosyadır; ``Blob``
+ * ve (varsa) ``Content-Disposition``'dan çözülen dosya adı döner.
+ */
+export async function istekIndir(yol: string): Promise<{ blob: Blob; dosyaAdi: string | null }> {
+  const cevap = await istekCevap('GET', yol);
+  if (!cevap.ok) {
+    throw new ApiHata(cevap.status, `İndirme başarısız (${cevap.status})`);
+  }
+  const disp = cevap.headers.get('Content-Disposition') ?? '';
+  const eslesme = /filename\*=UTF-8''([^;]+)/i.exec(disp);
+  const dosyaAdi = eslesme?.[1] ? decodeURIComponent(eslesme[1]) : null;
+  return { blob: await cevap.blob(), dosyaAdi };
 }
 
 export { oturumDusur, PREFIX, tenantTemizle };

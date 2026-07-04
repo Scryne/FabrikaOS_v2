@@ -3,3 +3,4 @@ coverage
 node_modules
 src/api/types.gen.ts
 openapi.json
+**/.impeccable

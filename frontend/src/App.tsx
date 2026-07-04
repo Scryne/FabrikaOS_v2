@@ -15,6 +15,9 @@ import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { FirmaListesi } from '@/modules/crm/FirmaListesi';
+import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
+import { BelgeListesi } from '@/modules/dys/BelgeListesi';
 import { EnerjiTuketimListesi } from '@/modules/enerji/EnerjiTuketimListesi';
 import { IzinListesi } from '@/modules/ik/IzinListesi';
 import { PersonelDetay } from '@/modules/ik/PersonelDetay';
@@ -29,10 +32,13 @@ import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { CihazListesi } from '@/modules/saha/CihazListesi';
+import { SozlesmeListesi } from '@/modules/sozlesme/SozlesmeListesi';
 import { KritikStok } from '@/modules/stok/KritikStok';
 import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
 import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
 import { SatinalmaTalepListesi } from '@/modules/stok/SatinalmaTalepListesi';
+import { TalepListesi } from '@/modules/talep/TalepListesi';
+import { TicariPano } from '@/modules/ticari/TicariPano';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
@@ -70,6 +76,16 @@ function OnizlemeOturum() {
         'ik:oku',
         'ik:yaz',
         'ik:onay',
+        'crm:oku',
+        'crm:yaz',
+        'sozlesme:oku',
+        'sozlesme:yaz',
+        'talep:oku',
+        'talep:yaz',
+        'dys:oku',
+        'dys:yaz',
+        'duyuru:oku',
+        'duyuru:yaz',
         'kullanici:oku',
       ],
     });
@@ -254,6 +270,54 @@ export function App() {
             element={
               <IzinKapisi izin="ik:oku">
                 <IzinListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="ticari"
+            element={
+              <IzinKapisi izin="crm:oku">
+                <TicariPano />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="firmalar"
+            element={
+              <IzinKapisi izin="crm:oku">
+                <FirmaListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="sozlesmeler"
+            element={
+              <IzinKapisi izin="sozlesme:oku">
+                <SozlesmeListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="talepler"
+            element={
+              <IzinKapisi izin="talep:oku">
+                <TalepListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="belgeler"
+            element={
+              <IzinKapisi izin="dys:oku">
+                <BelgeListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="duyurular"
+            element={
+              <IzinKapisi izin="duyuru:oku">
+                <DuyuruListesi />
               </IzinKapisi>
             }
           />
