@@ -34,7 +34,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 Backend: **226 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK).
-Frontend: **77 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+Frontend: **87 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)

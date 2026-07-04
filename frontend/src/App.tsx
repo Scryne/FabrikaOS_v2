@@ -16,6 +16,11 @@ import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { EnerjiTuketimListesi } from '@/modules/enerji/EnerjiTuketimListesi';
+import { IzinListesi } from '@/modules/ik/IzinListesi';
+import { PersonelDetay } from '@/modules/ik/PersonelDetay';
+import { PersonelListesi } from '@/modules/ik/PersonelListesi';
+import { KazaListesi } from '@/modules/isg/KazaListesi';
+import { RiskListesi } from '@/modules/isg/RiskListesi';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
@@ -60,6 +65,11 @@ function OnizlemeOturum() {
         'kalite:yaz',
         'enerji:oku',
         'enerji:yaz',
+        'isg:oku',
+        'isg:yaz',
+        'ik:oku',
+        'ik:yaz',
+        'ik:onay',
         'kullanici:oku',
       ],
     });
@@ -204,6 +214,46 @@ export function App() {
             element={
               <IzinKapisi izin="enerji:oku">
                 <EnerjiTuketimListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="is-kazalari"
+            element={
+              <IzinKapisi izin="isg:oku">
+                <KazaListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="risk-degerlendirmeleri"
+            element={
+              <IzinKapisi izin="isg:oku">
+                <RiskListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="personeller"
+            element={
+              <IzinKapisi izin="ik:oku">
+                <PersonelListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="personeller/:id"
+            element={
+              <IzinKapisi izin="ik:oku">
+                <PersonelDetay />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="izin-talepleri"
+            element={
+              <IzinKapisi izin="ik:oku">
+                <IzinListesi />
               </IzinKapisi>
             }
           />
