@@ -24,7 +24,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S9 | Stok & Satınalma | ✅ ADR-0011 |
 | | S10 | Kalite & Enerji | ✅ ADR-0012 |
 | | S11 | İSG & İK | ✅ ADR-0013 |
-| | S12 | CRM/Sözleşme/Talep + DYS + Duyuru | ⬜ |
+| | S12 | CRM/Sözleşme/Talep + DYS + Duyuru + Ticari pano | ✅ ADR-0014 |
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ⬜ |
 | | S14 | Analitik & Raporlama | ⬜ |
 | | S15 | Dijital ikiz + Kiosk | ⬜ |
@@ -210,11 +210,16 @@ reddet|iptal`), `/fazla-mesailer`, `/zimmetler` (+`/iade`), `/sertifikalar`. Rol
 `ik:onay` 403; KVKK özlük minimizasyonu (TC maskeli) + erişim kısıtı. Backend + frontend uçtan
 uca; fan-out migration (7 tablo) up/down testli; +47 backend testi.
 
-#### ⬜ S12 — CRM/Sözleşme/Talep + DYS + Duyuru + Modül panoları
-`Firma`/`Ortak`/`Sozlesme`/`Talep`; DYS `Belge` (sürümlü, MinIO); `Duyuru`/bildirim. Uçlar:
-`/firmalar`, `/sozlesmeler`, `/talepler`, `/belgeler`, `/duyurular`. Olay `sozlesme.yaklasiyor`.
-**Kabul:** Sürümlü doküman yükle/indir (tenant-izole MinIO öneki); sözleşme bildirimi; modüller
-menüde RBAC'a göre.
+#### ✅ S12 — CRM/Sözleşme/Talep + DYS + Duyuru + Ticari pano (karşılandı — ADR-0014)
+CRM: `Firma` (müşteri/tedarikçi) + `Ortak` (kontak). `Sozlesme` (oto kod `SZ-`, durum makinesi,
+kenar-tetikli `sozlesme.yaklasiyor` outbox + `/yaklasan` görünüm/`/yaklasanlari-tara`). `Talep`
+(oto kod `TL-`, durum makinesi + atama). DYS: `Belge` + `BelgeSurumu` (append-only, içerik
+**MinIO/S3 nesne deposunda**, tenant-izole anahtar öneki; `NesneDepo` soyutlaması; multipart
+yükle/indir). `Duyuru` (oto kod `DUY-`, yayınla → `duyuru.yeni` gerçek-zaman). Ticari pano
+`GET /ticari/ozet`. Roller: `crm`, `dokuman`, `duyuru`.
+**Kabul (karşılandı):** Sürümlü doküman yükle/indir (tenant-izole nesne öneki) + eski sürüm
+korunur; sözleşme yaklaşan bildirimi (bir kez); modüller menüde RBAC'a göre. Backend + frontend
+uçtan uca; fan-out migration (7 tablo) up/down testli; +57 backend testi.
 
 > **🚦 Faz 2 Geçiş Kapısı:** Saha verisi otomatik akıyor; iş modülleri çekirdeği uçtan uca + izole.
 

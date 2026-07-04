@@ -59,11 +59,13 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | CAPA aksiyonu (düzeltici/önleyici) | `capa_aksiyon` / `capa_aksiyonlari` |
 | Enerji tüketim | `enerji_tuketim` / `enerji_tuketimleri` |
 | Enerji tüketim (saatlik CAGG) | `enerji_tuketim_saatlik` (continuous aggregate) |
-| Firma | `firma` / `firmalar` |
-| Sözleşme | `sozlesme` / `sozlesmeler` |
-| Talep | `talep` / `talepler` |
+| Firma (CRM, müşteri/tedarikçi) | `firma` / `firmalar` |
+| Ortak (CRM, firma ilgili kişisi) | `ortak` / `ortaklar` |
+| Sözleşme (durum makinesi + yaklaşan bitiş) | `sozlesme` / `sozlesmeler` |
+| Talep (durum makinesi) | `talep` / `talepler` |
 | Belge (DYS) | `belge` / `belgeler` |
-| Duyuru | `duyuru` / `duyurular` |
+| Belge sürümü (DYS, append-only, nesne depolama) | `belge_surumu` / `belge_surumleri` |
+| Duyuru (gerçek-zaman `duyuru.yeni`) | `duyuru` / `duyurular` |
 | Denetim izi (audit) | `denetim_izi` |
 | Tenant | `tenant` / `tenantlar` |
 | Abonelik | `abonelik` / `abonelikler` |
@@ -73,5 +75,12 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 
 ## İzin formatı
 `modul:islem` → `uretim:oku`, `uretim:yaz`, `uretim:sil`, `isemri:yaz`, `stok:oku`,
-`satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `platform-admin`,
-`dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay` yalnız onaylayan rollerdedir.
+`satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `crm:oku`, `crm:yaz`,
+`sozlesme:oku`, `sozlesme:yaz`, `talep:oku`, `talep:yaz`, `dys:oku`, `dys:yaz`, `duyuru:oku`,
+`duyuru:yaz`, `platform-admin`, `dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay`
+yalnız onaylayan rollerdedir.
+
+## Nesne depolama (DYS)
+Belge içeriği ilişkisel DB'de değil **nesne deposunda** (MinIO/S3) tutulur; tenant izolasyonu
+anahtar önekiyle: `tenant_<slug>/belge/<belge_id>/<surum>/<dosya>`. Soyutlama `NesneDepo`
+(`MinioNesneDepo` gerçek + `BellekNesneDepo` test). Sürümler append-only.
