@@ -24,6 +24,7 @@ dependencies = [
     "python-multipart>=0.0.9",  # OAuth2 sifre akisi (form verisi)
     "redis>=5.0",           # refresh iptal listesi + rate limit
     "aiomqtt>=2.3",         # S8: edge + ingestion MQTT istemcisi (async)
+    "minio>=7.2",           # S12: DYS nesne depolama (MinIO/S3)
 ]
 
 [project.optional-dependencies]
@@ -65,7 +66,7 @@ files = ["backend/app", "edge"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["aiomqtt.*"]
+module = ["aiomqtt.*", "minio.*"]
 ignore_missing_imports = true
 
 # --- pytest ---

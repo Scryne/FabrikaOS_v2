@@ -42,6 +42,13 @@ class Settings(BaseSettings):
     mqtt_host: str = "mqtt"
     mqtt_port: int = 1883
 
+    # --- Nesne depolama / MinIO (S12 DYS) ---
+    minio_endpoint: str = "minio:9000"
+    minio_access_key: str = "fabrikaos"
+    minio_secret_key: str = "fabrikaos-minio-parola"
+    minio_secure: bool = False
+    minio_bucket: str = "fabrikaos"
+
     # --- Kimlik / JWT (S2) ---
     jwt_algoritma: str = "HS256"
     access_token_dakika: int = 15  # kısa ömürlü access token
