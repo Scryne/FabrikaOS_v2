@@ -15,6 +15,7 @@ import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { EnerjiTuketimListesi } from '@/modules/enerji/EnerjiTuketimListesi';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
@@ -195,6 +196,14 @@ export function App() {
             element={
               <IzinKapisi izin="kalite:oku">
                 <UygunsuzlukListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="enerji-tuketimleri"
+            element={
+              <IzinKapisi izin="enerji:oku">
+                <EnerjiTuketimListesi />
               </IzinKapisi>
             }
           />

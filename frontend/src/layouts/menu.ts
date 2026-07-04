@@ -89,6 +89,13 @@ export const MENU: MenuOgesi[] = [
     izin: 'kalite:oku',
   },
   {
+    anahtar: 'enerji',
+    etiketAnahtari: 'menu.enerji',
+    bolum: 'menu.bolum_kalite',
+    yol: '/enerji-tuketimleri',
+    izin: 'enerji:oku',
+  },
+  {
     anahtar: 'kullanicilar',
     etiketAnahtari: 'menu.kullanicilar',
     bolum: 'menu.bolum_yonetim',
