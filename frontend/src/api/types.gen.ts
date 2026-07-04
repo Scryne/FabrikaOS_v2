@@ -594,10 +594,206 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/kalite-kontrolleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kalite kontrolleri listele */
+        get: operations["kontrol_listele_api_v1_kalite_kontrolleri_get"];
+        put?: never;
+        /** Kalite kontrol kaydı oluştur */
+        post: operations["kontrol_olustur_api_v1_kalite_kontrolleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kalite-kontrolleri/{kontrol_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kalite kontrol detayı */
+        get: operations["kontrol_detay_api_v1_kalite_kontrolleri__kontrol_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uygunsuzluklar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Uygunsuzlukları listele */
+        get: operations["uygunsuzluk_listele_api_v1_uygunsuzluklar_get"];
+        put?: never;
+        /** Uygunsuzluk (CAPA) oluştur */
+        post: operations["uygunsuzluk_olustur_api_v1_uygunsuzluklar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uygunsuzluklar/{uygunsuzluk_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Uygunsuzluk detayı (aksiyonlarla) */
+        get: operations["uygunsuzluk_detay_api_v1_uygunsuzluklar__uygunsuzluk_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Uygunsuzluk düzenle (yalnız aktif durumlar) */
+        patch: operations["uygunsuzluk_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/uygunsuzluklar/{uygunsuzluk_id}/durum": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** CAPA durum geçişi */
+        patch: operations["uygunsuzluk_durum_api_v1_uygunsuzluklar__uygunsuzluk_id__durum_patch"];
+        trace?: never;
+    };
+    "/api/v1/uygunsuzluklar/{uygunsuzluk_id}/aksiyonlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** CAPA aksiyonu ekle (düzeltici/önleyici) */
+        post: operations["aksiyon_ekle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/uygunsuzluklar/{uygunsuzluk_id}/aksiyonlar/{aksiyon_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** CAPA aksiyonu güncelle */
+        patch: operations["aksiyon_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar__aksiyon_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/enerji-tuketimleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Enerji tüketim ölçümlerini listele */
+        get: operations["olcum_listele_api_v1_enerji_tuketimleri_get"];
+        put?: never;
+        /** Enerji tüketim ölçümü ekle */
+        post: operations["olcum_olustur_api_v1_enerji_tuketimleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enerji-tuketimleri/trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Enerji tüketim trendi (continuous aggregate) */
+        get: operations["enerji_trend_api_v1_enerji_tuketimleri_trend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AksiyonCevapDTO */
+        AksiyonCevapDTO: {
+            /** Id */
+            id: number;
+            /** Tur */
+            tur: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+            /** Termin Tarihi */
+            termin_tarihi?: string | null;
+            /** Durum */
+            durum: string;
+            /** Tamamlanma Tarihi */
+            tamamlanma_tarihi?: string | null;
+        };
+        /** AksiyonGuncelleDTO */
+        AksiyonGuncelleDTO: {
+            /** Durum */
+            durum?: string | null;
+            /** Aciklama */
+            aciklama?: string | null;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+            /** Termin Tarihi */
+            termin_tarihi?: string | null;
+        };
+        /** AksiyonOlusturDTO */
+        AksiyonOlusturDTO: {
+            /** Tur */
+            tur: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+            /** Termin Tarihi */
+            termin_tarihi?: string | null;
+        };
         /** BakimPlaniCevapDTO */
         BakimPlaniCevapDTO: {
             /** Id */
@@ -735,12 +931,64 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
+        /** DurumGecisDTO */
+        DurumGecisDTO: {
+            /** Hedef */
+            hedef: string;
+            /** Kok Neden */
+            kok_neden?: string | null;
+            /** Dogrulama Notu */
+            dogrulama_notu?: string | null;
+        };
         /** DurumGuncelleDTO */
         DurumGuncelleDTO: {
             /** Durum */
             durum: string;
             /** Atanan Kullanici Id */
             atanan_kullanici_id?: number | null;
+        };
+        /** EnerjiOlcumCevapDTO */
+        EnerjiOlcumCevapDTO: {
+            /** Id */
+            id: number;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Tuketim */
+            tuketim: number;
+            /** Birim */
+            birim: string;
+            /**
+             * Zaman
+             * Format: date-time
+             */
+            zaman: string;
+        };
+        /** EnerjiOlcumOlusturDTO */
+        EnerjiOlcumOlusturDTO: {
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Tuketim */
+            tuketim: number | string;
+            /** Birim */
+            birim: string;
+            /** Zaman */
+            zaman?: string | null;
+        };
+        /** EnerjiTrendNoktaDTO */
+        EnerjiTrendNoktaDTO: {
+            /**
+             * Zaman
+             * Format: date-time
+             */
+            zaman: string;
+            /** Toplam */
+            toplam: number;
+            /** Adet */
+            adet: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -837,6 +1085,77 @@ export interface components {
              * Format: date-time
              */
             olusturma_tarihi: string;
+        };
+        /** KaliteKontrolCevapDTO */
+        KaliteKontrolCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Is Emri Id */
+            is_emri_id?: number | null;
+            /** Kontrol Turu */
+            kontrol_turu: string;
+            /** Sonuc */
+            sonuc: string;
+            /** Olculen Deger */
+            olculen_deger?: number | null;
+            /** Alt Limit */
+            alt_limit?: number | null;
+            /** Ust Limit */
+            ust_limit?: number | null;
+            /** Numune Adedi */
+            numune_adedi: number;
+            /** Uygunsuz Adet */
+            uygunsuz_adet: number;
+            /** Aciklama */
+            aciklama: string;
+            /** Kontrol Eden Kullanici Id */
+            kontrol_eden_kullanici_id?: number | null;
+            /**
+             * Zaman
+             * Format: date-time
+             */
+            zaman: string;
+        };
+        /** KaliteKontrolOlusturDTO */
+        KaliteKontrolOlusturDTO: {
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Is Emri Id */
+            is_emri_id?: number | null;
+            /**
+             * Kontrol Turu
+             * @default uretim
+             */
+            kontrol_turu: string;
+            /** Sonuc */
+            sonuc: string;
+            /** Olculen Deger */
+            olculen_deger?: number | string | null;
+            /** Alt Limit */
+            alt_limit?: number | string | null;
+            /** Ust Limit */
+            ust_limit?: number | string | null;
+            /**
+             * Numune Adedi
+             * @default 0
+             */
+            numune_adedi: number;
+            /**
+             * Uygunsuz Adet
+             * @default 0
+             */
+            uygunsuz_adet: number;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Zaman */
+            zaman?: string | null;
         };
         /** KullaniciCevapDTO */
         KullaniciCevapDTO: {
@@ -1277,6 +1596,108 @@ export interface components {
             /** Ideal Cevrim Sn */
             ideal_cevrim_sn: number;
         };
+        /** UygunsuzlukCevapDTO */
+        UygunsuzlukCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Baslik */
+            baslik: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Kaynak Kontrol Id */
+            kaynak_kontrol_id?: number | null;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Onem */
+            onem: string;
+            /** Durum */
+            durum: string;
+            /** Kok Neden */
+            kok_neden: string;
+            /** Acan Kullanici Id */
+            acan_kullanici_id?: number | null;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+            /** Dogrulama Notu */
+            dogrulama_notu: string;
+            /** Kapanis Tarihi */
+            kapanis_tarihi?: string | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+        };
+        /** UygunsuzlukDetayDTO */
+        UygunsuzlukDetayDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Baslik */
+            baslik: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Kaynak Kontrol Id */
+            kaynak_kontrol_id?: number | null;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Onem */
+            onem: string;
+            /** Durum */
+            durum: string;
+            /** Kok Neden */
+            kok_neden: string;
+            /** Acan Kullanici Id */
+            acan_kullanici_id?: number | null;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+            /** Dogrulama Notu */
+            dogrulama_notu: string;
+            /** Kapanis Tarihi */
+            kapanis_tarihi?: string | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+            /** Aksiyonlar */
+            aksiyonlar?: components["schemas"]["AksiyonCevapDTO"][];
+        };
+        /** UygunsuzlukGuncelleDTO */
+        UygunsuzlukGuncelleDTO: {
+            /** Baslik */
+            baslik?: string | null;
+            /** Aciklama */
+            aciklama?: string | null;
+            /** Onem */
+            onem?: string | null;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+        };
+        /** UygunsuzlukOlusturDTO */
+        UygunsuzlukOlusturDTO: {
+            /** Baslik */
+            baslik: string;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /**
+             * Onem
+             * @default orta
+             */
+            onem: string;
+            /** Kaynak Kontrol Id */
+            kaynak_kontrol_id?: number | null;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -1345,6 +1766,21 @@ export interface components {
             data?: components["schemas"]["CihazCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[EnerjiOlcumCevapDTO] */
+        Zarf_EnerjiOlcumCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["EnerjiOlcumCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[IsEmriCevapDTO] */
         Zarf_IsEmriCevapDTO_: {
             /**
@@ -1388,6 +1824,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["IsEmriYorumCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[KaliteKontrolCevapDTO] */
+        Zarf_KaliteKontrolCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KaliteKontrolCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[KullaniciCevapDTO] */
@@ -1541,6 +1992,36 @@ export interface components {
             data?: components["schemas"]["UretimVerisiCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[UygunsuzlukCevapDTO] */
+        Zarf_UygunsuzlukCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["UygunsuzlukCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[UygunsuzlukDetayDTO] */
+        Zarf_UygunsuzlukDetayDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["UygunsuzlukDetayDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[dict[str, Any]] */
         Zarf_dict_str__Any__: {
             /**
@@ -1591,6 +2072,38 @@ export interface components {
             data?: components["schemas"]["CihazCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[EnerjiOlcumCevapDTO]] */
+        Zarf_list_EnerjiOlcumCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["EnerjiOlcumCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[EnerjiTrendNoktaDTO]] */
+        Zarf_list_EnerjiTrendNoktaDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["EnerjiTrendNoktaDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[IsEmriCevapDTO]] */
         Zarf_list_IsEmriCevapDTO__: {
             /**
@@ -1605,6 +2118,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["IsEmriCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[KaliteKontrolCevapDTO]] */
+        Zarf_list_KaliteKontrolCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["KaliteKontrolCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[KullaniciCevapDTO]] */
@@ -1717,6 +2246,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["UretimVerisiCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[UygunsuzlukCevapDTO]] */
+        Zarf_list_UygunsuzlukCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["UygunsuzlukCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
     };
@@ -3210,6 +3755,457 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_SatinalmaTalebiCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontrol_listele_api_v1_kalite_kontrolleri_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                makine_id?: number | null;
+                sonuc?: string | null;
+                arama?: string | null;
+                baslangic?: string | null;
+                bitis?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_KaliteKontrolCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontrol_olustur_api_v1_kalite_kontrolleri_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KaliteKontrolOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KaliteKontrolCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontrol_detay_api_v1_kalite_kontrolleri__kontrol_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kontrol_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KaliteKontrolCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygunsuzluk_listele_api_v1_uygunsuzluklar_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                durum?: string | null;
+                onem?: string | null;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_UygunsuzlukCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygunsuzluk_olustur_api_v1_uygunsuzluklar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UygunsuzlukOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygunsuzluk_detay_api_v1_uygunsuzluklar__uygunsuzluk_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uygunsuzluk_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygunsuzluk_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uygunsuzluk_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UygunsuzlukGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygunsuzluk_durum_api_v1_uygunsuzluklar__uygunsuzluk_id__durum_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uygunsuzluk_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DurumGecisDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    aksiyon_ekle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uygunsuzluk_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AksiyonOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    aksiyon_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar__aksiyon_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uygunsuzluk_id: number;
+                aksiyon_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AksiyonGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UygunsuzlukDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    olcum_listele_api_v1_enerji_tuketimleri_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                makine_id?: number | null;
+                enerji_turu?: string | null;
+                baslangic?: string | null;
+                bitis?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_EnerjiOlcumCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    olcum_olustur_api_v1_enerji_tuketimleri_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EnerjiOlcumOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EnerjiOlcumCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enerji_trend_api_v1_enerji_tuketimleri_trend_get: {
+        parameters: {
+            query?: {
+                makine_id?: number | null;
+                enerji_turu?: string | null;
+                baslangic?: string | null;
+                bitis?: string | null;
+                aralik?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_EnerjiTrendNoktaDTO__"];
                 };
             };
             /** @description Validation Error */

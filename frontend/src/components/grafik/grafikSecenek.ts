@@ -121,3 +121,40 @@ export function donutSecenek(segmentler: DonutSegment[]): EChartsOption {
     ],
   };
 }
+
+/** Zaman serisi çizgi grafiği (ör. enerji tüketim trendi). ``deger`` y ekseni değeri. */
+export function cizgiSecenek(veri: { zaman: string; deger: number }[]): EChartsOption {
+  return {
+    grid: { left: 6, right: 14, top: 18, bottom: 4, containLabel: true },
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: RENKLER.yuzeyUst,
+      borderColor: RENKLER.kenarlik,
+      textStyle: { color: RENKLER.metin, fontFamily: GOVDE },
+    },
+    xAxis: {
+      type: 'category',
+      data: veri.map((v) => v.zaman),
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: GOVDE, fontSize: 11 },
+      axisLine: { lineStyle: { color: RENKLER.kenarlik } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      min: 0,
+      splitLine: { lineStyle: { color: IZGARA_RENK } },
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO },
+    },
+    series: [
+      {
+        type: 'line',
+        smooth: true,
+        showSymbol: false,
+        areaStyle: { opacity: 0.12, color: RENKLER.cyan },
+        lineStyle: { color: RENKLER.cyan, width: 2 },
+        itemStyle: { color: RENKLER.cyan },
+        data: veri.map((v) => v.deger),
+      },
+    ],
+  };
+}

@@ -2,7 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { RENKLER } from '@/tema/tema';
 
-import { cubukSecenek, donutSecenek, gostergeSecenek, oeeRenk } from './grafikSecenek';
+import {
+  cizgiSecenek,
+  cubukSecenek,
+  donutSecenek,
+  gostergeSecenek,
+  oeeRenk,
+} from './grafikSecenek';
 
 describe('oeeRenk (eşik renklendirme)', () => {
   it('≥85 yeşil, ≥70 amber, altı kırmızı', () => {
@@ -31,6 +37,19 @@ describe('cubukSecenek', () => {
     const seri = (s.series as { data: unknown[] }[])[0]!;
     expect(seri.data).toHaveLength(2);
     expect((s.yAxis as { max: number }).max).toBe(100);
+  });
+});
+
+describe('cizgiSecenek', () => {
+  it('zaman serisini kategori ekseni + çizgi serisine çevirir', () => {
+    const o = cizgiSecenek([
+      { zaman: '08:00', deger: 30 },
+      { zaman: '09:00', deger: 45 },
+    ]);
+    const seri = (o.series as { type: string; data: number[] }[])[0]!;
+    expect(seri.type).toBe('line');
+    expect(seri.data).toEqual([30, 45]);
+    expect((o.xAxis as { data: string[] }).data).toEqual(['08:00', '09:00']);
   });
 });
 
