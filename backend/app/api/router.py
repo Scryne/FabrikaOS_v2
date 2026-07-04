@@ -14,6 +14,7 @@ from app.kimlik.kullanici_router import router as kullanici_router
 from app.kimlik.router import router as kimlik_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.crm.router import router as crm_router
+from app.modules.duyuru.router import router as duyuru_router
 from app.modules.dys.router import router as dys_router
 from app.modules.enerji.router import router as enerji_router
 from app.modules.ik.router import router as ik_router
@@ -42,4 +43,5 @@ api_router.include_router(crm_router)
 api_router.include_router(sozlesme_router)
 api_router.include_router(talep_router)
 api_router.include_router(dys_router)
+api_router.include_router(duyuru_router)
 api_router.include_router(ws_router)
