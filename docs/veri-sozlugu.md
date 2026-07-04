@@ -51,7 +51,9 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Risk değerlendirme | `risk_degerlendirme` / `risk_degerlendirmeleri` |
 | Kalite kontrol | `kalite_kontrol` / `kalite_kontrolleri` |
 | Uygunsuzluk (CAPA) | `uygunsuzluk` / `uygunsuzluklar` |
+| CAPA aksiyonu (düzeltici/önleyici) | `capa_aksiyon` / `capa_aksiyonlari` |
 | Enerji tüketim | `enerji_tuketim` / `enerji_tuketimleri` |
+| Enerji tüketim (saatlik CAGG) | `enerji_tuketim_saatlik` (continuous aggregate) |
 | Firma | `firma` / `firmalar` |
 | Sözleşme | `sozlesme` / `sozlesmeler` |
 | Talep | `talep` / `talepler` |

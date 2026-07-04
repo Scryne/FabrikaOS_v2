@@ -22,7 +22,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | **S7** | Gerçek zaman çekirdeği + uçtan uca + izolasyon | ✅ |
 | **2 — Saha & Modüller** | S8 | Edge & Ingestion | ✅ ADR-0010 |
 | | S9 | Stok & Satınalma | ✅ ADR-0011 |
-| | S10 | Kalite & Enerji | ⬜ |
+| | S10 | Kalite & Enerji | ✅ ADR-0012 |
 | | S11 | İSG & İK | ⬜ |
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru | ⬜ |
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ⬜ |
@@ -188,10 +188,15 @@ kayıpsız + idempotency çift-saymayı önler. mTLS/gerçek OPC-UA/Modbus Faz 5
 uyarısı (bir kez); `satinalma:onay` ayrı izin (görev ayrımı, `depo` rolü 403). Backend + frontend
 uçtan uca; fan-out migration + ~29 yeni test.
 
-#### ⬜ S10 — Kalite & Enerji
-Kalite: `KaliteKontrol`, `Uygunsuzluk`/CAPA. Enerji: `EnerjiTuketim` (hypertable) + trend
-(continuous aggregate). Uçlar: `/kalite-kontrolleri`, `/uygunsuzluklar`, `/enerji-tuketimleri`.
-**Kabul:** CAPA yaşam döngüsü çalışır; enerji trendi doğru toplulaştırılır.
+#### ✅ S10 — Kalite & Enerji (karşılandı — ADR-0012)
+Kalite: `KaliteKontrol` (denetim), `Uygunsuzluk`/Tam CAPA (saf durum makinesi `acik→kok_neden→
+aksiyon_plani→uygulama→dogrulama→kapandi`, +iptal; `CapaAksiyon` düzeltici/önleyici). Enerji:
+`EnerjiTuketim` (hypertable) + trend (continuous aggregate `enerji_tuketim_saatlik`,
+`autocommit_block` + real-time aggregation). Uçlar: `/kalite-kontrolleri`, `/uygunsuzluklar`
+(+`/{id}/durum`, `/{id}/aksiyonlar`), `/enerji-tuketimleri` (+`/trend`). Olaylar `kalite.kontrol`,
+`kalite.uygunsuzluk`, `enerji.olcum`; izin `enerji:yaz` + `kalite`/`enerji` rolleri.
+**Kabul (karşılandı):** CAPA yaşam döngüsü + geçersiz geçiş 409 + `kalite:yaz` 403; enerji trendi
+doğru toplulaştırılır (real-time). Backend + frontend uçtan uca; fan-out + CAGG migration testli.
 
 #### ⬜ S11 — İSG & İK
 İSG: `IsKazasi`/ramak-kala, `RiskDegerlendirme` (risk matrisi). İK: `Personel` özlük, izin,

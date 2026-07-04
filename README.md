@@ -16,7 +16,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 sürüyor (S8 ✅, S9 ✅).**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 sürüyor (S8 ✅, S9 ✅, S10 ✅).**
 
 | Sprint | Konu | Durum |
 |---|---|---|
@@ -27,7 +27,8 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S7 | Gerçek zaman (WebSocket + Redis pub/sub) + uçtan uca + izolasyon | ✅ |
 | S8 | Edge & Ingestion (MQTT + store-and-forward + cihaz yönetimi) | ✅ |
 | S9 | Stok & Satınalma (malzeme + hareket + kritik eşik + çok-kalemli talep/onay) | ✅ |
-| S10 → S22 | Kalite, İSG/İK, modüller, AI, lisanslama, GA | ⬜ planlı |
+| S10 | Kalite & Enerji (denetim + Tam CAPA + enerji hypertable + continuous aggregate trend) | ✅ |
+| S11 → S22 | İSG/İK, modüller, AI, lisanslama, GA | ⬜ planlı |
 
 Backend: **76 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman). Frontend: **57 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
