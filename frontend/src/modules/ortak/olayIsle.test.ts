@@ -52,6 +52,26 @@ describe('olayIsle (gerçek-zaman olay → query invalidation)', () => {
     expect(anahtarlar()).toContainEqual(['satinalma-talebi', 7]);
   });
 
+  it('kalite.kontrol → kalite kontrol listesini invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'kalite.kontrol', id: 4 });
+    expect(anahtarlar()).toContainEqual(['kalite-kontrolleri']);
+  });
+
+  it('kalite.uygunsuzluk → uygunsuzluk listesi + detayını invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'kalite.uygunsuzluk', id: 8, durum: 'kok_neden' });
+    expect(anahtarlar()).toContainEqual(['uygunsuzluklar']);
+    expect(anahtarlar()).toContainEqual(['uygunsuzluk', 8]);
+  });
+
+  it('enerji.olcum → enerji ölçüm + trend sorgularını invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'enerji.olcum', makine_id: 2 });
+    expect(anahtarlar()).toContainEqual(['enerji-tuketimleri']);
+    expect(anahtarlar()).toContainEqual(['enerji-trend']);
+  });
+
   it('bilinmeyen olay türü hiçbir şeyi geçersizleştirmez', () => {
     const { qc, invalidateQueries } = sahteQc();
     olayIsle(qc, { tur: 'bilinmeyen.olay' });

@@ -45,6 +45,20 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
         void qc.invalidateQueries({ queryKey: ['satinalma-talebi', talepId] });
       break;
     }
+    case 'kalite.kontrol':
+      void qc.invalidateQueries({ queryKey: ['kalite-kontrolleri'] });
+      break;
+    case 'kalite.uygunsuzluk': {
+      void qc.invalidateQueries({ queryKey: ['uygunsuzluklar'] });
+      const uygunsuzlukId = typeof olay.id === 'number' ? olay.id : undefined;
+      if (uygunsuzlukId !== undefined)
+        void qc.invalidateQueries({ queryKey: ['uygunsuzluk', uygunsuzlukId] });
+      break;
+    }
+    case 'enerji.olcum':
+      void qc.invalidateQueries({ queryKey: ['enerji-tuketimleri'] });
+      void qc.invalidateQueries({ queryKey: ['enerji-trend'] });
+      break;
     default:
       break;
   }

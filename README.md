@@ -30,8 +30,9 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S10 | Kalite & Enerji (denetim + Tam CAPA + enerji hypertable + continuous aggregate trend) | ✅ |
 | S11 → S22 | İSG/İK, modüller, AI, lisanslama, GA | ⬜ planlı |
 
-Backend: **76 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
-gerçek-zaman). Frontend: **57 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+Backend: **179 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate).
+Frontend: **77 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
