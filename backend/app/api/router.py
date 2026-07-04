@@ -25,6 +25,7 @@ from app.modules.saha.router import router as saha_router
 from app.modules.sozlesme.router import router as sozlesme_router
 from app.modules.stok.router import router as stok_router
 from app.modules.talep.router import router as talep_router
+from app.modules.ticari.router import router as ticari_router
 from app.modules.uretim.router import router as uretim_router
 
 api_router = APIRouter()
@@ -44,4 +45,5 @@ api_router.include_router(sozlesme_router)
 api_router.include_router(talep_router)
 api_router.include_router(dys_router)
 api_router.include_router(duyuru_router)
+api_router.include_router(ticari_router)
 api_router.include_router(ws_router)
