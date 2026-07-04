@@ -23,7 +23,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | **2 — Saha & Modüller** | S8 | Edge & Ingestion | ✅ ADR-0010 |
 | | S9 | Stok & Satınalma | ✅ ADR-0011 |
 | | S10 | Kalite & Enerji | ✅ ADR-0012 |
-| | S11 | İSG & İK | ⬜ |
+| | S11 | İSG & İK | ✅ ADR-0013 |
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru | ⬜ |
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ⬜ |
 | | S14 | Analitik & Raporlama | ⬜ |
@@ -198,11 +198,17 @@ aksiyon_plani→uygulama→dogrulama→kapandi`, +iptal; `CapaAksiyon` düzeltic
 **Kabul (karşılandı):** CAPA yaşam döngüsü + geçersiz geçiş 409 + `kalite:yaz` 403; enerji trendi
 doğru toplulaştırılır (real-time). Backend + frontend uçtan uca; fan-out + CAGG migration testli.
 
-#### ⬜ S11 — İSG & İK
-İSG: `IsKazasi`/ramak-kala, `RiskDegerlendirme` (risk matrisi). İK: `Personel` özlük, izin,
-fazla mesai, zimmet, sertifika. Uçlar: `/is-kazalari`, `/risk-degerlendirmeleri`, `/personeller`,
-`/izin-talepleri`.
-**Kabul:** Kaza/risk + matris; izin talebi akışı; KVKK özlük minimizasyonu + erişim kısıtı.
+#### ✅ S11 — İSG & İK (karşılandı — ADR-0013)
+İSG: `IsKazasi`/ramak-kala (domain olayı `isg.kaza`), `RiskDegerlendirme` (saf risk matrisi
+olasılık×şiddet → skor/seviye sunucuda). İK: `Personel` özlük (KVKK: TC maskeleme + `ik:oku`
+erişim kısıtı), `IzinTalebi` (onay akışı `taslak→onay_bekliyor→onaylandi/reddedildi`+iptal,
+`FOR UPDATE`, ayrı `ik:onay` görev ayrımı), fazla mesai, zimmet (iade), sertifika. Uçlar:
+`/is-kazalari`, `/risk-degerlendirmeleri`, `/personeller`, `/izin-talepleri` (+`/gonder|onayla|
+reddet|iptal`), `/fazla-mesailer`, `/zimmetler` (+`/iade`), `/sertifikalar`. Roller: `isg`,
+`ik`, `ik-onaylayan`.
+**Kabul (karşılandı):** Kaza/risk + matris skoru; izin talebi akışı + geçersiz geçiş 409 +
+`ik:onay` 403; KVKK özlük minimizasyonu (TC maskeli) + erişim kısıtı. Backend + frontend uçtan
+uca; fan-out migration (7 tablo) up/down testli; +47 backend testi.
 
 #### ⬜ S12 — CRM/Sözleşme/Talep + DYS + Duyuru + Modül panoları
 `Firma`/`Ortak`/`Sozlesme`/`Talep`; DYS `Belge` (sürümlü, MinIO); `Duyuru`/bildirim. Uçlar:

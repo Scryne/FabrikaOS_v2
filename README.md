@@ -16,7 +16,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 sürüyor (S8 ✅, S9 ✅, S10 ✅).**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 sürüyor (S8 ✅, S9 ✅, S10 ✅, S11 ✅).**
 
 | Sprint | Konu | Durum |
 |---|---|---|
@@ -28,10 +28,12 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S8 | Edge & Ingestion (MQTT + store-and-forward + cihaz yönetimi) | ✅ |
 | S9 | Stok & Satınalma (malzeme + hareket + kritik eşik + çok-kalemli talep/onay) | ✅ |
 | S10 | Kalite & Enerji (denetim + Tam CAPA + enerji hypertable + continuous aggregate trend) | ✅ |
-| S11 → S22 | İSG/İK, modüller, AI, lisanslama, GA | ⬜ planlı |
+| S11 | İSG & İK (iş kazası + risk matrisi + personel/KVKK + izin onay akışı + zimmet/sertifika) | ✅ |
+| S12 → S22 | CRM/DYS, AI, lisanslama, GA | ⬜ planlı |
 
-Backend: **179 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
-gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate).
+Backend: **226 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
+İSG risk matrisi + İK izin onay akışı/KVKK).
 Frontend: **77 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 

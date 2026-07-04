@@ -25,6 +25,8 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | JWT | JSON Web Token; access (kısa) + refresh (rotasyonlu) |
 | Refresh rotasyonu | Yenilemede eski refresh'i iptal edip yeni çift üretme (Redis iptal listesi) |
 | RPO / RTO | Kabul edilebilir veri kaybı / kurtarma süresi (DR) |
+| KVKK | Kişisel Verilerin Korunması Kanunu; özlük veri minimizasyonu + erişim kısıtı (TC maskeleme) |
+| Risk matrisi | Olasılık × Şiddet (1..5) → risk skoru (1..25) → risk seviyesi (dusuk/orta/yuksek/cok_yuksek) |
 
 ## Identifier sözlüğü (tablo/model/kolon)
 | Kavram | Identifier (tekil / çoğul) |
@@ -45,10 +47,13 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Satınalma talebi kalemi | `satinalma_talebi_kalemi` / `satinalma_talebi_kalemleri` |
 | Kullanıcı | `kullanici` / `kullanicilar` |
 | Rol / İzin | `rol` / `roller`, `izin` / `izinler` |
-| Personel | `personel` / `personeller` |
-| İzin talebi (İK) | `izin_talebi` / `izin_talepleri` |
-| İş kazası | `is_kazasi` / `is_kazalari` |
-| Risk değerlendirme | `risk_degerlendirme` / `risk_degerlendirmeleri` |
+| Personel (İK, KVKK: TC maskeli) | `personel` / `personeller` |
+| İzin talebi (İK, onay akışı) | `izin_talebi` / `izin_talepleri` |
+| Fazla mesai (İK) | `fazla_mesai` / `fazla_mesailer` |
+| Zimmet (demirbaş atama, İK) | `zimmet` / `zimmetler` |
+| Sertifika / eğitim (İK) | `sertifika` / `sertifikalar` |
+| İş kazası (İSG) | `is_kazasi` / `is_kazalari` |
+| Risk değerlendirme (İSG, risk matrisi) | `risk_degerlendirme` / `risk_degerlendirmeleri` |
 | Kalite kontrol | `kalite_kontrol` / `kalite_kontrolleri` |
 | Uygunsuzluk (CAPA) | `uygunsuzluk` / `uygunsuzluklar` |
 | CAPA aksiyonu (düzeltici/önleyici) | `capa_aksiyon` / `capa_aksiyonlari` |
@@ -68,4 +73,5 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 
 ## İzin formatı
 `modul:islem` → `uretim:oku`, `uretim:yaz`, `uretim:sil`, `isemri:yaz`, `stok:oku`,
-`satinalma:onay`, `platform-admin`, `dis-panel`.
+`satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `platform-admin`,
+`dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay` yalnız onaylayan rollerdedir.
