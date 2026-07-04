@@ -41,9 +41,7 @@ def _h(slug: str, access: str) -> dict[str, str]:
 
 
 async def _belge(istemci: AsyncClient, h: dict[str, str], ad: str = "Kalite El Kitabı") -> dict:
-    r = await istemci.post(
-        "/api/v1/belgeler", json={"ad": ad, "kategori": "prosedur"}, headers=h
-    )
+    r = await istemci.post("/api/v1/belgeler", json={"ad": ad, "kategori": "prosedur"}, headers=h)
     assert r.status_code == 201, r.text
     return r.json()["data"]
 
@@ -76,9 +74,7 @@ async def test_surum_yukle_indir(
     det = await kurulu_istemci.get(f"/api/v1/belgeler/{b['id']}", headers=h)
     assert det.json()["data"]["guncel_surum"] == 1
     # içerik indirilince aynı
-    ind = await kurulu_istemci.get(
-        f"/api/v1/belgeler/{b['id']}/surumler/1/indir", headers=h
-    )
+    ind = await kurulu_istemci.get(f"/api/v1/belgeler/{b['id']}/surumler/1/indir", headers=h)
     assert ind.status_code == 200
     assert ind.content == icerik
     assert ind.headers["content-type"].startswith("text/plain")

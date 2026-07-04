@@ -24,9 +24,7 @@ def _h(slug: str, access: str) -> dict[str, str]:
 
 
 async def _firma(istemci: AsyncClient, h: dict[str, str], ad: str, **ek: object) -> dict:
-    r = await istemci.post(
-        "/api/v1/firmalar", json={"ad": ad, "tip": "musteri", **ek}, headers=h
-    )
+    r = await istemci.post("/api/v1/firmalar", json={"ad": ad, "tip": "musteri", **ek}, headers=h)
     assert r.status_code == 201, r.text
     return r.json()["data"]
 
@@ -44,9 +42,7 @@ async def test_firma_olustur_listele(kurulu_istemci: AsyncClient) -> None:
 
 async def test_firma_gecersiz_tip_422(kurulu_istemci: AsyncClient) -> None:
     h = _h("alfa", await _giris(kurulu_istemci, ALFA))
-    r = await kurulu_istemci.post(
-        "/api/v1/firmalar", json={"ad": "X", "tip": "kozmik"}, headers=h
-    )
+    r = await kurulu_istemci.post("/api/v1/firmalar", json={"ad": "X", "tip": "kozmik"}, headers=h)
     assert r.status_code == 422, r.text
 
 

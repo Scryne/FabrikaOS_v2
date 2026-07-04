@@ -43,3 +43,4 @@ secrets/
 .codex/
 .impeccable/
 skills-lock.json
+.playwright-mcp/

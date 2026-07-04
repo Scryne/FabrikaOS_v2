@@ -138,9 +138,7 @@ async def test_yaklasan_tara_kenar_tetik(kurulu_istemci: AsyncClient) -> None:
     fid = await _firma(kurulu_istemci, h, "Yaklaşan Firma")
     bugun = datetime.now(UTC).date()
     yakin = (bugun + timedelta(days=10)).isoformat()
-    s = await _sozlesme(
-        kurulu_istemci, h, fid, baslangic_tarihi="2026-01-01", bitis_tarihi=yakin
-    )
+    s = await _sozlesme(kurulu_istemci, h, fid, baslangic_tarihi="2026-01-01", bitis_tarihi=yakin)
     # aktif olmalı ki yaklaşan sayılsın
     await kurulu_istemci.patch(
         f"/api/v1/sozlesmeler/{s['id']}/durum", json={"durum": "aktif"}, headers=h
