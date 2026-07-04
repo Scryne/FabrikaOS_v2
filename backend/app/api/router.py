@@ -20,6 +20,7 @@ from app.modules.isemri.router import router as isemri_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
 from app.modules.saha.router import router as saha_router
+from app.modules.sozlesme.router import router as sozlesme_router
 from app.modules.stok.router import router as stok_router
 from app.modules.uretim.router import router as uretim_router
 
@@ -36,4 +37,5 @@ api_router.include_router(enerji_router)
 api_router.include_router(isg_router)
 api_router.include_router(ik_router)
 api_router.include_router(crm_router)
+api_router.include_router(sozlesme_router)
 api_router.include_router(ws_router)
