@@ -16,6 +16,8 @@ import { LogoIsareti } from '@/components/Marka';
 import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
+import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
+import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
@@ -53,6 +55,10 @@ function OnizlemeOturum() {
         'satinalma:oku',
         'satinalma:yaz',
         'satinalma:onay',
+        'kalite:oku',
+        'kalite:yaz',
+        'enerji:oku',
+        'enerji:yaz',
         'kullanici:oku',
       ],
     });
@@ -173,6 +179,22 @@ export function App() {
             element={
               <IzinKapisi izin="satinalma:oku">
                 <SatinalmaTalepListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="kalite-kontrolleri"
+            element={
+              <IzinKapisi izin="kalite:oku">
+                <KaliteKontrolListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="uygunsuzluklar"
+            element={
+              <IzinKapisi izin="kalite:oku">
+                <UygunsuzlukListesi />
               </IzinKapisi>
             }
           />

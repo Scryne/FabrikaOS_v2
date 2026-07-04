@@ -75,6 +75,20 @@ export const MENU: MenuOgesi[] = [
     izin: 'satinalma:oku',
   },
   {
+    anahtar: 'kalite',
+    etiketAnahtari: 'menu.kalite',
+    bolum: 'menu.bolum_kalite',
+    yol: '/kalite-kontrolleri',
+    izin: 'kalite:oku',
+  },
+  {
+    anahtar: 'uygunsuzluklar',
+    etiketAnahtari: 'menu.uygunsuzluklar',
+    bolum: 'menu.bolum_kalite',
+    yol: '/uygunsuzluklar',
+    izin: 'kalite:oku',
+  },
+  {
     anahtar: 'kullanicilar',
     etiketAnahtari: 'menu.kullanicilar',
     bolum: 'menu.bolum_yonetim',
