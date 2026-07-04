@@ -7,6 +7,7 @@ KVKK: personel yanıtlarında TC kimlik ``tc_maskele`` ile maskelenir.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -22,8 +23,10 @@ from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.ik import repository, service
 from app.modules.ik.birimler import IZIN_TURLERI
-from app.modules.ik.models import IzinTalebi, Personel
+from app.modules.ik.models import FazlaMesai, IzinTalebi, Personel, Sertifika, Zimmet
 from app.modules.ik.schemas import (
+    FazlaMesaiCevapDTO,
+    FazlaMesaiOlusturDTO,
     IzinTalebiCevapDTO,
     IzinTalebiGuncelleDTO,
     IzinTalebiOlusturDTO,
@@ -31,6 +34,10 @@ from app.modules.ik.schemas import (
     PersonelGuncelleDTO,
     PersonelOlusturDTO,
     RedDTO,
+    SertifikaCevapDTO,
+    SertifikaOlusturDTO,
+    ZimmetCevapDTO,
+    ZimmetOlusturDTO,
 )
 
 router = APIRouter(tags=["İK"])
@@ -433,3 +440,246 @@ async def izin_iptal(
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     return await _izin_gecis(db, tenant, kullanici, izin_id, "iptal")
+
+
+async def _personel_zorunlu(db: AsyncSession, personel_id: int) -> None:
+    if await repository.personel_getir(db, personel_id) is None:
+        raise KaynakBulunamadi("Personel bulunamadı")
+
+
+# --- Fazla mesai ---
+def _mesai_cevap(m: FazlaMesai) -> dict[str, Any]:
+    return FazlaMesaiCevapDTO(
+        id=m.id,
+        personel_id=m.personel_id,
+        tarih=m.tarih,
+        saat=float(m.saat),
+        aciklama=m.aciklama,
+        onayli=m.onayli,
+        olusturan_kullanici_id=m.olusturan_kullanici_id,
+        olusturma_tarihi=m.olusturma_tarihi,
+    ).model_dump()
+
+
+@router.post(
+    "/fazla-mesailer",
+    response_model=Zarf[FazlaMesaiCevapDTO],
+    status_code=201,
+    summary="Fazla mesai kaydı oluştur",
+)
+async def mesai_olustur(
+    govde: FazlaMesaiOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    await _personel_zorunlu(db, govde.personel_id)
+    mesai = FazlaMesai(
+        personel_id=govde.personel_id,
+        tarih=govde.tarih,
+        saat=govde.saat,
+        aciklama=govde.aciklama,
+        olusturan_kullanici_id=kullanici.id,
+    )
+    await repository.mesai_ekle(db, mesai)
+    await denetim_yaz(
+        db, eylem="olustur", kaynak="fazla_mesai", kaynak_id=str(mesai.id), kullanici=kullanici
+    )
+    return basari(_mesai_cevap(mesai), mesaj="Fazla mesai kaydı oluşturuldu")
+
+
+@router.get(
+    "/fazla-mesailer",
+    response_model=Zarf[list[FazlaMesaiCevapDTO]],
+    summary="Fazla mesaileri listele",
+)
+async def mesai_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+    sayfa: int = 1,
+    adet: int = 20,
+    personel_id: int | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    kayitlar, toplam = await repository.mesai_listele(
+        db, sayfa=sayfa, adet=adet, personel_id=personel_id
+    )
+    return sayfali([_mesai_cevap(m) for m in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.post(
+    "/fazla-mesailer/{mesai_id}/onayla",
+    response_model=Zarf[FazlaMesaiCevapDTO],
+    summary="Fazla mesaiyi onayla",
+)
+async def mesai_onayla(
+    mesai_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:onay"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    mesai = await repository.mesai_getir(db, mesai_id)
+    if mesai is None:
+        raise KaynakBulunamadi("Fazla mesai bulunamadı")
+    mesai.onayli = True
+    await db.flush()
+    await denetim_yaz(
+        db, eylem="onayla", kaynak="fazla_mesai", kaynak_id=str(mesai.id), kullanici=kullanici
+    )
+    return basari(_mesai_cevap(mesai), mesaj="Fazla mesai onaylandı")
+
+
+# --- Zimmet ---
+def _zimmet_cevap(z: Zimmet) -> dict[str, Any]:
+    return ZimmetCevapDTO(
+        id=z.id,
+        personel_id=z.personel_id,
+        demirbas=z.demirbas,
+        seri_no=z.seri_no,
+        zimmet_tarihi=z.zimmet_tarihi,
+        iade_tarihi=z.iade_tarihi,
+        durum=z.durum,
+        aciklama=z.aciklama,
+        olusturma_tarihi=z.olusturma_tarihi,
+    ).model_dump()
+
+
+@router.post(
+    "/zimmetler",
+    response_model=Zarf[ZimmetCevapDTO],
+    status_code=201,
+    summary="Zimmet (demirbaş atama) oluştur",
+)
+async def zimmet_olustur(
+    govde: ZimmetOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    await _personel_zorunlu(db, govde.personel_id)
+    zimmet = Zimmet(
+        personel_id=govde.personel_id,
+        demirbas=govde.demirbas,
+        seri_no=govde.seri_no,
+        zimmet_tarihi=govde.zimmet_tarihi,
+        aciklama=govde.aciklama,
+    )
+    await repository.zimmet_ekle(db, zimmet)
+    await denetim_yaz(
+        db, eylem="olustur", kaynak="zimmet", kaynak_id=str(zimmet.id), kullanici=kullanici
+    )
+    return basari(_zimmet_cevap(zimmet), mesaj="Zimmet oluşturuldu")
+
+
+@router.get(
+    "/zimmetler",
+    response_model=Zarf[list[ZimmetCevapDTO]],
+    summary="Zimmetleri listele",
+)
+async def zimmet_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+    sayfa: int = 1,
+    adet: int = 20,
+    personel_id: int | None = None,
+    durum: str | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    kayitlar, toplam = await repository.zimmet_listele(
+        db, sayfa=sayfa, adet=adet, personel_id=personel_id, durum=durum
+    )
+    return sayfali([_zimmet_cevap(z) for z in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.post(
+    "/zimmetler/{zimmet_id}/iade",
+    response_model=Zarf[ZimmetCevapDTO],
+    summary="Zimmeti iade al",
+)
+async def zimmet_iade(
+    zimmet_id: int,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    zimmet = await repository.zimmet_getir(db, zimmet_id)
+    if zimmet is None:
+        raise KaynakBulunamadi("Zimmet bulunamadı")
+    if zimmet.durum == "iade_edildi":
+        raise CakismaHatasi("Zimmet zaten iade edilmiş")
+    zimmet.durum = "iade_edildi"
+    zimmet.iade_tarihi = datetime.now(UTC).date()
+    await db.flush()
+    await denetim_yaz(
+        db, eylem="iade", kaynak="zimmet", kaynak_id=str(zimmet.id), kullanici=kullanici
+    )
+    return basari(_zimmet_cevap(zimmet), mesaj="Zimmet iade alındı")
+
+
+# --- Sertifika ---
+def _sertifika_cevap(s: Sertifika) -> dict[str, Any]:
+    return SertifikaCevapDTO(
+        id=s.id,
+        personel_id=s.personel_id,
+        ad=s.ad,
+        kurum=s.kurum,
+        belge_no=s.belge_no,
+        alinma_tarihi=s.alinma_tarihi,
+        gecerlilik_tarihi=s.gecerlilik_tarihi,
+        aciklama=s.aciklama,
+        olusturma_tarihi=s.olusturma_tarihi,
+    ).model_dump()
+
+
+@router.post(
+    "/sertifikalar",
+    response_model=Zarf[SertifikaCevapDTO],
+    status_code=201,
+    summary="Sertifika / eğitim kaydı oluştur",
+)
+async def sertifika_olustur(
+    govde: SertifikaOlusturDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    await _personel_zorunlu(db, govde.personel_id)
+    sertifika = Sertifika(
+        personel_id=govde.personel_id,
+        ad=govde.ad,
+        kurum=govde.kurum,
+        belge_no=govde.belge_no,
+        alinma_tarihi=govde.alinma_tarihi,
+        gecerlilik_tarihi=govde.gecerlilik_tarihi,
+        aciklama=govde.aciklama,
+    )
+    await repository.sertifika_ekle(db, sertifika)
+    await denetim_yaz(
+        db, eylem="olustur", kaynak="sertifika", kaynak_id=str(sertifika.id), kullanici=kullanici
+    )
+    return basari(_sertifika_cevap(sertifika), mesaj="Sertifika kaydı oluşturuldu")
+
+
+@router.get(
+    "/sertifikalar",
+    response_model=Zarf[list[SertifikaCevapDTO]],
+    summary="Sertifikaları listele",
+)
+async def sertifika_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+    sayfa: int = 1,
+    adet: int = 20,
+    personel_id: int | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    kayitlar, toplam = await repository.sertifika_listele(
+        db, sayfa=sayfa, adet=adet, personel_id=personel_id
+    )
+    return sayfali([_sertifika_cevap(s) for s in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
