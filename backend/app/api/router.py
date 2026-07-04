@@ -14,6 +14,7 @@ from app.kimlik.kullanici_router import router as kullanici_router
 from app.kimlik.router import router as kimlik_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.enerji.router import router as enerji_router
+from app.modules.ik.router import router as ik_router
 from app.modules.isemri.router import router as isemri_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
@@ -32,4 +33,5 @@ api_router.include_router(stok_router)
 api_router.include_router(kalite_router)
 api_router.include_router(enerji_router)
 api_router.include_router(isg_router)
+api_router.include_router(ik_router)
 api_router.include_router(ws_router)
