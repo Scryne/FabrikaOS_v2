@@ -65,7 +65,7 @@ backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
 frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
 frontend/e2e/       # Playwright E2E (gerçek-zaman canlı güncelleme)
-docs/adr/           # mimari karar kayıtları (0001–0009)
+docs/adr/           # mimari karar kayıtları (0001–0014)
 docs/yol-haritasi.md# faz/sprint planı
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
 ```
@@ -158,7 +158,7 @@ REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcumler` (+`/csv`, `edge` i
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
 - **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0010 mevcut)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0014 mevcut)
 
 ## Yol haritası
 

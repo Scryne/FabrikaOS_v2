@@ -1,7 +1,8 @@
-"""Kullanıcı yönetimi uçları: ``/api/v1/kullanicilar``.
+"""Kullanıcı yönetimi uçları: ``/api/v1/kullanicilar`` + ``/api/v1/roller``.
 
-Tenant-kapsamlı ve RBAC korumalı (altın kural): GET ``kullanici:oku``, POST ``kullanici:yaz``.
-Bu uçlar aynı zamanda tenant izolasyonu ve RBAC için referans/test yüzeyidir.
+Tenant-kapsamlı ve RBAC korumalı (altın kural): GET ``kullanici:oku``, POST ``kullanici:yaz``;
+rol kataloğu GET ``rol:oku``. Bu uçlar aynı zamanda tenant izolasyonu ve RBAC için
+referans/test yüzeyidir.
 """
 
 from __future__ import annotations
@@ -19,9 +20,10 @@ from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.core.responses import Zarf, basari, sayfali
 from app.core.security.parola import parola_ozetle
 from app.kimlik.models import Kullanici, Rol
-from app.kimlik.schemas import KullaniciCevapDTO, KullaniciOlusturDTO
+from app.kimlik.schemas import KullaniciCevapDTO, KullaniciOlusturDTO, RolCevapDTO
 
 router = APIRouter(prefix="/kullanicilar", tags=["Kullanıcılar"])
+rol_router = APIRouter(prefix="/roller", tags=["Kullanıcılar"])
 
 
 def _cevap(kullanici: Kullanici) -> dict[str, Any]:
@@ -95,3 +97,22 @@ async def olustur(
         detay={"eposta": yeni.eposta},
     )
     return basari(_cevap(yeni), mesaj="Kullanıcı oluşturuldu")
+
+
+@rol_router.get("", response_model=Zarf[list[RolCevapDTO]], summary="Rolleri listele")
+async def rolleri_listele(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("rol:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    """Tenant'ın rol kataloğu — kullanıcı oluştururken rol seçimi için."""
+    sonuc = await db.execute(select(Rol).order_by(Rol.ad))
+    veri = [
+        RolCevapDTO(
+            id=r.id,
+            ad=r.ad,
+            aciklama=r.aciklama,
+            izinler=sorted(i.kod for i in r.izinler),
+        ).model_dump()
+        for r in sonuc.scalars()
+    ]
+    return basari(veri, mesaj="Roller listelendi")

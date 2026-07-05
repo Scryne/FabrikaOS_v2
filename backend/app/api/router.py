@@ -10,6 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter
 
 from app.api.ws import router as ws_router
+from app.kimlik.kullanici_router import rol_router
 from app.kimlik.kullanici_router import router as kullanici_router
 from app.kimlik.router import router as kimlik_router
 from app.modules.bakim.router import router as bakim_router
@@ -31,6 +32,7 @@ from app.modules.uretim.router import router as uretim_router
 api_router = APIRouter()
 api_router.include_router(kimlik_router)
 api_router.include_router(kullanici_router)
+api_router.include_router(rol_router)
 api_router.include_router(uretim_router)
 api_router.include_router(saha_router)
 api_router.include_router(isemri_router)

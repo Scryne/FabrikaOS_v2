@@ -52,7 +52,7 @@ export function IzinFormu({
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional">

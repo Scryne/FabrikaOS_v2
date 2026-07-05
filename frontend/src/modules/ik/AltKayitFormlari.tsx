@@ -36,7 +36,7 @@ export function MesaiFormu({ acik, kapat, personelId }: FormProps) {
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
@@ -81,7 +81,7 @@ export function ZimmetFormu({ acik, kapat, personelId }: FormProps) {
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
@@ -131,7 +131,7 @@ export function SertifikaFormu({ acik, kapat, personelId }: FormProps) {
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional">

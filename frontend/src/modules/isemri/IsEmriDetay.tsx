@@ -61,7 +61,7 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
       open={acik}
       onClose={kapat}
       width={520}
-      destroyOnClose
+      destroyOnHidden
       title={
         isEmri ? (
           <Space size={10} wrap>

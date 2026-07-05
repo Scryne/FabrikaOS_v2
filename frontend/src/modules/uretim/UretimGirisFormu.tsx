@@ -59,7 +59,7 @@ export function UretimGirisFormu({
         form.resetFields();
         kapat();
       }}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form

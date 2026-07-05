@@ -13,8 +13,8 @@ import { Spin } from 'antd';
 import { oturumBaslat } from '@/api/kimlik';
 import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
-import { ModulYerTutucu } from '@/components/ModulYerTutucu';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
 import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
 import { BelgeListesi } from '@/modules/dys/BelgeListesi';
@@ -28,6 +28,7 @@ import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
+import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
@@ -58,6 +59,8 @@ function OnizlemeOturum() {
       izinler: [
         'uretim:oku',
         'uretim:yaz',
+        'saha:oku',
+        'saha:yaz',
         'isemri:oku',
         'isemri:yaz',
         'bakim:oku',
@@ -87,6 +90,8 @@ function OnizlemeOturum() {
         'duyuru:oku',
         'duyuru:yaz',
         'kullanici:oku',
+        'kullanici:yaz',
+        'rol:oku',
       ],
     });
   }, [ayarlaOturum]);
@@ -116,7 +121,8 @@ function TamEkranYukleniyor() {
       }}
     >
       <LogoIsareti boyut={40} />
-      <Spin tip={t('ortak.yukleniyor')} />
+      <Spin />
+      <span style={{ color: 'var(--metin-soluk)', fontSize: 13 }}>{t('ortak.yukleniyor')}</span>
     </div>
   );
 }
@@ -325,7 +331,7 @@ export function App() {
             path="bakim-planlari"
             element={
               <IzinKapisi izin="bakim:oku">
-                <ModulYerTutucu baslikAnahtari="menu.bakim" />
+                <BakimPlanListesi />
               </IzinKapisi>
             }
           />
@@ -333,7 +339,7 @@ export function App() {
             path="kullanicilar"
             element={
               <IzinKapisi izin="kullanici:oku">
-                <ModulYerTutucu baslikAnahtari="menu.kullanicilar" />
+                <KullaniciListesi />
               </IzinKapisi>
             }
           />

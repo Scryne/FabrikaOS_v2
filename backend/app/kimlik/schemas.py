@@ -48,3 +48,10 @@ class KullaniciCevapDTO(BaseModel):
     ad_soyad: str
     aktif: bool
     roller: list[str]
+
+
+class RolCevapDTO(BaseModel):
+    id: int
+    ad: str
+    aciklama: str
+    izinler: list[str]

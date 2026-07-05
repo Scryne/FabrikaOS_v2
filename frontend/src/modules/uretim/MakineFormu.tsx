@@ -35,7 +35,7 @@ export function MakineFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
         form.resetFields();
         kapat();
       }}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional" preserve={false}>

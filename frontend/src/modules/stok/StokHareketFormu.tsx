@@ -40,7 +40,7 @@ export function StokHareketFormu({
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={ekle.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form form={form} layout="vertical" requiredMark="optional">

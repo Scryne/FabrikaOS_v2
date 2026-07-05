@@ -207,7 +207,7 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
             okText={t('ortak.kaydet')}
             cancelText={t('ortak.iptal')}
             confirmLoading={aksiyonEkle.isPending}
-            destroyOnClose
+            destroyOnHidden
           >
             <Form form={form} layout="vertical" requiredMark="optional">
               <Form.Item

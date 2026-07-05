@@ -46,7 +46,7 @@ export function EnerjiGirisFormu({ acik, kapat }: { acik: boolean; kapat: () => 
       okText={t('ortak.kaydet')}
       cancelText={t('ortak.iptal')}
       confirmLoading={olcumEkle.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form

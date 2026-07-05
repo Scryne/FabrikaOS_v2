@@ -51,7 +51,7 @@ export function SatinalmaTalepFormu({ acik, kapat }: { acik: boolean; kapat: () 
       cancelText={t('ortak.iptal')}
       width={720}
       confirmLoading={olustur.isPending}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form

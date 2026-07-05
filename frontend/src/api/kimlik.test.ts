@@ -83,4 +83,23 @@ describe('kimlik servisi', () => {
     expect(sonuc).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it('oturumBaslat: eşzamanlı çağrılar tek yenile isteğine tekilleşir (rotasyon yarışı yok)', async () => {
+    refreshSakla('r-eski');
+    const fetchMock = yonlendir([
+      ['/kimlik/yenile', () => jsonCevap(200, { access_token: 'a3', refresh_token: 'r3' })],
+      ['/kimlik/ben', () => jsonCevap(200, KULLANICI)],
+    ]);
+    vi.stubGlobal('fetch', fetchMock);
+
+    const [s1, s2] = await Promise.all([oturumBaslat(), oturumBaslat()]);
+
+    expect(s1).toBe(true);
+    expect(s2).toBe(true);
+    const yenileCagrilari = fetchMock.mock.calls.filter(([u]) =>
+      String(u).includes('/kimlik/yenile'),
+    );
+    expect(yenileCagrilari).toHaveLength(1);
+    expect(refreshOku()).toBe('r3');
+  });
 });

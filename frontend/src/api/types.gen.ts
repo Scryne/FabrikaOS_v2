@@ -141,6 +141,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/roller": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Rolleri listele
+         * @description Tenant'ın rol kataloğu — kullanıcı oluştururken rol seçimi için.
+         */
+        get: operations["rolleri_listele_api_v1_roller_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/makineler": {
         parameters: {
             query?: never;
@@ -2807,6 +2827,17 @@ export interface components {
             /** Gecerlilik Tarihi */
             gecerlilik_tarihi?: string | null;
         };
+        /** RolCevapDTO */
+        RolCevapDTO: {
+            /** Id */
+            id: number;
+            /** Ad */
+            ad: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Izinler */
+            izinler: string[];
+        };
         /** SatinalmaKalemCevapDTO */
         SatinalmaKalemCevapDTO: {
             /** Id */
@@ -4348,6 +4379,22 @@ export interface components {
             data?: components["schemas"]["RiskDegerlendirmeCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[RolCevapDTO]] */
+        Zarf_list_RolCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["RolCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[SatinalmaTalebiCevapDTO]] */
         Zarf_list_SatinalmaTalebiCevapDTO__: {
             /**
@@ -4800,6 +4847,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rolleri_listele_api_v1_roller_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_RolCevapDTO__"];
                 };
             };
         };

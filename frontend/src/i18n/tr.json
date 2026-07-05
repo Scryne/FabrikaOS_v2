@@ -23,11 +23,14 @@
     "kapat": "Kapat",
     "tumu": "Tümü",
     "hata_baslik": "Bir şeyler ters gitti",
-    "tekrar_dene": "Tekrar dene"
+    "tekrar_dene": "Tekrar dene",
+    "canli": "Canlı",
+    "calisma_alani": "Çalışma alanı"
   },
   "tablo": {
     "toplam": "{{aralik}} / {{toplam}} kayıt",
-    "bos": "Kayıt bulunamadı"
+    "bos": "Kayıt bulunamadı",
+    "kayit": "kayıt"
   },
   "kimlik": {
     "giris_basligi": "Kontrol paneline giriş",
@@ -40,7 +43,8 @@
     "hatali_giris": "Giriş başarısız. Firma kodu, e-posta veya parolayı kontrol edin.",
     "firma_kodu_gerekli": "Firma kodu gerekli",
     "eposta_gerekli": "E-posta gerekli",
-    "parola_gerekli": "Parola gerekli"
+    "parola_gerekli": "Parola gerekli",
+    "form_baslik": "Hesabınıza giriş yapın"
   },
   "menu": {
     "bolum_genel": "Genel",
@@ -479,7 +483,8 @@
     "yorumlar": "Yorumlar",
     "yorum_yaz": "Bir yorum yazın…",
     "yorum_ekle": "Yorum ekle",
-    "yorum_yok": "Henüz yorum yok."
+    "yorum_yok": "Henüz yorum yok.",
+    "iptal_onay": "İş emri iptal edilsin mi?"
   },
   "yetki": {
     "yetkisiz_baslik": "Bu sayfaya yetkiniz yok",
@@ -489,7 +494,6 @@
   "pano": {
     "hosgeldin": "Tekrar hoş geldiniz, {{ad}}",
     "alt_baslik": "Bugün fabrikanızda olup biten her şey tek bakışta.",
-    "yakinda_modul": "Bu modül ekranı sonraki sprintte gelecek.",
     "kpi_toplam_uretim": "Toplam üretim",
     "kpi_oee": "Filo OEE",
     "kpi_calisan": "Çalışan makine",
@@ -649,5 +653,44 @@
     "sekme_mesai": "Fazla mesai",
     "sekme_zimmet": "Zimmet",
     "sekme_sertifika": "Sertifika"
+  },
+  "bakim": {
+    "alt": "Makine bakım planları — periyot, son/sonraki bakım ve durum.",
+    "ara": "Plan adında ara…",
+    "bos": "Bakım planı yok. İlk planı oluşturun.",
+    "yeni": "Yeni plan",
+    "olusturuldu": "Bakım planı oluşturuldu",
+    "guncellendi": "Bakım planı güncellendi",
+    "ad": "Plan adı",
+    "makine": "Makine",
+    "makine_sec": "Makine seçin",
+    "tip": "Tip",
+    "tip_onleyici": "Önleyici",
+    "tip_kestirimci": "Kestirimci",
+    "tip_periyodik": "Periyodik",
+    "periyot_gun": "Periyot (gün)",
+    "son_bakim": "Son bakım",
+    "sonraki_bakim": "Sonraki bakım",
+    "gecikti": "Gecikti",
+    "aciklama": "Açıklama",
+    "durum": "Durum",
+    "aktif": "Aktif",
+    "pasif": "Pasif"
+  },
+  "kullanici": {
+    "alt": "Tenant kullanıcıları, rolleri ve hesap durumu.",
+    "bos": "Kullanıcı bulunamadı.",
+    "yeni": "Yeni kullanıcı",
+    "olusturuldu": "Kullanıcı oluşturuldu",
+    "eposta": "E-posta",
+    "eposta_gecersiz": "Geçerli bir e-posta girin",
+    "ad_soyad": "Ad soyad",
+    "parola": "Parola",
+    "parola_kisa": "Parola en az 8 karakter olmalı",
+    "roller": "Roller",
+    "rol_sec": "Rol seçin",
+    "durum": "Durum",
+    "aktif": "Aktif",
+    "pasif": "Pasif"
   }
 }

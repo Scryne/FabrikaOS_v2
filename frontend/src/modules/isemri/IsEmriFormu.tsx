@@ -51,7 +51,7 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
         form.resetFields();
         kapat();
       }}
-      destroyOnClose
+      destroyOnHidden
       maskClosable={false}
     >
       <Form

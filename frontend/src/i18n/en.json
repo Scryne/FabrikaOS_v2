@@ -23,11 +23,14 @@
     "kapat": "Close",
     "tumu": "All",
     "hata_baslik": "Something went wrong",
-    "tekrar_dene": "Try again"
+    "tekrar_dene": "Try again",
+    "canli": "Live",
+    "calisma_alani": "Workspace"
   },
   "tablo": {
     "toplam": "{{aralik}} of {{toplam}} records",
-    "bos": "No records found"
+    "bos": "No records found",
+    "kayit": "records"
   },
   "kimlik": {
     "giris_basligi": "Sign in to the control panel",
@@ -40,7 +43,8 @@
     "hatali_giris": "Sign-in failed. Check company code, email or password.",
     "firma_kodu_gerekli": "Company code is required",
     "eposta_gerekli": "Email is required",
-    "parola_gerekli": "Password is required"
+    "parola_gerekli": "Password is required",
+    "form_baslik": "Sign in to your account"
   },
   "menu": {
     "bolum_genel": "General",
@@ -479,7 +483,8 @@
     "yorumlar": "Comments",
     "yorum_yaz": "Write a comment…",
     "yorum_ekle": "Add comment",
-    "yorum_yok": "No comments yet."
+    "yorum_yok": "No comments yet.",
+    "iptal_onay": "Cancel this work order?"
   },
   "yetki": {
     "yetkisiz_baslik": "You don’t have access to this page",
@@ -489,7 +494,6 @@
   "pano": {
     "hosgeldin": "Welcome back, {{ad}}",
     "alt_baslik": "Everything happening on your floor today, at a glance.",
-    "yakinda_modul": "This module screen arrives in a later sprint.",
     "kpi_toplam_uretim": "Total output",
     "kpi_oee": "Fleet OEE",
     "kpi_calisan": "Running machines",
@@ -649,5 +653,44 @@
     "sekme_mesai": "Overtime",
     "sekme_zimmet": "Assets",
     "sekme_sertifika": "Certificates"
+  },
+  "bakim": {
+    "alt": "Machine maintenance plans — period, last/next service and status.",
+    "ara": "Search plan name…",
+    "bos": "No maintenance plans yet. Create the first one.",
+    "yeni": "New plan",
+    "olusturuldu": "Maintenance plan created",
+    "guncellendi": "Maintenance plan updated",
+    "ad": "Plan name",
+    "makine": "Machine",
+    "makine_sec": "Select a machine",
+    "tip": "Type",
+    "tip_onleyici": "Preventive",
+    "tip_kestirimci": "Predictive",
+    "tip_periyodik": "Periodic",
+    "periyot_gun": "Period (days)",
+    "son_bakim": "Last service",
+    "sonraki_bakim": "Next service",
+    "gecikti": "Overdue",
+    "aciklama": "Description",
+    "durum": "Status",
+    "aktif": "Active",
+    "pasif": "Inactive"
+  },
+  "kullanici": {
+    "alt": "Tenant users, their roles and account status.",
+    "bos": "No users found.",
+    "yeni": "New user",
+    "olusturuldu": "User created",
+    "eposta": "Email",
+    "eposta_gecersiz": "Enter a valid email",
+    "ad_soyad": "Full name",
+    "parola": "Password",
+    "parola_kisa": "Password must be at least 8 characters",
+    "roller": "Roles",
+    "rol_sec": "Select roles",
+    "durum": "Status",
+    "aktif": "Active",
+    "pasif": "Inactive"
   }
 }

@@ -38,11 +38,7 @@ export async function girisYap(
   await kullaniciYukle(jeton.access_token);
 }
 
-/**
- * Sayfa yükünde sessiz giriş: saklı refresh varsa yeni access alıp kullanıcıyı yükler.
- * Başarısızsa oturumu temizler. İlk açılışta (refresh yok) hiç istek atmaz.
- */
-export async function oturumBaslat(): Promise<boolean> {
+async function _oturumBaslat(): Promise<boolean> {
   const refresh = refreshOku();
   if (!refresh) return false;
   try {
@@ -59,6 +55,23 @@ export async function oturumBaslat(): Promise<boolean> {
     oturumDusur();
     return false;
   }
+}
+
+let baslatiliyor: Promise<boolean> | null = null;
+
+/**
+ * Sayfa yükünde sessiz giriş: saklı refresh varsa yeni access alıp kullanıcıyı yükler.
+ * Başarısızsa oturumu temizler. İlk açılışta (refresh yok) hiç istek atmaz.
+ *
+ * Eşzamanlı çağrılar tekilleştirilir: refresh **rotasyonlu** olduğundan iki paralel
+ * ``yenile`` isteğinin ikincisi 401 alır ve taze oturumu düşürürdü (ör. StrictMode'un
+ * çift effect'i her tam sayfa yenilemede çıkışa yol açıyordu).
+ */
+export function oturumBaslat(): Promise<boolean> {
+  baslatiliyor ??= _oturumBaslat().finally(() => {
+    baslatiliyor = null;
+  });
+  return baslatiliyor;
 }
 
 /** Çıkış: refresh'i sunucuda iptal eder, ardından yerel oturumu temizler. */

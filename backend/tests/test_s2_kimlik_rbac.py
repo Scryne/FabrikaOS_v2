@@ -139,6 +139,41 @@ async def test_rbac_yetkisiz_yazma_403(kurulu_istemci: AsyncClient) -> None:
     assert r.status_code == 403
 
 
+# --- Rol kataloğu ---
+async def test_roller_listele(kurulu_istemci: AsyncClient) -> None:
+    access, _ = await _giris(kurulu_istemci, ALFA)
+    r = await kurulu_istemci.get("/api/v1/roller", headers=_baslik("alfa", access))
+    assert r.status_code == 200, r.text
+    roller = {rol["ad"]: rol for rol in r.json()["data"]}
+    assert "admin" in roller
+    assert "izleyici" in roller
+    assert "kullanici:yaz" in roller["admin"]["izinler"]
+    # izleyici salt-okunur: yalnız *:oku izinleri taşır.
+    assert all(izin.endswith(":oku") for izin in roller["izleyici"]["izinler"])
+
+
+async def test_roller_rbac_yetkisiz_403(kurulu_istemci: AsyncClient) -> None:
+    # rol:oku izni olmayan bir rol (saha-cihaz yalnız edge iznine sahip).
+    access_admin, _ = await _giris(kurulu_istemci, ALFA)
+    r = await kurulu_istemci.post(
+        KULLANICILAR,
+        json={
+            "eposta": "cihaz-hesabi@alfa.test",
+            "parola": "Cihaz12345!",
+            "roller": ["saha-cihaz"],
+        },
+        headers=_baslik("alfa", access_admin),
+    )
+    assert r.status_code == 201, r.text
+
+    access_cihaz, _ = await _giris(
+        kurulu_istemci,
+        {"slug": "alfa", "eposta": "cihaz-hesabi@alfa.test", "parola": "Cihaz12345!"},
+    )
+    r = await kurulu_istemci.get("/api/v1/roller", headers=_baslik("alfa", access_cihaz))
+    assert r.status_code == 403
+
+
 # --- Token rotasyonu / çıkış ---
 async def test_token_rotasyonu_eski_refresh_iptal(kurulu_istemci: AsyncClient) -> None:
     _, refresh1 = await _giris(kurulu_istemci, ALFA)
