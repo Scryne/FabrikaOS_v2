@@ -16,6 +16,7 @@ import type { SortOrder } from 'antd/es/table/interface';
 
 import type { SayfaMeta } from '@/api/client';
 import type { SayfaParam } from '@/api/sayfalama';
+import { BosDurum } from '@/components/BosDurum';
 
 function kolonAnahtari<T>(k: ColumnsType<T>[number]): string {
   if ('key' in k && k.key !== undefined) return String(k.key);
@@ -96,9 +97,19 @@ export function SunucuTablo<T extends object>({
     return { ...k, sortOrder };
   });
 
+  const aracCubuguVar = Boolean(baslik || aramaYer || araclar);
+
+  // Boş durum: düz metin sakin öğretici bloğa sarılır; hazır ReactNode ise aynen kullanılır.
+  const bosGovde =
+    bosMetin == null || typeof bosMetin === 'string' || typeof bosMetin === 'number' ? (
+      <BosDurum baslik={bosMetin ?? t('tablo.bos')} />
+    ) : (
+      bosMetin
+    );
+
   return (
     <div>
-      {(baslik || aramaYer || araclar) && (
+      {aracCubuguVar && (
         <div
           style={{
             display: 'flex',
@@ -108,8 +119,15 @@ export function SunucuTablo<T extends object>({
             marginBottom: 16,
           }}
         >
-          {baslik && <div style={{ marginRight: 'auto' }}>{baslik}</div>}
-          {!baslik && <div style={{ marginRight: 'auto' }} />}
+          <div style={{ marginRight: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+            {baslik}
+            {meta != null && (
+              <span className="kayit-sayaci">
+                <strong className="sayisal">{meta.toplam.toLocaleString('tr-TR')}</strong>
+                {t('tablo.kayit')}
+              </span>
+            )}
+          </div>
           {aramaYer && (
             <AramaKutusu baslangic={param.arama ?? ''} yer={aramaYer} araDegisti={araDegisti} />
           )}
@@ -125,7 +143,7 @@ export function SunucuTablo<T extends object>({
         onRow={onRow}
         size="middle"
         scroll={{ x: 'max-content' }}
-        locale={bosMetin ? { emptyText: bosMetin } : undefined}
+        locale={{ emptyText: bosGovde }}
         pagination={{
           current: param.sayfa,
           pageSize: param.adet,

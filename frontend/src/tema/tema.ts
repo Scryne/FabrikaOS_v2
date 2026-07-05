@@ -38,6 +38,9 @@ const FONT_GOVDE =
   "'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 const FONT_MONO = "'JetBrains Mono Variable', ui-monospace, 'Cascadia Code', 'Consolas', monospace";
 
+/** Açılır katmanlar (dropdown/popover/modal): karartı + 1px ışık halkası — koyu zeminde net kenar. */
+const KATMAN_GOLGE = '0 12px 32px -8px rgba(0, 0, 0, 0.65), 0 0 0 1px #2a2a2d';
+
 export const tema: ThemeConfig = {
   algorithm: theme.darkAlgorithm,
   token: {
@@ -62,6 +65,9 @@ export const tema: ThemeConfig = {
     wireframe: false,
     motionDurationMid: '0.18s',
     controlHeight: 38,
+
+    boxShadow: KATMAN_GOLGE,
+    boxShadowSecondary: KATMAN_GOLGE,
   },
   components: {
     Layout: {
@@ -79,16 +85,21 @@ export const tema: ThemeConfig = {
       itemHoverColor: RENKLER.metin,
       itemHoverBg: 'rgba(255,255,255,0.04)',
       itemBorderRadius: 10,
-      itemHeight: 42,
-      iconSize: 18,
+      itemHeight: 40,
+      itemMarginBlock: 2,
+      iconSize: 17,
+      groupTitleColor: '#6d6d74',
     },
     Card: {
       colorBgContainer: RENKLER.yuzey,
       borderRadiusLG: 16,
       paddingLG: 20,
+      headerFontSize: 15,
     },
     Button: {
       primaryShadow: 'none',
+      defaultShadow: 'none',
+      dangerShadow: 'none',
       fontWeight: 600,
       controlHeight: 40,
     },
@@ -104,9 +115,61 @@ export const tema: ThemeConfig = {
       colorBgContainer: RENKLER.yuzeyUst,
       activeBorderColor: RENKLER.mavi,
     },
+    InputNumber: {
+      colorBgContainer: RENKLER.yuzeyUst,
+    },
+    Select: {
+      colorBgContainer: RENKLER.yuzeyUst,
+      optionSelectedBg: 'rgba(59, 110, 246, 0.16)',
+    },
+    DatePicker: {
+      colorBgContainer: RENKLER.yuzeyUst,
+    },
     Segmented: {
       itemSelectedBg: RENKLER.yuzeyUst,
       trackBg: RENKLER.yuzey2,
+    },
+    Tabs: {
+      itemColor: RENKLER.metinSoluk,
+      itemHoverColor: RENKLER.metin,
+      inkBarColor: RENKLER.mavi,
+      horizontalMargin: '0 0 20px 0',
+    },
+    Modal: {
+      contentBg: RENKLER.yuzey,
+      headerBg: RENKLER.yuzey,
+      titleFontSize: 16,
+    },
+    Drawer: {
+      colorBgElevated: RENKLER.yuzey,
+    },
+    Tooltip: {
+      colorBgSpotlight: '#28282c',
+    },
+    Descriptions: {
+      colorTextSecondary: RENKLER.metinSoluk,
+      titleMarginBottom: 12,
+    },
+    Statistic: {
+      titleFontSize: 13,
+      contentFontSize: 22,
+    },
+    Skeleton: {
+      gradientFromColor: 'rgba(255,255,255,0.045)',
+      gradientToColor: 'rgba(255,255,255,0.10)',
+    },
+    Tag: {
+      defaultBg: RENKLER.yuzeyUst,
+    },
+    Alert: {
+      colorInfoBg: 'rgba(56, 189, 248, 0.09)',
+      colorInfoBorder: 'rgba(56, 189, 248, 0.28)',
+      colorErrorBg: 'rgba(239, 68, 68, 0.09)',
+      colorErrorBorder: 'rgba(239, 68, 68, 0.28)',
+      colorWarningBg: 'rgba(245, 158, 11, 0.09)',
+      colorWarningBorder: 'rgba(245, 158, 11, 0.28)',
+      colorSuccessBg: 'rgba(34, 197, 94, 0.09)',
+      colorSuccessBorder: 'rgba(34, 197, 94, 0.28)',
     },
   },
 };

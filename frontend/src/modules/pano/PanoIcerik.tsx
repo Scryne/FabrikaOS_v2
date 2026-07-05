@@ -143,6 +143,7 @@ export function PanoIcerik({
             baslik={t('pano.kpi_oee')}
             deger={`%${Math.round(filo.oee)}`}
             ikon={<DashboardOutlined />}
+            renk="var(--mavi)"
             altMetin={t('pano.filo_geneli')}
           />
         </Col>
@@ -151,6 +152,7 @@ export function PanoIcerik({
             baslik={t('pano.kpi_calisan')}
             deger={`${calisanSayisi}/${makineSayisi}`}
             ikon={<ThunderboltOutlined />}
+            renk="var(--cyan)"
             altMetin={t('pano.makine')}
           />
         </Col>
@@ -159,6 +161,7 @@ export function PanoIcerik({
             baslik={t('pano.kpi_izlenen')}
             deger={String(izlenenSayisi)}
             ikon={<EyeOutlined />}
+            renk="var(--hat-stok)"
             altMetin={t('pano.uretimli_makine')}
           />
         </Col>
@@ -167,6 +170,7 @@ export function PanoIcerik({
             baslik={t('pano.kpi_kalite')}
             deger={`%${Math.round(filo.kalite)}`}
             ikon={<CheckCircleOutlined />}
+            renk="var(--basari)"
             altMetin={t('pano.filo_geneli')}
           />
         </Col>

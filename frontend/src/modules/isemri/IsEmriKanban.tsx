@@ -11,6 +11,14 @@ import { Empty, Skeleton } from 'antd';
 
 import { ToolOutlined, UserOutlined } from '@ant-design/icons';
 
+/** Kolon başlığı durum rengi (renk + etiket birlikte; renk tek başına anlam taşımaz). */
+const KOLON_RENK: Record<string, string> = {
+  acik: 'var(--metin-soluk)',
+  atandi: 'var(--cyan)',
+  devam_ediyor: 'var(--mavi)',
+  kapandi: 'var(--basari)',
+};
+
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 
 import { KANBAN_DURUMLARI } from './durum';
@@ -23,19 +31,10 @@ function Kart({ e, makineKod, ac }: { e: IsEmri; makineKod: string; ac: (id: num
     <div
       role="button"
       tabIndex={0}
+      className="kanban-kart"
       onClick={() => ac(e.id)}
       onKeyDown={(ev) => {
         if (ev.key === 'Enter') ac(e.id);
-      }}
-      style={{
-        background: 'var(--yuzey)',
-        border: '1px solid var(--kenarlik)',
-        borderRadius: 12,
-        padding: 14,
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 10,
       }}
     >
       <div
@@ -109,7 +108,20 @@ export function IsEmriKanban({ ac }: { ac: (id: number) => void }) {
                 padding: '0 4px',
               }}
             >
-              <span style={{ fontWeight: 600, color: 'var(--metin)' }}>
+              <span
+                style={{
+                  fontWeight: 600,
+                  color: 'var(--metin)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}
+              >
+                <span
+                  className="durum-nokta"
+                  aria-hidden="true"
+                  style={{ background: KOLON_RENK[durum] ?? 'var(--metin-soluk)' }}
+                />
                 {t(`isemri.durum_${durum}`)}
               </span>
               <span

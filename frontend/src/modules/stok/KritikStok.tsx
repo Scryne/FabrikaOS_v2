@@ -4,12 +4,41 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Card, Table, Tag } from 'antd';
+import { CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { BosDurum } from '@/components/BosDurum';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 
 import { type Malzeme, useKritikStok } from './hooks';
+
+/** Mevcut/eşik doluluk çubuğu — eşiğe yakınlık tek bakışta (tüm satırlar zaten kritik). */
+function EsikCubugu({ mevcut, esik }: { mevcut: number; esik: number }) {
+  const oran = esik > 0 ? Math.max(0, Math.min(1, mevcut / esik)) : 0;
+  return (
+    <div
+      style={{
+        width: 90,
+        height: 5,
+        borderRadius: 3,
+        background: 'rgba(255,255,255,0.08)',
+        overflow: 'hidden',
+      }}
+      aria-hidden="true"
+    >
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          background: oran < 0.5 ? 'var(--hata)' : 'var(--uyari)',
+          transform: `scaleX(${oran})`,
+          transformOrigin: 'left',
+        }}
+      />
+    </div>
+  );
+}
 
 export function KritikStok() {
   const { t } = useTranslation();
@@ -19,14 +48,7 @@ export function KritikStok() {
     {
       title: t('stok.kod'),
       dataIndex: 'kod',
-      render: (v: string) => (
-        <span className="sayisal">
-          {v}{' '}
-          <Tag color="red" bordered={false}>
-            {t('stok.kritik_rozet')}
-          </Tag>
-        </span>
-      ),
+      render: (v: string) => <span className="sayisal">{v}</span>,
     },
     { title: t('stok.ad'), dataIndex: 'ad' },
     {
@@ -34,8 +56,18 @@ export function KritikStok() {
       dataIndex: 'mevcut_miktar',
       align: 'right',
       render: (v: number, m) => (
-        <span className="sayisal">
-          {v} {m.birim}
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 10,
+            justifyContent: 'flex-end',
+          }}
+        >
+          <EsikCubugu mevcut={v} esik={m.kritik_stok} />
+          <span className="sayisal" style={{ color: 'var(--hata)', fontWeight: 600 }}>
+            {v} {m.birim}
+          </span>
         </span>
       ),
     },
@@ -55,7 +87,14 @@ export function KritikStok() {
           rowKey="id"
           loading={isPending}
           dataSource={data ?? []}
-          locale={{ emptyText: t('stok.kritik_bos') }}
+          locale={{
+            emptyText: (
+              <BosDurum
+                ikon={<CheckCircleOutlined style={{ color: 'var(--basari)' }} />}
+                baslik={t('stok.kritik_bos')}
+              />
+            ),
+          }}
           pagination={false}
           columns={kolonlar}
         />

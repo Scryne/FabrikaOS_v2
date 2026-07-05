@@ -23,6 +23,20 @@
   --hata: #ef4444;
   --mor: #8b5cf6;
 
+  /* Hat renkleri — modül bölümü kimliği (endüstriyel hat renk kodu; tema/modulKimlik.tsx ile hizalı) */
+  --hat-genel: #3b6ef6;
+  --hat-uretim: #38bdf8;
+  --hat-stok: #2dd4bf;
+  --hat-kalite: #8b5cf6;
+  --hat-isg-ik: #f59e0b;
+  --hat-ticari: #34d399;
+  --hat-dokuman: #f472b6;
+  --hat-yonetim: #94a3b8;
+
+  /* Derinlik (koyu zeminde gölge değil, ışık kenarı + hafif karartı) */
+  --golge-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --golge-2: 0 6px 24px -8px rgba(0, 0, 0, 0.55);
+
   --font-govde:
     'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
     Arial, sans-serif;
@@ -95,6 +109,7 @@ body {
   background: var(--basari);
   box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
   animation: nabiz 2.4s ease-out infinite;
+  flex-shrink: 0;
 }
 @keyframes nabiz {
   0% {
@@ -133,6 +148,240 @@ body {
   }
 }
 
+/* ---------------------------------------------------------------------------
+ * Sayfa başlığı — modül kimliği (hat rengi plakası + kırıntı + başlık).
+ * ------------------------------------------------------------------------- */
+
+.ikon-plaka {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  border-radius: 11px;
+  color: var(--plaka-renk, var(--mavi));
+  background: color-mix(in srgb, var(--plaka-renk, var(--mavi)) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--plaka-renk, var(--mavi)) 26%, transparent);
+}
+
+.ikon-plaka.kucuk {
+  width: 30px;
+  height: 30px;
+  font-size: 14px;
+  border-radius: 9px;
+}
+
+.sayfa-kirinti {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--metin-soluk);
+  margin-bottom: 3px;
+}
+.sayfa-kirinti .kirinti-nokta {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--plaka-renk, var(--mavi));
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * Kenar çubuğu — grup etiketi hat noktası + tenant kartı.
+ * ------------------------------------------------------------------------- */
+
+.menu-grup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.menu-grup .hat-nokta {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--hat, var(--kenarlik-parlak));
+  flex-shrink: 0;
+}
+
+.ant-menu-item-group-title {
+  font-size: 11.5px !important;
+  font-weight: 600;
+  padding-block: 14px 4px !important;
+}
+
+/* ---------------------------------------------------------------------------
+ * Üst bar — bağlam + araç düğmeleri + canlı durum.
+ * ------------------------------------------------------------------------- */
+
+.bar-dugme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--metin-soluk);
+  font-size: 17px;
+  cursor: pointer;
+  transition:
+    background var(--gecis),
+    color var(--gecis);
+}
+.bar-dugme:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--metin);
+}
+
+.canli-rozet {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--kenarlik);
+  background: var(--yuzey);
+  font-size: 12px;
+  color: var(--metin-soluk);
+  white-space: nowrap;
+}
+
+.bar-ayrac {
+  width: 1px;
+  height: 22px;
+  background: var(--kenarlik);
+  flex-shrink: 0;
+}
+
+.kullanici-cip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--gecis);
+}
+.kullanici-cip:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---------------------------------------------------------------------------
+ * Tablo araç çubuğu — kayıt sayacı çipi.
+ * ------------------------------------------------------------------------- */
+
+.kayit-sayaci {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: 1px solid var(--kenarlik);
+  background: var(--yuzey-ust);
+  color: var(--metin-soluk);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.kayit-sayaci strong {
+  color: var(--metin);
+  font-weight: 600;
+}
+
+/* Tıklanabilir tablo satırı — yumuşak vurgulu geçiş. */
+.ant-table-row {
+  transition: background var(--gecis);
+}
+
+/* ---------------------------------------------------------------------------
+ * Boş durum — arayüzü öğreten sakin blok.
+ * ------------------------------------------------------------------------- */
+
+.bos-durum {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 20px;
+  text-align: center;
+}
+.bos-durum .bos-ikon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  border-radius: 13px;
+  color: var(--metin-soluk);
+  background: var(--yuzey-ust);
+  border: 1px solid var(--kenarlik);
+  margin-bottom: 6px;
+}
+.bos-durum .bos-baslik {
+  color: var(--metin);
+  font-weight: 600;
+  font-size: 14px;
+}
+.bos-durum .bos-aciklama {
+  color: var(--metin-soluk);
+  font-size: 13px;
+  max-width: 44ch;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+ * Kanban — kolon + kart etkileşimi (hareket durum taşır: hover = tıklanabilir).
+ * ------------------------------------------------------------------------- */
+
+.kanban-kart {
+  background: var(--yuzey);
+  border: 1px solid var(--kenarlik);
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition:
+    border-color var(--gecis),
+    transform var(--gecis),
+    box-shadow var(--gecis);
+}
+.kanban-kart:hover {
+  border-color: var(--kenarlik-parlak);
+  transform: translateY(-1px);
+  box-shadow: var(--golge-2);
+}
+
+.durum-nokta {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+ * KPI kartı — sayı vurgusu; plaka rengi modül kimliğinden gelir.
+ * ------------------------------------------------------------------------- */
+
+.kpi-deger {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--metin);
+  line-height: 1.1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -143,5 +392,8 @@ body {
   }
   .icerik-acilis {
     animation: none;
+  }
+  .kanban-kart:hover {
+    transform: none;
   }
 }

@@ -8,7 +8,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Modal, Select, Space } from 'antd';
+import { Button, Modal, Popconfirm, Select, Space } from 'antd';
 
 import { useAuthStore } from '@/store/authStore';
 
@@ -50,21 +50,41 @@ export function DurumGecis({
   return (
     <>
       <Space size={8} wrap>
-        {hedefler.map((hedef) => (
-          <Button
-            key={hedef}
-            size={boyut}
-            type={hedef === 'kapandi' ? 'primary' : 'default'}
-            danger={hedef === 'iptal'}
-            loading={guncelle.isPending}
-            onClick={(e) => {
-              e.stopPropagation();
-              gecisYap(hedef);
-            }}
-          >
-            {t(`isemri.gecis_${hedef}`)}
-          </Button>
-        ))}
+        {hedefler.map((hedef) =>
+          hedef === 'iptal' ? (
+            // İptal geri alınamaz: sakin metin butonu + onay sorusu (kart yüzeyinde kırmızı bağırmaz).
+            <Popconfirm
+              key={hedef}
+              title={t('isemri.iptal_onay')}
+              okButtonProps={{ danger: true }}
+              onConfirm={() => gecisYap(hedef)}
+              onPopupClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                size={boyut}
+                type="text"
+                loading={guncelle.isPending}
+                style={{ color: 'var(--metin-soluk)' }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {t(`isemri.gecis_${hedef}`)}
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Button
+              key={hedef}
+              size={boyut}
+              type={hedef === 'kapandi' ? 'primary' : 'default'}
+              loading={guncelle.isPending}
+              onClick={(e) => {
+                e.stopPropagation();
+                gecisYap(hedef);
+              }}
+            >
+              {t(`isemri.gecis_${hedef}`)}
+            </Button>
+          ),
+        )}
       </Space>
 
       <Modal
@@ -81,7 +101,7 @@ export function DurumGecis({
             { onSuccess: () => setAtaAcik(false) },
           );
         }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Select
           style={{ width: '100%' }}

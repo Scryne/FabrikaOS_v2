@@ -1,6 +1,9 @@
-/** KPI metrik kartı — büyük mono sayı + opsiyonel dönemsel delta veya alt etiket. */
+/**
+ * KPI metrik kartı — büyük mono sayı + hat renkli ikon plakası + opsiyonel dönemsel delta
+ * veya alt etiket. ``renk`` modül hat renginden gelir (tema/modulKimlik.BOLUM_RENGI).
+ */
 
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { Card } from 'antd';
 
@@ -9,6 +12,7 @@ export function KpiKart({
   deger,
   birim,
   ikon,
+  renk,
   deltaMetin,
   yon,
   olumlu,
@@ -18,33 +22,40 @@ export function KpiKart({
   deger: string;
   birim?: string;
   ikon?: ReactNode;
+  /** İkon plakası hat rengi (hex/var); verilmezse vurgu mavisi. */
+  renk?: string;
   /** Verilirse delta satırı (ok + renkli yüzde) gösterilir; yoksa yalnız alt metin. */
   deltaMetin?: string;
   yon?: 'yukari' | 'asagi';
   olumlu?: boolean;
   altMetin?: string;
 }) {
-  const renk = olumlu ? 'var(--basari)' : 'var(--hata)';
+  const deltaRenk = olumlu ? 'var(--basari)' : 'var(--hata)';
   return (
     <Card size="small" styles={{ body: { padding: 18 } }}>
       <div
         style={{
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           justifyContent: 'space-between',
           gap: 8,
         }}
       >
-        <span style={{ color: 'var(--metin-soluk)', fontSize: 13, fontWeight: 500 }}>{baslik}</span>
-        {ikon && <span style={{ color: 'var(--metin-soluk)' }}>{ikon}</span>}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 10 }}>
-        <span
-          className="sayisal"
-          style={{ fontSize: 27, fontWeight: 700, color: 'var(--metin)', letterSpacing: '-0.02em' }}
-        >
-          {deger}
+        <span style={{ color: 'var(--metin-soluk)', fontSize: 13, fontWeight: 500, marginTop: 5 }}>
+          {baslik}
         </span>
+        {ikon && (
+          <span
+            className="ikon-plaka kucuk"
+            aria-hidden="true"
+            style={{ '--plaka-renk': renk ?? 'var(--mavi)' } as CSSProperties}
+          >
+            {ikon}
+          </span>
+        )}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
+        <span className="kpi-deger">{deger}</span>
         {birim && <span style={{ color: 'var(--metin-soluk)', fontSize: 13 }}>{birim}</span>}
       </div>
       {(deltaMetin || altMetin) && (
@@ -53,7 +64,7 @@ export function KpiKart({
             display: 'flex',
             alignItems: 'center',
             gap: 7,
-            marginTop: 10,
+            marginTop: 8,
             fontSize: 12.5,
           }}
         >
@@ -63,7 +74,7 @@ export function KpiKart({
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: 3,
-                color: renk,
+                color: deltaRenk,
                 fontWeight: 600,
               }}
             >

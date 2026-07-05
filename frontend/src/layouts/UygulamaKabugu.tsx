@@ -1,25 +1,22 @@
 /**
- * Uygulama kabuğu — bölümlü sol kenar çubuğu (RBAC filtreli menü + grup başlıkları + alt
- * tenant kartı) + üst bar (arama, bildirim, dil, kullanıcı+rol) + içerik (Outlet).
+ * Uygulama kabuğu — bölümlü sol kenar çubuğu (RBAC filtreli menü + hat renkli grup başlıkları
+ * + alt tenant kartı) + üst bar (arama, saat, canlı durum, dil, bildirim, kullanıcı+rol) +
+ * içerik (Outlet). Modül ikonları/renkleri tek kaynaktan: tema/modulKimlik.
  */
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   BellOutlined,
-  DashboardOutlined,
   DownOutlined,
-  FileDoneOutlined,
   GlobalOutlined,
-  LineChartOutlined,
   LogoutOutlined,
   SearchOutlined,
-  TeamOutlined,
-  ToolOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Input, Layout, Menu, Space } from 'antd';
+import { Avatar, Badge, Dropdown, Input, Layout, Menu } from 'antd';
+import type { CSSProperties } from 'react';
 import type { MenuProps } from 'antd';
 
 import { cikisYap } from '@/api/kimlik';
@@ -29,15 +26,7 @@ import { DILLER, dilDegistir } from '@/i18n';
 import { gorunurMenu, MENU } from '@/layouts/menu';
 import { useGercekZaman } from '@/modules/ortak/gercekZamanBaglam';
 import { useAuthStore } from '@/store/authStore';
-
-const IKONLAR: Record<string, React.ReactNode> = {
-  pano: <DashboardOutlined />,
-  makineler: <ToolOutlined />,
-  'uretim-verileri': <LineChartOutlined />,
-  'is-emirleri': <FileDoneOutlined />,
-  bakim: <ToolOutlined />,
-  kullanicilar: <TeamOutlined />,
-};
+import { BOLUM_RENGI, MENU_IKONLARI } from '@/tema/modulKimlik';
 
 function basharfler(ad: string): string {
   return (
@@ -48,6 +37,31 @@ function basharfler(ad: string): string {
       .slice(0, 2)
       .join('')
       .toUpperCase() || '?'
+  );
+}
+
+/** Üst bar saati — kontrol odası bağlamı (dakika hassasiyeti; 15 sn'de bir tazelenir). */
+function BarSaat() {
+  const { i18n } = useTranslation();
+  const [simdi, setSimdi] = useState(() => new Date());
+  useEffect(() => {
+    const sayac = setInterval(() => setSimdi(new Date()), 15_000);
+    return () => clearInterval(sayac);
+  }, []);
+  const tarih = new Intl.DateTimeFormat(i18n.language, { day: '2-digit', month: 'short' }).format(
+    simdi,
+  );
+  const saat = new Intl.DateTimeFormat(i18n.language, {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(simdi);
+  return (
+    <span
+      className="sayisal"
+      style={{ color: 'var(--metin-soluk)', fontSize: 12.5, whiteSpace: 'nowrap' }}
+    >
+      {tarih} · {saat}
+    </span>
   );
 }
 
@@ -64,16 +78,21 @@ export function UygulamaKabugu() {
   const tenant = cozumleTenant();
   const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
 
-  // Bölümlere göre grupla (sidebar grup başlıkları).
+  // Bölümlere göre grupla (sidebar grup başlıkları — hat rengi noktası ile).
   const menuOgeleri: MenuProps['items'] = useMemo(() => {
     const bolumler = [...new Set(gorunur.map((o) => o.bolum))];
     return bolumler.map((b) => ({
       type: 'group' as const,
       key: b,
-      label: t(b),
+      label: (
+        <span className="menu-grup" style={{ '--hat': BOLUM_RENGI[b] } as CSSProperties}>
+          <i className="hat-nokta" aria-hidden="true" />
+          {t(b)}
+        </span>
+      ),
       children: gorunur
         .filter((o) => o.bolum === b)
-        .map((o) => ({ key: o.yol, icon: IKONLAR[o.anahtar], label: t(o.etiketAnahtari) })),
+        .map((o) => ({ key: o.yol, icon: MENU_IKONLARI[o.anahtar], label: t(o.etiketAnahtari) })),
     }));
   }, [gorunur, t]);
 
@@ -120,6 +139,8 @@ export function UygulamaKabugu() {
               alignItems: 'center',
               gap: 10,
               padding: '0 20px',
+              borderBottom: '1px solid var(--kenarlik)',
+              flexShrink: 0,
             }}
           >
             <LogoIsareti boyut={26} />
@@ -134,46 +155,64 @@ export function UygulamaKabugu() {
             selectedKeys={[seciliYol]}
             items={menuOgeleri}
             onClick={({ key }) => navigate(key)}
-            style={{ borderInlineEnd: 'none', flex: 1, padding: '4px 12px', overflowY: 'auto' }}
+            style={{
+              borderInlineEnd: 'none',
+              flex: 1,
+              padding: '6px 12px 12px',
+              overflowY: 'auto',
+            }}
           />
 
-          {/* Alt: tenant kartı */}
+          {/* Alt: tenant (çalışma alanı) kartı */}
           {tenant && (
-            <div style={{ padding: 12 }}>
+            <div style={{ padding: 12, borderTop: '1px solid var(--kenarlik)', flexShrink: 0 }}>
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                  padding: '12px 14px',
+                  padding: '10px 12px',
                   background: 'var(--yuzey)',
                   border: '1px solid var(--kenarlik)',
                   borderRadius: 12,
                 }}
               >
-                {bagli ? (
-                  <span className="canli-nokta" aria-hidden="true" />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: 'var(--uyari)',
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-                <div style={{ lineHeight: 1.25, overflow: 'hidden' }}>
+                <span
+                  className="sayisal"
+                  aria-hidden="true"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    flexShrink: 0,
+                    display: 'grid',
+                    placeItems: 'center',
+                    borderRadius: 9,
+                    background: 'rgba(59,110,246,0.14)',
+                    border: '1px solid rgba(59,110,246,0.28)',
+                    color: 'var(--mavi)',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {tenant.slice(0, 2)}
+                </span>
+                <div style={{ lineHeight: 1.3, overflow: 'hidden' }}>
                   <div
                     className="sayisal"
-                    style={{ color: 'var(--metin)', fontWeight: 600, fontSize: 13 }}
+                    style={{
+                      color: 'var(--metin)',
+                      fontWeight: 600,
+                      fontSize: 13,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
                   >
                     {tenant}
                   </div>
                   <div style={{ color: 'var(--metin-soluk)', fontSize: 11 }}>
-                    {t(bagli ? 'ortak.sistem_cevrimici' : 'ortak.baglaniyor')}
+                    {t('ortak.calisma_alani')}
                   </div>
                 </div>
               </div>
@@ -187,7 +226,7 @@ export function UygulamaKabugu() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 16,
+            gap: 12,
             padding: '0 24px',
             borderBottom: '1px solid var(--kenarlik)',
           }}
@@ -200,58 +239,82 @@ export function UygulamaKabugu() {
           />
           <div style={{ flex: 1 }} />
 
+          <BarSaat />
+
+          {/* Gerçek-zaman bağlantı durumu (renk + nokta + etiket; renk tek başına değil). */}
+          <span className="canli-rozet">
+            {bagli ? (
+              <>
+                <span className="canli-nokta" aria-hidden="true" />
+                {t('ortak.canli')}
+              </>
+            ) : (
+              <>
+                <span
+                  className="durum-nokta"
+                  aria-hidden="true"
+                  style={{ background: 'var(--uyari)' }}
+                />
+                {t('ortak.baglaniyor')}
+              </>
+            )}
+          </span>
+
+          <span className="bar-ayrac" aria-hidden="true" />
+
           <Dropdown menu={{ items: dilMenusu }} trigger={['click']}>
-            <button
-              type="button"
-              aria-label={t('ortak.dil')}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--metin-soluk)',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <GlobalOutlined style={{ fontSize: 18 }} />
+            <button type="button" className="bar-dugme" aria-label={t('ortak.dil')}>
+              <GlobalOutlined />
             </button>
           </Dropdown>
 
-          <Badge dot offset={[-2, 4]} color="var(--mavi)">
-            <BellOutlined style={{ fontSize: 18, color: 'var(--metin-soluk)' }} />
-          </Badge>
+          <button type="button" className="bar-dugme" aria-label={t('ortak.bildirimler')}>
+            <Badge dot offset={[-1, 3]} color="var(--mavi)">
+              <BellOutlined style={{ fontSize: 17, color: 'inherit' }} />
+            </Badge>
+          </button>
+
+          <span className="bar-ayrac" aria-hidden="true" />
 
           <Dropdown menu={{ items: kullaniciMenusu }} trigger={['click']}>
-            <Space style={{ cursor: 'pointer' }} size={10}>
+            <button type="button" className="kullanici-cip">
               <Avatar
-                size={34}
+                size={32}
                 style={{ backgroundColor: 'rgba(59,110,246,0.18)', color: 'var(--mavi)' }}
                 icon={kullanici ? undefined : <UserOutlined />}
               >
                 {kullanici ? basharfler(kullanici.ad_soyad || kullanici.eposta) : null}
               </Avatar>
-              <span style={{ lineHeight: 1.2, textAlign: 'right' }}>
-                <div style={{ color: 'var(--metin)', fontSize: 13, fontWeight: 600 }}>
+              <span style={{ lineHeight: 1.25, textAlign: 'left' }}>
+                <span
+                  style={{
+                    display: 'block',
+                    color: 'var(--metin)',
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
                   {kullanici?.ad_soyad}
-                </div>
+                </span>
                 {rol && (
-                  <div
+                  <span
                     style={{
+                      display: 'block',
                       color: 'var(--metin-soluk)',
                       fontSize: 11,
                       textTransform: 'capitalize',
                     }}
                   >
                     {rol}
-                  </div>
+                  </span>
                 )}
               </span>
               <DownOutlined style={{ fontSize: 10, color: 'var(--metin-soluk)' }} />
-            </Space>
+            </button>
           </Dropdown>
         </Layout.Header>
 
-        <Layout.Content style={{ padding: 24 }}>
+        <Layout.Content style={{ padding: '28px 32px' }}>
           <div className="icerik-acilis">
             <Outlet />
           </div>

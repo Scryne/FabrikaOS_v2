@@ -1,6 +1,6 @@
 /**
- * Giriş ekranı — split: solda marka kimliği (kontrol odası), sağda form.
- * Subdomain yoksa "Firma kodu" alanı gösterilir (tenant fallback). Başarıda panoya gider.
+ * Giriş ekranı — split: solda marka kimliği (kontrol odası: animasyonlu üretim hattı şeması),
+ * sağda form. Subdomain yoksa "Firma kodu" alanı gösterilir (tenant fallback). Başarıda panoya gider.
  */
 
 import { useState } from 'react';
@@ -15,6 +15,82 @@ import { Marka } from '@/components/Marka';
 import './giris.css';
 
 type Alanlar = { firmaKodu?: string; eposta: string; parola: string };
+
+/** Soyut üretim hattı şeması — düğümler (makineler) + akış hattı (animasyonlu sinyal). */
+function HatSemasi() {
+  return (
+    <svg
+      className="giris-hat"
+      viewBox="0 0 380 130"
+      fill="none"
+      aria-hidden="true"
+      role="presentation"
+    >
+      {/* akış hattı: sabit zemin çizgisi + üzerinde akan sinyal */}
+      <path
+        d="M14 96 H92 C104 96 110 90 110 78 V52 C110 40 116 34 128 34 H196 C208 34 214 40 214 52 V78 C214 90 220 96 232 96 H366"
+        stroke="var(--kenarlik-parlak)"
+        strokeWidth="1.5"
+      />
+      <path
+        className="giris-hat-akis"
+        d="M14 96 H92 C104 96 110 90 110 78 V52 C110 40 116 34 128 34 H196 C208 34 214 40 214 52 V78 C214 90 220 96 232 96 H366"
+        stroke="var(--cyan)"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      {/* makine düğümleri: durum noktalı istasyonlar */}
+      <g>
+        <rect
+          x="34"
+          y="78"
+          width="36"
+          height="36"
+          rx="9"
+          fill="var(--yuzey-ust)"
+          stroke="var(--kenarlik-parlak)"
+        />
+        <circle cx="52" cy="96" r="4" fill="var(--basari)" />
+      </g>
+      <g>
+        <rect
+          x="144"
+          y="16"
+          width="36"
+          height="36"
+          rx="9"
+          fill="var(--yuzey-ust)"
+          stroke="var(--kenarlik-parlak)"
+        />
+        <circle cx="162" cy="34" r="4" fill="var(--basari)" />
+      </g>
+      <g>
+        <rect
+          x="252"
+          y="78"
+          width="36"
+          height="36"
+          rx="9"
+          fill="var(--yuzey-ust)"
+          stroke="var(--kenarlik-parlak)"
+        />
+        <circle cx="270" cy="96" r="4" fill="var(--uyari)" />
+      </g>
+      <g>
+        <rect
+          x="330"
+          y="78"
+          width="36"
+          height="36"
+          rx="9"
+          fill="var(--yuzey-ust)"
+          stroke="var(--kenarlik-parlak)"
+        />
+        <circle cx="348" cy="96" r="4" fill="var(--cyan)" />
+      </g>
+    </svg>
+  );
+}
 
 export function GirisSayfasi() {
   const { t } = useTranslation();
@@ -48,9 +124,10 @@ export function GirisSayfasi() {
         <Marka boyut={34} />
         <div>
           <h1 className="giris-baslik-buyuk">{t('kimlik.giris_basligi')}</h1>
-          <p style={{ color: 'var(--metin-soluk)', maxWidth: '34ch', margin: 0 }}>
+          <p style={{ color: 'var(--metin-soluk)', maxWidth: '38ch', margin: '0 0 36px' }}>
             {t('kimlik.giris_aciklama')}
           </p>
+          <HatSemasi />
         </div>
         <div className="giris-durum">
           <span className="canli-nokta" aria-hidden="true" />
@@ -63,6 +140,8 @@ export function GirisSayfasi() {
           <div className="giris-form-marka">
             <Marka boyut={26} />
           </div>
+
+          <h2 className="giris-form-baslik">{t('kimlik.form_baslik')}</h2>
 
           {hata && (
             <Alert

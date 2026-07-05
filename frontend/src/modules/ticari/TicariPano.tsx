@@ -58,6 +58,7 @@ export function TicariPano() {
         <Col xs={12} md={8} lg={4}>
           <KpiKart
             baslik={t('ticari.firma_sayisi')}
+            renk="var(--hat-ticari)"
             deger={String(s?.firma_sayisi ?? '—')}
             ikon={<BankOutlined />}
             altMetin={t('ticari.aktif_n', { n: s?.aktif_firma ?? 0 })}
@@ -66,6 +67,7 @@ export function TicariPano() {
         <Col xs={12} md={8} lg={5}>
           <KpiKart
             baslik={t('ticari.aktif_sozlesme')}
+            renk="var(--mavi)"
             deger={String(s?.aktif_sozlesme ?? '—')}
             ikon={<FileProtectOutlined />}
           />
@@ -73,6 +75,7 @@ export function TicariPano() {
         <Col xs={12} md={8} lg={5}>
           <KpiKart
             baslik={t('ticari.yaklasan_sozlesme')}
+            renk="var(--uyari)"
             deger={String(s?.yaklasan_sozlesme ?? '—')}
             ikon={<ClockCircleOutlined />}
             altMetin={t('ticari.gun30')}
@@ -81,6 +84,7 @@ export function TicariPano() {
         <Col xs={12} md={8} lg={5}>
           <KpiKart
             baslik={t('ticari.acik_talep')}
+            renk="var(--cyan)"
             deger={String(s?.acik_talep ?? '—')}
             ikon={<InboxOutlined />}
           />
@@ -88,6 +92,7 @@ export function TicariPano() {
         <Col xs={12} md={8} lg={5}>
           <KpiKart
             baslik={t('ticari.yayinli_duyuru')}
+            renk="var(--hat-dokuman)"
             deger={String(s?.yayinli_duyuru ?? '—')}
             ikon={<BellOutlined />}
           />

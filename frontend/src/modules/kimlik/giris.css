@@ -44,6 +44,30 @@
   text-wrap: balance;
 }
 
+/* Üretim hattı şeması — akan sinyal (marka imzası; dekor değil kimlik). */
+.giris-hat {
+  width: min(380px, 100%);
+  height: auto;
+  display: block;
+}
+.giris-hat-akis {
+  stroke-dasharray: 5 15;
+  animation: hatAkis 2.8s linear infinite;
+  opacity: 0.85;
+}
+@keyframes hatAkis {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .giris-hat-akis {
+    animation: none;
+    stroke-dasharray: none;
+    opacity: 0.35;
+  }
+}
+
 .giris-durum {
   display: flex;
   align-items: center;
@@ -61,7 +85,14 @@
 
 .giris-form {
   width: 100%;
-  max-width: 360px;
+  max-width: 368px;
+}
+
+.giris-form-baslik {
+  margin: 0 0 20px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .giris-form-marka {

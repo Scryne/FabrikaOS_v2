@@ -38,6 +38,23 @@ Durum-zengin semantik (default/hover/focus/active/disabled/selected/loading/erro
 Mavi buton üzerinde beyaz metin AA geçer (~4.8:1). Durum göstergeleri renk + nokta/etiket
 (renk körlüğü için renk tek başına anlam taşımaz).
 
+### Hat renkleri (modül kimliği)
+Endüstriyel hat/boru renk kodlaması metaforu: her menü bölümü bir **hat rengi** taşır.
+Kullanım yüzeyi bilinçli olarak küçüktür (~%2-3): sayfa başlığı ikon plakası, sidebar grup
+noktası, KPI ikon plakası. Restrained strateji bozulmaz — renk kimlik sinyalidir, dekor değil.
+Tek doğruluk kaynağı: `frontend/src/tema/modulKimlik.tsx` (+ `--hat-*` CSS değişkenleri).
+
+| Bölüm | Token | Değer |
+|---|---|---|
+| Genel | `--hat-genel` | `#3b6ef6` |
+| Üretim | `--hat-uretim` | `#38bdf8` |
+| Stok & Satınalma | `--hat-stok` | `#2dd4bf` |
+| Kalite & Enerji | `--hat-kalite` | `#8b5cf6` |
+| İSG & İK | `--hat-isg-ik` | `#f59e0b` |
+| Ticari | `--hat-ticari` | `#34d399` |
+| Doküman & Duyuru | `--hat-dokuman` | `#f472b6` |
+| Yönetim | `--hat-yonetim` | `#94a3b8` |
+
 ## Typography
 - **Gövde/UI:** `Inter Variable` (system-ui fallback). Tek aile; ürün UI'ı display/body
   eşleşmesine ihtiyaç duymaz.
@@ -47,10 +64,22 @@ Mavi buton üzerinde beyaz metin AA geçer (~4.8:1). Durum göstergeleri renk + 
 
 ## Components (AntD token'ları)
 `borderRadius` 10, kart `borderRadiusLG` 16, `wireframe:false`. Kabuk: bölümlü sol sidebar
-(grup başlıkları + **mavi aktif pill** `itemSelectedBg` rgba(59,110,246,0.14) + alt tenant
-kartı) + üst bar (arama + bildirim + dil + kullanıcı/rol). KPI kartı (büyük mono sayı +
-renkli delta), donut/sütun grafikleri (hafif, bağımsız; gerçek ECharts S6'da), durum
-nokta/pill'li tablolar. Her interaktif bileşen default→error tüm durumlarda.
+(hat noktalı grup başlıkları + tüm modüllerde ikon + **mavi aktif pill** `itemSelectedBg`
+rgba(59,110,246,0.14) + alt tenant/çalışma alanı kartı) + üst bar (arama + saat + **canlı
+rozet** (gerçek-zaman WS durumu) + dil + bildirim + kullanıcı/rol çipi). Açılır katmanlar
+(dropdown/modal/tooltip) karartı + 1px ışık halkası gölgesi taşır (`boxShadowSecondary`).
+
+Ekran desenleri (tek kelime hazinesi, ekran-ekran aynı):
+- **SayfaBaslik** — rotadan otomatik modül kimliği: hat renkli ikon plakası (`.ikon-plaka`) +
+  bölüm kırıntısı (hat noktası + bölüm adı) + başlık + alt metin + sağ aksiyon.
+- **SunucuTablo** — araç çubuğu (kayıt sayacı çipi `.kayit-sayaci` + arama + filtre) + tablo;
+  boş durumlar **BosDurum** (ikon + başlık + açıklama + opsiyonel CTA) ile öğretir.
+- **KpiKart** — büyük mono sayı (`.kpi-deger` 28px) + hat renkli küçük ikon plakası + delta.
+- **Kanban kartı** (`.kanban-kart`) — hover'da hafif kalkış (transform+gölge); kolon başlığında
+  durum noktası + sayaç.
+- **Giriş ekranı imzası** — sol marka panelinde animasyonlu üretim hattı şeması (`.giris-hat`,
+  akan cyan sinyal; reduced-motion'da statik soluk çizgi).
+Her interaktif bileşen default→error tüm durumlarda.
 
 ## Motion
 - 150–250 ms; hareket durum taşır (içerik açılışı, sütun büyümesi `transform: scaleY` ile —
