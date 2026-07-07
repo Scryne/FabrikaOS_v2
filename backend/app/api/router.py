@@ -13,6 +13,7 @@ from app.api.ws import router as ws_router
 from app.kimlik.kullanici_router import rol_router
 from app.kimlik.kullanici_router import router as kullanici_router
 from app.kimlik.router import router as kimlik_router
+from app.modules.ai.router import router as ai_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.crm.router import router as crm_router
 from app.modules.duyuru.router import router as duyuru_router
@@ -48,4 +49,5 @@ api_router.include_router(talep_router)
 api_router.include_router(dys_router)
 api_router.include_router(duyuru_router)
 api_router.include_router(ticari_router)
+api_router.include_router(ai_router)
 api_router.include_router(ws_router)
