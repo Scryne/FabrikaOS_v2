@@ -28,6 +28,8 @@ dependencies = [
     "pandas>=2.2",          # S13: AI feature pipeline
     "scikit-learn>=1.5",    # S13: AI/ML modelleri
     "joblib>=1.4",          # S13: model artefakt serileştirme
+    "reportlab>=4.2",       # S14: PDF rapor üretimi
+    "openpyxl>=3.1",        # S14: Excel (xlsx) rapor üretimi
 ]
 
 [project.optional-dependencies]
@@ -69,7 +71,7 @@ files = ["backend/app", "edge"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["aiomqtt.*", "minio.*", "pandas.*", "sklearn.*", "joblib.*"]
+module = ["aiomqtt.*", "minio.*", "pandas.*", "sklearn.*", "joblib.*", "reportlab.*", "openpyxl.*"]
 ignore_missing_imports = true
 
 # --- pytest ---
