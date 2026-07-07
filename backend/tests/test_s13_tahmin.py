@@ -80,6 +80,7 @@ async def test_oee_tahmini_ufuk_ve_gecmis(
     await _egitilmis(ai_ortam, "alfa", "oee")
     cikarim = await _tahmin(ai_ortam, "alfa", "oee")
     assert len(cikarim.sonuclar) >= 2  # iki AI test makinesi
+    assert any(m["makine_kod"] == "AI-MAK-1" for m in cikarim.sonuclar)  # insan-okur kod
     for makine in cikarim.sonuclar:
         assert len(makine["tahminler"]) == service.OEE_UFUK
         for nokta in makine["tahminler"]:

@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.ai.models import ModelKaydi, Tahmin
 from app.modules.stok.models import Malzeme, StokHareketi
-from app.modules.uretim.models import ArizaKaydi, UretimVerisi
+from app.modules.uretim.models import ArizaKaydi, Makine, UretimVerisi
 
 
 # --- ModelKaydi ---
@@ -75,6 +75,12 @@ async def tahmin_listele(
     toplam = int((await db.execute(sayac)).scalar() or 0)
     sonuc = await db.execute(sorgu.offset((sayfa - 1) * adet).limit(adet))
     return list(sonuc.scalars().all()), toplam
+
+
+async def makine_kod_haritasi(db: AsyncSession) -> dict[int, str]:
+    """Makine id → kod eşlemesi (tahmin çıktısını insan-okur zenginleştirmek için)."""
+    sonuc = await db.execute(select(Makine.id, Makine.kod))
+    return {int(mid): str(kod) for mid, kod in sonuc.all()}
 
 
 # --- Feature pipeline veri kaynakları (aktif tenant şemasından) ---

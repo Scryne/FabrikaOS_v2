@@ -14,6 +14,7 @@ import { oturumBaslat } from '@/api/kimlik';
 import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { TahminPanosu } from '@/modules/ai/TahminPanosu';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
 import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
@@ -89,6 +90,8 @@ function OnizlemeOturum() {
         'dys:yaz',
         'duyuru:oku',
         'duyuru:yaz',
+        'ai:oku',
+        'ai:egit',
         'kullanici:oku',
         'kullanici:yaz',
         'rol:oku',
@@ -332,6 +335,14 @@ export function App() {
             element={
               <IzinKapisi izin="bakim:oku">
                 <BakimPlanListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="tahminler"
+            element={
+              <IzinKapisi izin="ai:oku">
+                <TahminPanosu />
               </IzinKapisi>
             }
           />

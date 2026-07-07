@@ -210,6 +210,10 @@ async def tahmin_calistir(
     nesne = await asyncio.to_thread(artefakt.artefakt_yukle_onbellekli, kayit.nesne_anahtari)
     cerceveler = await _cikarim_veri_hazirla(db, tur)
     sonuclar, veri_ozeti = await asyncio.to_thread(_tahmin, tur, nesne, cerceveler)
+    if tur != "stok":  # makine-bazlı çıktılar insan-okur kodla zenginleşir
+        kodlar = await repository.makine_kod_haritasi(db)
+        for s in sonuclar:
+            s["makine_kod"] = kodlar.get(int(s["makine_id"]), "")
     tahmin = Tahmin(
         tur=tur,
         model_id=kayit.id,

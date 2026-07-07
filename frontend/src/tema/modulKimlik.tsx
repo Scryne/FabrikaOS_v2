@@ -12,6 +12,7 @@ import {
   BankOutlined,
   CalendarOutlined,
   DashboardOutlined,
+  ExperimentOutlined,
   FileDoneOutlined,
   FileProtectOutlined,
   FolderOpenOutlined,
@@ -44,6 +45,7 @@ export const BOLUM_RENGI: Record<string, string> = {
   'menu.bolum_isg_ik': '#f59e0b',
   'menu.bolum_ticari': '#34d399',
   'menu.bolum_dokuman': '#f472b6',
+  'menu.bolum_zeka': '#d946ef',
   'menu.bolum_yonetim': '#94a3b8',
 };
 
@@ -71,6 +73,7 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   talepler: <InboxOutlined />,
   belgeler: <FolderOpenOutlined />,
   duyurular: <NotificationOutlined />,
+  tahminler: <ExperimentOutlined />,
   kullanicilar: <IdcardOutlined />,
 };
 

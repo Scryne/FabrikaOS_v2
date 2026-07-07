@@ -72,6 +72,19 @@ describe('olayIsle (gerçek-zaman olay → query invalidation)', () => {
     expect(anahtarlar()).toContainEqual(['enerji-trend']);
   });
 
+  it('ai.model → model kayıtları + tüm tahmin sorgularını invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'ai.model', id: 3, model_turu: 'oee', durum: 'hazir' });
+    expect(anahtarlar()).toContainEqual(['ai-modeller']);
+    expect(anahtarlar()).toContainEqual(['ai-tahmin']);
+  });
+
+  it('anomali.tespit → anomali tahmin sorgusunu invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'anomali.tespit', id: 12 });
+    expect(anahtarlar()).toContainEqual(['ai-tahmin', 'anomali']);
+  });
+
   it('bilinmeyen olay türü hiçbir şeyi geçersizleştirmez', () => {
     const { qc, invalidateQueries } = sahteQc();
     olayIsle(qc, { tur: 'bilinmeyen.olay' });

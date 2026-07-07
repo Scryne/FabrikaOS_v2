@@ -1440,6 +1440,125 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tahmin/modeller": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Model kayıtlarını listele */
+        get: operations["model_listele_api_v1_tahmin_modeller_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/egit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Model eğitimini başlat (arka plan) */
+        post: operations["egitim_baslat_api_v1_tahmin_egit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/gecmis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tahmin geçmişini listele */
+        get: operations["tahmin_gecmisi_api_v1_tahmin_gecmis_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/kestirimci-bakim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kestirimci bakım riski (makine başına) */
+        get: operations["kestirimci_bakim_tahmini_api_v1_tahmin_kestirimci_bakim_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/oee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** OEE ufuk tahmini (makine başına) */
+        get: operations["oee_tahmini_api_v1_tahmin_oee_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/stok": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stok ihtiyaç tahmini (malzeme başına kalan gün) */
+        get: operations["stok_tahmini_api_v1_tahmin_stok_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tahmin/anomali": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Anomali taraması (son gözlem penceresi) */
+        get: operations["anomali_tahmini_api_v1_tahmin_anomali_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1788,6 +1907,14 @@ export interface components {
             hedef_departman: string;
             /** Bitis Tarihi */
             bitis_tarihi?: string | null;
+        };
+        /** EgitimIstekDTO */
+        EgitimIstekDTO: {
+            /**
+             * Tur
+             * @description Model türü
+             */
+            tur: string;
         };
         /** EnerjiOlcumCevapDTO */
         EnerjiOlcumCevapDTO: {
@@ -2461,6 +2588,41 @@ export interface components {
              * @default 0
              */
             kritik_stok: number | string;
+        };
+        /** ModelKaydiCevapDTO */
+        ModelKaydiCevapDTO: {
+            /** Id */
+            id: number;
+            /** Tur */
+            tur: string;
+            /** Surum */
+            surum: number;
+            /** Durum */
+            durum: string;
+            /** Aktif */
+            aktif: boolean;
+            /** Metrikler */
+            metrikler?: {
+                [key: string]: unknown;
+            } | null;
+            /** Veri Ozeti */
+            veri_ozeti?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Hata
+             * @default
+             */
+            hata: string;
+            /** Egitim Suresi Sn */
+            egitim_suresi_sn?: number | null;
+            /** Olusturan Kullanici Id */
+            olusturan_kullanici_id?: number | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
         };
         /** OeeCevapDTO */
         OeeCevapDTO: {
@@ -3183,6 +3345,56 @@ export interface components {
             /** Kaynak */
             kaynak?: string | null;
         };
+        /**
+         * TahminCevapDTO
+         * @description Bir çıkarım koşusunun yanıtı: kullanılan model + sonuç listesi.
+         */
+        TahminCevapDTO: {
+            /** Tahmin Id */
+            tahmin_id: number;
+            /** Tur */
+            tur: string;
+            /** Model Id */
+            model_id: number;
+            /** Model Surum */
+            model_surum: number;
+            /** Sonuclar */
+            sonuclar: {
+                [key: string]: unknown;
+            }[];
+            /** Veri Ozeti */
+            veri_ozeti?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Zaman
+             * Format: date-time
+             */
+            zaman: string;
+        };
+        /**
+         * TahminGecmisCevapDTO
+         * @description Tahmin geçmişi satırı (listede sonuçların kendisi değil sayısı döner).
+         */
+        TahminGecmisCevapDTO: {
+            /** Id */
+            id: number;
+            /** Tur */
+            tur: string;
+            /** Model Id */
+            model_id: number;
+            /** Sonuc Sayisi */
+            sonuc_sayisi: number;
+            /** Veri Ozeti */
+            veri_ozeti?: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+        };
         /** TalepCevapDTO */
         TalepCevapDTO: {
             /** Id */
@@ -3767,6 +3979,21 @@ export interface components {
             data?: components["schemas"]["MalzemeCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[ModelKaydiCevapDTO] */
+        Zarf_ModelKaydiCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["ModelKaydiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[NoneType] */
         Zarf_NoneType_: {
             /**
@@ -3916,6 +4143,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["StokHareketiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[TahminCevapDTO] */
+        Zarf_TahminCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["TahminCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[TalepCevapDTO] */
@@ -4315,6 +4557,22 @@ export interface components {
             data?: components["schemas"]["MalzemeCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[ModelKaydiCevapDTO]] */
+        Zarf_list_ModelKaydiCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["ModelKaydiCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[OeeOzetSatirDTO]] */
         Zarf_list_OeeOzetSatirDTO__: {
             /**
@@ -4457,6 +4715,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["StokHareketiCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[TahminGecmisCevapDTO]] */
+        Zarf_list_TahminGecmisCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["TahminGecmisCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[TalepCevapDTO]] */
@@ -8587,6 +8861,183 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_TicariOzetDTO_"];
+                };
+            };
+        };
+    };
+    model_listele_api_v1_tahmin_modeller_get: {
+        parameters: {
+            query?: {
+                tur?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_ModelKaydiCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    egitim_baslat_api_v1_tahmin_egit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgitimIstekDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_ModelKaydiCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tahmin_gecmisi_api_v1_tahmin_gecmis_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                tur?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_TahminGecmisCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kestirimci_bakim_tahmini_api_v1_tahmin_kestirimci_bakim_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TahminCevapDTO_"];
+                };
+            };
+        };
+    };
+    oee_tahmini_api_v1_tahmin_oee_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TahminCevapDTO_"];
+                };
+            };
+        };
+    };
+    stok_tahmini_api_v1_tahmin_stok_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TahminCevapDTO_"];
+                };
+            };
+        };
+    };
+    anomali_tahmini_api_v1_tahmin_anomali_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TahminCevapDTO_"];
                 };
             };
         };

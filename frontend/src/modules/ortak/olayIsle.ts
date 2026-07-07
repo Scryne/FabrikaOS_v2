@@ -104,6 +104,14 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       void qc.invalidateQueries({ queryKey: ['duyurular'] });
       void qc.invalidateQueries({ queryKey: ['ticari-ozet'] });
       break;
+    case 'ai.model':
+      // Eğitim bitti/başarısız → kart durumu + (yeni aktif sürümle) tüm tahminler tazelensin.
+      void qc.invalidateQueries({ queryKey: ['ai-modeller'] });
+      void qc.invalidateQueries({ queryKey: ['ai-tahmin'] });
+      break;
+    case 'anomali.tespit':
+      void qc.invalidateQueries({ queryKey: ['ai-tahmin', 'anomali'] });
+      break;
     default:
       break;
   }
