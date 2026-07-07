@@ -37,7 +37,7 @@ Backend: **337 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşa
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
 depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım).
-Frontend: **95 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+Frontend: **104 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
