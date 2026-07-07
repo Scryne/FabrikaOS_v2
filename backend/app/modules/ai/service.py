@@ -21,6 +21,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
+from dataclasses import dataclass
 from typing import Any
 
 import pandas as pd
@@ -28,11 +29,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.db.session import get_sessionmaker
 from app.core.db.tenancy import search_path_ayarla
-from app.core.exceptions import DogrulamaHatasi
+from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
+from app.core.olaylar import olay_yayinla
 from app.modules.ai import artefakt, modeller, ozellikler, repository
 from app.modules.ai.birimler import MODEL_TURLERI
-from app.modules.ai.models import ModelKaydi
+from app.modules.ai.models import ModelKaydi, Tahmin
 
 logger = logging.getLogger("app.ai")
 
@@ -44,6 +46,7 @@ BAKIM_PENCERE = 7
 BAKIM_UFUK = 7
 OEE_GECIKME = 7
 OEE_UFUK = 7
+ANOMALI_SON_GUN = 14  # çıkarımda taranan güncel gözlem penceresi
 
 _oturum_fabrikasi: async_sessionmaker[AsyncSession] | None = None
 _es_zamanli = False
@@ -180,3 +183,87 @@ def _egit(
         lagli = ozellikler.oee_gecikme_ozellikleri(gunluk, gecikme=OEE_GECIKME)
         return modeller.oee_egit(lagli, gecikme=OEE_GECIKME), ozet
     raise DogrulamaHatasi("Geçersiz model türü")  # tur_dogrula'dan geçmiş olmalı
+
+
+# --- Çıkarım (istek anında) ---
+@dataclass(frozen=True, slots=True)
+class CikarimSonucu:
+    """Bir çıkarım koşusunun sonucu: kullanılan model + geçmiş satırı + çıktı listesi."""
+
+    kayit: ModelKaydi
+    tahmin: Tahmin
+    sonuclar: list[dict[str, Any]]
+
+
+async def tahmin_calistir(
+    db: AsyncSession, *, slug: str, tur: str, kullanici_id: int | None
+) -> CikarimSonucu:
+    """Aktif modelle güncel tenant verisi üzerinde çıkarım yapar; geçmişe satır yazar.
+
+    Anomali türünde ≥1 bulgu varsa aynı transaction'da ``anomali.tespit`` outbox olayı
+    yazılır (S18 webhook teslimatına hazır) ve gerçek-zaman yayını yapılır.
+    """
+    tur_dogrula(tur)
+    kayit = await repository.aktif_kayit(db, tur)
+    if kayit is None:
+        raise KaynakBulunamadi("Bu tür için hazır model yok; önce eğitim başlatın")
+    nesne = await asyncio.to_thread(artefakt.artefakt_yukle_onbellekli, kayit.nesne_anahtari)
+    cerceveler = await _cikarim_veri_hazirla(db, tur)
+    sonuclar, veri_ozeti = await asyncio.to_thread(_tahmin, tur, nesne, cerceveler)
+    tahmin = Tahmin(
+        tur=tur,
+        model_id=kayit.id,
+        cikti=sonuclar,
+        veri_ozeti=veri_ozeti,
+        olusturan_kullanici_id=kullanici_id,
+    )
+    await repository.tahmin_ekle(db, tahmin)
+    if tur == "anomali" and sonuclar:
+        await olay_yayinla(
+            db,
+            olay_turu="anomali.tespit",
+            govde={
+                "tahmin_id": tahmin.id,
+                "model_surum": kayit.surum,
+                "anomali_sayisi": len(sonuclar),
+                "makineler": sorted({int(s["makine_id"]) for s in sonuclar}),
+            },
+        )
+        await yayinla(slug, {"tur": "anomali.tespit", "id": tahmin.id})
+    return CikarimSonucu(kayit=kayit, tahmin=tahmin, sonuclar=sonuclar)
+
+
+async def _cikarim_veri_hazirla(db: AsyncSession, tur: str) -> dict[str, pd.DataFrame]:
+    """Model türüne göre çıkarım girdisi çerçevelerini çeker."""
+    if tur == "stok":
+        return {"malzeme": await repository.malzeme_cercevesi(db)}
+    if tur == "anomali":
+        return {"uretim": await repository.uretim_cercevesi(db, gun=ANOMALI_SON_GUN)}
+    cerceveler = {"uretim": await repository.uretim_cercevesi(db, gun=URETIM_PENCERE_GUN)}
+    if tur == "kestirimci_bakim":
+        cerceveler["ariza"] = await repository.ariza_cercevesi(db, gun=ARIZA_PENCERE_GUN)
+    return cerceveler
+
+
+def _tahmin(
+    tur: str, nesne: Any, cerceveler: dict[str, pd.DataFrame]
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Saf çıkarım dispatcher'ı (thread'de koşar): feature pipeline + model tahmini."""
+    if tur == "stok":
+        sonuclar = modeller.stok_tahmin(nesne, cerceveler["malzeme"])
+        return sonuclar, {"malzeme_sayisi": int(len(cerceveler["malzeme"]))}
+
+    gunluk = ozellikler.gunluk_makine_ozeti(cerceveler["uretim"])
+    ozet = {"makine_gun": int(len(gunluk))}
+    if tur == "kestirimci_bakim":
+        guncel = ozellikler.bakim_guncel_ozellikler(
+            gunluk, cerceveler["ariza"], pencere=BAKIM_PENCERE
+        )
+        return modeller.kestirimci_bakim_tahmin(nesne, guncel), ozet
+    if tur == "anomali":
+        ozet["taranan_gun"] = ANOMALI_SON_GUN
+        return modeller.anomali_tahmin(nesne, gunluk), ozet
+    if tur == "oee":
+        son = ozellikler.oee_son_pencere(gunluk, gecikme=OEE_GECIKME)
+        return modeller.oee_tahmin(nesne, son, ufuk=OEE_UFUK), ozet
+    raise DogrulamaHatasi("Geçersiz model türü")

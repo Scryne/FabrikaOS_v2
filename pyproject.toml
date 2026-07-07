@@ -78,3 +78,7 @@ pythonpath = ["backend", "."]
 asyncio_mode = "auto"
 testpaths = ["backend/tests", "edge/tests"]
 addopts = "-ra -q"
+filterwarnings = [
+    # joblib içi NumPy 2.5 deprecation'ı (üçüncü parti; S13 model yüklemede tetikleniyor)
+    "ignore:Setting the shape on a NumPy array has been deprecated:DeprecationWarning:joblib.*",
+]
