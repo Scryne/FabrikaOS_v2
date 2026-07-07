@@ -94,4 +94,6 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "duyuru": frozenset({"duyuru:oku", "duyuru:yaz"}),
     # AI sorumlusu: tahminleri görüntüler + model eğitimi başlatır.
     "ai": frozenset({"ai:oku", "ai:egit"}),
+    # Analist: KPI panolarını görüntüler + rapor oluşturur (izleyici yalnız okur).
+    "analist": frozenset({"analitik:oku", "rapor:oku", "rapor:yaz"}),
 }
