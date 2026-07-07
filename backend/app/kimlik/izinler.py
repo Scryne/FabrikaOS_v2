@@ -48,6 +48,7 @@ IZIN_KATALOGU: dict[str, str] = {
     "duyuru:oku": "Duyuruları görüntüleme",
     "duyuru:yaz": "Duyuru oluşturma/yayınlama",
     "ai:oku": "AI tahminlerini görüntüleme",
+    "ai:egit": "AI modeli eğitimini başlatma",
     "analitik:oku": "Analitik panoları görüntüleme",
     "rapor:oku": "Raporları görüntüleme",
     "rapor:yaz": "Rapor oluşturma",
@@ -91,4 +92,6 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "dokuman": frozenset({"dys:oku", "dys:yaz"}),
     # Duyuru sorumlusu: duyuru oluşturur + yayınlar.
     "duyuru": frozenset({"duyuru:oku", "duyuru:yaz"}),
+    # AI sorumlusu: tahminleri görüntüler + model eğitimi başlatır.
+    "ai": frozenset({"ai:oku", "ai:egit"}),
 }
