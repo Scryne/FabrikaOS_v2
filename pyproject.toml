@@ -25,6 +25,9 @@ dependencies = [
     "redis>=5.0",           # refresh iptal listesi + rate limit
     "aiomqtt>=2.3",         # S8: edge + ingestion MQTT istemcisi (async)
     "minio>=7.2",           # S12: DYS nesne depolama (MinIO/S3)
+    "pandas>=2.2",          # S13: AI feature pipeline
+    "scikit-learn>=1.5",    # S13: AI/ML modelleri
+    "joblib>=1.4",          # S13: model artefakt serileştirme
 ]
 
 [project.optional-dependencies]
@@ -66,7 +69,7 @@ files = ["backend/app", "edge"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["aiomqtt.*", "minio.*"]
+module = ["aiomqtt.*", "minio.*", "pandas.*", "sklearn.*", "joblib.*"]
 ignore_missing_imports = true
 
 # --- pytest ---
