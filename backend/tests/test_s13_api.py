@@ -114,14 +114,14 @@ async def test_izleyici_okur_ama_egitemez(ai_istemci: AsyncClient) -> None:
     await _egit(ai_istemci, admin, "oee")
     await ai_istemci.post(
         "/api/v1/kullanicilar",
-        json={"eposta": "izleyici@alfa.test", "parola": "Izleyici123!", "roller": ["izleyici"]},
+        json={"eposta": "ai-izleyici@alfa.test", "parola": "Izleyici123!", "roller": ["izleyici"]},
         headers=admin,
     )
     izleyici = _h(
         "alfa",
         await _giris(
             ai_istemci,
-            {"slug": "alfa", "eposta": "izleyici@alfa.test", "parola": "Izleyici123!"},
+            {"slug": "alfa", "eposta": "ai-izleyici@alfa.test", "parola": "Izleyici123!"},
         ),
     )
     # ai:oku var → tahmin okur
