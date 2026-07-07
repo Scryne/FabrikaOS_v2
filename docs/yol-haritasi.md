@@ -25,7 +25,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S10 | Kalite & Enerji | ✅ ADR-0012 |
 | | S11 | İSG & İK | ✅ ADR-0013 |
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru + Ticari pano | ✅ ADR-0014 |
-| **3 — Zekâ** | S13 | AI/ML çekirdeği | ⬜ |
+| **3 — Zekâ** | S13 | AI/ML çekirdeği | ✅ ADR-0015 |
 | | S14 | Analitik & Raporlama | ⬜ |
 | | S15 | Dijital ikiz + Kiosk | ⬜ |
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ⬜ |
@@ -221,18 +221,25 @@ yükle/indir). `Duyuru` (oto kod `DUY-`, yayınla → `duyuru.yeni` gerçek-zama
 korunur; sözleşme yaklaşan bildirimi (bir kez); modüller menüde RBAC'a göre. Backend + frontend
 uçtan uca; fan-out migration (7 tablo) up/down testli; +57 backend testi.
 
-> **🚦 Faz 2 Geçiş Kapısı:** Saha verisi otomatik akıyor; iş modülleri çekirdeği uçtan uca + izole.
+> **🚦 Faz 2 Geçiş Kapısı (GEÇİLDİ):** Saha verisi otomatik akıyor; iş modülleri çekirdeği
+> uçtan uca + izole.
 
 ---
 
 ### FAZ 3 — Zekâ · ~3 sprint
 **Amaç:** AI tahminleri, analitik panolar, raporlama, dijital ikiz ve kiosk modu.
 
-#### ⬜ S13 — AI/ML çekirdeği
-Feature pipeline (pandas); modeller: kestirimci bakım, anomali, OEE tahmini, stok ihtiyaç
-(scikit-learn) — Celery job; model artefaktları MinIO'da **sürümlü**; tenant-aware eğitim/çıkarım.
-Uçlar: `/tahmin/{kestirimci-bakim,oee,stok,anomali}` (`ai:oku`). Olay `anomali.tespit`.
-**Kabul:** Modeller tenant verisiyle çalışır; çıktı doğrulama testi; AI uçları izinli + izole.
+#### ✅ S13 — AI/ML çekirdeği (karşılandı — ADR-0015)
+Feature pipeline (pandas, saf) + dört model (scikit-learn, saf, deterministik): kestirimci
+bakım (RandomForest risk skoru/seviye), anomali (IsolationForest + **`anomali.tespit`**
+outbox), OEE tahmini (Ridge lag, 7 günlük ufuk), stok ihtiyaç (kalan gün + önerilen sipariş).
+Model artefaktları MinIO'da **sürümlü** (`tenant_<slug>/model/<tur>/<surum>/`, `NesneDepo`);
+`model_kayitlari` kayıt defteri (tur başına tek aktif) + `tahminler` çıkarım geçmişi.
+Eğitim: `POST /tahmin/egit` → 202 + süreç-içi asyncio görevi (🔧 Celery yerine; ADR-0015).
+Uçlar: `/tahmin/{kestirimci-bakim,oee,stok,anomali}` + `/tahmin/{modeller,gecmis}` (`ai:oku`;
+eğitim `ai:egit` görev ayrımı). Frontend: Zekâ menüsü + AI Tahminleri ekranı.
+**Kabul (karşılandı):** Modeller tenant verisiyle eğitilir/çıkarım yapar (izolasyon testli);
+çıktı doğrulama testleri; AI uçları izinli (403) + izole (404); `anomali.tespit` outbox testli.
 
 #### ⬜ S14 — Analitik & Raporlama
 KPI analitik panoları (`/analitik/kpi`); rapor üretimi **async job**: ReportLab (PDF), openpyxl
@@ -310,7 +317,7 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 |---|---|---|
 | Faz 0 | İzolasyon + provizyonlama + RBAC + fan-out testleri yeşil | ✅ geçildi |
 | Faz 1 (MVP) | Üretim/OEE + iş emri uçtan uca, canlı, izole, korumalı | ✅ geçildi |
-| Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ⬜ |
+| Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ✅ geçildi |
 | Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ⬜ |
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |

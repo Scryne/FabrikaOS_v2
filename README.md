@@ -16,7 +16,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ — gösterilebilir, canlı, izole ürün hazır. Faz 2 sürüyor (S8 ✅, S9 ✅, S10 ✅, S11 ✅, S12 ✅).**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ · Faz 2 (Saha & Modüller) ✅ — Faz 3 (Zekâ) sürüyor (S13 ✅).**
 
 | Sprint | Konu | Durum |
 |---|---|---|
@@ -30,12 +30,13 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S10 | Kalite & Enerji (denetim + Tam CAPA + enerji hypertable + continuous aggregate trend) | ✅ |
 | S11 | İSG & İK (iş kazası + risk matrisi + personel/KVKK + izin onay akışı + zimmet/sertifika) | ✅ |
 | S12 | CRM/Sözleşme/Talep + DYS (sürümlü belge, MinIO) + Duyuru + Ticari pano | ✅ |
-| S13 → S22 | AI, analitik/rapor, lisanslama, platform admin, GA | ⬜ planlı |
+| S13 | AI/ML çekirdeği (kestirimci bakım + anomali + OEE + stok tahmini, sürümlü model artefaktları) | ✅ |
+| S14 → S22 | Analitik/rapor, dijital ikiz/kiosk, lisanslama, platform admin, GA | ⬜ planlı |
 
-Backend: **283 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+Backend: **337 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
-depolama + duyuru).
+depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım).
 Frontend: **95 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
@@ -65,7 +66,7 @@ backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
 frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
 frontend/e2e/       # Playwright E2E (gerçek-zaman canlı güncelleme)
-docs/adr/           # mimari karar kayıtları (0001–0014)
+docs/adr/           # mimari karar kayıtları (0001–0015)
 docs/yol-haritasi.md# faz/sprint planı
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
 ```
@@ -158,7 +159,7 @@ REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcumler` (+`/csv`, `edge` i
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
 - **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0014 mevcut)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0015 mevcut)
 
 ## Yol haritası
 

@@ -66,6 +66,8 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Belge (DYS) | `belge` / `belgeler` |
 | Belge sürümü (DYS, append-only, nesne depolama) | `belge_surumu` / `belge_surumleri` |
 | Duyuru (gerçek-zaman `duyuru.yeni`) | `duyuru` / `duyurular` |
+| Model kaydı (AI, sürümlü artefakt üstverisi) | `model_kaydi` / `model_kayitlari` |
+| Tahmin (AI çıkarım geçmişi, append-only) | `tahmin` / `tahminler` |
 | Denetim izi (audit) | `denetim_izi` |
 | Tenant | `tenant` / `tenantlar` |
 | Abonelik | `abonelik` / `abonelikler` |
@@ -77,10 +79,19 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 `modul:islem` → `uretim:oku`, `uretim:yaz`, `uretim:sil`, `isemri:yaz`, `stok:oku`,
 `satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `crm:oku`, `crm:yaz`,
 `sozlesme:oku`, `sozlesme:yaz`, `talep:oku`, `talep:yaz`, `dys:oku`, `dys:yaz`, `duyuru:oku`,
-`duyuru:yaz`, `platform-admin`, `dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay`
-yalnız onaylayan rollerdedir.
+`duyuru:yaz`, `ai:oku`, `ai:egit`, `platform-admin`, `dis-panel`. Görev ayrımı:
+`satinalma:onay` ve `ik:onay` yalnız onaylayan rollerde; `ai:egit` (model eğitimi)
+`ai:oku`'dan (tahmin görüntüleme) ayrıdır.
 
-## Nesne depolama (DYS)
-Belge içeriği ilişkisel DB'de değil **nesne deposunda** (MinIO/S3) tutulur; tenant izolasyonu
-anahtar önekiyle: `tenant_<slug>/belge/<belge_id>/<surum>/<dosya>`. Soyutlama `NesneDepo`
-(`MinioNesneDepo` gerçek + `BellekNesneDepo` test). Sürümler append-only.
+## Nesne depolama (DYS + AI)
+Belge içerikleri ve AI model artefaktları ilişkisel DB'de değil **nesne deposunda**
+(MinIO/S3) tutulur; tenant izolasyonu anahtar önekiyle:
+`tenant_<slug>/belge/<belge_id>/<surum>/<dosya>` (DYS) ve
+`tenant_<slug>/model/<tur>/<surum>/model.joblib` (AI, joblib serileştirme). Soyutlama
+`NesneDepo` (`MinioNesneDepo` gerçek + `BellekNesneDepo` test). Sürümler append-only.
+
+## AI model türleri (S13)
+`kestirimci_bakim` (makine başına arıza riski + seviye), `anomali` (makine-gün aykırılık,
+`anomali.tespit` olayı), `oee` (makine başına 7 günlük OEE tahmini), `stok` (malzeme başına
+kalan gün + önerilen sipariş). Model durumu: `egitiliyor → hazir | basarisiz`; tur başına
+tek `aktif` sürüm.
