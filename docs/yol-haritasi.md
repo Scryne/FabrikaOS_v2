@@ -26,7 +26,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S11 | İSG & İK | ✅ ADR-0013 |
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru + Ticari pano | ✅ ADR-0014 |
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ✅ ADR-0015 |
-| | S14 | Analitik & Raporlama | ⬜ |
+| | S14 | Analitik & Raporlama | ✅ ADR-0016 |
 | | S15 | Dijital ikiz + Kiosk | ⬜ |
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ⬜ |
 | | S17 | Platform Admin Paneli | ⬜ |
@@ -241,10 +241,19 @@ eğitim `ai:egit` görev ayrımı). Frontend: Zekâ menüsü + AI Tahminleri ekr
 **Kabul (karşılandı):** Modeller tenant verisiyle eğitilir/çıkarım yapar (izolasyon testli);
 çıktı doğrulama testleri; AI uçları izinli (403) + izole (404); `anomali.tespit` outbox testli.
 
-#### ⬜ S14 — Analitik & Raporlama
-KPI analitik panoları (`/analitik/kpi`); rapor üretimi **async job**: ReportLab (PDF), openpyxl
-(Excel). Uçlar: `POST /raporlar`, `GET /raporlar/{id}`.
-**Kabul:** Rapor async üretilir, MinIO'ya yazılır, indirilebilir; panolar doğru KPI gösterir.
+#### ✅ S14 — Analitik & Raporlama (karşılandı — ADR-0016)
+Analitik: `GET /analitik/kpi` (tek çağrıda üretim/OEE + makine + iş emri + stok + kalite +
+enerji + İSG + bakım KPI'ları; dönem OEE toplamlardan `oee_hesapla` ile) + `GET /analitik/trend`
+(günlük üretim/OEE serisi) — migrationsız salt-okunur toplulaştırma, `analitik:oku`.
+Raporlama: saf üretici (`RaporIcerik` → ReportLab **PDF** / openpyxl **XLSX**), 5 tür
+(uretim/stok/kalite/enerji/isemri); `POST /raporlar` → **202 + süreç-içi async görev**
+(ADR-0015 deseni) → MinIO'ya `tenant_<slug>/rapor/...` anahtarıyla yazılır →
+`GET /raporlar/{id}/indir` (hazir değilse 409); durum `kuyrukta→hazirlaniyor→hazir|basarisiz`;
+`rapor.hazir` gerçek-zaman olayı. Rol `analist` (rapor:yaz görev ayrımı). Frontend: Analitik
+pano (KPI kartları + trend) + Raporlar ekranı (oluştur/izle/indir, canlı yenileme).
+**Kabul (karşılandı):** Rapor async üretilir, MinIO'ya yazılır, indirilebilir (bayt eşleşmesi
+testli); panolar doğru KPI gösterir (izole tenant'ta sayısal doğrulama); RBAC 403 + tenant
+izolasyonu 404 testli; migration fan-out up/down testli. +35 backend testi.
 
 #### ⬜ S15 — Dijital ikiz + Kiosk
 Dijital ikiz görselleştirme (tesis/hat şeması — SVG/Leaflet, canlı durum); **kiosk** salt-okunur

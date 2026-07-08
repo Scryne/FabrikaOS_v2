@@ -68,6 +68,7 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Duyuru (gerçek-zaman `duyuru.yeni`) | `duyuru` / `duyurular` |
 | Model kaydı (AI, sürümlü artefakt üstverisi) | `model_kaydi` / `model_kayitlari` |
 | Tahmin (AI çıkarım geçmişi, append-only) | `tahmin` / `tahminler` |
+| Rapor (async üretilen PDF/XLSX, nesne depolama) | `rapor` / `raporlar` |
 | Denetim izi (audit) | `denetim_izi` |
 | Tenant | `tenant` / `tenantlar` |
 | Abonelik | `abonelik` / `abonelikler` |
@@ -79,15 +80,17 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 `modul:islem` → `uretim:oku`, `uretim:yaz`, `uretim:sil`, `isemri:yaz`, `stok:oku`,
 `satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `crm:oku`, `crm:yaz`,
 `sozlesme:oku`, `sozlesme:yaz`, `talep:oku`, `talep:yaz`, `dys:oku`, `dys:yaz`, `duyuru:oku`,
-`duyuru:yaz`, `ai:oku`, `ai:egit`, `platform-admin`, `dis-panel`. Görev ayrımı:
-`satinalma:onay` ve `ik:onay` yalnız onaylayan rollerde; `ai:egit` (model eğitimi)
-`ai:oku`'dan (tahmin görüntüleme) ayrıdır.
+`duyuru:yaz`, `ai:oku`, `ai:egit`, `analitik:oku`, `rapor:oku`, `rapor:yaz`,
+`platform-admin`, `dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay` yalnız
+onaylayan rollerde; `ai:egit` (model eğitimi) `ai:oku`'dan (tahmin görüntüleme),
+`rapor:yaz` (rapor üretme) `rapor:oku`'dan (görüntüleme/indirme) ayrıdır.
 
-## Nesne depolama (DYS + AI)
-Belge içerikleri ve AI model artefaktları ilişkisel DB'de değil **nesne deposunda**
-(MinIO/S3) tutulur; tenant izolasyonu anahtar önekiyle:
-`tenant_<slug>/belge/<belge_id>/<surum>/<dosya>` (DYS) ve
-`tenant_<slug>/model/<tur>/<surum>/model.joblib` (AI, joblib serileştirme). Soyutlama
+## Nesne depolama (DYS + AI + Rapor)
+Belge içerikleri, AI model artefaktları ve rapor dosyaları ilişkisel DB'de değil
+**nesne deposunda** (MinIO/S3) tutulur; tenant izolasyonu anahtar önekiyle:
+`tenant_<slug>/belge/<belge_id>/<surum>/<dosya>` (DYS),
+`tenant_<slug>/model/<tur>/<surum>/model.joblib` (AI, joblib serileştirme),
+`tenant_<slug>/rapor/<rapor_id>/<dosya>` (S14 raporları). Soyutlama
 `NesneDepo` (`MinioNesneDepo` gerçek + `BellekNesneDepo` test). Sürümler append-only.
 
 ## AI model türleri (S13)
@@ -95,3 +98,9 @@ Belge içerikleri ve AI model artefaktları ilişkisel DB'de değil **nesne depo
 `anomali.tespit` olayı), `oee` (makine başına 7 günlük OEE tahmini), `stok` (malzeme başına
 kalan gün + önerilen sipariş). Model durumu: `egitiliyor → hazir | basarisiz`; tur başına
 tek `aktif` sürüm.
+
+## Rapor türleri ve yaşam döngüsü (S14)
+Türler: `uretim` (gün×makine OEE dökümü), `stok` (bakiye/kritik durum), `kalite`
+(dönem kontrolleri), `enerji` (günlük tür+birim tüketim), `isemri` (dönem iş emirleri).
+Biçimler: `pdf` (ReportLab) | `xlsx` (openpyxl). Durum: `kuyrukta → hazirlaniyor →
+hazir | basarisiz`; oto kod `RP-{yıl}-{id:06d}`; gerçek-zaman olayı `rapor.hazir`.
