@@ -21,6 +21,7 @@ from app.modules.duyuru.router import router as duyuru_router
 from app.modules.dys.router import router as dys_router
 from app.modules.enerji.router import router as enerji_router
 from app.modules.ik.router import router as ik_router
+from app.modules.ikiz.router import router as ikiz_router
 from app.modules.isemri.router import router as isemri_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
@@ -37,6 +38,7 @@ api_router.include_router(kimlik_router)
 api_router.include_router(kullanici_router)
 api_router.include_router(rol_router)
 api_router.include_router(uretim_router)
+api_router.include_router(ikiz_router)
 api_router.include_router(saha_router)
 api_router.include_router(isemri_router)
 api_router.include_router(bakim_router)
