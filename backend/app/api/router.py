@@ -24,6 +24,7 @@ from app.modules.ik.router import router as ik_router
 from app.modules.isemri.router import router as isemri_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
+from app.modules.rapor.router import router as rapor_router
 from app.modules.saha.router import router as saha_router
 from app.modules.sozlesme.router import router as sozlesme_router
 from app.modules.stok.router import router as stok_router
@@ -52,4 +53,5 @@ api_router.include_router(duyuru_router)
 api_router.include_router(ticari_router)
 api_router.include_router(ai_router)
 api_router.include_router(analitik_router)
+api_router.include_router(rapor_router)
 api_router.include_router(ws_router)
