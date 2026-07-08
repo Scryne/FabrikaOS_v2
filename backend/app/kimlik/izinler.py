@@ -96,4 +96,7 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "ai": frozenset({"ai:oku", "ai:egit"}),
     # Analist: KPI panolarını görüntüler + rapor oluşturur (izleyici yalnız okur).
     "analist": frozenset({"analitik:oku", "rapor:oku", "rapor:yaz"}),
+    # Kiosk (büyük ekran): yalnız üretim/ikiz görünümü okur — salt-okunurluk API
+    # seviyesinde garanti (en az ayrıcalık; S15/ADR-0017).
+    "kiosk": frozenset({"uretim:oku"}),
 }
