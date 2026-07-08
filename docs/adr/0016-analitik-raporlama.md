@@ -54,7 +54,7 @@ deseni (ADR-0015), OEE saf hesabı (ADR-0006), Redis pub/sub gerçek-zaman (ADR-
 - (+) Pano tek istekle beslenir (8 KPI bloğu); sayısal doğruluk izole `kpi` tenant'ında
   elle hesaplanan değerlerle birebir test edilir; izolasyon + RBAC 403 testli.
 - (+) Rapor hattı uçtan uca: 202 → arka plan → MinIO → indirme bayt eşleşmesi testli;
-  35 yeni backend testi (337 → 372). Yeni altyapı bileşeni yok.
+  35 yeni backend testi (349 → 384, tam süit). Yeni altyapı bileşeni yok.
 - (−) KPI sorguları her istekte canlı toplar (önbellek yok); pilot veri hacminde ucuz,
   büyüyünce Timescale continuous aggregate/materialized view S19 performans işidir.
 - (−) Rapor görevi API süreciyle yaşar (ADR-0015 ile aynı ödün): süreç ölürse kayıt

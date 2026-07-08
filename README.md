@@ -34,12 +34,12 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S14 | Analitik & Raporlama (modüller-arası KPI panosu + async PDF/Excel rapor, MinIO) | ✅ |
 | S15 → S22 | Dijital ikiz/kiosk, lisanslama, platform admin, GA | ⬜ planlı |
 
-Backend: **372 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+Backend: **384 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
 depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım + analitik KPI +
 async rapor üretimi/indirme).
-Frontend: **104 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+Frontend: **109 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
