@@ -42,6 +42,7 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
+| **7 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⬜ |
 
 İşaretler: ✅ tamam · ▶ sıradaki · ⬜ planlı.
 
@@ -464,6 +465,19 @@ sertleştirme pası bulguları kapatılmış. ADR-0026.
 
 ---
 
+### FAZ 7 — Mobil Saha Uygulaması ("FabrikaOS Saha") · M0–M5 (tüm fazlar sonrası; ayrı master plan)
+**Amaç:** Fabrika çalışanlarının cebindeki **görev-odaklı saha terminali** — web'in
+kopyası değil: rol paketleri (operatör/bakım/depo/kalite/İSG/self-servis/yönetici),
+**offline-first store-and-forward** (edge deseninin kullanıcı katmanı, `Idempotency-Key`),
+QR/NFC "makineye dokun", tek-tuş ramak kala, vardiya cihazı modu (paylaşımlı tablet +
+rozet-QR/PIN), push bildirim + Onaylarım. React Native + Expo, mevcut API/WS ve OpenAPI
+codegen tiplerinin paylaşımı; ADR-0027+.
+Kapsam, mimari, kilometre taşları (M0–M5), NFR ve kabul kriterleri: **`mobilplani.md`**.
+**Bağımlılıklar:** S16 (entitlement), S23 (oturum/2FA), S25 (barkod/sayım), S27 (bildirim);
+asgari erken-başlama kümesi mobilplani §13'te.
+
+---
+
 ## Faz geçiş kapıları (özet)
 
 | Kapı | Şart | Durum |
@@ -475,6 +489,7 @@ sertleştirme pası bulguları kapatılmış. ADR-0026.
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |
 | Faz 6 | Modül derinliği (MES/WMS/QMS) + kurumsal güvenlik/uyum + bildirim/onay + güvence → `v2.0` adayı | ⬜ |
+| Faz 7 (Mobil) | `mobilplani.md` M0–M5 + offline kayıpsız + push izole + saha pilotu → mağaza yayını `saha-v1.0.0` | ⬜ |
 
 ---
 
