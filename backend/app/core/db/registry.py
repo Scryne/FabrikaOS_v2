@@ -17,6 +17,7 @@ import app.kimlik.models  # noqa: F401
 import app.modules.bakim.models  # noqa: F401
 import app.modules.enerji.models  # noqa: F401
 import app.modules.ik.models  # noqa: F401
+import app.modules.ikiz.models  # noqa: F401
 import app.modules.isemri.models  # noqa: F401
 import app.modules.isg.models  # noqa: F401
 import app.modules.kalite.models  # noqa: F401
