@@ -1,7 +1,8 @@
 # FabrikaOS — Yol Haritası (Faz & Sprint Planı)
 
 Bu belge, `FabrikaOS_Proje_Plani.pdf` şartnamesinin **uygulanabilir, görev-görev** yol
-haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Definition of Done (DoD).
+haritasıdır: 7 faz / 28 sprint (Faz 6 = GA sonrası kurumsal derinleşme), her sprint için
+kapsam + kabul kriteri + Definition of Done (DoD).
 Çalışma modeli **TDD disiplinli** (kırmızı → yeşil → refactor → doğrulama → DoD) ve **trunk-based**'tir.
 
 > Kaynak şartname: `FabrikaOS_Proje_Plani.pdf` (46 sayfa, FR/NFR + REST spesifikasyonu + test/güvenlik/DR).
@@ -35,6 +36,12 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
+| **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ⬜ |
+| | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ⬜ |
+| | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ⬜ |
+| | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
+| | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
+| | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
 
 İşaretler: ✅ tamam · ▶ sıradaki · ⬜ planlı.
 
@@ -329,6 +336,134 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 
 ---
 
+### FAZ 6 — Kurumsal Derinleşme & Mükemmelleştirme · ~6 sprint (GA sonrası, v1.x → v2.0 adayı)
+**Amaç:** GA'daki ürünü "çalışan modüller"den **kurumsal sınıf bir platforma** taşımak:
+her modülün sektör-standart derinliğe tamamlanması (MES/WMS/QMS olgunluğu), kurumsal
+güvenlik & uyum (2FA/SSO, denetim kaydı görünürlüğü, KVKK self-servis), birleşik
+bildirim/onay deneyimi ve sürdürülebilir kalite güvencesi.
+
+**İlkeler (tüm Faz 6 sprintlerinde geçerli):**
+- **Yeni çekirdek icat edilmez** — mevcut desenler yeniden kullanılır: saf durum makinesi,
+  transactional outbox (`GidenOlay`), `FOR UPDATE` satır kilidi, `NesneDepo` (MinIO),
+  `/ozet` toplulaştırma, Alembic fan-out, `require_perm` görev ayrımı, 202+süreç-içi async görev.
+- Her sprint **dikey dilim**: migration (fan-out up/down) + API + FE ekran + birim/entegrasyon
+  testi + canlı uçtan uca doğrulama. Global DoD aynen geçerli.
+- Kapsam disiplini modül başına **MoSCoW** ile korunur; "olsa güzel olur" kalemler sprint
+  sonunda ADR'ye ertelenmiş-işler olarak yazılır.
+- UI tarafının tek doğruluk kaynağı **`uiplani.md` (UI/UX Master Planı v2)**'dir; her yeni
+  ekran oradaki modül çalışma alanı desenine (OzetSerit + zengin tablo + board/analiz) uyar.
+- Sıralama esnektir: S27 (platform deneyimi) Faz 4 ile paralel öne çekilebilir; S23'ün
+  güvenlik kalemleri S22 sertleştirmesiyle koordine edilir.
+
+#### ⬜ S23 — Kurumsal Güvenlik & Uyum
+Kimlik sertleştirme: **TOTP 2FA** (QR kurulum + kurtarma kodları; tenant bazlı zorunlu
+kılınabilir), **kurumsal SSO** (OIDC; Azure AD/Google Workspace ile test), parola politikası
+(uzunluk/geçmiş/yaş, control-plane'de tenant ayarı), **oturum & cihaz yönetimi**
+(`GET /kimlik/oturumlar` + uzaktan sonlandırma; refresh token ailesi zaten Redis'te),
+opsiyonel tenant IP izin listesi. **Denetim kaydı görünürlüğü:** `core/audit.py` çıktısı
+için `GET /denetim-kayitlari` (filtre: kullanıcı/kaynak/eylem/tarih aralığı; append-only
+garanti + saklama politikası) + FE görüntüleyici (fark/detay çekmecesi). **KVKK paketi:**
+kişisel veri envanteri belgesi, kişi bazlı ihraç (`POST /kvkk/ihrac` → 202 async → MinIO
+`tenant_<slug>/kvkk/...` → indir; S14 rapor deseni), anonimleştirme/silme akışı (zincirleme
+maskeleme, denetim izli), aydınlatma/consent kayıt tablosu. ISO 27001 kontrol eşleme
+dokümanı başlangıcı (`docs/uyum/`).
+**Kabul:** 2FA'lı giriş uçtan uca (yanlış kod reddi + kurtarma kodu); denetim ekranında
+kim-ne-ne zaman filtrelenebilir ve kayıt değiştirilemez; kişi bazlı ihraç dosyası tüm
+modüllerdeki kişisel veriyi kapsar (test: bilinen veriyle bayt düzeyi kontrol); tüm yeni
+uçlar RBAC 403 + tenant izolasyonu testli. ADR-0021.
+
+#### ⬜ S24 — Üretim & Bakım Derinleşmesi (MES olgunluğu)
+**Vardiya:** `Vardiya` tanımları (ad, saat aralığı, takvim) + üretim verisi/OEE'nin vardiya
+kırılımı (`/oee/ozet?vardiya=`). **Duruş yönetimi:** `DurusNedeni` kataloğu (planlı/plansız
+sınıfı) + `DurusKaydi` (makine, aralık, neden, açıklama) → OEE kullanılabilirliği gerçek
+duruşlardan hesaplanır (mevcut `oee_hesapla` saf çekirdeği girdi kaynağı değişerek korunur);
+duruş **pareto** analizi ucu. **Ürün & Reçete (BOM):** `Urun`, `Recete`+`ReceteKalemi`
+(malzeme bağlantısı, miktar/birim); iş emrine ürün bağlama; kapanışta BOM patlatma →
+**otomatik stok tüketim hareketi** (S9 hareket çekirdeği + idempotency yeniden kullanımı,
+opsiyonel/ayarlı). **İzlenebilirlik:** üretim verisine lot/parti numarası + ileri/geri
+izleme sorgusu (`/izlenebilirlik?lot=`). **Bakım olgunluğu:** `ArizaKaydi` ↔ bakım iş emri
+bağlantısı; **MTBF/MTTR** metrik uçları (saf hesap fonksiyonu, birim testli); bakım
+takviminden **otomatik iş emri üretimi** (zamanlanmış tarama, kenar-tetikli, bir-kez
+garantisi outbox'la); yedek parça = malzeme ilişkisi.
+**Kabul:** Duruş kaydı girildiğinde dönem OEE'si deterministik değişir (birim + entegrasyon);
+BOM patlatma doğru miktarları tüketir ve idempotent (çift kapanış çift hareket üretmez);
+lot ileri/geri izleme zinciri doğru; MTBF/MTTR bilinen seriyle doğrulanır; otomatik bakım
+iş emri bir-kez üretilir; migration fan-out up/down. ADR-0022.
+
+#### ⬜ S25 — Tedarik Zinciri Derinleşmesi (WMS & satınalma olgunluğu)
+**Depo/lokasyon:** `Depo` + `Lokasyon` hiyerarşisi; stok hareketlerine lokasyon boyutu +
+**transfer** hareketi (çift bacak, tek transaction). **Stok sayımı:** `SayimOturumu` →
+sayım satırları → fark raporu → **onaylı düzeltme hareketi** (ayrı `stok:duzeltme` izni —
+görev ayrımı, S9 onay deseni). **Barkod/QR:** malzeme etiketi PDF üretimi (S14 ReportLab
+yeniden kullanımı) + koddan hızlı arama. **Satınalma Siparişi (PO):** onaylanmış talepten
+`SatinalmaSiparisi` (tedarikçi = CRM `Firma` bağlantısı, oto kod `SS-`); **teslim alma** →
+stok giriş hareketi, kısmi teslimat destekli; üç yönlü eşleme iskeleti (sipariş–irsaliye–
+fatura alanları; e-Fatura entegrasyonu Faz 4 S18 API anahtarı üstünden). **Tedarikçi
+performansı:** zamanında-teslim + kalite skoru (kalite kontrol bağlantısı; saf skor
+fonksiyonu) → firma detayında.
+**Kabul:** Transfer iki bacağı atomik (kısmi yazım imkânsız — test); sayım farkı onaysız
+uygulanamaz (403) ve onay sonrası bakiye doğru düzelir; PO→kısmi teslim→stok bakiye zinciri
+uçtan uca testli; tedarikçi skoru deterministik; migration fan-out up/down. ADR-0023.
+
+#### ⬜ S26 — Kalite, İSG & İK Kurumsal Tamamlama (QMS olgunluğu)
+**Kalite:** `KontrolPlani` (ürün/operasyon başına karakteristik + tolerans); **SPC**
+(X̄-R kontrol grafiği verisi + Western Electric kural ihlali tespiti — saf fonksiyon,
+birim testli; ihlalde `kalite.spc_ihlal` outbox); `OlcumCihazi` + **kalibrasyon takibi**
+(sertifika, geçerlilik; yaklaşan kalibrasyon kenar-tetikli hatırlatma — S12 `yaklasan`
+deseni); uygunsuzluk ↔ tedarikçi/üretim kaynağı bağlantısı. **İSG:** İSG eğitimleri +
+katılım matrisi; KKD ihtiyacı ↔ İK zimmet entegrasyonu (S11 zimmet yeniden kullanımı);
+acil durum tatbikat kayıtları; kaza → CAPA köprüsü (uygunsuzluk otomatik açma, opsiyonel).
+**İK:** **izin hakediş bakiyesi** (yıllık hakediş + devir kuralı; onay bakiyeden düşer,
+aşım 409); vardiya planlama = S24 `Vardiya` + personel atama; organizasyon şeması
+(birim/pozisyon hiyerarşisi, `Personel.yonetici_id`); işe giriş/çıkış kontrol listesi.
+**Kabul:** SPC bilinen seriyle doğru sinyal üretir (birim test); kalibrasyon hatırlatması
+bir-kez; izin onayı bakiye düşer + bakiye aşımı 409 + `ik:onay` görev ayrımı korunur;
+kaza→CAPA köprüsü izolasyon/RBAC testli; migration fan-out up/down. ADR-0024.
+
+#### ⬜ S27 — Platform Deneyimi: Bildirim, Onay Kutusu & UI Master Planı
+**Bildirim merkezi:** `Bildirim` (kişi-hedefli, tenant içi) — outbox olaylarından üretim
+(stok.kritik, sozlesme.yaklasiyor, anomali.tespit, rapor.hazir, kalite.spc_ihlal...);
+zil → gerçek panel (okundu yönetimi, tümünü okundu say), **tercih ekranı** (olay türü
+başına aç/kapa), e-posta kanal iskeleti (SMTP + şablon; digest opsiyonel). **Birleşik
+onay kutusu:** `GET /onaylarim` (satınalma talebi + izin talebi + sayım düzeltme + ...
+bekleyenleri tek listede, rol-duyarlı) + FE "Onaylarım" ekranı. **Global arama:** ⌘K
+komut paleti gezinmeye ek **içerik arama** (makine/malzeme/firma/belge/iş emri/personel —
+modül başına hafif arama ucu, RBAC süzgeçli). **UI Master Planı uygulaması:** `uiplani.md`
+v2'nin kalan tüm kalemleri — `/ozet` uçları + OzetSerit tüm modüllerde, liste↔board
+görünümleri, zengin detay profilleri, toplu **CSV/XLSX içe-dışa aktarma çerçevesi**
+(her liste ekranında), yazdırma şablonları. **Erişilebilirlik & performans:** WCAG 2.1 AA
+denetimi (klavye/odak/kontrast/aria) + düzeltmeler; rota-düzeyi code-split + bundle
+bütçesi; backend N+1 taraması + indeks gözden geçirmesi.
+**Kabul:** Bildirim canlı düşer + okundu kalıcı + tercih kapatınca üretilmez; onay
+kutusunda ≥2 modülün bekleyenleri tek listede ve aksiyon alınabilir; ⌘K'den kayda
+gidilir (RBAC dışı sonuç sızmaz — test); dışa aktarma büyük veri setinde zaman aşımı
+yaşamaz (async 202 deseni); Lighthouse erişilebilirlik ≥95; tüm FE/BE test + codegen yeşil.
+ADR-0025.
+
+#### ⬜ S28 — Kurumsal Güvence & Sürdürülebilirlik
+**Test derinliği:** mutation testing (mutmut/Stryker) kritik çekirdekte (OEE, durum
+makineleri, tenancy) skor eşiğiyle; schemathesis kapsam genişletme; **dayanıklılık
+senaryoları** — Redis/MinIO/MQTT kesintisinde davranış (zarif bozulma + kurtarma + veri
+kaybı yok) otomasyonlu; gerçekçi k6 yük profilleri (NFR başına senaryo). **Tedarik zinciri
+güvenliği:** SBOM (CycloneDX) CI artefaktı; bağımlılık tarama otomasyonu (pip/npm audit +
+Dependabot/Renovate); imaj imzalama; gizli tarama pre-commit. **Operasyon:** runbook seti
+(olay müdahale, on-call, DR tatbikat takvimi) `docs/operasyon/`; SLO/SLA tanımları + hata
+bütçesi panosu (S19 Grafana üstüne). **Dokümantasyon:** kullanıcı el kitabı (modül modül,
+TR), yönetici kılavuzu, geliştirici API portalı (OpenAPI'den statik site), sürüm notları
+otomasyonu (Conventional Commits → CHANGELOG); ISO 27001/9001 kontrol eşlemesi tamamlanır.
+**Mevcut modül sertleştirme pası:** modül modül hata avı (form validasyon uçları, boş/aşırı
+veri, eşzamanlılık) — bulunanlar bu sprintte kapatılır.
+**Kabul:** Mutation skoru eşiği CI'da; üç kesinti senaryosu da testli ve veri kaybı yok;
+SBOM her build'de üretilir; doküman seti yayınlanmış ve sürüm treniyle güncellenebilir;
+sertleştirme pası bulguları kapatılmış. ADR-0026.
+
+> **🚦 Faz 6 Kapısı (Kurumsal Olgunluk):** Modüller sektör-standart derinlikte (vardiya/
+> duruş/BOM/izlenebilirlik + depo/sayım/PO + SPC/kalibrasyon + hakediş/org) + kurumsal
+> güvenlik & uyum (2FA/SSO + denetim + KVKK self-servis) + birleşik bildirim/onay + kalite
+> güvence hattı → ürün **kurumsal müşteriye satılabilir olgunlukta**; `v2.0` adayı.
+
+---
+
 ## Faz geçiş kapıları (özet)
 
 | Kapı | Şart | Durum |
@@ -339,6 +474,7 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 | Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ✅ geçildi |
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |
+| Faz 6 | Modül derinliği (MES/WMS/QMS) + kurumsal güvenlik/uyum + bildirim/onay + güvence → `v2.0` adayı | ⬜ |
 
 ---
 
@@ -351,3 +487,4 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 | R6 — Migrasyon fan-out hatası | Fan-out DoD'de; CI'da iki-şema testi; downgrade zorunlu |
 | R5 — Edge/MQTT zorluğu | Store-and-forward; erken simülatörle test; gerekirse ertele |
 | R7 — Performans (Timescale) | Continuous aggregate + indeks; yük testi (NFR) |
+| R8 — Faz 6 derinleşme kapsam şişmesi | Modül başına MoSCoW; dikey dilim sprintler; mevcut çekirdek desenlerin (outbox, durum makinesi, `NesneDepo`, `/ozet`, fan-out) yeniden kullanımı — yeni çekirdek icat yasağı |

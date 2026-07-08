@@ -53,6 +53,7 @@ Tek doğruluk kaynağı: `frontend/src/tema/modulKimlik.tsx` (+ `--hat-*` CSS de
 | İSG & İK | `--hat-isg-ik` | `#f59e0b` |
 | Ticari | `--hat-ticari` | `#34d399` |
 | Doküman & Duyuru | `--hat-dokuman` | `#f472b6` |
+| Zekâ | `--hat-zeka` | `#d946ef` |
 | Yönetim | `--hat-yonetim` | `#94a3b8` |
 
 ## Typography
