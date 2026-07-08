@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { durumRengi, konumdanYuzde, oeeEtiket, svgKonum, taslakDugumler, yuzdeKirp } from './sunum';
+import {
+  durumRengi,
+  kioskKarolari,
+  konumdanYuzde,
+  oeeEtiket,
+  svgKonum,
+  taslakDugumler,
+  yuzdeKirp,
+} from './sunum';
 
 describe('ikiz sunum', () => {
   it('yuzdeKirp sınırlar ve 0.1 hassasiyetine yuvarlar', () => {
@@ -57,5 +65,28 @@ describe('ikiz sunum', () => {
       },
     ]);
     expect(taslak).toEqual([{ makine_id: 3, x: 10, y: 20, bolge: 'Hat A' }]);
+  });
+
+  it('kioskKarolari düğümler + yerleşmemişleri kod sırasıyla birleştirir', () => {
+    const karolar = kioskKarolari({
+      dugumler: [
+        {
+          makine_id: 2,
+          makine_kod: 'M-2',
+          makine_ad: 'Kaynak',
+          durum: 'ariza',
+          x: 5,
+          y: 5,
+          bolge: '',
+          oee: 0.7,
+          toplam_adet: 100,
+          son_veri_zamani: null,
+        },
+      ],
+      yerlesmemis: [{ makine_id: 1, makine_kod: 'M-1', makine_ad: 'Pres', durum: 'durdu' }],
+    });
+    expect(karolar.map((k) => k.kod)).toEqual(['M-1', 'M-2']);
+    expect(karolar[0]).toMatchObject({ oee: null, toplam_adet: 0, durum: 'durdu' });
+    expect(karolar[1]).toMatchObject({ oee: 0.7, toplam_adet: 100 });
   });
 });

@@ -61,3 +61,36 @@ export function oeeEtiket(oee: number | null | undefined): string {
 export function taslakDugumler(dugumler: IkizDugumDurum[]): IkizDugumGiris[] {
   return dugumler.map((d) => ({ makine_id: d.makine_id, x: d.x, y: d.y, bolge: d.bolge }));
 }
+
+/** Kiosk makine karosu — yerleşimden bağımsız tüm filo tek listede. */
+export type KioskKaro = {
+  makine_id: number;
+  kod: string;
+  ad: string;
+  durum: string;
+  oee: number | null;
+  toplam_adet: number;
+};
+
+/** Düğümler + yerleşmemişleri kod sırasıyla kiosk karolarına birleştirir. */
+export function kioskKarolari(veri: Pick<IkizDurumCevap, 'dugumler' | 'yerlesmemis'>): KioskKaro[] {
+  const karolar: KioskKaro[] = [
+    ...veri.dugumler.map((d) => ({
+      makine_id: d.makine_id,
+      kod: d.makine_kod,
+      ad: d.makine_ad,
+      durum: d.durum,
+      oee: d.oee ?? null,
+      toplam_adet: d.toplam_adet,
+    })),
+    ...veri.yerlesmemis.map((m) => ({
+      makine_id: m.makine_id,
+      kod: m.makine_kod,
+      ad: m.makine_ad,
+      durum: m.durum,
+      oee: null,
+      toplam_adet: 0,
+    })),
+  ];
+  return karolar.sort((a, b) => a.kod.localeCompare(b.kod, 'tr'));
+}

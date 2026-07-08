@@ -32,6 +32,7 @@ import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
 import { IkizSayfasi } from '@/modules/ikiz/IkizSayfasi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
+import { KioskSayfasi } from '@/modules/kiosk/KioskSayfasi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { RaporListesi } from '@/modules/rapor/RaporListesi';
@@ -150,6 +151,17 @@ export function App() {
       <Route path="/giris" element={<GirisSayfasi />} />
 
       <Route element={<KorunanRota />}>
+        {/* Kiosk: kabuksuz tam ekran büyük pano (salt-okunur; ADR-0017). */}
+        <Route
+          path="kiosk"
+          element={
+            <IzinKapisi izin="uretim:oku">
+              <GercekZamanSaglayici>
+                <KioskSayfasi />
+              </GercekZamanSaglayici>
+            </IzinKapisi>
+          }
+        />
         <Route element={<CanliKabuk />}>
           <Route index element={<PanoSayfasi />} />
           <Route
