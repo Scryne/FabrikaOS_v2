@@ -27,7 +27,7 @@ haritasıdır: 6 faz / 22 sprint, her sprint için kapsam + kabul kriteri + Defi
 | | S12 | CRM/Sözleşme/Talep + DYS + Duyuru + Ticari pano | ✅ ADR-0014 |
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ✅ ADR-0015 |
 | | S14 | Analitik & Raporlama | ✅ ADR-0016 |
-| | S15 | Dijital ikiz + Kiosk | ⬜ |
+| | S15 | Dijital ikiz + Kiosk | ✅ ADR-0017 |
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ⬜ |
 | | S17 | Platform Admin Paneli | ⬜ |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ⬜ |
@@ -255,12 +255,21 @@ pano (KPI kartları + trend) + Raporlar ekranı (oluştur/izle/indir, canlı yen
 testli); panolar doğru KPI gösterir (izole tenant'ta sayısal doğrulama); RBAC 403 + tenant
 izolasyonu 404 testli; migration fan-out up/down testli. +35 backend testi.
 
-#### ⬜ S15 — Dijital ikiz + Kiosk
-Dijital ikiz görselleştirme (tesis/hat şeması — SVG/Leaflet, canlı durum); **kiosk** salt-okunur
-büyük ekran üretim panosu.
-**Kabul:** Kiosk salt-okunur + oturum-dayanıklı; ikiz canlı makine durumunu yansıtır.
+#### ✅ S15 — Dijital ikiz + Kiosk (karşılandı — ADR-0017)
+Dijital ikiz = mevcut verinin üstünde **ince yerleşim katmanı**: `ikiz_dugumleri`
+(makine başına x/y **yüzde koordinat** + bölge; migration fan-out up/down testli);
+`GET/PUT /ikiz/yerlesim` (PUT **replace-all**, 422 doğrulama, `ikiz.yerlesim`
+gerçek-zaman) + `GET /ikiz/durum?saat=` (yerleşim ⋈ canlı makine durumu + makine-başı
+pencere OEE'si + yerleşmemiş liste + tesis özeti; `donem_oee` yeniden kullanımı) —
+ikiz ekranı ve kiosk'un **tek veri kaynağı**. Frontend: `/ikiz` **SVG tesis şeması**
+(durum LED'leri, sürükle-yerleştir düzenleme modu, canlı invalidate) + `/kiosk`
+**kabuksuz tam ekran** büyük pano (KPI + makine karoları, WS + 30 sn yoklama).
+Rol `kiosk` = {uretim:oku}.
+**Kabul (karşılandı):** Kiosk salt-okunur (API seviyesinde: yazma uçları 403 testli) +
+oturum-dayanıklı (sessiz giriş + WS reconnect + yoklama); ikiz canlı makine durumunu
+yansıtır (olay → invalidate); yerleşim/durum uçları RBAC + tenant izolasyon testli.
 
-> **🚦 Faz 3 Geçiş Kapısı:** Tahmin + analitik + ikiz + kiosk çalışıyor.
+> **🚦 Faz 3 Geçiş Kapısı (GEÇİLDİ):** Tahmin + analitik + ikiz + kiosk çalışıyor.
 
 ---
 
@@ -327,7 +336,7 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 | Faz 0 | İzolasyon + provizyonlama + RBAC + fan-out testleri yeşil | ✅ geçildi |
 | Faz 1 (MVP) | Üretim/OEE + iş emri uçtan uca, canlı, izole, korumalı | ✅ geçildi |
 | Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ✅ geçildi |
-| Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ⬜ |
+| Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ✅ geçildi |
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |
 

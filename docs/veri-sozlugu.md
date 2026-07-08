@@ -69,6 +69,7 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Model kaydı (AI, sürümlü artefakt üstverisi) | `model_kaydi` / `model_kayitlari` |
 | Tahmin (AI çıkarım geçmişi, append-only) | `tahmin` / `tahminler` |
 | Rapor (async üretilen PDF/XLSX, nesne depolama) | `rapor` / `raporlar` |
+| İkiz düğümü (tesis şemasında makine konumu, yüzde koordinat) | `ikiz_dugum` / `ikiz_dugumleri` |
 | Denetim izi (audit) | `denetim_izi` |
 | Tenant | `tenant` / `tenantlar` |
 | Abonelik | `abonelik` / `abonelikler` |
@@ -104,3 +105,11 @@ Türler: `uretim` (gün×makine OEE dökümü), `stok` (bakiye/kritik durum), `k
 (dönem kontrolleri), `enerji` (günlük tür+birim tüketim), `isemri` (dönem iş emirleri).
 Biçimler: `pdf` (ReportLab) | `xlsx` (openpyxl). Durum: `kuyrukta → hazirlaniyor →
 hazir | basarisiz`; oto kod `RP-{yıl}-{id:06d}`; gerçek-zaman olayı `rapor.hazir`.
+
+## Dijital ikiz + kiosk (S15)
+İkiz = mevcut verinin üstünde **ince yerleşim katmanı**: `ikiz_dugumleri` yalnız konum
+tutar (`x`/`y` yüzde 0–100, `bolge` etiketi; makine başına tek düğüm); canlı durum
+`makineler.durum` + `uretim_verileri` penceresinden okunur (`GET /ikiz/durum?saat=`).
+Yerleşim yazımı `PUT /ikiz/yerlesim` **replace-all**; gerçek-zaman olayı `ikiz.yerlesim`.
+**Kiosk** = kabuksuz `/kiosk` rotası + `kiosk` rolü (yalnız `uretim:oku`) — salt-okunurluk
+API garantisi (ADR-0017).

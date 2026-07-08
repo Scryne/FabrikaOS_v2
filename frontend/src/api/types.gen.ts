@@ -265,6 +265,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ikiz/yerlesim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İkiz yerleşimini getir */
+        get: operations["yerlesim_getir_api_v1_ikiz_yerlesim_get"];
+        /** İkiz yerleşimini kaydet (replace-all) */
+        put: operations["yerlesim_kaydet_api_v1_ikiz_yerlesim_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ikiz/durum": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İkiz canlı durumu (yerleşim + makine durumu + pencere OEE) */
+        get: operations["ikiz_durum_api_v1_ikiz_durum_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/saha/cihazlar": {
         parameters: {
             query?: never;
@@ -2240,6 +2275,109 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** IkizDugumCevapDTO */
+        IkizDugumCevapDTO: {
+            /** Id */
+            id: number;
+            /** Makine Id */
+            makine_id: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Bolge */
+            bolge: string;
+        };
+        /**
+         * IkizDugumDurumDTO
+         * @description Yerleşim ⋈ makine — canlı durum + pencere üretim özeti.
+         */
+        IkizDugumDurumDTO: {
+            /** Makine Id */
+            makine_id: number;
+            /** Makine Kod */
+            makine_kod: string;
+            /** Makine Ad */
+            makine_ad: string;
+            /** Durum */
+            durum: string;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /** Bolge */
+            bolge: string;
+            /** Oee */
+            oee: number | null;
+            /** Toplam Adet */
+            toplam_adet: number;
+            /** Son Veri Zamani */
+            son_veri_zamani: string | null;
+        };
+        /**
+         * IkizDugumGirisDTO
+         * @description Yerleşimde bir makine düğümü (yüzde koordinat).
+         */
+        IkizDugumGirisDTO: {
+            /** Makine Id */
+            makine_id: number;
+            /** X */
+            x: number;
+            /** Y */
+            y: number;
+            /**
+             * Bolge
+             * @default
+             */
+            bolge: string;
+        };
+        /**
+         * IkizDurumCevapDTO
+         * @description ``GET /ikiz/durum`` yanıtı — ikiz görünümü + kiosk tek veri kaynağı.
+         */
+        IkizDurumCevapDTO: {
+            /** Saat */
+            saat: number;
+            /**
+             * Baslangic
+             * Format: date-time
+             */
+            baslangic: string;
+            /**
+             * Bitis
+             * Format: date-time
+             */
+            bitis: string;
+            ozet: components["schemas"]["IkizOzetDTO"];
+            /** Dugumler */
+            dugumler: components["schemas"]["IkizDugumDurumDTO"][];
+            /** Yerlesmemis */
+            yerlesmemis: components["schemas"]["YerlesmemisMakineDTO"][];
+        };
+        /**
+         * IkizOzetDTO
+         * @description Tesis geneli pencere özeti (kiosk KPI'ları).
+         */
+        IkizOzetDTO: {
+            /** Toplam Makine */
+            toplam_makine: number;
+            /** Durumlar */
+            durumlar: {
+                [key: string]: number;
+            };
+            /** Kayit Sayisi */
+            kayit_sayisi: number;
+            /** Toplam Adet */
+            toplam_adet: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Fire Orani */
+            fire_orani: number;
+            /** Oee */
+            oee: number;
+            /** Acik Ariza */
+            acik_ariza: number;
+        };
         /** IsEmriCevapDTO */
         IsEmriCevapDTO: {
             /** Id */
@@ -3968,6 +4106,28 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
+        /**
+         * YerlesimKaydetDTO
+         * @description ``PUT /ikiz/yerlesim`` gövdesi — şemanın tamamı (replace-all).
+         */
+        YerlesimKaydetDTO: {
+            /** Dugumler */
+            dugumler: components["schemas"]["IkizDugumGirisDTO"][];
+        };
+        /**
+         * YerlesmemisMakineDTO
+         * @description Şemaya henüz yerleştirilmemiş makine (düzenleme paleti).
+         */
+        YerlesmemisMakineDTO: {
+            /** Makine Id */
+            makine_id: number;
+            /** Makine Kod */
+            makine_kod: string;
+            /** Makine Ad */
+            makine_ad: string;
+            /** Durum */
+            durum: string;
+        };
         /** YorumOlusturDTO */
         YorumOlusturDTO: {
             /** Metin */
@@ -4106,6 +4266,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["FirmaCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[IkizDurumCevapDTO] */
+        Zarf_IkizDurumCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["IkizDurumCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[IsEmriCevapDTO] */
@@ -4737,6 +4912,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["FirmaCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[IkizDugumCevapDTO]] */
+        Zarf_list_IkizDugumCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["IkizDugumCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[IsEmriCevapDTO]] */
@@ -5729,6 +5920,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_list_OeeOzetSatirDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    yerlesim_getir_api_v1_ikiz_yerlesim_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_IkizDugumCevapDTO__"];
+                };
+            };
+        };
+    };
+    yerlesim_kaydet_api_v1_ikiz_yerlesim_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["YerlesimKaydetDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_IkizDugumCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ikiz_durum_api_v1_ikiz_durum_get: {
+        parameters: {
+            query?: {
+                /** @description Geriye dönük pencere (saat) */
+                saat?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_IkizDurumCevapDTO_"];
                 };
             };
             /** @description Validation Error */
