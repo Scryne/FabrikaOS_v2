@@ -173,6 +173,20 @@ export const MENU: MenuOgesi[] = [
     izin: 'ai:oku',
   },
   {
+    anahtar: 'analitik',
+    etiketAnahtari: 'menu.analitik',
+    bolum: 'menu.bolum_zeka',
+    yol: '/analitik',
+    izin: 'analitik:oku',
+  },
+  {
+    anahtar: 'raporlar',
+    etiketAnahtari: 'menu.raporlar',
+    bolum: 'menu.bolum_zeka',
+    yol: '/raporlar',
+    izin: 'rapor:oku',
+  },
+  {
     anahtar: 'kullanicilar',
     etiketAnahtari: 'menu.kullanicilar',
     bolum: 'menu.bolum_yonetim',

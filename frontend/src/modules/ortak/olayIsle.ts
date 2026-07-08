@@ -112,6 +112,10 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'anomali.tespit':
       void qc.invalidateQueries({ queryKey: ['ai-tahmin', 'anomali'] });
       break;
+    case 'rapor.hazir':
+      // Üretim bitti/başarısız → liste durum rozetleri + indirme butonu tazelensin.
+      void qc.invalidateQueries({ queryKey: ['raporlar'] });
+      break;
     default:
       break;
   }

@@ -1559,6 +1559,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/analitik/kpi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Modüller-arası KPI özeti */
+        get: operations["kpi_ozeti_api_v1_analitik_kpi_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/analitik/trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Günlük üretim/OEE trendi */
+        get: operations["uretim_trendi_api_v1_analitik_trend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/raporlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Raporları listele */
+        get: operations["rapor_listele_api_v1_raporlar_get"];
+        put?: never;
+        /** Rapor üretimini başlat (arka plan) */
+        post: operations["rapor_olustur_api_v1_raporlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/raporlar/{rapor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Rapor detayı */
+        get: operations["rapor_detay_api_v1_raporlar__rapor_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/raporlar/{rapor_id}/indir": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Hazır raporu indir (ikili içerik) */
+        get: operations["rapor_indir_api_v1_raporlar__rapor_id__indir_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1601,6 +1687,13 @@ export interface components {
             sorumlu_kullanici_id?: number | null;
             /** Termin Tarihi */
             termin_tarihi?: string | null;
+        };
+        /** BakimKpiDTO */
+        BakimKpiDTO: {
+            /** Aktif Plan */
+            aktif_plan: number;
+            /** Geciken */
+            geciken: number;
         };
         /** BakimPlaniCevapDTO */
         BakimPlaniCevapDTO: {
@@ -1916,6 +2009,20 @@ export interface components {
              */
             tur: string;
         };
+        /** EnerjiKirilimDTO */
+        EnerjiKirilimDTO: {
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Birim */
+            birim: string;
+            /** Toplam */
+            toplam: number;
+        };
+        /** EnerjiKpiDTO */
+        EnerjiKpiDTO: {
+            /** Kirilim */
+            kirilim: components["schemas"]["EnerjiKirilimDTO"][];
+        };
         /** EnerjiOlcumCevapDTO */
         EnerjiOlcumCevapDTO: {
             /** Id */
@@ -2187,6 +2294,15 @@ export interface components {
             /** Yorumlar */
             yorumlar?: components["schemas"]["IsEmriYorumCevapDTO"][];
         };
+        /** IsEmriKpiDTO */
+        IsEmriKpiDTO: {
+            /** Acik */
+            acik: number;
+            /** Kapanan */
+            kapanan: number;
+            /** Ortalama Kapanma Saat */
+            ortalama_kapanma_saat: number | null;
+        };
         /** IsEmriOlusturDTO */
         IsEmriOlusturDTO: {
             /** Baslik */
@@ -2314,6 +2430,13 @@ export interface components {
             personel_id?: number | null;
             /** Makine Id */
             makine_id?: number | null;
+        };
+        /** IsgKpiDTO */
+        IsgKpiDTO: {
+            /** Olay Sayisi */
+            olay_sayisi: number;
+            /** Kaza Sayisi */
+            kaza_sayisi: number;
         };
         /** IzinTalebiCevapDTO */
         IzinTalebiCevapDTO: {
@@ -2462,6 +2585,38 @@ export interface components {
             /** Zaman */
             zaman?: string | null;
         };
+        /** KaliteKpiDTO */
+        KaliteKpiDTO: {
+            /** Kontrol Sayisi */
+            kontrol_sayisi: number;
+            /** Gecme Orani */
+            gecme_orani: number | null;
+            /** Acik Uygunsuzluk */
+            acik_uygunsuzluk: number;
+        };
+        /** KpiCevapDTO */
+        KpiCevapDTO: {
+            /** Gun */
+            gun: number;
+            /**
+             * Baslangic
+             * Format: date-time
+             */
+            baslangic: string;
+            /**
+             * Bitis
+             * Format: date-time
+             */
+            bitis: string;
+            uretim: components["schemas"]["UretimKpiDTO"];
+            makine: components["schemas"]["MakineKpiDTO"];
+            isemri: components["schemas"]["IsEmriKpiDTO"];
+            stok: components["schemas"]["StokKpiDTO"];
+            kalite: components["schemas"]["KaliteKpiDTO"];
+            enerji: components["schemas"]["EnerjiKpiDTO"];
+            isg: components["schemas"]["IsgKpiDTO"];
+            bakim: components["schemas"]["BakimKpiDTO"];
+        };
         /** KullaniciCevapDTO */
         KullaniciCevapDTO: {
             /** Id */
@@ -2506,6 +2661,15 @@ export interface components {
         MakineDurumDTO: {
             /** Durum */
             durum: string;
+        };
+        /** MakineKpiDTO */
+        MakineKpiDTO: {
+            /** Toplam */
+            toplam: number;
+            /** Durumlar */
+            durumlar: {
+                [key: string]: number;
+            };
         };
         /** MakineOlusturDTO */
         MakineOlusturDTO: {
@@ -2895,6 +3059,62 @@ export interface components {
              * @default true
              */
             aktif: boolean;
+        };
+        /** RaporCevapDTO */
+        RaporCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Tur */
+            tur: string;
+            /** Bicim */
+            bicim: string;
+            /** Durum */
+            durum: string;
+            /** Parametreler */
+            parametreler: {
+                [key: string]: unknown;
+            } | null;
+            /** Dosya Adi */
+            dosya_adi: string;
+            /** Icerik Tipi */
+            icerik_tipi: string;
+            /** Boyut */
+            boyut: number;
+            /** Satir Sayisi */
+            satir_sayisi: number;
+            /** Hata */
+            hata: string;
+            /** Uretim Suresi Sn */
+            uretim_suresi_sn: number | null;
+            /** Olusturan Kullanici Id */
+            olusturan_kullanici_id: number | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+        };
+        /** RaporOlusturDTO */
+        RaporOlusturDTO: {
+            /**
+             * Tur
+             * @description Rapor türü (uretim/stok/kalite/enerji/isemri)
+             */
+            tur: string;
+            /**
+             * Bicim
+             * @description Çıktı biçimi (pdf/xlsx)
+             * @default pdf
+             */
+            bicim: string;
+            /**
+             * Gun
+             * @description Geriye dönük pencere (gün)
+             * @default 30
+             */
+            gun: number;
         };
         /** RiskDegerlendirmeCevapDTO */
         RiskDegerlendirmeCevapDTO: {
@@ -3345,6 +3565,13 @@ export interface components {
             /** Kaynak */
             kaynak?: string | null;
         };
+        /** StokKpiDTO */
+        StokKpiDTO: {
+            /** Toplam Malzeme */
+            toplam_malzeme: number;
+            /** Kritik Sayisi */
+            kritik_sayisi: number;
+        };
         /**
          * TahminCevapDTO
          * @description Bir çıkarım koşusunun yanıtı: kullanılan model + sonuç listesi.
@@ -3511,6 +3738,24 @@ export interface components {
              */
             token_tipi: string;
         };
+        /** TrendNoktasiDTO */
+        TrendNoktasiDTO: {
+            /**
+             * Gun
+             * Format: date
+             */
+            gun: string;
+            /** Kayit Sayisi */
+            kayit_sayisi: number;
+            /** Toplam Adet */
+            toplam_adet: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Fire Orani */
+            fire_orani: number;
+            /** Oee */
+            oee: number;
+        };
         /** UretimGirisDTO */
         UretimGirisDTO: {
             /** Makine Id */
@@ -3529,6 +3774,25 @@ export interface components {
             saglam_adet: number;
             /** Ideal Cevrim Sn */
             ideal_cevrim_sn: number;
+        };
+        /** UretimKpiDTO */
+        UretimKpiDTO: {
+            /** Kayit Sayisi */
+            kayit_sayisi: number;
+            /** Toplam Adet */
+            toplam_adet: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Fire Orani */
+            fire_orani: number;
+            /** Kullanilabilirlik */
+            kullanilabilirlik: number;
+            /** Performans */
+            performans: number;
+            /** Kalite */
+            kalite: number;
+            /** Oee */
+            oee: number;
         };
         /** UretimVerisiCevapDTO */
         UretimVerisiCevapDTO: {
@@ -3934,6 +4198,21 @@ export interface components {
             data?: components["schemas"]["KaliteKontrolCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[KpiCevapDTO] */
+        Zarf_KpiCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KpiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[KullaniciCevapDTO] */
         Zarf_KullaniciCevapDTO_: {
             /**
@@ -4053,6 +4332,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["PersonelCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[RaporCevapDTO] */
+        Zarf_RaporCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["RaporCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[RiskDegerlendirmeCevapDTO] */
@@ -4621,6 +4915,22 @@ export interface components {
             data?: components["schemas"]["PersonelCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[RaporCevapDTO]] */
+        Zarf_list_RaporCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["RaporCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[RiskDegerlendirmeCevapDTO]] */
         Zarf_list_RiskDegerlendirmeCevapDTO__: {
             /**
@@ -4747,6 +5057,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["TalepCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[TrendNoktasiDTO]] */
+        Zarf_list_TrendNoktasiDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["TrendNoktasiDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[UretimVerisiCevapDTO]] */
@@ -9038,6 +9364,199 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_TahminCevapDTO_"];
+                };
+            };
+        };
+    };
+    kpi_ozeti_api_v1_analitik_kpi_get: {
+        parameters: {
+            query?: {
+                /** @description Geriye dönük pencere (gün) */
+                gun?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KpiCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uretim_trendi_api_v1_analitik_trend_get: {
+        parameters: {
+            query?: {
+                /** @description Geriye dönük pencere (gün) */
+                gun?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_TrendNoktasiDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rapor_listele_api_v1_raporlar_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                tur?: string | null;
+                durum?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_RaporCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rapor_olustur_api_v1_raporlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RaporOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_RaporCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rapor_detay_api_v1_raporlar__rapor_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rapor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_RaporCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rapor_indir_api_v1_raporlar__rapor_id__indir_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rapor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

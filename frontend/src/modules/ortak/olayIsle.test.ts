@@ -85,6 +85,12 @@ describe('olayIsle (gerçek-zaman olay → query invalidation)', () => {
     expect(anahtarlar()).toContainEqual(['ai-tahmin', 'anomali']);
   });
 
+  it('rapor.hazir → rapor listesini invalidate eder', () => {
+    const { qc, anahtarlar } = sahteQc();
+    olayIsle(qc, { tur: 'rapor.hazir', id: 4, durum: 'hazir' });
+    expect(anahtarlar()).toContainEqual(['raporlar']);
+  });
+
   it('bilinmeyen olay türü hiçbir şeyi geçersizleştirmez', () => {
     const { qc, invalidateQueries } = sahteQc();
     olayIsle(qc, { tur: 'bilinmeyen.olay' });

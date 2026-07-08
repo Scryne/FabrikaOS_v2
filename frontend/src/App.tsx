@@ -15,6 +15,7 @@ import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { TahminPanosu } from '@/modules/ai/TahminPanosu';
+import { AnalitikPano } from '@/modules/analitik/AnalitikPano';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
 import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
@@ -32,6 +33,7 @@ import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
+import { RaporListesi } from '@/modules/rapor/RaporListesi';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { CihazListesi } from '@/modules/saha/CihazListesi';
 import { SozlesmeListesi } from '@/modules/sozlesme/SozlesmeListesi';
@@ -92,6 +94,9 @@ function OnizlemeOturum() {
         'duyuru:yaz',
         'ai:oku',
         'ai:egit',
+        'analitik:oku',
+        'rapor:oku',
+        'rapor:yaz',
         'kullanici:oku',
         'kullanici:yaz',
         'rol:oku',
@@ -343,6 +348,22 @@ export function App() {
             element={
               <IzinKapisi izin="ai:oku">
                 <TahminPanosu />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="analitik"
+            element={
+              <IzinKapisi izin="analitik:oku">
+                <AnalitikPano />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="raporlar"
+            element={
+              <IzinKapisi izin="rapor:oku">
+                <RaporListesi />
               </IzinKapisi>
             }
           />

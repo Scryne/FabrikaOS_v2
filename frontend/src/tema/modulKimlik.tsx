@@ -9,12 +9,14 @@
 import type { ReactNode } from 'react';
 import {
   AlertOutlined,
+  AreaChartOutlined,
   BankOutlined,
   CalendarOutlined,
   DashboardOutlined,
   ExperimentOutlined,
   FileDoneOutlined,
   FileProtectOutlined,
+  FileTextOutlined,
   FolderOpenOutlined,
   FundOutlined,
   GoldOutlined,
@@ -74,6 +76,8 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   belgeler: <FolderOpenOutlined />,
   duyurular: <NotificationOutlined />,
   tahminler: <ExperimentOutlined />,
+  analitik: <AreaChartOutlined />,
+  raporlar: <FileTextOutlined />,
   kullanicilar: <IdcardOutlined />,
 };
 
