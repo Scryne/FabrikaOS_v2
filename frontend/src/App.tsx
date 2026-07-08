@@ -29,6 +29,7 @@ import { RiskListesi } from '@/modules/isg/RiskListesi';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
+import { IkizSayfasi } from '@/modules/ikiz/IkizSayfasi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
@@ -180,6 +181,14 @@ export function App() {
             element={
               <IzinKapisi izin="isemri:oku">
                 <IsEmriEkrani />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="ikiz"
+            element={
+              <IzinKapisi izin="uretim:oku">
+                <IkizSayfasi />
               </IzinKapisi>
             }
           />

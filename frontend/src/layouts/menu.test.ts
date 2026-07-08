@@ -11,7 +11,12 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
   it('yalnız sahip olunan izinli öğeler görünür', () => {
     const izinli = new Set(['uretim:oku']);
     const gorunur = gorunurMenu(MENU, (izin) => izinli.has(izin));
-    expect(gorunur.map((o) => o.anahtar)).toEqual(['pano', 'makineler', 'uretim-verileri']);
+    expect(gorunur.map((o) => o.anahtar)).toEqual([
+      'pano',
+      'makineler',
+      'uretim-verileri',
+      'ikiz',
+    ]);
   });
 
   it('tam yetkili kullanıcı tüm öğeleri görür', () => {

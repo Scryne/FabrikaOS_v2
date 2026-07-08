@@ -19,13 +19,20 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       void qc.invalidateQueries({ queryKey: ['uretim-verileri'] });
       // Saha ölçümü cihazın son_gorulme'sini günceller → liste canlı yansısın.
       void qc.invalidateQueries({ queryKey: ['saha-cihazlar'] });
+      // İkiz/kiosk pencere üretim özeti (OEE, adet) tazelensin.
+      void qc.invalidateQueries({ queryKey: ['ikiz'] });
       if (makineId !== undefined)
         void qc.invalidateQueries({ queryKey: ['makine', makineId, 'oee'] });
       break;
     case 'makine.durum':
       void qc.invalidateQueries({ queryKey: ['makineler'] });
       void qc.invalidateQueries({ queryKey: ['oee-ozet'] });
+      // İkiz şeması + kiosk karoları canlı durum LED'lerini günceller.
+      void qc.invalidateQueries({ queryKey: ['ikiz'] });
       if (makineId !== undefined) void qc.invalidateQueries({ queryKey: ['makine', makineId] });
+      break;
+    case 'ikiz.yerlesim':
+      void qc.invalidateQueries({ queryKey: ['ikiz'] });
       break;
     case 'isemri.durum':
     case 'isemri.olusturuldu':

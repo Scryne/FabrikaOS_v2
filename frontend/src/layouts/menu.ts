@@ -40,6 +40,13 @@ export const MENU: MenuOgesi[] = [
     izin: 'isemri:oku',
   },
   {
+    anahtar: 'ikiz',
+    etiketAnahtari: 'menu.ikiz',
+    bolum: 'menu.bolum_uretim',
+    yol: '/ikiz',
+    izin: 'uretim:oku',
+  },
+  {
     anahtar: 'saha-cihazlar',
     etiketAnahtari: 'menu.saha',
     bolum: 'menu.bolum_uretim',
