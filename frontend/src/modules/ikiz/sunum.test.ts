@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  bosKonum,
   durumRengi,
   kioskKarolari,
   konumdanYuzde,
@@ -65,6 +66,23 @@ describe('ikiz sunum', () => {
       },
     ]);
     expect(taslak).toEqual([{ makine_id: 3, x: 10, y: 20, bolge: 'Hat A' }]);
+  });
+
+  it('bosKonum mevcut düğümlerle çakışmayan konum önerir', () => {
+    expect(bosKonum([])).toEqual({ x: 15, y: 18 });
+    // İlk aday doluysa bir sonraki ızgara hücresine kayar.
+    const oneri = bosKonum([{ x: 15, y: 18 }]);
+    expect(oneri).toEqual({ x: 26, y: 18 });
+    // Önerilen konum hiçbir düğümün ±11/±12 komşuluğunda değildir.
+    const dolu = [
+      { x: 15, y: 18 },
+      { x: 26, y: 18 },
+      { x: 55, y: 30 },
+    ];
+    const yeni = bosKonum(dolu);
+    expect(dolu.some((d) => Math.abs(d.x - yeni.x) < 11 && Math.abs(d.y - yeni.y) < 12)).toBe(
+      false,
+    );
   });
 
   it('kioskKarolari düğümler + yerleşmemişleri kod sırasıyla birleştirir', () => {

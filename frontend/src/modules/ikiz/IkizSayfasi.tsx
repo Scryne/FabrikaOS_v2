@@ -20,6 +20,7 @@ import { useAuthStore } from '@/store/authStore';
 
 import { useIkizDurum, useYerlesimKaydet } from './hooks';
 import {
+  bosKonum,
   DURUM_RENGI,
   durumRengi,
   konumdanYuzde,
@@ -29,11 +30,6 @@ import {
   TUVAL,
   type IkizDugumGiris,
 } from './sunum';
-
-/** Yeni yerleştirilen düğümler üst üste binmesin diye kademeli başlangıç konumu. */
-function yeniKonum(sira: number): { x: number; y: number } {
-  return { x: 30 + (sira % 5) * 10, y: 30 + (Math.floor(sira / 5) % 4) * 15 };
-}
 
 export function IkizSayfasi() {
   const { t } = useTranslation();
@@ -82,7 +78,7 @@ export function IkizSayfasi() {
     kaydet.mutate(taslak, { onSuccess: () => setDuzenleme(false) });
   };
   const dugumEkle = (makineId: number) => {
-    setTaslak((eski) => [...eski, { makine_id: makineId, bolge: '', ...yeniKonum(eski.length) }]);
+    setTaslak((eski) => [...eski, { makine_id: makineId, bolge: '', ...bosKonum(eski) }]);
   };
   const dugumKaldir = (makineId: number) => {
     setTaslak((eski) => eski.filter((d) => d.makine_id !== makineId));

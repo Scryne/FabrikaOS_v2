@@ -62,6 +62,18 @@ export function taslakDugumler(dugumler: IkizDugumDurum[]): IkizDugumGiris[] {
   return dugumler.map((d) => ({ makine_id: d.makine_id, x: d.x, y: d.y, bolge: d.bolge }));
 }
 
+/** Yeni düğüm için mevcutlarla çakışmayan ilk ızgara konumu (düğüm kutusu ~%11×%11). */
+export function bosKonum(dugumler: Pick<IkizDugumGiris, 'x' | 'y'>[]): { x: number; y: number } {
+  for (let i = 0; i < 40; i++) {
+    const aday = { x: 15 + (i % 8) * 11, y: 18 + Math.floor(i / 8) * 16 };
+    const cakisiyor = dugumler.some(
+      (d) => Math.abs(d.x - aday.x) < 11 && Math.abs(d.y - aday.y) < 12,
+    );
+    if (!cakisiyor) return aday;
+  }
+  return { x: 50, y: 50 };
+}
+
 /** Kiosk makine karosu — yerleşimden bağımsız tüm filo tek listede. */
 export type KioskKaro = {
   makine_id: number;
