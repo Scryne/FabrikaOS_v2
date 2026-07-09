@@ -89,6 +89,9 @@ class Istemci:
     def patch(self, yol: str, govde: Any) -> Any:
         return self.istek("PATCH", yol, govde)
 
+    def put(self, yol: str, govde: Any) -> Any:
+        return self.istek("PUT", yol, govde)
+
     def get(self, yol: str) -> Any:
         return self.istek("GET", yol)
 
@@ -113,39 +116,67 @@ def kullanicilar(c: Istemci) -> None:
     print("  kullanıcılar: 7")
 
 
+# Gerçekçi metal işleme hattı — soldan sağa akış (Kesim → Büküm → Talaşlı İmalat →
+# Kaynak → Pres → Montaj → Boya). Her makinenin OEE profili (yuksek/orta/dusuk) ve
+# dijital ikiz şemasındaki yüzde koordinatı (x, y ∈ 0-100) + bölge etiketi.
+# Alanlar: (kod, ad, durum, oee_profil, x, y, bolge)
+MAKINE_TANIMLARI = [
+    ("LAZER-1", "Fiber Lazer Kesim 1", "calisiyor", "yuksek", 10.0, 22.0, "Kesim"),
+    ("LAZER-2", "Fiber Lazer Kesim 2", "calisiyor", "orta", 10.0, 55.0, "Kesim"),
+    ("ABKANT-1", "Abkant Pres Büküm", "calisiyor", "yuksek", 25.0, 38.0, "Büküm"),
+    ("CNC-1", "CNC Dik İşleme Merkezi 1", "calisiyor", "yuksek", 40.0, 18.0, "Talaşlı İmalat"),
+    ("CNC-2", "CNC Dik İşleme Merkezi 2", "calisiyor", "orta", 40.0, 46.0, "Talaşlı İmalat"),
+    ("TORNA-1", "CNC Torna Tezgahı", "calisiyor", "orta", 53.0, 18.0, "Talaşlı İmalat"),
+    ("FREZE-1", "Üniversal Freze", "durdu", "dusuk", 53.0, 46.0, "Talaşlı İmalat"),
+    ("KAYNAK-1", "Robot Kaynak Hücresi 1", "calisiyor", "orta", 68.0, 22.0, "Kaynak"),
+    ("KAYNAK-2", "Robot Kaynak Hücresi 2", "bakimda", "orta", 68.0, 52.0, "Kaynak"),
+    ("PRES-1", "Hidrolik Pres 250t", "ariza", "dusuk", 82.0, 22.0, "Pres"),
+    ("MONTAJ-1", "Montaj Hattı A", "calisiyor", "yuksek", 82.0, 52.0, "Montaj"),
+    ("BOYA-1", "Toz Boya Hattı", "calisiyor", "orta", 93.0, 38.0, "Boya"),
+]
+
+# OEE profili → (durus_dk_min, durus_dk_max, perf_min, perf_max, kalite_min, kalite_max).
+# Duruş = kullanılabilirlik kaybı; perf = performans oranı; kalite = sağlam oranı.
+PROFIL_PARAM = {
+    "yuksek": (10, 35, 0.90, 0.99, 0.985, 0.999),
+    "orta": (30, 70, 0.82, 0.93, 0.965, 0.992),
+    "dusuk": (60, 130, 0.70, 0.85, 0.930, 0.980),
+}
+
+
 def makineler(c: Istemci) -> list[dict]:
-    tanimlar = [
-        ("CNC-1", "CNC Dik İşleme 1", "calisiyor"),
-        ("CNC-2", "CNC Dik İşleme 2", "calisiyor"),
-        ("TORNA-1", "CNC Torna 1", "calisiyor"),
-        ("PRES-1", "Hidrolik Pres 250t", "ariza"),
-        ("PRES-2", "Eksantrik Pres 100t", "calisiyor"),
-        ("KAYNAK-1", "Robot Kaynak Hücresi", "bakimda"),
-        ("FREZE-1", "Universal Freze", "durdu"),
-        ("MONTAJ-1", "Montaj Hattı A", "calisiyor"),
-    ]
     kayitlar = []
-    for kod, ad, durum in tanimlar:
+    for kod, ad, durum, profil, x, y, bolge in MAKINE_TANIMLARI:
         m = c.post("/api/v1/makineler", {"kod": kod, "ad": ad, "oee_hedefi": 0.85})
         # Varsayılan durum "durdu"; hedef durumu her zaman açıkça ayarla.
         c.patch(f"/api/v1/makineler/{m['id']}/durum", {"durum": durum})
-        m["durum"] = durum
+        m.update(durum=durum, profil=profil, x=x, y=y, bolge=bolge)
         kayitlar.append(m)
     print(f"  makineler: {len(kayitlar)}")
     return kayitlar
 
 
-def uretim_verileri(c: Istemci, makineler: list[dict]) -> None:
+def ikiz_yerlesim(c: Istemci, makineler: list[dict]) -> None:
+    """Dijital ikiz şemasına tüm makineleri yerleştir (/ikiz + /kiosk dolu görünsün)."""
+    dugumler = [
+        {"makine_id": m["id"], "x": m["x"], "y": m["y"], "bolge": m["bolge"]} for m in makineler
+    ]
+    c.put("/api/v1/ikiz/yerlesim", {"dugumler": dugumler})
+    print(f"  dijital ikiz yerleşimi: {len(dugumler)} düğüm")
+
+
+def uretim_verileri(c: Istemci, makineler: list[dict], gun_sayisi: int = 14) -> None:
     n = 0
     for m in makineler:
         cevrim = rng.choice([24, 36, 45, 60, 75])
-        for gun in range(7, 0, -1):
+        d_lo, d_hi, p_lo, p_hi, k_lo, k_hi = PROFIL_PARAM[m["profil"]]
+        for gun in range(gun_sayisi, 0, -1):
             for vardiya, saat in [("Gündüz", 8), ("Gece", 20)]:
                 planlanan = 480
-                durus = rng.randint(15, 95)
+                durus = rng.randint(d_lo, d_hi)
                 calisma_dk = planlanan - durus
-                toplam = int(calisma_dk * 60 / cevrim * rng.uniform(0.82, 0.99))
-                saglam = int(toplam * rng.uniform(0.94, 0.998))
+                toplam = int(calisma_dk * 60 / cevrim * rng.uniform(p_lo, p_hi))
+                saglam = int(toplam * rng.uniform(k_lo, k_hi))
                 c.post(
                     "/api/v1/uretim-verileri",
                     {
@@ -160,7 +191,7 @@ def uretim_verileri(c: Istemci, makineler: list[dict]) -> None:
                     },
                 )
                 n += 1
-    print(f"  üretim verileri: {n}")
+    print(f"  üretim verileri: {n} ({gun_sayisi} gün × 2 vardiya × {len(makineler)} makine)")
 
 
 def saha(c: Istemci) -> None:
@@ -174,17 +205,21 @@ def saha(c: Istemci) -> None:
 
 
 def is_emirleri(c: Istemci, makineler: list[dict], admin_id: int) -> None:
-    basliklar = [
-        ("PRES-1 hidrolik pompa arızası", "kritik", "kapandi"),
-        ("CNC-1 takım tezgahı ayarı", "orta", "kapandi"),
-        ("KAYNAK-1 periyodik bakım uygulaması", "yuksek", "devam_ediyor"),
-        ("FREZE-1 rulman değişimi", "yuksek", "devam_ediyor"),
-        ("MONTAJ-1 konveyör bandı gerginlik ayarı", "orta", "atandi"),
-        ("CNC-2 soğutma sıvısı değişimi", "dusuk", "atandi"),
-        ("TORNA-1 ayna çenesi yenileme", "orta", "acik"),
-        ("PRES-2 kalıp değişim hazırlığı", "yuksek", "acik"),
-        ("CNC-1 aylık kalibrasyon", "dusuk", "kapandi"),
-        ("KAYNAK-1 torç nozulu tıkanması", "orta", "iptal"),
+    koda_gore = {m["kod"]: m for m in makineler}
+    # (başlık, makine_kod, öncelik, hedef_durum) — başlık makineyle tutarlı.
+    kayitlar = [
+        ("PRES-1 hidrolik pompa arızası — hat durdu", "PRES-1", "kritik", "devam_ediyor"),
+        ("KAYNAK-2 periyodik bakım uygulaması", "KAYNAK-2", "yuksek", "devam_ediyor"),
+        ("FREZE-1 mil rulmanı değişimi", "FREZE-1", "yuksek", "atandi"),
+        ("LAZER-1 optik lens temizliği ve kalibrasyon", "LAZER-1", "orta", "kapandi"),
+        ("CNC-1 takım tezgahı ofset ayarı", "CNC-1", "orta", "kapandi"),
+        ("MONTAJ-1 konveyör bandı gerginlik ayarı", "MONTAJ-1", "orta", "atandi"),
+        ("CNC-2 soğutma sıvısı değişimi", "CNC-2", "dusuk", "atandi"),
+        ("TORNA-1 ayna çenesi yenileme", "TORNA-1", "orta", "acik"),
+        ("ABKANT-1 büküm bıçağı aşınma kontrolü", "ABKANT-1", "dusuk", "acik"),
+        ("BOYA-1 fırın sıcaklık kalibrasyonu", "BOYA-1", "orta", "kapandi"),
+        ("LAZER-2 kesim kafası nozul değişimi", "LAZER-2", "dusuk", "kapandi"),
+        ("KAYNAK-1 torç nozulu tıkanması", "KAYNAK-1", "orta", "iptal"),
     ]
     hedef_yol = {
         "atandi": ["atandi"],
@@ -193,8 +228,8 @@ def is_emirleri(c: Istemci, makineler: list[dict], admin_id: int) -> None:
         "iptal": ["iptal"],
         "acik": [],
     }
-    for i, (baslik, oncelik, durum) in enumerate(basliklar):
-        m = makineler[i % len(makineler)]
+    for baslik, kod, oncelik, durum in kayitlar:
+        m = koda_gore[kod]
         ie = c.post(
             "/api/v1/is-emirleri",
             {
@@ -214,7 +249,7 @@ def is_emirleri(c: Istemci, makineler: list[dict], admin_id: int) -> None:
                 f"/api/v1/is-emirleri/{ie['id']}/yorum",
                 {"metin": "Müdahale tamamlandı, makine devrede."},
             )
-    print(f"  iş emirleri: {len(basliklar)}")
+    print(f"  iş emirleri: {len(kayitlar)}")
 
 
 def bakim(c: Istemci, makineler: list[dict]) -> None:
@@ -340,7 +375,7 @@ def satinalma(c: Istemci, malzemeler: list[dict]) -> None:
 
 
 def kalite(c: Istemci, makineler: list[dict]) -> None:
-    for i in range(15):
+    for i in range(28):
         m = makineler[i % len(makineler)]
         sonuc = rng.choices(["gecti", "kaldi", "sartli"], weights=[10, 2, 2])[0]
         hedef = 25.0
@@ -397,12 +432,12 @@ def kalite(c: Istemci, makineler: list[dict]) -> None:
             if hedef == "dogrulama":
                 govde["dogrulama_notu"] = "Numune ölçümleri tolerans içinde (demo)."
             c.patch(f"/api/v1/uygunsuzluklar/{u['id']}/durum", govde)
-    print("  kalite kontrolleri: 15 + CAPA: 4")
+    print("  kalite kontrolleri: 28 + CAPA: 4")
 
 
 def enerji(c: Istemci, makineler: list[dict]) -> None:
     n = 0
-    for gun in range(3, 0, -1):
+    for gun in range(7, 0, -1):
         for saat in range(0, 24, 2):
             taban = 42 if 7 <= saat <= 19 else 18  # mesai profili
             c.post(
@@ -789,6 +824,7 @@ def main() -> int:
     print("demo verisi giriliyor…")
     kullanicilar(c)
     m = makineler(c)
+    ikiz_yerlesim(c, m)
     uretim_verileri(c, m)
     saha(c)
     is_emirleri(c, m, ben["id"])
