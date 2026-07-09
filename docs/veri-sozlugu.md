@@ -73,6 +73,10 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Denetim izi (audit) | `denetim_izi` |
 | Tenant | `tenant` / `tenantlar` |
 | Abonelik | `abonelik` / `abonelikler` |
+| Plan (satış planı: modül seti + koltuk limiti, public) | `plan` / `planlar` |
+| Modül hakkı (entitlement override, tenant-başına, public) | `modul_hakki` / `modul_haklari` |
+| Özellik bayrağı (feature flag override, tenant-başına, public) | `ozellik_bayragi` / `ozellik_bayraklari` |
+| Koltuk (seat — aktif kullanıcı üst sınırı) | `koltuk` / `koltuk_limiti` |
 
 ## Ortak kolonlar
 `olusturma_tarihi`, `guncelleme_tarihi`, `olusturan_id`, `durum`, `<x>_id` (FK).
@@ -82,7 +86,7 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 `satinalma:onay`, `isg:oku`, `isg:yaz`, `ik:oku`, `ik:yaz`, `ik:onay`, `crm:oku`, `crm:yaz`,
 `sozlesme:oku`, `sozlesme:yaz`, `talep:oku`, `talep:yaz`, `dys:oku`, `dys:yaz`, `duyuru:oku`,
 `duyuru:yaz`, `ai:oku`, `ai:egit`, `analitik:oku`, `rapor:oku`, `rapor:yaz`,
-`platform-admin`, `dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay` yalnız
+`abonelik:oku`, `platform-admin`, `dis-panel`. Görev ayrımı: `satinalma:onay` ve `ik:onay` yalnız
 onaylayan rollerde; `ai:egit` (model eğitimi) `ai:oku`'dan (tahmin görüntüleme),
 `rapor:yaz` (rapor üretme) `rapor:oku`'dan (görüntüleme/indirme) ayrıdır.
 
@@ -113,3 +117,14 @@ tutar (`x`/`y` yüzde 0–100, `bolge` etiketi; makine başına tek düğüm); c
 Yerleşim yazımı `PUT /ikiz/yerlesim` **replace-all**; gerçek-zaman olayı `ikiz.yerlesim`.
 **Kiosk** = kabuksuz `/kiosk` rotası + `kiosk` rolü (yalnız `uretim:oku`) — salt-okunurluk
 API garantisi (ADR-0017).
+
+## Abonelik & entitlement (S16)
+**Entitlement ≠ RBAC**: izin "bu kullanıcı ne yapabilir", entitlement "bu tenant neyi
+satın aldı". Satılabilir birim = **modül** (`MODUL_KATALOGU`, 17 kod; ikiz+kiosk →
+`uretim`, ticari pano → `crm`, satınalma → `stok`). Planlar: `deneme` (5 koltuk, tümü) /
+`temel` (10) / `profesyonel` (50) / `kurumsal` (sınırsız, tümü). Etkin entitlement =
+`modul_haklari` override'ı > planın `moduller` listesi; katalog dışı kod **kapalı**
+(fail-closed). Kapalı modül → `403 MODUL_KAPALI` (admin dahil); koltuk aşımı →
+`409 KOLTUK_LIMITI` (pasif kullanıcı sayılmaz). Özellik bayrağı = kesitsel/erken-erişim
+anahtarı (`mobil-api`, `webhook-onizleme`); modül değildir. Uçlar: `GET /moduller`
+(oturum; menü süzgeci), `GET /abonelik` (`abonelik:oku`). ADR-0018.

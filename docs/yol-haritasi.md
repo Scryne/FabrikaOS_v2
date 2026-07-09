@@ -29,7 +29,7 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | **3 — Zekâ** | S13 | AI/ML çekirdeği | ✅ ADR-0015 |
 | | S14 | Analitik & Raporlama | ✅ ADR-0016 |
 | | S15 | Dijital ikiz + Kiosk | ✅ ADR-0017 |
-| **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ⬜ |
+| **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ✅ ADR-0018 |
 | | S17 | Platform Admin Paneli | ⬜ |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ⬜ |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
@@ -284,12 +284,20 @@ yansıtır (olay → invalidate); yerleşim/durum uçları RBAC + tenant izolasy
 ### FAZ 4 — Lisanslama & Dış Entegrasyon · ~3 sprint
 **Amaç:** Modül modül lisanslama (entitlement), platform yönetimi, dış self-servis ve webhook/API.
 
-#### ⬜ S16 — Abonelik, Entitlement & Feature Flag
-`Plan`/`Abonelik`/`Entitlement` (control-plane) + feature flag; **backend entitlement bağımlılığı**
-(modül kapalıysa 403/gizle) + **frontend menü** entitlement'e göre; koltuk (seat) limiti. Uçlar:
-`/abonelik`, `/moduller`.
-**Kabul:** Kapalı modüle erişim engellenir (backend + UI); koltuk limiti aşımı engellenir;
-entitlement değişimi anında etkili. Bypass için güvenlik testi.
+#### ✅ S16 — Abonelik, Entitlement & Feature Flag
+`planlar` (modül seti JSONB + koltuk limiti; deneme/temel/profesyonel/kurumsal) +
+tenant-başına `modul_haklari`/`ozellik_bayraklari` override tabloları (public migration,
+plan seed + `abonelik.plan_kodu` FK); **`modul_gerekli(kod)` dependency** 19 modül
+router'ında (kapalı → 403 `MODUL_KAPALI`, admin dahil — entitlement ≠ RBAC); koltuk
+limiti kullanıcı oluşturmada `FOR UPDATE` + sayım (aşım → 409 `KOLTUK_LIMITI`, pasif
+sayılmaz); önbelleksiz sorgu = değişim anında etkili. Uçlar: `GET /moduller` (oturum;
+menü süzgeci) + `GET /abonelik` (`abonelik:oku`). FE: menü entitlement süzgeci +
+`ModulKapisi` upsell boş durumu + `/abonelik` ekranı (plan kartı, koltuk progress,
+modül matrisi, "deneysel" rozetleri). Entitlement yazma API'si S17'de (CLI:
+`scripts/entitlement_ayarla.py`). ADR-0018.
+**Kabul (karşılandı):** Kapalı modüle erişim backend (403 testli) + UI'da engellenir;
+koltuk limiti aşımı engellenir (eşzamanlılık kilitli); entitlement değişimi anında
+etkili (testli); bypass güvenlik testi (tüm izinli admin yine 403) + tenant izolasyonu.
 
 #### ⬜ S17 — Platform Admin Paneli (control-plane)
 Platform uçları (`platform-admin`): tenant listele/oluştur/güncelle/askıya-al/**ihraç**/sil;
