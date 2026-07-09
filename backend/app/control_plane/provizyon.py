@@ -24,7 +24,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy.pool import NullPool
 
-from app.control_plane.models import Abonelik, Tenant
+from app.control_plane.models import Abonelik, Plan, Tenant
+from app.control_plane.moduller import PLAN_KATALOGU
 from app.core.config import get_settings
 from app.core.db import fanout
 from app.core.db.tenancy import search_path_ayarla, sema_adi, slug_gecerli_mi, tenant_bul
@@ -33,6 +34,25 @@ from app.kimlik.izinler import IZIN_KATALOGU, VARSAYILAN_ROLLER
 from app.kimlik.models import Izin, Kullanici, Rol
 
 type _SM = async_sessionmaker[AsyncSession]
+
+
+async def _plan_tohumla(sm: _SM) -> None:
+    """``PLAN_KATALOGU``'nu ``planlar`` tablosuyla eşitler (idempotent upsert).
+
+    Migration ilk seed'i yapar; katalog kod tarafında evrildiğinde (yeni modül/plan)
+    her provizyon koşusu tabloyu günceller — yeni migration gerekmez (ADR-0018).
+    """
+    async with sm() as s, s.begin():
+        mevcut = {p.kod: p for p in (await s.execute(select(Plan))).scalars()}
+        for tanim in PLAN_KATALOGU.values():
+            plan = mevcut.get(tanim.kod)
+            if plan is None:
+                plan = Plan(kod=tanim.kod, ad=tanim.ad, aktif=True)
+                s.add(plan)
+            plan.ad = tanim.ad
+            plan.koltuk_limiti = tanim.koltuk_limiti
+            plan.moduller = sorted(tanim.moduller)
+            plan.ozellikler = sorted(tanim.ozellikler)
 
 
 async def _public_kayit(sm: _SM, slug: str, ad: str, plan_kodu: str) -> int:
@@ -111,11 +131,14 @@ async def tenant_provizyonla(
     """Yeni (veya var olan) tenant'ı uçtan uca provizyonlar; tenant id döner."""
     if not slug_gecerli_mi(slug):
         raise ValueError(f"Geçersiz tenant slug: {slug!r}")
+    if plan_kodu not in PLAN_KATALOGU:
+        raise ValueError(f"Katalogda olmayan plan: {plan_kodu!r}")
 
     db_url = db_url or get_settings().database_url
     engine = create_async_engine(db_url, poolclass=NullPool)
     sm = async_sessionmaker(engine, expire_on_commit=False)
     try:
+        await _plan_tohumla(sm)
         tenant_id = await _public_kayit(sm, slug, ad, plan_kodu)
         await _sema_olustur(engine, slug)
         await asyncio.to_thread(fanout.tenant_yukselt_tek, slug, db_url=db_url)

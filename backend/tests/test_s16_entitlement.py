@@ -141,6 +141,39 @@ async def test_katalog_disi_kod_reddedilir(oturum: AsyncSession) -> None:
         await entitlement_service.ozellik_bayragi_ayarla(oturum, 1, "olmayan-ozellik", True)
 
 
+async def test_provizyon_katalog_disi_plan_reddedilir(test_db: str) -> None:
+    with pytest.raises(ValueError, match="Katalogda olmayan plan"):
+        await tenant_provizyonla(
+            slug="hatali16",
+            ad="Hatalı",
+            admin_eposta="admin@hatali16.test",
+            admin_parola="Hatali12345!",
+            plan_kodu="olmayan-plan",
+            db_url=TEST_URL,
+        )
+
+
+async def test_provizyon_plan_katalogunu_esitler(gamma_db: None, oturum: AsyncSession) -> None:
+    """Elle bozulan plan satırı, bir sonraki provizyonda katalogla eşitlenir (upsert)."""
+    from app.control_plane.models import Plan
+
+    plan = (await oturum.execute(select(Plan).where(Plan.kod == "temel"))).scalar_one()
+    plan.koltuk_limiti = 999
+    await oturum.commit()
+
+    await tenant_provizyonla(  # idempotent yeniden koşu
+        slug=GAMMA["slug"],
+        ad=GAMMA["ad"],
+        admin_eposta=GAMMA["eposta"],
+        admin_parola=GAMMA["parola"],
+        plan_kodu="temel",
+        db_url=TEST_URL,
+    )
+    oturum.expire_all()
+    plan = (await oturum.execute(select(Plan).where(Plan.kod == "temel"))).scalar_one()
+    assert plan.koltuk_limiti == 10  # katalog değeri geri geldi
+
+
 async def test_ozellik_bayragi_override_servisi(oturum: AsyncSession, test_db: str) -> None:
     alfa_id = await _tenant_id(oturum, "alfa")
     tenant = (await oturum.execute(select(Tenant).where(Tenant.id == alfa_id))).scalar_one()
