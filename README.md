@@ -36,13 +36,13 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S16 | Abonelik, Entitlement & Feature Flag (plan katalogu + modül hakları + koltuk limiti + `/abonelik` ekranı) | ✅ |
 | S17 → S22 | Platform admin, dış portal/webhook, operasyon, GA | ⬜ planlı |
 
-Backend: **393 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+Backend: **426 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
 depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım + analitik KPI +
 async rapor üretimi/indirme + dijital ikiz yerleşim/canlı durum + kiosk salt-okunurluk +
 entitlement zorlaması/koltuk limiti/plan kataloğu).
-Frontend: **123 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+Frontend: **153 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
