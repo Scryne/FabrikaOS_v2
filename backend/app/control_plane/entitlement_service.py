@@ -18,7 +18,8 @@ from app.control_plane.models import ModulHakki, OzellikBayragi, Plan, Tenant
 from app.control_plane.moduller import MODUL_KATALOGU, OZELLIK_KATALOGU
 
 
-async def _plan_getir(db: AsyncSession, tenant: Tenant) -> Plan | None:
+async def plan_getir(db: AsyncSession, tenant: Tenant) -> Plan | None:
+    """Tenant'ın geçerli aboneliğinin (aktif) plan kaydını döndürür; yoksa ``None``."""
     ab = tenant.gecerli_abonelik
     if ab is None:
         return None
@@ -26,42 +27,44 @@ async def _plan_getir(db: AsyncSession, tenant: Tenant) -> Plan | None:
     return sonuc.scalar_one_or_none()
 
 
-async def _hak_haritasi(db: AsyncSession, tenant_id: int) -> dict[str, bool]:
+async def hak_haritasi_getir(db: AsyncSession, tenant_id: int) -> dict[str, bool]:
+    """Tenant'ın modül override'ları: kod -> açık/kapalı."""
     sonuc = await db.execute(select(ModulHakki).where(ModulHakki.tenant_id == tenant_id))
     return {h.modul_kodu: h.acik for h in sonuc.scalars()}
 
 
-async def _bayrak_haritasi(db: AsyncSession, tenant_id: int) -> dict[str, bool]:
+async def bayrak_haritasi_getir(db: AsyncSession, tenant_id: int) -> dict[str, bool]:
+    """Tenant'ın özellik bayrağı override'ları: kod -> açık/kapalı."""
     sonuc = await db.execute(select(OzellikBayragi).where(OzellikBayragi.tenant_id == tenant_id))
     return {b.kod: b.acik for b in sonuc.scalars()}
 
 
 async def tenant_etkin_moduller(db: AsyncSession, tenant: Tenant) -> dict[str, bool]:
     """Katalogdaki tüm modüller için kod -> açık/kapalı (plan + override birleşimi)."""
-    plan = await _plan_getir(db, tenant)
+    plan = await plan_getir(db, tenant)
     plan_moduller: list[str] = list(plan.moduller) if plan is not None else []
-    return entitlement.etkin_moduller(plan_moduller, await _hak_haritasi(db, tenant.id))
+    return entitlement.etkin_moduller(plan_moduller, await hak_haritasi_getir(db, tenant.id))
 
 
 async def tenant_modul_acik_mi(db: AsyncSession, tenant: Tenant, modul_kodu: str) -> bool:
     """Tek modül için etkin entitlement (``modul_gerekli`` dependency'sinin çekirdeği)."""
-    plan = await _plan_getir(db, tenant)
+    plan = await plan_getir(db, tenant)
     plan_moduller = list(plan.moduller) if plan is not None else []
     return entitlement.modul_acik_mi(
-        modul_kodu, plan_moduller, await _hak_haritasi(db, tenant.id)
+        modul_kodu, plan_moduller, await hak_haritasi_getir(db, tenant.id)
     )
 
 
 async def tenant_etkin_ozellikler(db: AsyncSession, tenant: Tenant) -> dict[str, bool]:
     """Katalogdaki tüm özellik bayrakları için kod -> açık/kapalı."""
-    plan = await _plan_getir(db, tenant)
+    plan = await plan_getir(db, tenant)
     plan_ozellikler: list[str] = list(plan.ozellikler) if plan is not None else []
-    return entitlement.etkin_ozellikler(plan_ozellikler, await _bayrak_haritasi(db, tenant.id))
+    return entitlement.etkin_ozellikler(plan_ozellikler, await bayrak_haritasi_getir(db, tenant.id))
 
 
 async def koltuk_limiti_getir(db: AsyncSession, tenant: Tenant) -> int | None:
     """Etkin koltuk limiti: ``None`` = sınırsız; plan yoksa 0 (fail-closed)."""
-    plan = await _plan_getir(db, tenant)
+    plan = await plan_getir(db, tenant)
     if plan is None:
         return 0
     return plan.koltuk_limiti

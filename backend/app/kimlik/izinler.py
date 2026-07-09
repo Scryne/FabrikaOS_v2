@@ -9,6 +9,7 @@ from __future__ import annotations
 
 # (kod, açıklama) — plan §3.3 ile uyumlu çekirdek izinler.
 IZIN_KATALOGU: dict[str, str] = {
+    "abonelik:oku": "Abonelik ve modül durumunu görüntüleme",
     "kullanici:oku": "Kullanıcıları görüntüleme",
     "kullanici:yaz": "Kullanıcı oluşturma/güncelleme",
     "kullanici:sil": "Kullanıcı silme",
