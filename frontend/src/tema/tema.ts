@@ -13,6 +13,7 @@ export const RENKLER = {
   yuzey2: '#0b0b0c',
   yuzeyUst: '#1d1d1f',
   kenarlik: '#262628',
+  kenarlikParlak: '#34343a',
   metin: '#f4f4f6',
   metinSoluk: '#8c8c92',
   mavi: '#3b6ef6',

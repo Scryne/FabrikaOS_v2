@@ -54,3 +54,18 @@ class SozlesmeCevapDTO(BaseModel):
     yaklasim_bildirildi: bool
     aciklama: str
     olusturma_tarihi: datetime
+
+
+class SozlesmeSayiDTO(BaseModel):
+    durum: str
+    adet: int
+
+
+class SozlesmeOzetDTO(BaseModel):
+    """Sözleşme KPI özeti (OzetSerit + board sayaçları) — salt-okunur."""
+
+    aktif: int
+    yaklasan: int  # aktif + bitiş 30 gün içinde
+    taslak: int
+    toplam: int
+    durum_dagilimi: list[SozlesmeSayiDTO]

@@ -55,3 +55,18 @@ class RolCevapDTO(BaseModel):
     ad: str
     aciklama: str
     izinler: list[str]
+
+
+class RolSayiDTO(BaseModel):
+    ad: str
+    adet: int
+
+
+class KullaniciOzetDTO(BaseModel):
+    """Kullanıcı KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    toplam: int
+    aktif: int
+    pasif: int
+    rol_sayisi: int
+    rol_dagilimi: list[RolSayiDTO]  # en kalabalık roller

@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -37,6 +38,7 @@ from app.modules.kalite.schemas import (
     DurumGecisDTO,
     KaliteKontrolCevapDTO,
     KaliteKontrolOlusturDTO,
+    KaliteOzetDTO,
     UygunsuzlukCevapDTO,
     UygunsuzlukDetayDTO,
     UygunsuzlukGuncelleDTO,
@@ -505,3 +507,47 @@ async def aksiyon_guncelle(
     tam = await repository.uygunsuzluk_getir_aksiyonlu(db, uygunsuzluk_id)
     assert tam is not None
     return basari(_uygunsuzluk_detay_cevap(tam), mesaj="Aksiyon güncellendi")
+
+
+@router.get("/kalite/ozet", response_model=Zarf[KaliteOzetDTO], summary="Kalite/CAPA özeti (KPI)")
+async def kalite_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("kalite:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    durum_sonuc = await db.execute(
+        select(Uygunsuzluk.durum, func.count()).group_by(Uygunsuzluk.durum)
+    )
+    sayac: dict[str, int] = {}
+    for d, adet in durum_sonuc.all():
+        sayac[d] = int(adet)
+
+    ay_basi = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    bu_ay = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Uygunsuzluk)
+            .where(Uygunsuzluk.durum == "kapandi", Uygunsuzluk.kapanis_tarihi >= ay_basi)
+        )
+        or 0
+    )
+
+    toplam_kontrol = await db.scalar(select(func.count()).select_from(KaliteKontrol)) or 0
+    gecti = (
+        await db.scalar(
+            select(func.count()).select_from(KaliteKontrol).where(KaliteKontrol.sonuc == "gecti")
+        )
+        or 0
+    )
+
+    ozet = KaliteOzetDTO(
+        acik_uygunsuzluk=sayac.get("acik", 0),
+        dogrulamada=sayac.get("dogrulama", 0),
+        kapali_uygunsuzluk=sayac.get("kapandi", 0),
+        bu_ay_kapanan=int(bu_ay),
+        toplam_uygunsuzluk=sum(sayac.values()),
+        toplam_kontrol=int(toplam_kontrol),
+        gecti_kontrol=int(gecti),
+        gecti_orani=(int(gecti) / int(toplam_kontrol)) if toplam_kontrol else 0.0,
+    )
+    return basari(ozet.model_dump(), mesaj="Kalite özeti")

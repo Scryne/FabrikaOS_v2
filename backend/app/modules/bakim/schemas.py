@@ -37,3 +37,18 @@ class BakimPlaniCevapDTO(BaseModel):
     sonraki_bakim_tarihi: datetime | None = None
     aktif: bool
     aciklama: str
+
+
+class BakimSayiDTO(BaseModel):
+    ad: str
+    adet: int
+
+
+class BakimOzetDTO(BaseModel):
+    """Bakım planı KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    aktif_plan: int
+    bu_hafta_vadesi: int
+    gecikmis: int
+    toplam_plan: int
+    tip_dagilimi: list[BakimSayiDTO]

@@ -12,11 +12,21 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type Kullanici = components['schemas']['KullaniciCevapDTO'];
 export type KullaniciOlustur = components['schemas']['KullaniciOlusturDTO'];
 export type Rol = components['schemas']['RolCevapDTO'];
+export type KullaniciOzet = components['schemas']['KullaniciOzetDTO'];
 
 export const KULLANICI_ANAHTAR = {
   kullanicilar: ['kullanicilar'] as const,
   roller: ['roller'] as const,
+  ozet: ['kullanici-ozet'] as const,
 };
+
+/** Kullanıcı KPI özeti (OzetSerit). */
+export function useKullaniciOzet() {
+  return useQuery({
+    queryKey: KULLANICI_ANAHTAR.ozet,
+    queryFn: () => istek<KullaniciOzet>('GET', `${PREFIX}/kullanicilar/ozet`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -48,6 +58,7 @@ export function useKullaniciOlustur() {
       istek<Kullanici>('POST', `${PREFIX}/kullanicilar`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.kullanicilar });
+      void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.ozet });
       message.success(t('kullanici.olusturuldu'));
     },
     onError: hataGoster,

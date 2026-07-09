@@ -8,6 +8,7 @@ from __future__ import annotations
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -27,6 +28,8 @@ from app.modules.talep.schemas import (
     TalepDurumDTO,
     TalepGuncelleDTO,
     TalepOlusturDTO,
+    TalepOzetDTO,
+    TalepSayiDTO,
 )
 
 router = APIRouter(tags=["Talep"])
@@ -198,3 +201,41 @@ async def talep_durum(
     )
     await yayinla(tenant.slug, {"tur": "talep.durum", "id": talep.id})
     return basari(_cevap(talep), mesaj="Durum güncellendi")
+
+
+@router.get("/talep/ozet", response_model=Zarf[TalepOzetDTO], summary="Talep özeti (KPI)")
+async def talep_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("talep:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    durum_sonuc = await db.execute(select(Talep.durum, func.count()).group_by(Talep.durum))
+    sayac: dict[str, int] = {}
+    for d, adet in durum_sonuc.all():
+        sayac[d] = int(adet)
+
+    acik_durumlar = ("acik", "inceleniyor")
+    acik = (
+        await db.scalar(
+            select(func.count()).select_from(Talep).where(Talep.durum.in_(acik_durumlar))
+        )
+        or 0
+    )
+    atanmamis = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Talep)
+            .where(Talep.durum.in_(acik_durumlar), Talep.atanan_kullanici_id.is_(None))
+        )
+        or 0
+    )
+    cozulen = sayac.get("cozuldu", 0) + sayac.get("kapandi", 0)
+
+    ozet = TalepOzetDTO(
+        acik=int(acik),
+        atanmamis=int(atanmamis),
+        cozulen=cozulen,
+        toplam=sum(sayac.values()),
+        durum_dagilimi=[TalepSayiDTO(durum=d, adet=a) for d, a in sorted(sayac.items())],
+    )
+    return basari(ozet.model_dump(), mesaj="Talep özeti")

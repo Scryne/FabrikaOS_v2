@@ -33,6 +33,19 @@ vi.mock('./hooks', () => {
       isPending: false,
       isError: false,
     }),
+    useIsgOzet: () => ({
+      data: {
+        gunluk_kazasiz: 30,
+        bu_yil_kaza: 1,
+        ramak_kala: 1,
+        toplam_kayip_gun: 0,
+        acik_risk: 0,
+        yuksek_risk: 0,
+        toplam_risk: 0,
+        risk_matrisi: [],
+      },
+      isPending: false,
+    }),
     useKazaOlustur: sahteMutasyon,
   };
 });

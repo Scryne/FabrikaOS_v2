@@ -14,12 +14,32 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type Sozlesme = components['schemas']['SozlesmeCevapDTO'];
 export type SozlesmeOlustur = components['schemas']['SozlesmeOlusturDTO'];
 export type SozlesmeGuncelle = components['schemas']['SozlesmeGuncelleDTO'];
+export type SozlesmeOzet = components['schemas']['SozlesmeOzetDTO'];
 
 export const SOZLESME_ANAHTAR = {
   liste: ['sozlesmeler'] as const,
+  pano: ['sozlesmeler', 'pano'] as const,
   detay: (id: number) => ['sozlesme', id] as const,
   yaklasan: ['sozlesme-yaklasan'] as const,
+  ozet: ['sozlesme-ozet'] as const,
 };
+
+/** Sözleşme KPI özeti (OzetSerit + board sayaçları). */
+export function useSozlesmeOzet() {
+  return useQuery({
+    queryKey: SOZLESME_ANAHTAR.ozet,
+    queryFn: () => istek<SozlesmeOzet>('GET', `${PREFIX}/sozlesme/ozet`),
+  });
+}
+
+/** Board için tek çekim (istemcide gruplama): en güncel 100 sözleşme. */
+export function useSozlesmePano() {
+  return useQuery({
+    queryKey: SOZLESME_ANAHTAR.pano,
+    queryFn: () =>
+      istek<Sozlesme[]>('GET', `${PREFIX}/sozlesmeler?sayfa=1&adet=100&siralama=id&yon=desc`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -56,6 +76,7 @@ export function useSozlesmeOlustur() {
     mutationFn: (govde: SozlesmeOlustur) => istek<Sozlesme>('POST', `${PREFIX}/sozlesmeler`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.liste });
+      void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.ozet });
       message.success(t('sozlesme.olusturuldu'));
     },
     onError: hataGoster,
@@ -72,6 +93,7 @@ export function useSozlesmeGuncelle() {
       istek<Sozlesme>('PATCH', `${PREFIX}/sozlesmeler/${id}`, govde),
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.liste });
+      void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.ozet });
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.detay(id) });
       message.success(t('sozlesme.guncellendi'));
     },
@@ -89,6 +111,7 @@ export function useSozlesmeDurum() {
       istek<Sozlesme>('PATCH', `${PREFIX}/sozlesmeler/${id}/durum`, { durum }),
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.liste });
+      void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.ozet });
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.detay(id) });
       void qc.invalidateQueries({ queryKey: SOZLESME_ANAHTAR.yaklasan });
       message.success(t('sozlesme.durum_guncellendi'));

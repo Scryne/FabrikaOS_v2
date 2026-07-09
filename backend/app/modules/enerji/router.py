@@ -5,10 +5,11 @@ Tenant-kapsamlı + RBAC (``enerji:oku``/``enerji:yaz``); yazma audit'lenir.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -25,6 +26,7 @@ from app.modules.enerji.models import EnerjiTuketim
 from app.modules.enerji.schemas import (
     EnerjiOlcumCevapDTO,
     EnerjiOlcumOlusturDTO,
+    EnerjiOzetDTO,
     EnerjiTrendNoktaDTO,
 )
 
@@ -139,3 +141,37 @@ async def enerji_trend(
         aralik=aralik,
     )
     return basari([EnerjiTrendNoktaDTO(**n).model_dump() for n in noktalar], mesaj="Enerji trendi")
+
+
+@router.get("/enerji/ozet", response_model=Zarf[EnerjiOzetDTO], summary="Enerji özeti (KPI)")
+async def enerji_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("enerji:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    gun_basi = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    toplam = await db.scalar(select(func.count()).select_from(EnerjiTuketim)) or 0
+    bugun = (
+        await db.scalar(
+            select(func.count()).select_from(EnerjiTuketim).where(EnerjiTuketim.zaman >= gun_basi)
+        )
+        or 0
+    )
+    tur_sayisi = await db.scalar(select(func.count(func.distinct(EnerjiTuketim.enerji_turu)))) or 0
+    izlenen_makine = (
+        await db.scalar(
+            select(func.count(func.distinct(EnerjiTuketim.makine_id))).where(
+                EnerjiTuketim.makine_id.is_not(None)
+            )
+        )
+        or 0
+    )
+
+    ozet = EnerjiOzetDTO(
+        toplam_kayit=int(toplam),
+        bugun_kayit=int(bugun),
+        tur_sayisi=int(tur_sayisi),
+        izlenen_makine=int(izlenen_makine),
+    )
+    return basari(ozet.model_dump(), mesaj="Enerji özeti")

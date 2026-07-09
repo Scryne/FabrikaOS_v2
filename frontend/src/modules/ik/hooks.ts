@@ -23,6 +23,7 @@ export type Zimmet = components['schemas']['ZimmetCevapDTO'];
 export type ZimmetOlustur = components['schemas']['ZimmetOlusturDTO'];
 export type Sertifika = components['schemas']['SertifikaCevapDTO'];
 export type SertifikaOlustur = components['schemas']['SertifikaOlusturDTO'];
+export type IkOzet = components['schemas']['IkOzetDTO'];
 
 export const IK_ANAHTAR = {
   personeller: ['personeller'] as const,
@@ -32,7 +33,25 @@ export const IK_ANAHTAR = {
   mesailer: (pid: number) => ['fazla-mesailer', pid] as const,
   zimmetler: (pid: number) => ['zimmetler', pid] as const,
   sertifikalar: (pid: number) => ['sertifikalar', pid] as const,
+  ozet: ['ik-ozet'] as const,
 };
+
+/** İK KPI özeti (OzetSerit). */
+export function useIkOzet() {
+  return useQuery({
+    queryKey: IK_ANAHTAR.ozet,
+    queryFn: () => istek<IkOzet>('GET', `${PREFIX}/ik/ozet`),
+  });
+}
+
+/** İzin board'u için tek çekim (istemcide gruplama + KPI): en güncel 100 izin talebi. */
+export function useIzinPano() {
+  return useQuery({
+    queryKey: [...IK_ANAHTAR.izinler, 'pano'],
+    queryFn: () =>
+      istek<IzinTalebi[]>('GET', `${PREFIX}/izin-talepleri?sayfa=1&adet=100&siralama=id&yon=desc`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -63,6 +82,7 @@ export function usePersonelOlustur() {
     mutationFn: (govde: PersonelOlustur) => istek<Personel>('POST', `${PREFIX}/personeller`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: IK_ANAHTAR.personeller });
+      void qc.invalidateQueries({ queryKey: IK_ANAHTAR.ozet });
       message.success(t('ik.personel_olusturuldu'));
     },
     onError: hataGoster,

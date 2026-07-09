@@ -160,3 +160,13 @@ class SertifikaCevapDTO(BaseModel):
     gecerlilik_tarihi: date | None = None
     aciklama: str
     olusturma_tarihi: datetime
+
+
+class IkOzetDTO(BaseModel):
+    """İK KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    aktif_personel: int
+    toplam_personel: int
+    bugun_izinli: int
+    yaklasan_sertifika: int  # geçerliliği 30 gün içinde bitecek
+    acik_zimmet: int

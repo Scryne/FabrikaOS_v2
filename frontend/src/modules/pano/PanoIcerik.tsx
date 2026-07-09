@@ -20,6 +20,7 @@ import { cubukSecenek, donutSecenek, gostergeSecenek } from '@/components/grafik
 import { KpiKart } from '@/components/KpiKart';
 import { OranSatiri } from '@/components/OranSatiri';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { RENKLER } from '@/tema/tema';
 import type { components } from '@/api/types.gen';
 
@@ -115,26 +116,26 @@ export function PanoIcerik({
 
   if (!yukleniyor && makineSayisi === 0) {
     return (
-      <div style={{ maxWidth: 1320 }}>
+      <SayfaKapsayici>
         {baslik}
         <Card>
           <Empty description={t('pano.makine_yok')} />
         </Card>
-      </div>
+      </SayfaKapsayici>
     );
   }
 
   if (yukleniyor) {
     return (
-      <div style={{ maxWidth: 1320 }}>
+      <SayfaKapsayici>
         {baslik}
         <Skeleton active paragraph={{ rows: 8 }} />
-      </div>
+      </SayfaKapsayici>
     );
   }
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       {baslik}
 
       <Row gutter={[16, 16]}>
@@ -252,6 +253,6 @@ export function PanoIcerik({
           </Card>
         </Col>
       </Row>
-    </div>
+    </SayfaKapsayici>
   );
 }

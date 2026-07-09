@@ -20,6 +20,7 @@ import type { ColumnsType } from 'antd/es/table';
 
 import { BosDurum } from '@/components/BosDurum';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { cizgiSecenek } from '@/components/grafik/grafikSecenek';
 import { useAuthStore } from '@/store/authStore';
@@ -431,7 +432,7 @@ export function TahminPanosu() {
   ];
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik baslik={t('menu.tahminler')} alt={t('ai.alt')} />
       <Row gutter={[16, 16]}>
         {MODEL_TURLERI.map((tur) => (
@@ -443,6 +444,6 @@ export function TahminPanosu() {
       <Card style={{ marginTop: 16 }} styles={{ body: { padding: 16 } }}>
         <Tabs items={paneller} />
       </Card>
-    </div>
+    </SayfaKapsayici>
   );
 }

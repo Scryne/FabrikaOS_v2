@@ -45,3 +45,12 @@ class BelgeSurumuCevapDTO(BaseModel):
     yukleyen_kullanici_id: int | None = None
     aciklama: str
     olusturma_tarihi: datetime
+
+
+class DysOzetDTO(BaseModel):
+    """DYS (belge) KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    toplam_belge: int
+    kategori_sayisi: int
+    bu_ay_surum: int
+    toplam_boyut: int  # tüm sürümlerin toplam boyutu (bayt)

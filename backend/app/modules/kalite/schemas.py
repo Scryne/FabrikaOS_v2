@@ -108,3 +108,16 @@ class UygunsuzlukCevapDTO(BaseModel):
 
 class UygunsuzlukDetayDTO(UygunsuzlukCevapDTO):
     aksiyonlar: list[AksiyonCevapDTO] = Field(default_factory=list)
+
+
+class KaliteOzetDTO(BaseModel):
+    """Kalite/CAPA KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    acik_uygunsuzluk: int
+    dogrulamada: int
+    kapali_uygunsuzluk: int
+    bu_ay_kapanan: int
+    toplam_uygunsuzluk: int
+    toplam_kontrol: int
+    gecti_kontrol: int
+    gecti_orani: float  # 0–1 (kalite kontrol geçme oranı)

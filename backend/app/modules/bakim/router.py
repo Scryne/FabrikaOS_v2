@@ -6,23 +6,28 @@ denetim izine kaydedilir. Bu sprintte bakım planları yalnızca CRUD'dur.
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli
+from app.core.deps import izin_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.bakim import repository
 from app.modules.bakim.models import BAKIM_TIPLERI, BakimPlani
 from app.modules.bakim.schemas import (
+    BakimOzetDTO,
     BakimPlaniCevapDTO,
     BakimPlaniGuncelleDTO,
     BakimPlaniOlusturDTO,
+    BakimSayiDTO,
 )
 from app.modules.uretim import repository as uretim_repository
 
@@ -158,3 +163,52 @@ async def bakim_guncelle(
         detay=govde.model_dump(exclude_unset=True, mode="json"),
     )
     return basari(_cevap(plan), mesaj="Bakım planı güncellendi")
+
+
+@router.get("/bakim/ozet", response_model=Zarf[BakimOzetDTO], summary="Bakım özeti (KPI)")
+async def bakim_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("bakim:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    simdi = datetime.now(UTC)
+    hafta_sonu = simdi + timedelta(days=7)
+
+    toplam = await db.scalar(select(func.count()).select_from(BakimPlani)) or 0
+    aktif = (
+        await db.scalar(
+            select(func.count()).select_from(BakimPlani).where(BakimPlani.aktif.is_(True))
+        )
+        or 0
+    )
+    bu_hafta = (
+        await db.scalar(
+            select(func.count())
+            .select_from(BakimPlani)
+            .where(
+                BakimPlani.aktif.is_(True),
+                BakimPlani.sonraki_bakim_tarihi >= simdi,
+                BakimPlani.sonraki_bakim_tarihi <= hafta_sonu,
+            )
+        )
+        or 0
+    )
+    gecikmis = (
+        await db.scalar(
+            select(func.count())
+            .select_from(BakimPlani)
+            .where(BakimPlani.aktif.is_(True), BakimPlani.sonraki_bakim_tarihi < simdi)
+        )
+        or 0
+    )
+    tip_sonuc = await db.execute(select(BakimPlani.tip, func.count()).group_by(BakimPlani.tip))
+    tip_dagilimi = [BakimSayiDTO(ad=tip, adet=int(a)) for tip, a in tip_sonuc.all()]
+
+    ozet = BakimOzetDTO(
+        aktif_plan=int(aktif),
+        bu_hafta_vadesi=int(bu_hafta),
+        gecikmis=int(gecikmis),
+        toplam_plan=int(toplam),
+        tip_dagilimi=tip_dagilimi,
+    )
+    return basari(ozet.model_dump(), mesaj="Bakım özeti")

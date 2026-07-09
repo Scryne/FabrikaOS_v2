@@ -33,6 +33,7 @@ import { IkizSayfasi } from '@/modules/ikiz/IkizSayfasi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
 import { KioskSayfasi } from '@/modules/kiosk/KioskSayfasi';
+import { PrimitifVitrini } from '@/modules/onizleme/PrimitifVitrini';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
 import { OnizlemePano } from '@/modules/pano/OnizlemePano';
 import { RaporListesi } from '@/modules/rapor/RaporListesi';
@@ -403,6 +404,7 @@ export function App() {
         <Route path="/onizleme" element={<OnizlemeOturum />}>
           <Route element={<CanliKabuk />}>
             <Route index element={<OnizlemePano />} />
+            <Route path="primitifler" element={<PrimitifVitrini />} />
           </Route>
         </Route>
       )}

@@ -22,6 +22,7 @@ import { EGrafik } from '@/components/grafik/EGrafik';
 import { cizgiSecenek } from '@/components/grafik/grafikSecenek';
 import { KpiKart } from '@/components/KpiKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 
 import { type KpiCevap, useKpi, useTrend } from './hooks';
 
@@ -66,7 +67,7 @@ export function AnalitikPano() {
   const adetSerisi = (trend ?? []).map((n) => ({ zaman: n.gun, deger: n.toplam_adet }));
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={t('menu.analitik')}
         alt={t('analitik.alt')}
@@ -193,6 +194,6 @@ export function AnalitikPano() {
           </Card>
         </Col>
       </Row>
-    </div>
+    </SayfaKapsayici>
   );
 }

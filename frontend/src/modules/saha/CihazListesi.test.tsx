@@ -24,6 +24,15 @@ vi.mock('./hooks', () => ({
     isPending: false,
     isError: false,
   }),
+  useSahaOzet: () => ({
+    data: {
+      toplam_cihaz: 1,
+      cevrimici: 0,
+      bugun_olcum: 0,
+      protokol_dagilimi: [{ ad: 'simulasyon', adet: 1 }],
+    },
+    isPending: false,
+  }),
 }));
 
 describe('CihazListesi', () => {

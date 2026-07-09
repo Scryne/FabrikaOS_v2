@@ -65,3 +65,21 @@ class OeeOzetSatirDTO(BaseModel):
     kalite: float
     oee: float
     kayit_sayisi: int
+
+
+class DurumSayiDTO(BaseModel):
+    durum: str
+    adet: int
+
+
+class UretimOzetDTO(BaseModel):
+    """Üretim modülü KPI özeti (pano/OzetSerit) — salt-okunur toplulaştırma."""
+
+    toplam_makine: int
+    calisan: int
+    durdu: int
+    bakimda: int
+    arizali: int
+    uretimli_makine: int
+    ortalama_oee: float  # 0–1 (frontend ×100 gösterir; filoOrtalamalari deseni)
+    durum_dagilimi: list[DurumSayiDTO]

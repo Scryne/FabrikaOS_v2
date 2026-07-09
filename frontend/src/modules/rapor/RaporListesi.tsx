@@ -12,6 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 
 import { ApiHata } from '@/api/client';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
@@ -134,7 +135,7 @@ export function RaporListesi() {
   );
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={t('menu.raporlar')}
         alt={t('rapor.alt')}
@@ -165,6 +166,6 @@ export function RaporListesi() {
         />
       </Card>
       <RaporFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

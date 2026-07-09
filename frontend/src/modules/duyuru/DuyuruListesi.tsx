@@ -6,18 +6,27 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Tag } from 'antd';
+import { Button, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { DurumPim, pimUret } from '@/components/DurumPim';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
+import { RENKLER } from '@/tema/tema';
 
 import { type Duyuru, useDuyurular } from './hooks';
 import { DuyuruDetay } from './DuyuruDetay';
 import { DuyuruFormu } from './DuyuruFormu';
-import { DuyuruOnemEtiketi } from './rozetler';
+
+const ONEM_RENK: Record<string, string> = {
+  bilgi: RENKLER.cyan,
+  uyari: RENKLER.uyari,
+  kritik: RENKLER.hata,
+};
+const OnemPim = pimUret(ONEM_RENK, 'duyuru.onem_');
 
 export function DuyuruListesi() {
   const { t } = useTranslation();
@@ -39,22 +48,24 @@ export function DuyuruListesi() {
       title: t('duyuru.onem'),
       dataIndex: 'onem',
       key: 'onem',
-      render: (v: string) => <DuyuruOnemEtiketi onem={v} />,
+      render: (v: string) => <OnemPim durum={v} />,
     },
     {
       title: t('duyuru.durum'),
       dataIndex: 'yayinda',
       key: 'yayinda',
       render: (v: boolean) => (
-        <Tag color={v ? 'success' : 'default'} bordered={false}>
-          {v ? t('duyuru.yayinda') : t('duyuru.taslak')}
-        </Tag>
+        <DurumPim
+          renk={v ? RENKLER.basari : RENKLER.metinSoluk}
+          etiket={v ? t('duyuru.yayinda') : t('duyuru.taslak')}
+          solgun={!v}
+        />
       ),
     },
   ];
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={t('menu.duyurular')}
         alt={t('duyuru.alt')}
@@ -84,6 +95,6 @@ export function DuyuruListesi() {
       </Card>
       <DuyuruDetay id={detayId} kapat={() => setDetayId(null)} />
       <DuyuruFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

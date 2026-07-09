@@ -12,6 +12,7 @@ import { Button, Card, Descriptions, Space, Table, Tabs, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { useAuthStore } from '@/store/authStore';
 
 import { MesaiFormu, SertifikaFormu, ZimmetFormu } from './AltKayitFormlari';
@@ -202,7 +203,7 @@ export function PersonelDetay() {
   const [izinAcik, setIzinAcik] = useState(false);
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <SayfaKapsayici enGenis={1160}>
       <SayfaBaslik
         baslik={personel ? `${personel.ad} ${personel.soyad}` : t('menu.personeller')}
         alt={personel?.sicil_no}
@@ -272,6 +273,6 @@ export function PersonelDetay() {
         </Card>
       )}
       <IzinFormu acik={izinAcik} kapat={() => setIzinAcik(false)} personelId={id} />
-    </div>
+    </SayfaKapsayici>
   );
 }

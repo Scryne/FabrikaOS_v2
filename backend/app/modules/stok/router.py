@@ -6,10 +6,11 @@ satınalma uçları sonraki task'larda eklenir.
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Header
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -35,12 +36,15 @@ from app.modules.stok.schemas import (
     RedDTO,
     SatinalmaKalemCevapDTO,
     SatinalmaKalemDTO,
+    SatinalmaOzetDTO,
+    SatinalmaSayiDTO,
     SatinalmaTalebiCevapDTO,
     SatinalmaTalebiDetayDTO,
     SatinalmaTalebiGuncelleDTO,
     SatinalmaTalebiOlusturDTO,
     StokHareketiCevapDTO,
     StokHareketiOlusturDTO,
+    StokOzetDTO,
 )
 
 router = APIRouter(tags=["Stok & Satınalma"])
@@ -577,3 +581,82 @@ async def talep_iptal(
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     return await _gecis(db, tenant, kullanici, talep_id, "iptal")
+
+
+# --- Özet uçları (KPI/pano) ---
+@router.get("/stok/ozet", response_model=Zarf[StokOzetDTO], summary="Stok özeti (pano/KPI)")
+async def stok_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("stok:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    toplam = await db.scalar(select(func.count()).select_from(Malzeme)) or 0
+    aktif = (
+        await db.scalar(select(func.count()).select_from(Malzeme).where(Malzeme.aktif.is_(True)))
+        or 0
+    )
+    kritik_alti = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Malzeme)
+            .where(Malzeme.kritik_stok > 0, Malzeme.mevcut_miktar <= Malzeme.kritik_stok)
+        )
+        or 0
+    )
+    min_alti = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Malzeme)
+            .where(Malzeme.min_stok > 0, Malzeme.mevcut_miktar <= Malzeme.min_stok)
+        )
+        or 0
+    )
+    gun_basi = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    bugun_hareket = (
+        await db.scalar(
+            select(func.count())
+            .select_from(StokHareketi)
+            .where(StokHareketi.olusturma_tarihi >= gun_basi)
+        )
+        or 0
+    )
+    kategori_sayisi = (
+        await db.scalar(
+            select(func.count(func.distinct(Malzeme.kategori))).where(Malzeme.kategori != "")
+        )
+        or 0
+    )
+    ozet = StokOzetDTO(
+        toplam_malzeme=int(toplam),
+        aktif_malzeme=int(aktif),
+        kritik_alti=int(kritik_alti),
+        min_alti=int(min_alti),
+        bugun_hareket=int(bugun_hareket),
+        kategori_sayisi=int(kategori_sayisi),
+    )
+    return basari(ozet.model_dump(), mesaj="Stok özeti")
+
+
+@router.get(
+    "/satinalma/ozet", response_model=Zarf[SatinalmaOzetDTO], summary="Satınalma özeti (pano/KPI)"
+)
+async def satinalma_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("satinalma:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    durum_sonuc = await db.execute(
+        select(SatinalmaTalebi.durum, func.count()).group_by(SatinalmaTalebi.durum)
+    )
+    sayac: dict[str, int] = {}
+    for durum, adet in durum_sonuc.all():
+        sayac[durum] = int(adet)
+    ozet = SatinalmaOzetDTO(
+        onay_bekleyen=sayac.get("onay_bekliyor", 0),
+        taslak=sayac.get("taslak", 0),
+        onaylandi=sayac.get("onaylandi", 0),
+        reddedildi=sayac.get("reddedildi", 0),
+        toplam=sum(sayac.values()),
+        durum_dagilimi=[SatinalmaSayiDTO(durum=d, adet=a) for d, a in sorted(sayac.items())],
+    )
+    return basari(ozet.model_dump(), mesaj="Satınalma özeti")

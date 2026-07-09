@@ -1,7 +1,7 @@
 /** Bakım modülü veri hook'ları (TanStack Query) — plan listesi + oluştur/güncelle mutasyonları. */
 
 import { useTranslation } from 'react-i18next';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { App } from 'antd';
 
 import { ApiHata, istek, PREFIX } from '@/api/client';
@@ -12,10 +12,20 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type BakimPlani = components['schemas']['BakimPlaniCevapDTO'];
 export type BakimPlaniOlustur = components['schemas']['BakimPlaniOlusturDTO'];
 export type BakimPlaniGuncelle = components['schemas']['BakimPlaniGuncelleDTO'];
+export type BakimOzet = components['schemas']['BakimOzetDTO'];
 
 export const BAKIM_ANAHTAR = {
   planlar: ['bakim-planlari'] as const,
+  ozet: ['bakim-ozet'] as const,
 };
+
+/** Bakım KPI özeti (OzetSerit). */
+export function useBakimOzet() {
+  return useQuery({
+    queryKey: BAKIM_ANAHTAR.ozet,
+    queryFn: () => istek<BakimOzet>('GET', `${PREFIX}/bakim/ozet`),
+  });
+}
 
 /** Backend beyaz-listesiyle birebir (``BAKIM_TIPLERI``). */
 export const BAKIM_TIPLERI = ['onleyici', 'kestirimci', 'periyodik'];
@@ -41,6 +51,7 @@ export function useBakimPlaniOlustur() {
       istek<BakimPlani>('POST', `${PREFIX}/bakim-planlari`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: BAKIM_ANAHTAR.planlar });
+      void qc.invalidateQueries({ queryKey: BAKIM_ANAHTAR.ozet });
       message.success(t('bakim.olusturuldu'));
     },
     onError: hataGoster,
@@ -57,6 +68,7 @@ export function useBakimPlaniGuncelle() {
       istek<BakimPlani>('PATCH', `${PREFIX}/bakim-planlari/${id}`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: BAKIM_ANAHTAR.planlar });
+      void qc.invalidateQueries({ queryKey: BAKIM_ANAHTAR.ozet });
       message.success(t('bakim.guncellendi'));
     },
     onError: hataGoster,

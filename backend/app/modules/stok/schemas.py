@@ -119,3 +119,30 @@ class SatinalmaTalebiCevapDTO(BaseModel):
 
 class SatinalmaTalebiDetayDTO(SatinalmaTalebiCevapDTO):
     kalemler: list[SatinalmaKalemCevapDTO] = Field(default_factory=list)
+
+
+class StokOzetDTO(BaseModel):
+    """Malzeme/stok KPI özeti (OzetSerit + analiz donut) — salt-okunur."""
+
+    toplam_malzeme: int
+    aktif_malzeme: int
+    kritik_alti: int
+    min_alti: int
+    bugun_hareket: int
+    kategori_sayisi: int
+
+
+class SatinalmaSayiDTO(BaseModel):
+    durum: str
+    adet: int
+
+
+class SatinalmaOzetDTO(BaseModel):
+    """Satınalma talebi KPI özeti (OzetSerit + board sayaçları) — salt-okunur."""
+
+    onay_bekleyen: int
+    taslak: int
+    onaylandi: int
+    reddedildi: int
+    toplam: int
+    durum_dagilimi: list[SatinalmaSayiDTO]

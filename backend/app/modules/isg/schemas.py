@@ -89,3 +89,22 @@ class RiskDegerlendirmeCevapDTO(BaseModel):
     degerlendirme_tarihi: datetime
     gecerlilik_tarihi: date | None = None
     olusturma_tarihi: datetime
+
+
+class RiskHucreDTO(BaseModel):
+    olasilik: int
+    siddet: int
+    adet: int
+
+
+class IsgOzetDTO(BaseModel):
+    """İSG KPI özeti (İş kazaları + Risk ekranları) — salt-okunur toplulaştırma."""
+
+    gunluk_kazasiz: int  # son kazadan bu yana gün (-1: hiç kaza yok)
+    bu_yil_kaza: int
+    ramak_kala: int
+    toplam_kayip_gun: int
+    acik_risk: int
+    yuksek_risk: int
+    toplam_risk: int
+    risk_matrisi: list[RiskHucreDTO]  # 5×5 hücre sayaçları

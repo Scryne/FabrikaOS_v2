@@ -32,6 +32,16 @@
     "bos": "No records found",
     "kayit": "records"
   },
+  "gorunum": {
+    "liste": "List",
+    "pano": "Board",
+    "analiz": "Analytics"
+  },
+  "komut": {
+    "yer": "Search or jump to a page…",
+    "bos": "No results found",
+    "ipucu": "quick jump"
+  },
   "kimlik": {
     "giris_basligi": "Sign in to the control panel",
     "giris_aciklama": "Connect to your factory’s production intelligence.",
@@ -113,7 +123,11 @@
     "ortak_eklendi": "Contact added",
     "ad_soyad": "Full name",
     "unvan": "Title",
-    "birincil": "Primary"
+    "birincil": "Primary",
+    "kpi_firma": "Companies",
+    "kpi_aktif": "Active companies",
+    "kpi_sozlesme": "Active contracts",
+    "kpi_talep": "Open requests"
   },
   "sozlesme": {
     "alt": "Company contracts; status lifecycle and upcoming expiry alerts.",
@@ -145,7 +159,11 @@
     "duzenle": "Edit",
     "olusturuldu": "Contract created",
     "guncellendi": "Updated",
-    "durum_guncellendi": "Status updated"
+    "durum_guncellendi": "Status updated",
+    "kpi_aktif": "Active",
+    "kpi_yaklasan": "Ending within 30 days",
+    "kpi_taslak": "Draft",
+    "kpi_toplam": "Total"
   },
   "talep": {
     "alt": "Customer/internal requests; quote, support and complaint lifecycle.",
@@ -178,7 +196,17 @@
     "yeni": "New request",
     "olusturuldu": "Request created",
     "guncellendi": "Updated",
-    "durum_guncellendi": "Status updated"
+    "durum_guncellendi": "Status updated",
+    "kpi_acik": "Open",
+    "kpi_atanmamis": "Unassigned",
+    "kpi_cozulen": "Resolved",
+    "kpi_toplam": "Total",
+    "yas_gun": "{{n}}d",
+    "hal_acik": "Open",
+    "hal_inceleniyor": "In review",
+    "hal_cozuldu": "Resolved",
+    "hal_kapandi": "Closed",
+    "hal_iptal": "Cancelled"
   },
   "dys": {
     "alt": "Versioned documents; content in object storage, old versions retained.",
@@ -197,7 +225,11 @@
     "surum_yuklendi": "Version uploaded",
     "surum_aciklama": "Version note (optional)",
     "dosya_sec": "Choose file",
-    "indir": "Download"
+    "indir": "Download",
+    "kpi_belge": "Total documents",
+    "kpi_kategori": "Categories",
+    "kpi_surum": "Versions this month",
+    "kpi_boyut": "Total size"
   },
   "duyuru": {
     "alt": "Corporate announcements; notify connected users when published.",
@@ -248,7 +280,13 @@
     "pasif": "Inactive",
     "son_gorulme": "Last seen",
     "ara": "Search by code or name",
-    "bos": "No field devices yet."
+    "bos": "No field devices yet.",
+    "kpi_cihaz": "Registered devices",
+    "kpi_cevrimici": "Online",
+    "kpi_olcum": "Measurements today",
+    "kpi_protokol": "Protocol types",
+    "cevrimici": "Online",
+    "cevrimdisi": "Offline"
   },
   "stok": {
     "alt": "Material cards and stock movements",
@@ -282,7 +320,17 @@
     "bakiye_sonrasi": "Balance after",
     "kritik_baslik": "Materials at critical stock",
     "kritik_bos": "No critical stock",
-    "kritik_rozet": "CRITICAL"
+    "kritik_rozet": "CRITICAL",
+    "kpi_toplam": "Total items",
+    "kpi_kritik": "Below critical",
+    "kpi_min": "Below minimum",
+    "kpi_hareket": "Today's movements",
+    "seviye": "Level",
+    "analiz_dagilim": "Stock level distribution",
+    "seviye_normal": "Normal",
+    "seviye_min": "Below min",
+    "seviye_kritik": "Below critical",
+    "detay": "Details"
   },
   "satinalma": {
     "alt": "Multi-line purchase requests and approval flow",
@@ -301,6 +349,7 @@
     "bos": "No requests",
     "yeni": "New request",
     "olusturuldu": "Request created",
+    "olusturma": "Created",
     "durum_guncellendi": "Status updated",
     "kalemler": "Lines",
     "malzeme": "Material",
@@ -315,7 +364,13 @@
     "iptal": "Cancel",
     "red_nedeni": "Rejection reason",
     "red_baslik": "Reject request",
-    "onaylayan": "Approved by"
+    "onaylayan": "Approved by",
+    "kpi_bekleyen": "Awaiting approval",
+    "kpi_taslak": "Draft",
+    "kpi_onaylandi": "Approved",
+    "kpi_toplam": "Total requests",
+    "yas_gun": "{{n}}d",
+    "detay": "Details"
   },
   "kalite": {
     "alt": "Quality inspection/measurement records and results.",
@@ -385,7 +440,15 @@
     "aksiyon_durum_iptal": "Cancelled",
     "termin": "Due date",
     "tamamla": "Complete",
-    "aksiyon_yok": "No actions added yet."
+    "aksiyon_yok": "No actions added yet.",
+    "kpi_acik": "Open NCs",
+    "kpi_dogrulamada": "In verification",
+    "kpi_bu_ay": "Closed this month",
+    "kpi_toplam": "Total",
+    "kpi_gecti_orani": "Pass rate",
+    "kpi_toplam_kontrol": "Total checks",
+    "kpi_gecti": "Passed checks",
+    "yas_gun": "{{n}}d"
   },
   "enerji": {
     "alt": "Energy consumption measurements and hourly/daily trend.",
@@ -403,7 +466,11 @@
     "olcum_ekle": "Add measurement",
     "olcum_eklendi": "Energy measurement added",
     "aralik_saat": "Hourly",
-    "aralik_gun": "Daily"
+    "aralik_gun": "Daily",
+    "kpi_kayit": "Total measurements",
+    "kpi_bugun": "Today's measurements",
+    "kpi_tur": "Energy types",
+    "kpi_makine": "Monitored machines"
   },
   "uretim": {
     "durum_calisiyor": "Running",
@@ -444,7 +511,18 @@
     "bu_makine_uretim_yok": "No production records for this machine yet.",
     "makine_eklendi": "Machine created",
     "durum_guncellendi": "Status updated",
-    "uretim_kaydedildi": "Production data saved"
+    "uretim_kaydedildi": "Production data saved",
+    "kpi_toplam": "Total machines",
+    "kpi_calisan": "Running",
+    "kpi_sorunlu": "Fault / maintenance",
+    "kpi_oee": "Average OEE",
+    "arizali_n": "{{n}} fault",
+    "analiz_durum": "Status distribution",
+    "analiz_oee": "OEE by machine",
+    "detay": "Details",
+    "ikizde_goster": "Show in twin",
+    "durum_degistir": "Change status",
+    "veri_yok": "—"
   },
   "isemri": {
     "durum_acik": "Open",
@@ -489,7 +567,13 @@
     "yorum_yaz": "Write a comment…",
     "yorum_ekle": "Add comment",
     "yorum_yok": "No comments yet.",
-    "iptal_onay": "Cancel this work order?"
+    "iptal_onay": "Cancel this work order?",
+    "kpi_acik": "Open",
+    "kpi_aktif": "In progress",
+    "kpi_kapandi": "Closed",
+    "kpi_toplam": "Total",
+    "analiz_durum": "Status distribution",
+    "analiz_oncelik": "Priority distribution"
   },
   "yetki": {
     "yetkisiz_baslik": "You don’t have access to this page",
@@ -574,7 +658,16 @@
     "risk_skoru": "Risk score",
     "risk_seviyesi": "Risk level",
     "onlem": "Control measure",
-    "gecerlilik_tarihi": "Valid until"
+    "gecerlilik_tarihi": "Valid until",
+    "kpi_acik_risk": "Open risks",
+    "kpi_yuksek_risk": "High+ risks",
+    "kpi_toplam_risk": "Total assessments",
+    "kpi_kazasiz_baslik": "Accident-free days",
+    "kpi_kazasiz_yok": "No recorded accidents",
+    "kpi_bu_yil_kaza": "Accidents this year",
+    "kpi_ramak": "Near-miss events",
+    "kpi_kayip_gun": "Lost days",
+    "matris_baslik": "Risk matrix (probability × severity)"
   },
   "ik": {
     "personel_olusturuldu": "Personnel created",
@@ -657,7 +750,16 @@
     "gecerlilik_tarihi": "Valid until",
     "sekme_mesai": "Overtime",
     "sekme_zimmet": "Assets",
-    "sekme_sertifika": "Certificates"
+    "sekme_sertifika": "Certificates",
+    "kpi_aktif": "Active personnel",
+    "kpi_izinli": "On leave today",
+    "kpi_sertifika": "Expiring certificates",
+    "kpi_zimmet": "Open assignments",
+    "kpi_izin_bekleyen": "Awaiting approval",
+    "kpi_izin_onaylanan": "Approved",
+    "kpi_izin_reddedilen": "Rejected",
+    "kpi_izin_toplam": "Total requests",
+    "yas_gun": "{{n}}d"
   },
   "bakim": {
     "alt": "Machine maintenance plans — period, last/next service and status.",
@@ -680,7 +782,11 @@
     "aciklama": "Description",
     "durum": "Status",
     "aktif": "Active",
-    "pasif": "Inactive"
+    "pasif": "Inactive",
+    "kpi_aktif": "Active plans",
+    "kpi_bu_hafta": "Due this week",
+    "kpi_gecikmis": "Overdue",
+    "kpi_toplam": "Total plans"
   },
   "kullanici": {
     "alt": "Tenant users, their roles and account status.",
@@ -696,7 +802,11 @@
     "rol_sec": "Select roles",
     "durum": "Status",
     "aktif": "Active",
-    "pasif": "Inactive"
+    "pasif": "Inactive",
+    "kpi_toplam": "Total users",
+    "kpi_aktif": "Active users",
+    "kpi_pasif": "Inactive users",
+    "kpi_rol": "Role count"
   },
   "ai": {
     "alt": "Models trained on tenant data: predictive maintenance, anomaly, OEE and stock demand forecast.",

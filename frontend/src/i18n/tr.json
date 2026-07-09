@@ -32,6 +32,16 @@
     "bos": "Kayıt bulunamadı",
     "kayit": "kayıt"
   },
+  "gorunum": {
+    "liste": "Liste",
+    "pano": "Pano",
+    "analiz": "Analiz"
+  },
+  "komut": {
+    "yer": "Sayfa ara ya da git…",
+    "bos": "Sonuç bulunamadı",
+    "ipucu": "hızlı geçiş"
+  },
   "kimlik": {
     "giris_basligi": "Kontrol paneline giriş",
     "giris_aciklama": "Fabrikanızın üretim zekâsına bağlanın.",
@@ -113,7 +123,11 @@
     "ortak_eklendi": "Kontak eklendi",
     "ad_soyad": "Ad soyad",
     "unvan": "Ünvan",
-    "birincil": "Birincil"
+    "birincil": "Birincil",
+    "kpi_firma": "Firma",
+    "kpi_aktif": "Aktif firma",
+    "kpi_sozlesme": "Aktif sözleşme",
+    "kpi_talep": "Açık talep"
   },
   "sozlesme": {
     "alt": "Firma sözleşmeleri; durum yaşam döngüsü ve yaklaşan bitiş uyarıları.",
@@ -145,7 +159,11 @@
     "duzenle": "Düzenle",
     "olusturuldu": "Sözleşme oluşturuldu",
     "guncellendi": "Güncellendi",
-    "durum_guncellendi": "Durum güncellendi"
+    "durum_guncellendi": "Durum güncellendi",
+    "kpi_aktif": "Aktif",
+    "kpi_yaklasan": "30 gün içinde biten",
+    "kpi_taslak": "Taslak",
+    "kpi_toplam": "Toplam"
   },
   "talep": {
     "alt": "Müşteri/iç talepler; teklif, destek ve şikayet yaşam döngüsü.",
@@ -178,7 +196,17 @@
     "yeni": "Yeni talep",
     "olusturuldu": "Talep oluşturuldu",
     "guncellendi": "Güncellendi",
-    "durum_guncellendi": "Durum güncellendi"
+    "durum_guncellendi": "Durum güncellendi",
+    "kpi_acik": "Açık",
+    "kpi_atanmamis": "Atanmamış",
+    "kpi_cozulen": "Çözülen",
+    "kpi_toplam": "Toplam",
+    "yas_gun": "{{n}}g",
+    "hal_acik": "Açık",
+    "hal_inceleniyor": "İnceleniyor",
+    "hal_cozuldu": "Çözüldü",
+    "hal_kapandi": "Kapandı",
+    "hal_iptal": "İptal"
   },
   "dys": {
     "alt": "Sürümlü belgeler; içerik nesne depolamada, eski sürümler korunur.",
@@ -197,7 +225,11 @@
     "surum_yuklendi": "Sürüm yüklendi",
     "surum_aciklama": "Sürüm açıklaması (opsiyonel)",
     "dosya_sec": "Dosya seç",
-    "indir": "İndir"
+    "indir": "İndir",
+    "kpi_belge": "Toplam belge",
+    "kpi_kategori": "Kategori",
+    "kpi_surum": "Bu ay sürüm",
+    "kpi_boyut": "Toplam boyut"
   },
   "duyuru": {
     "alt": "Kurumsal duyurular; yayınlandığında bağlı kullanıcılara bildirim.",
@@ -248,7 +280,13 @@
     "pasif": "Pasif",
     "son_gorulme": "Son görülme",
     "ara": "Kod veya ada göre ara",
-    "bos": "Henüz saha cihazı eklenmemiş."
+    "bos": "Henüz saha cihazı eklenmemiş.",
+    "kpi_cihaz": "Kayıtlı cihaz",
+    "kpi_cevrimici": "Çevrimiçi",
+    "kpi_olcum": "Bugün ölçüm",
+    "kpi_protokol": "Protokol türü",
+    "cevrimici": "Çevrimiçi",
+    "cevrimdisi": "Çevrimdışı"
   },
   "stok": {
     "alt": "Malzeme kartları ve stok hareketleri",
@@ -282,7 +320,17 @@
     "bakiye_sonrasi": "Sonraki bakiye",
     "kritik_baslik": "Kritik stoktaki malzemeler",
     "kritik_bos": "Kritik stok yok",
-    "kritik_rozet": "KRİTİK"
+    "kritik_rozet": "KRİTİK",
+    "kpi_toplam": "Toplam kalem",
+    "kpi_kritik": "Kritik altında",
+    "kpi_min": "Min altında",
+    "kpi_hareket": "Bugünkü hareket",
+    "seviye": "Seviye",
+    "analiz_dagilim": "Stok seviye dağılımı",
+    "seviye_normal": "Normal",
+    "seviye_min": "Min altı",
+    "seviye_kritik": "Kritik altı",
+    "detay": "Detay"
   },
   "satinalma": {
     "alt": "Çok-kalemli satınalma talepleri ve onay akışı",
@@ -301,6 +349,7 @@
     "bos": "Talep yok",
     "yeni": "Yeni talep",
     "olusturuldu": "Talep oluşturuldu",
+    "olusturma": "Oluşturma",
     "durum_guncellendi": "Durum güncellendi",
     "kalemler": "Kalemler",
     "malzeme": "Malzeme",
@@ -315,7 +364,13 @@
     "iptal": "İptal et",
     "red_nedeni": "Red nedeni",
     "red_baslik": "Talebi reddet",
-    "onaylayan": "Onaylayan"
+    "onaylayan": "Onaylayan",
+    "kpi_bekleyen": "Onay bekleyen",
+    "kpi_taslak": "Taslak",
+    "kpi_onaylandi": "Onaylandı",
+    "kpi_toplam": "Toplam talep",
+    "yas_gun": "{{n}}g",
+    "detay": "Detay"
   },
   "kalite": {
     "alt": "Kalite denetim/muayene kayıtları ve sonuçları.",
@@ -385,7 +440,15 @@
     "aksiyon_durum_iptal": "İptal",
     "termin": "Termin",
     "tamamla": "Tamamla",
-    "aksiyon_yok": "Henüz aksiyon eklenmemiş."
+    "aksiyon_yok": "Henüz aksiyon eklenmemiş.",
+    "kpi_acik": "Açık uygunsuzluk",
+    "kpi_dogrulamada": "Doğrulamada",
+    "kpi_bu_ay": "Bu ay kapanan",
+    "kpi_toplam": "Toplam",
+    "kpi_gecti_orani": "Geçti oranı",
+    "kpi_toplam_kontrol": "Toplam kontrol",
+    "kpi_gecti": "Geçen kontrol",
+    "yas_gun": "{{n}}g"
   },
   "enerji": {
     "alt": "Enerji tüketim ölçümleri ve saatlik/günlük trend.",
@@ -403,7 +466,11 @@
     "olcum_ekle": "Ölçüm ekle",
     "olcum_eklendi": "Enerji ölçümü eklendi",
     "aralik_saat": "Saatlik",
-    "aralik_gun": "Günlük"
+    "aralik_gun": "Günlük",
+    "kpi_kayit": "Toplam ölçüm",
+    "kpi_bugun": "Bugün ölçüm",
+    "kpi_tur": "Enerji türü",
+    "kpi_makine": "İzlenen makine"
   },
   "uretim": {
     "durum_calisiyor": "Çalışıyor",
@@ -444,7 +511,18 @@
     "bu_makine_uretim_yok": "Bu makine için henüz üretim kaydı yok.",
     "makine_eklendi": "Makine oluşturuldu",
     "durum_guncellendi": "Durum güncellendi",
-    "uretim_kaydedildi": "Üretim verisi kaydedildi"
+    "uretim_kaydedildi": "Üretim verisi kaydedildi",
+    "kpi_toplam": "Toplam makine",
+    "kpi_calisan": "Çalışıyor",
+    "kpi_sorunlu": "Arıza / bakım",
+    "kpi_oee": "Ortalama OEE",
+    "arizali_n": "{{n}} arıza",
+    "analiz_durum": "Durum dağılımı",
+    "analiz_oee": "Makine bazlı OEE",
+    "detay": "Detay",
+    "ikizde_goster": "İkizde göster",
+    "durum_degistir": "Durum değiştir",
+    "veri_yok": "—"
   },
   "isemri": {
     "durum_acik": "Açık",
@@ -489,7 +567,13 @@
     "yorum_yaz": "Bir yorum yazın…",
     "yorum_ekle": "Yorum ekle",
     "yorum_yok": "Henüz yorum yok.",
-    "iptal_onay": "İş emri iptal edilsin mi?"
+    "iptal_onay": "İş emri iptal edilsin mi?",
+    "kpi_acik": "Açık",
+    "kpi_aktif": "Devam eden",
+    "kpi_kapandi": "Kapandı",
+    "kpi_toplam": "Toplam",
+    "analiz_durum": "Durum dağılımı",
+    "analiz_oncelik": "Öncelik dağılımı"
   },
   "yetki": {
     "yetkisiz_baslik": "Bu sayfaya yetkiniz yok",
@@ -574,7 +658,16 @@
     "risk_skoru": "Risk skoru",
     "risk_seviyesi": "Risk seviyesi",
     "onlem": "Önlem",
-    "gecerlilik_tarihi": "Geçerlilik tarihi"
+    "gecerlilik_tarihi": "Geçerlilik tarihi",
+    "kpi_acik_risk": "Açık risk",
+    "kpi_yuksek_risk": "Yüksek+ risk",
+    "kpi_toplam_risk": "Toplam değerlendirme",
+    "kpi_kazasiz_baslik": "Kazasız gün",
+    "kpi_kazasiz_yok": "Kayıtlı kaza yok",
+    "kpi_bu_yil_kaza": "Bu yıl kaza",
+    "kpi_ramak": "Ramak-kala olayı",
+    "kpi_kayip_gun": "Kayıp gün",
+    "matris_baslik": "Risk matrisi (olasılık × şiddet)"
   },
   "ik": {
     "personel_olusturuldu": "Personel oluşturuldu",
@@ -657,7 +750,16 @@
     "gecerlilik_tarihi": "Geçerlilik tarihi",
     "sekme_mesai": "Fazla mesai",
     "sekme_zimmet": "Zimmet",
-    "sekme_sertifika": "Sertifika"
+    "sekme_sertifika": "Sertifika",
+    "kpi_aktif": "Aktif personel",
+    "kpi_izinli": "Bugün izinli",
+    "kpi_sertifika": "Yaklaşan sertifika",
+    "kpi_zimmet": "Açık zimmet",
+    "kpi_izin_bekleyen": "Onay bekleyen",
+    "kpi_izin_onaylanan": "Onaylanan",
+    "kpi_izin_reddedilen": "Reddedilen",
+    "kpi_izin_toplam": "Toplam talep",
+    "yas_gun": "{{n}}g"
   },
   "bakim": {
     "alt": "Makine bakım planları — periyot, son/sonraki bakım ve durum.",
@@ -680,7 +782,11 @@
     "aciklama": "Açıklama",
     "durum": "Durum",
     "aktif": "Aktif",
-    "pasif": "Pasif"
+    "pasif": "Pasif",
+    "kpi_aktif": "Aktif plan",
+    "kpi_bu_hafta": "Bu hafta vadesi",
+    "kpi_gecikmis": "Gecikmiş",
+    "kpi_toplam": "Toplam plan"
   },
   "kullanici": {
     "alt": "Tenant kullanıcıları, rolleri ve hesap durumu.",
@@ -696,7 +802,11 @@
     "rol_sec": "Rol seçin",
     "durum": "Durum",
     "aktif": "Aktif",
-    "pasif": "Pasif"
+    "pasif": "Pasif",
+    "kpi_toplam": "Toplam kullanıcı",
+    "kpi_aktif": "Aktif kullanıcı",
+    "kpi_pasif": "Pasif kullanıcı",
+    "kpi_rol": "Rol sayısı"
   },
   "ai": {
     "alt": "Tenant verisiyle eğitilen modeller: kestirimci bakım, anomali, OEE ve stok ihtiyaç tahmini.",

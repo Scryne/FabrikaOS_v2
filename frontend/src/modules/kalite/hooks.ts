@@ -15,12 +15,32 @@ export type Uygunsuzluk = components['schemas']['UygunsuzlukCevapDTO'];
 export type UygunsuzlukDetay = components['schemas']['UygunsuzlukDetayDTO'];
 export type UygunsuzlukOlustur = components['schemas']['UygunsuzlukOlusturDTO'];
 export type AksiyonOlustur = components['schemas']['AksiyonOlusturDTO'];
+export type KaliteOzet = components['schemas']['KaliteOzetDTO'];
 
 export const KALITE_ANAHTAR = {
   kontroller: ['kalite-kontrolleri'] as const,
   uygunsuzluklar: ['uygunsuzluklar'] as const,
+  uygunsuzlukPano: ['uygunsuzluklar', 'pano'] as const,
   uygunsuzluk: (id: number) => ['uygunsuzluk', id] as const,
+  ozet: ['kalite-ozet'] as const,
 };
+
+/** Kalite/CAPA KPI özeti (OzetSerit). */
+export function useKaliteOzet() {
+  return useQuery({
+    queryKey: KALITE_ANAHTAR.ozet,
+    queryFn: () => istek<KaliteOzet>('GET', `${PREFIX}/kalite/ozet`),
+  });
+}
+
+/** CAPA board için tek çekim (istemcide gruplama): en güncel 100 uygunsuzluk. */
+export function useUygunsuzlukPano() {
+  return useQuery({
+    queryKey: KALITE_ANAHTAR.uygunsuzlukPano,
+    queryFn: () =>
+      istek<Uygunsuzluk[]>('GET', `${PREFIX}/uygunsuzluklar?sayfa=1&adet=100&siralama=id&yon=desc`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -73,6 +93,7 @@ export function useUygunsuzlukOlustur() {
       istek<UygunsuzlukDetay>('POST', `${PREFIX}/uygunsuzluklar`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: KALITE_ANAHTAR.uygunsuzluklar });
+      void qc.invalidateQueries({ queryKey: KALITE_ANAHTAR.ozet });
       message.success(t('kalite.uygunsuzluk_olusturuldu'));
     },
     onError: hataGoster,
@@ -103,6 +124,7 @@ export function useCapaDurum() {
       }),
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: KALITE_ANAHTAR.uygunsuzluklar });
+      void qc.invalidateQueries({ queryKey: KALITE_ANAHTAR.ozet });
       void qc.invalidateQueries({ queryKey: KALITE_ANAHTAR.uygunsuzluk(id) });
       message.success(t('kalite.durum_guncellendi'));
     },

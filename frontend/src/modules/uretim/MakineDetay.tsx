@@ -16,6 +16,7 @@ import { EGrafik } from '@/components/grafik/EGrafik';
 import { gostergeSecenek, oeeRenk } from '@/components/grafik/grafikSecenek';
 import { OranSatiri } from '@/components/OranSatiri';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { RENKLER } from '@/tema/tema';
@@ -80,9 +81,9 @@ export function MakineDetay() {
 
   if (makine.isPending) {
     return (
-      <div style={{ maxWidth: 1320 }}>
+      <SayfaKapsayici>
         <Skeleton active paragraph={{ rows: 6 }} />
-      </div>
+      </SayfaKapsayici>
     );
   }
 
@@ -103,7 +104,7 @@ export function MakineDetay() {
   const m = makine.data;
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={
           <Space size={12} align="center" wrap>
@@ -214,6 +215,6 @@ export function MakineDetay() {
       </Row>
 
       <UretimGirisFormu acik={formAcik} kapat={() => setFormAcik(false)} makineId={id} />
-    </div>
+    </SayfaKapsayici>
   );
 }

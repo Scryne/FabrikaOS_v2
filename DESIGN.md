@@ -89,3 +89,38 @@ Her interaktif bileşen default→error tüm durumlarda.
 ## Layout
 - Responsive yapısaldır: `lg` breakpoint'te sidebar çekmeceye çöker; KPI/grafik/tablo
   AntD Row/Col grid ile yeniden dizilir. Akışkan tipografi yok.
+
+## Kontrol Odası (Evrim) — modül çalışma alanı deseni
+
+Her liste ekranı tek-tabloluktan çıkıp tutarlı bir "çalışma alanına" evrilir. Desen tek kez
+tanımlanır (`frontend/src/components/`), ~22 ekrana uygulanır. Renk hâlâ sinyal (~%2-3 yüzey);
+zenginlik **düzen + veri-görselleştirme + hat rengi kimlikten** gelir.
+
+**Ekran iskeleti:** `SayfaKapsayici` (maxWidth + üstte modül **hat şeridi** `.hat-serit`) → `SayfaBaslik`
+→ `OzetSerit` (3-4 KPI; `use<Modul>Ozet()` → küçük `/<kaynak>/ozet` ucundan) → `GorunumGecis`
+(Liste / Pano / Analiz — board yalnız durum-odaklı modüllerde) → içerik.
+
+**Paylaşılan primitifler (tek kelime hazinesi):**
+- **OzetSerit** — modül üstü KPI şeridi (`.ozet-serit` responsive ızgara); her metrik `KpiKart`,
+  ikon plakası hat renginde; opsiyonel `seri?` → satır-içi `MiniTrend` (sparkline).
+- **PanelKart** — enstrüman-panel kartı (`.panel-kart`: üst iç ışık çizgisi + başlıkta hat aksanı).
+- **DurumPim** (`.durum-pim`) — birleşik nokta+etiket; AntD `Tag` yerine tutarlı durum dili
+  (renk körlüğü güvenli). `pimUret(renkHaritasi, i18nÖnek)` ile modül pimi üretilir. İkiz/kiosk
+  LED'leri aynı sözlüğü konuşur.
+- **MiniBar** (`.mini-bar`) — satır-içi oran barı (OEE/stok/risk skoru; semantik renk, `scaleX`).
+- **KanbanPano** + **VeriKart** (`.board-serit`/`.board-kolon`/`.kanban-kart`) — genelleştirilmiş
+  board (durum kolonları + kart); iş emri/satınalma/CAPA/talep/izin/sözleşme board'ları paylaşır.
+- **RiskMatrisi** — 5×5 olasılık×şiddet ısı görseli (hücre sayaç + tıkla→filtre).
+- **UyariKarti** (`.uyari-karti`) — önem-renkli hafif tint + eş-renk yumuşak kenar + renkli ikon
+  (AntD Alert token deseni; **yan-şerit değil**).
+- **AktiviteAkisi** — zaman çizelgesi (renkli nokta + başlık + zaman).
+- **KomutPaleti** (⌘K, `.komut-*`) — üst bar araması global gezinme paletine dönüşür; menüden
+  beslenir + RBAC süzgeçli; satır başında modül hat rengi noktası.
+- **varlık hücresi** (`.varlik-hucre`) — ikon/avatar + ad + alt metin (kod/birim/pozisyon).
+
+**Grafik üreticileri** (`grafikSecenek.ts`, saf + birim testli): `alanSecenek` (degrade dolgulu
+trend; kesikli=tahmin), `yiginCubukSecenek`, `isiHaritaSecenek`, `sparklineSecenek`, `paretoSecenek`
+— mevcut `gostergeSecenek/cubukSecenek/donutSecenek/cizgiSecenek` yanında.
+
+**Backend `/<kaynak>/ozet`:** her modül için küçük, salt-okunur toplulaştırma ucu (tenant-izole +
+`<modul>:oku` RBAC + standart zarf; şema değişmez → migration yok). OzetSerit'i besler.

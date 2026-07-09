@@ -12,6 +12,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
@@ -71,9 +72,9 @@ export function MalzemeDetay() {
 
   if (malzeme.isPending) {
     return (
-      <div style={{ maxWidth: 1100 }}>
+      <SayfaKapsayici enGenis={1160}>
         <Skeleton active paragraph={{ rows: 6 }} />
-      </div>
+      </SayfaKapsayici>
     );
   }
 
@@ -94,7 +95,7 @@ export function MalzemeDetay() {
   const m: Malzeme = malzeme.data;
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <SayfaKapsayici enGenis={1160}>
       <SayfaBaslik
         baslik={
           <Space size={12} align="center" wrap>
@@ -167,6 +168,6 @@ export function MalzemeDetay() {
 
       <MalzemeFormu acik={duzenleAcik} kapat={() => setDuzenleAcik(false)} malzeme={m} />
       <StokHareketFormu malzeme={hareketAcik ? m : null} kapat={() => setHareketAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

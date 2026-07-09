@@ -15,12 +15,13 @@ import {
   SearchOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Input, Layout, Menu } from 'antd';
+import { Avatar, Badge, Dropdown, Layout, Menu } from 'antd';
 import type { CSSProperties } from 'react';
 import type { MenuProps } from 'antd';
 
 import { cikisYap } from '@/api/kimlik';
 import { cozumleTenant } from '@/api/tenant';
+import { KomutPaleti } from '@/components/KomutPaleti';
 import { LogoIsareti } from '@/components/Marka';
 import { DILLER, dilDegistir } from '@/i18n';
 import { gorunurMenu, MENU } from '@/layouts/menu';
@@ -74,6 +75,24 @@ export function UygulamaKabugu() {
   // (s.izinVar sabit fonksiyon referansıdır; memo'yu tetiklemez).
   const izinler = useAuthStore((s) => s.izinler);
   const { bagli } = useGercekZaman();
+  const [paletAcik, setPaletAcik] = useState(false);
+
+  // Global ⌘K / Ctrl+K → komut paletini aç (form alanında da çalışır).
+  useEffect(() => {
+    const isle = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPaletAcik(true);
+      }
+    };
+    window.addEventListener('keydown', isle);
+    return () => window.removeEventListener('keydown', isle);
+  }, []);
+
+  const kisayolEtiket =
+    typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent)
+      ? '⌘K'
+      : 'Ctrl K';
 
   const tenant = cozumleTenant();
   const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
@@ -231,12 +250,11 @@ export function UygulamaKabugu() {
             borderBottom: '1px solid var(--kenarlik)',
           }}
         >
-          <Input
-            prefix={<SearchOutlined style={{ color: 'var(--metin-soluk)' }} />}
-            placeholder={t('ortak.ara')}
-            variant="filled"
-            style={{ maxWidth: 320 }}
-          />
+          <button type="button" className="komut-tetik" onClick={() => setPaletAcik(true)}>
+            <SearchOutlined style={{ color: 'var(--metin-soluk)' }} />
+            <span className="tetik-metin">{t('ortak.ara')}</span>
+            <kbd className="komut-kisayol">{kisayolEtiket}</kbd>
+          </button>
           <div style={{ flex: 1 }} />
 
           <BarSaat />
@@ -320,6 +338,8 @@ export function UygulamaKabugu() {
           </div>
         </Layout.Content>
       </Layout>
+
+      <KomutPaleti acik={paletAcik} kapat={() => setPaletAcik(false)} />
     </Layout>
   );
 }

@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -28,6 +29,8 @@ from app.modules.sozlesme.schemas import (
     SozlesmeDurumDTO,
     SozlesmeGuncelleDTO,
     SozlesmeOlusturDTO,
+    SozlesmeOzetDTO,
+    SozlesmeSayiDTO,
     YaklasanTaraDTO,
 )
 
@@ -231,3 +234,39 @@ async def sozlesme_durum(
     )
     await yayinla(tenant.slug, {"tur": "sozlesme.durum", "id": sozlesme.id})
     return basari(_cevap(sozlesme), mesaj="Durum güncellendi")
+
+
+@router.get("/sozlesme/ozet", response_model=Zarf[SozlesmeOzetDTO], summary="Sözleşme özeti (KPI)")
+async def sozlesme_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("sozlesme:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    durum_sonuc = await db.execute(select(Sozlesme.durum, func.count()).group_by(Sozlesme.durum))
+    sayac: dict[str, int] = {}
+    for d, adet in durum_sonuc.all():
+        sayac[d] = int(adet)
+
+    bugun = datetime.now(UTC).date()
+    sinir = bugun + timedelta(days=30)
+    yaklasan = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Sozlesme)
+            .where(
+                Sozlesme.durum == "aktif",
+                Sozlesme.bitis_tarihi >= bugun,
+                Sozlesme.bitis_tarihi <= sinir,
+            )
+        )
+        or 0
+    )
+
+    ozet = SozlesmeOzetDTO(
+        aktif=sayac.get("aktif", 0),
+        yaklasan=int(yaklasan),
+        taslak=sayac.get("taslak", 0),
+        toplam=sum(sayac.values()),
+        durum_dagilimi=[SozlesmeSayiDTO(durum=d, adet=a) for d, a in sorted(sayac.items())],
+    )
+    return basari(ozet.model_dump(), mesaj="Sözleşme özeti")

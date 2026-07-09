@@ -1,56 +1,57 @@
 /**
- * Kritik stok ekranı — ``/stok/kritik`` (sayfasız; backend tüm kritikleri döner).
- * Aktif + kritik eşiği aşılmış (mevcut ≤ kritik) malzemeleri kırmızı rozetle listeler.
+ * Kritik stok — uyarı-odaklı ekran: üstte özet `UyariKarti` ("N kalem kritik altında"),
+ * altında kritik-sıralı zengin tablo (malzeme varlık hücresi + stok mini-bar) + satırdan tek-tık
+ * satınalma talebi CTA. Veri ``/stok/kritik`` (sayfasız; backend tüm kritikleri döner).
  */
 
 import { useTranslation } from 'react-i18next';
-import { CheckCircleOutlined } from '@ant-design/icons';
-import { Card, Table } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { CheckCircleOutlined, GoldOutlined, ShoppingCartOutlined } from '@ant-design/icons';
+import { Button, Card, Table } from 'antd';
+import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 
 import { BosDurum } from '@/components/BosDurum';
+import { MiniBar } from '@/components/MiniBar';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
+import { UyariKarti } from '@/components/UyariKarti';
+import { useAuthStore } from '@/store/authStore';
+import { RENKLER } from '@/tema/tema';
 
 import { type Malzeme, useKritikStok } from './hooks';
 
-/** Mevcut/eşik doluluk çubuğu — eşiğe yakınlık tek bakışta (tüm satırlar zaten kritik). */
-function EsikCubugu({ mevcut, esik }: { mevcut: number; esik: number }) {
-  const oran = esik > 0 ? Math.max(0, Math.min(1, mevcut / esik)) : 0;
-  return (
-    <div
-      style={{
-        width: 90,
-        height: 5,
-        borderRadius: 3,
-        background: 'rgba(255,255,255,0.08)',
-        overflow: 'hidden',
-      }}
-      aria-hidden="true"
-    >
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          background: oran < 0.5 ? 'var(--hata)' : 'var(--uyari)',
-          transform: `scaleX(${oran})`,
-          transformOrigin: 'left',
-        }}
-      />
-    </div>
-  );
-}
-
 export function KritikStok() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const yazabilir = useAuthStore((s) => s.izinVar('satinalma:yaz'));
   const { data, isPending } = useKritikStok();
+  const kritikler = data ?? [];
 
   const kolonlar: ColumnsType<Malzeme> = [
     {
-      title: t('stok.kod'),
-      dataIndex: 'kod',
-      render: (v: string) => <span className="sayisal">{v}</span>,
+      title: t('stok.ad'),
+      key: 'ad',
+      render: (_v: unknown, m: Malzeme) => (
+        <span className="varlik-hucre">
+          <span
+            className="ikon-plaka kucuk"
+            aria-hidden="true"
+            style={{ '--plaka-renk': RENKLER.hata } as CSSProperties}
+          >
+            <GoldOutlined />
+          </span>
+          <span>
+            <span className="varlik-ad" style={{ display: 'block' }}>
+              {m.ad}
+            </span>
+            <span className="varlik-alt sayisal">
+              {m.kod} · {m.birim}
+            </span>
+          </span>
+        </span>
+      ),
     },
-    { title: t('stok.ad'), dataIndex: 'ad' },
     {
       title: t('stok.mevcut'),
       dataIndex: 'mevcut_miktar',
@@ -64,8 +65,11 @@ export function KritikStok() {
             justifyContent: 'flex-end',
           }}
         >
-          <EsikCubugu mevcut={v} esik={m.kritik_stok} />
-          <span className="sayisal" style={{ color: 'var(--hata)', fontWeight: 600 }}>
+          <MiniBar deger={v} enBuyuk={m.kritik_stok || 1} renk={RENKLER.hata} />
+          <span
+            className="sayisal"
+            style={{ color: 'var(--hata)', fontWeight: 600, width: 60, textAlign: 'right' }}
+          >
             {v} {m.birim}
           </span>
         </span>
@@ -77,16 +81,45 @@ export function KritikStok() {
       align: 'right',
       render: (v: number) => <span className="sayisal">{v}</span>,
     },
+    ...(yazabilir
+      ? [
+          {
+            title: '',
+            key: 'aksiyon',
+            align: 'right' as const,
+            render: () => (
+              <Button
+                size="small"
+                icon={<ShoppingCartOutlined />}
+                onClick={() => navigate('/satinalma-talepleri')}
+              >
+                {t('menu.satinalma')}
+              </Button>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (
-    <div style={{ maxWidth: 1100 }}>
-      <SayfaBaslik baslik={t('stok.kritik_baslik')} />
+    <SayfaKapsayici enGenis={1100}>
+      <SayfaBaslik baslik={t('stok.kritik_baslik')} alt={t('stok.alt')} />
+
+      {kritikler.length > 0 && (
+        <div style={{ marginBottom: 20 }}>
+          <UyariKarti
+            onem="kritik"
+            baslik={t('stok.kpi_kritik')}
+            aciklama={`${kritikler.length} ${t('stok.kritik_rozet').toLocaleLowerCase('tr')}`}
+          />
+        </div>
+      )}
+
       <Card styles={{ body: { padding: 18 } }}>
         <Table<Malzeme>
           rowKey="id"
           loading={isPending}
-          dataSource={data ?? []}
+          dataSource={kritikler}
           locale={{
             emptyText: (
               <BosDurum
@@ -99,6 +132,6 @@ export function KritikStok() {
           columns={kolonlar}
         />
       </Card>
-    </div>
+    </SayfaKapsayici>
   );
 }

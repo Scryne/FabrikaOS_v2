@@ -14,11 +14,31 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type Talep = components['schemas']['TalepCevapDTO'];
 export type TalepOlustur = components['schemas']['TalepOlusturDTO'];
 export type TalepGuncelle = components['schemas']['TalepGuncelleDTO'];
+export type TalepOzet = components['schemas']['TalepOzetDTO'];
 
 export const TALEP_ANAHTAR = {
   liste: ['talepler'] as const,
+  pano: ['talepler', 'pano'] as const,
   detay: (id: number) => ['talep', id] as const,
+  ozet: ['talep-ozet'] as const,
 };
+
+/** Talep KPI özeti (OzetSerit + board sayaçları). */
+export function useTalepOzet() {
+  return useQuery({
+    queryKey: TALEP_ANAHTAR.ozet,
+    queryFn: () => istek<TalepOzet>('GET', `${PREFIX}/talep/ozet`),
+  });
+}
+
+/** Board için tek çekim (istemcide gruplama): en güncel 100 talep. */
+export function useTalepPano() {
+  return useQuery({
+    queryKey: TALEP_ANAHTAR.pano,
+    queryFn: () =>
+      istek<Talep[]>('GET', `${PREFIX}/talepler?sayfa=1&adet=100&siralama=id&yon=desc`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -48,6 +68,7 @@ export function useTalepOlustur() {
     mutationFn: (govde: TalepOlustur) => istek<Talep>('POST', `${PREFIX}/talepler`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.liste });
+      void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.ozet });
       message.success(t('talep.olusturuldu'));
     },
     onError: hataGoster,
@@ -65,6 +86,7 @@ export function useTalepGuncelle() {
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.liste });
       void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.detay(id) });
+      void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.ozet });
       message.success(t('talep.guncellendi'));
     },
     onError: hataGoster,
@@ -82,6 +104,7 @@ export function useTalepDurum() {
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.liste });
       void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.detay(id) });
+      void qc.invalidateQueries({ queryKey: TALEP_ANAHTAR.ozet });
       message.success(t('talep.durum_guncellendi'));
     },
     onError: hataGoster,

@@ -12,6 +12,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
@@ -20,7 +21,13 @@ from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.core.responses import Zarf, basari, sayfali
 from app.core.security.parola import parola_ozetle
 from app.kimlik.models import Kullanici, Rol
-from app.kimlik.schemas import KullaniciCevapDTO, KullaniciOlusturDTO, RolCevapDTO
+from app.kimlik.schemas import (
+    KullaniciCevapDTO,
+    KullaniciOlusturDTO,
+    KullaniciOzetDTO,
+    RolCevapDTO,
+    RolSayiDTO,
+)
 
 router = APIRouter(prefix="/kullanicilar", tags=["Kullanıcılar"])
 rol_router = APIRouter(prefix="/roller", tags=["Kullanıcılar"])
@@ -51,6 +58,33 @@ async def listele(
     )
     kayitlar = [_cevap(k) for k in sonuc.scalars()]
     return sayfali(kayitlar, sayfa=sayfa, adet=adet, toplam=int(toplam))
+
+
+@router.get("/ozet", response_model=Zarf[KullaniciOzetDTO], summary="Kullanıcı özeti (KPI)")
+async def kullanici_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("kullanici:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    sonuc = await db.execute(select(Kullanici).options(selectinload(Kullanici.roller)))
+    kullanicilar = list(sonuc.scalars())
+    toplam = len(kullanicilar)
+    aktif = sum(1 for k in kullanicilar if k.aktif)
+    rol_say: dict[str, int] = {}
+    for k in kullanicilar:
+        for r in k.roller:
+            rol_say[r.ad] = rol_say.get(r.ad, 0) + 1
+    rol_dagilimi = [
+        RolSayiDTO(ad=ad, adet=adet)
+        for ad, adet in sorted(rol_say.items(), key=lambda x: x[1], reverse=True)[:5]
+    ]
+    ozet = KullaniciOzetDTO(
+        toplam=toplam,
+        aktif=aktif,
+        pasif=toplam - aktif,
+        rol_sayisi=len(rol_say),
+        rol_dagilimi=rol_dagilimi,
+    )
+    return basari(ozet.model_dump(), mesaj="Kullanıcı özeti")
 
 
 @router.post(

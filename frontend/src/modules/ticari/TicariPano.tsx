@@ -16,6 +16,7 @@ import type { ColumnsType } from 'antd/es/table';
 
 import { KpiKart } from '@/components/KpiKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 
 import { type TicariOzet, useTicariOzet } from './hooks';
 
@@ -52,7 +53,7 @@ export function TicariPano() {
   ];
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik baslik={t('menu.ticari_pano')} alt={t('ticari.alt')} />
       <Row gutter={[16, 16]}>
         <Col xs={12} md={8} lg={4}>
@@ -134,6 +135,6 @@ export function TicariPano() {
           </Card>
         </Col>
       </Row>
-    </div>
+    </SayfaKapsayici>
   );
 }

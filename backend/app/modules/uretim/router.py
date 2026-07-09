@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -23,12 +24,14 @@ from app.kimlik.models import Kullanici
 from app.modules.uretim import repository, service
 from app.modules.uretim.models import MAKINE_DURUMLARI, Makine, UretimVerisi
 from app.modules.uretim.schemas import (
+    DurumSayiDTO,
     MakineCevapDTO,
     MakineDurumDTO,
     MakineOlusturDTO,
     OeeCevapDTO,
     OeeOzetSatirDTO,
     UretimGirisDTO,
+    UretimOzetDTO,
     UretimVerisiCevapDTO,
 )
 
@@ -262,3 +265,33 @@ async def oee_ozet(
         for mid, kod, s, sayi in satirlar
     ]
     return basari(veri, mesaj="OEE özeti")
+
+
+@router.get("/uretim/ozet", response_model=Zarf[UretimOzetDTO], summary="Üretim özeti (pano/KPI)")
+async def uretim_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    toplam = await db.scalar(select(func.count()).select_from(Makine)) or 0
+
+    durum_sonuc = await db.execute(select(Makine.durum, func.count()).group_by(Makine.durum))
+    sayac: dict[str, int] = dict.fromkeys(MAKINE_DURUMLARI, 0)
+    for durum, adet in durum_sonuc.all():
+        sayac[durum] = int(adet)
+
+    ozet_satirlar = await service.oee_ozet(db)
+    uretimli = len(ozet_satirlar)
+    ort_oee = sum(s.oee for _mid, _kod, s, _sayi in ozet_satirlar) / uretimli if uretimli else 0.0
+
+    ozet = UretimOzetDTO(
+        toplam_makine=int(toplam),
+        calisan=sayac.get("calisiyor", 0),
+        durdu=sayac.get("durdu", 0),
+        bakimda=sayac.get("bakimda", 0),
+        arizali=sayac.get("ariza", 0),
+        uretimli_makine=uretimli,
+        ortalama_oee=ort_oee,
+        durum_dagilimi=[DurumSayiDTO(durum=d, adet=sayac[d]) for d in MAKINE_DURUMLARI],
+    )
+    return basari(ozet.model_dump(), mesaj="Üretim özeti")

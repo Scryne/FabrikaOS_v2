@@ -1,37 +1,112 @@
 /**
- * Kullanıcı listesi — tenant kullanıcıları + rol rozetleri + "yeni kullanıcı"
- * (``kullanici:yaz``). Backend listesi yalnız sayfalama destekler (arama/sıralama yok).
+ * Kullanıcılar çalışma alanı — KPI şeridi (toplam/aktif/pasif/rol sayısı; `/kullanicilar/ozet`)
+ * + zengin tablo (avatar varlık hücre + rol çipleri + durum pimi) + "yeni kullanıcı"
+ * (``kullanici:yaz``). Backend listesi yalnız sayfalama destekler.
  */
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Tag } from 'antd';
+import {
+  CheckCircleOutlined,
+  IdcardOutlined,
+  PlusOutlined,
+  StopOutlined,
+  TeamOutlined,
+} from '@ant-design/icons';
+import { Avatar, Button, Card, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { DurumPim } from '@/components/DurumPim';
+import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
+import { BOLUM_RENGI } from '@/tema/modulKimlik';
+import { RENKLER } from '@/tema/tema';
 
-import { type Kullanici, useKullanicilar } from './hooks';
+import { type Kullanici, useKullaniciOzet, useKullanicilar } from './hooks';
 import { KullaniciFormu } from './KullaniciFormu';
+
+const HAT = BOLUM_RENGI['menu.bolum_yonetim'];
+
+function basHarf(ad: string, eposta: string): string {
+  const kaynak = ad || eposta;
+  return (
+    kaynak
+      .split(/[\s@.]+/)
+      .map((p) => p[0])
+      .filter(Boolean)
+      .slice(0, 2)
+      .join('')
+      .toUpperCase() || '?'
+  );
+}
 
 export function KullaniciListesi() {
   const { t } = useTranslation();
   const yazabilir = useAuthStore((s) => s.izinVar('kullanici:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const { data, isPending, isError } = useKullanicilar(param);
+  const { data: ozet, isPending: ozetYukleniyor } = useKullaniciOzet();
   const [formAcik, setFormAcik] = useState(false);
+
+  const metrikler: OzetMetrik[] = ozet
+    ? [
+        {
+          anahtar: 'toplam',
+          baslik: t('kullanici.kpi_toplam'),
+          deger: String(ozet.toplam),
+          ikon: <TeamOutlined />,
+        },
+        {
+          anahtar: 'aktif',
+          baslik: t('kullanici.kpi_aktif'),
+          deger: String(ozet.aktif),
+          ikon: <CheckCircleOutlined />,
+        },
+        {
+          anahtar: 'pasif',
+          baslik: t('kullanici.kpi_pasif'),
+          deger: String(ozet.pasif),
+          ikon: <StopOutlined />,
+        },
+        {
+          anahtar: 'rol',
+          baslik: t('kullanici.kpi_rol'),
+          deger: String(ozet.rol_sayisi),
+          ikon: <IdcardOutlined />,
+        },
+      ]
+    : [];
 
   const kolonlar: ColumnsType<Kullanici> = [
     {
-      title: t('kullanici.eposta'),
-      dataIndex: 'eposta',
-      key: 'eposta',
-      render: (v: string) => <span className="sayisal">{v}</span>,
+      title: t('kullanici.ad_soyad'),
+      key: 'kullanici',
+      render: (_v: unknown, k: Kullanici) => (
+        <span className="varlik-hucre">
+          <Avatar
+            size={34}
+            style={{
+              backgroundColor: 'rgba(148,163,184,0.18)',
+              color: HAT,
+              fontWeight: 600,
+              flexShrink: 0,
+            }}
+          >
+            {basHarf(k.ad_soyad, k.eposta)}
+          </Avatar>
+          <span>
+            <span className="varlik-ad" style={{ display: 'block' }}>
+              {k.ad_soyad || '—'}
+            </span>
+            <span className="varlik-alt sayisal">{k.eposta}</span>
+          </span>
+        </span>
+      ),
     },
-    { title: t('kullanici.ad_soyad'), dataIndex: 'ad_soyad', key: 'ad_soyad' },
     {
       title: t('kullanici.roller'),
       dataIndex: 'roller',
@@ -40,7 +115,9 @@ export function KullaniciListesi() {
         roller.length ? (
           <span style={{ display: 'inline-flex', gap: 4, flexWrap: 'wrap' }}>
             {roller.map((r) => (
-              <Tag key={r}>{r}</Tag>
+              <Tag key={r} bordered={false}>
+                {r}
+              </Tag>
             ))}
           </span>
         ) : (
@@ -52,15 +129,17 @@ export function KullaniciListesi() {
       dataIndex: 'aktif',
       key: 'aktif',
       render: (aktif: boolean) => (
-        <Tag color={aktif ? 'green' : 'default'}>
-          {aktif ? t('kullanici.aktif') : t('kullanici.pasif')}
-        </Tag>
+        <DurumPim
+          renk={aktif ? RENKLER.basari : RENKLER.metinSoluk}
+          etiket={aktif ? t('kullanici.aktif') : t('kullanici.pasif')}
+          solgun={!aktif}
+        />
       ),
     },
   ];
 
   return (
-    <div style={{ maxWidth: 1100 }}>
+    <SayfaKapsayici enGenis={1160}>
       <SayfaBaslik
         baslik={t('menu.kullanicilar')}
         alt={t('kullanici.alt')}
@@ -72,6 +151,8 @@ export function KullaniciListesi() {
           )
         }
       />
+      <OzetSerit renk={HAT} metrikler={metrikler} yukleniyor={ozetYukleniyor} />
+      <div style={{ height: 20 }} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Kullanici>
           kolonlar={kolonlar}
@@ -85,6 +166,6 @@ export function KullaniciListesi() {
         />
       </Card>
       <KullaniciFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

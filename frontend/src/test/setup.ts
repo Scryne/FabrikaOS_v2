@@ -28,3 +28,6 @@ class SahteResizeObserver {
   disconnect() {}
 }
 globalThis.ResizeObserver = SahteResizeObserver as unknown as typeof ResizeObserver;
+
+// jsdom scrollIntoView uygulamaz (komut paleti klavye gezinmesi kullanır).
+Element.prototype.scrollIntoView = vi.fn();

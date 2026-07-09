@@ -30,6 +30,10 @@ vi.mock('./hooks', () => ({
     isPending: false,
     isError: false,
   }),
+  useKullaniciOzet: () => ({
+    data: { toplam: 2, aktif: 1, pasif: 1, rol_sayisi: 2, rol_dagilimi: [] },
+    isPending: false,
+  }),
 }));
 
 vi.mock('./KullaniciFormu', () => ({ KullaniciFormu: () => null }));

@@ -15,12 +15,22 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type Belge = components['schemas']['BelgeCevapDTO'];
 export type BelgeOlustur = components['schemas']['BelgeOlusturDTO'];
 export type BelgeSurumu = components['schemas']['BelgeSurumuCevapDTO'];
+export type DysOzet = components['schemas']['DysOzetDTO'];
 
 export const DYS_ANAHTAR = {
   liste: ['belgeler'] as const,
   detay: (id: number) => ['belge', id] as const,
   surumler: (belgeId: number) => ['belge-surumleri', belgeId] as const,
+  ozet: ['dys-ozet'] as const,
 };
+
+/** DYS (belge) KPI özeti (OzetSerit). */
+export function useDysOzet() {
+  return useQuery({
+    queryKey: DYS_ANAHTAR.ozet,
+    queryFn: () => istek<DysOzet>('GET', `${PREFIX}/dys/ozet`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();

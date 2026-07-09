@@ -16,9 +16,11 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
   switch (olay.tur) {
     case 'uretim.eklendi':
       void qc.invalidateQueries({ queryKey: ['oee-ozet'] });
+      void qc.invalidateQueries({ queryKey: ['uretim-ozet'] });
       void qc.invalidateQueries({ queryKey: ['uretim-verileri'] });
-      // Saha ölçümü cihazın son_gorulme'sini günceller → liste canlı yansısın.
+      // Saha ölçümü cihazın son_gorulme'sini günceller → liste + KPI canlı yansısın.
       void qc.invalidateQueries({ queryKey: ['saha-cihazlar'] });
+      void qc.invalidateQueries({ queryKey: ['saha-ozet'] });
       // İkiz/kiosk pencere üretim özeti (OEE, adet) tazelensin.
       void qc.invalidateQueries({ queryKey: ['ikiz'] });
       if (makineId !== undefined)
@@ -27,6 +29,7 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'makine.durum':
       void qc.invalidateQueries({ queryKey: ['makineler'] });
       void qc.invalidateQueries({ queryKey: ['oee-ozet'] });
+      void qc.invalidateQueries({ queryKey: ['uretim-ozet'] });
       // İkiz şeması + kiosk karoları canlı durum LED'lerini günceller.
       void qc.invalidateQueries({ queryKey: ['ikiz'] });
       if (makineId !== undefined) void qc.invalidateQueries({ queryKey: ['makine', makineId] });
@@ -44,9 +47,11 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       void qc.invalidateQueries({ queryKey: ['malzemeler'] });
       void qc.invalidateQueries({ queryKey: ['stok-kritik'] });
       void qc.invalidateQueries({ queryKey: ['stok-hareketleri'] });
+      void qc.invalidateQueries({ queryKey: ['stok-ozet'] });
       break;
     case 'satinalma.durum': {
       void qc.invalidateQueries({ queryKey: ['satinalma-talepleri'] });
+      void qc.invalidateQueries({ queryKey: ['satinalma-ozet'] });
       const talepId = typeof olay.id === 'number' ? olay.id : undefined;
       if (talepId !== undefined)
         void qc.invalidateQueries({ queryKey: ['satinalma-talebi', talepId] });
@@ -54,9 +59,11 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     }
     case 'kalite.kontrol':
       void qc.invalidateQueries({ queryKey: ['kalite-kontrolleri'] });
+      void qc.invalidateQueries({ queryKey: ['kalite-ozet'] });
       break;
     case 'kalite.uygunsuzluk': {
       void qc.invalidateQueries({ queryKey: ['uygunsuzluklar'] });
+      void qc.invalidateQueries({ queryKey: ['kalite-ozet'] });
       const uygunsuzlukId = typeof olay.id === 'number' ? olay.id : undefined;
       if (uygunsuzlukId !== undefined)
         void qc.invalidateQueries({ queryKey: ['uygunsuzluk', uygunsuzlukId] });
@@ -65,15 +72,19 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'enerji.olcum':
       void qc.invalidateQueries({ queryKey: ['enerji-tuketimleri'] });
       void qc.invalidateQueries({ queryKey: ['enerji-trend'] });
+      void qc.invalidateQueries({ queryKey: ['enerji-ozet'] });
       break;
     case 'isg.kaza':
       void qc.invalidateQueries({ queryKey: ['is-kazalari'] });
+      void qc.invalidateQueries({ queryKey: ['isg-ozet'] });
       break;
     case 'isg.risk':
       void qc.invalidateQueries({ queryKey: ['risk-degerlendirmeleri'] });
+      void qc.invalidateQueries({ queryKey: ['isg-ozet'] });
       break;
     case 'ik.izin': {
       void qc.invalidateQueries({ queryKey: ['izin-talepleri'] });
+      void qc.invalidateQueries({ queryKey: ['ik-ozet'] });
       const izinId = typeof olay.id === 'number' ? olay.id : undefined;
       if (izinId !== undefined) void qc.invalidateQueries({ queryKey: ['izin-talebi', izinId] });
       break;
@@ -85,6 +96,7 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'sozlesme.yaklasiyor': {
       void qc.invalidateQueries({ queryKey: ['sozlesmeler'] });
       void qc.invalidateQueries({ queryKey: ['sozlesme-yaklasan'] });
+      void qc.invalidateQueries({ queryKey: ['sozlesme-ozet'] });
       void qc.invalidateQueries({ queryKey: ['ticari-ozet'] });
       const sozId = typeof olay.id === 'number' ? olay.id : undefined;
       if (sozId !== undefined) void qc.invalidateQueries({ queryKey: ['sozlesme', sozId] });
@@ -93,6 +105,7 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'talep.olusturuldu':
     case 'talep.durum': {
       void qc.invalidateQueries({ queryKey: ['talepler'] });
+      void qc.invalidateQueries({ queryKey: ['talep-ozet'] });
       void qc.invalidateQueries({ queryKey: ['ticari-ozet'] });
       const talepId = typeof olay.id === 'number' ? olay.id : undefined;
       if (talepId !== undefined) void qc.invalidateQueries({ queryKey: ['talep', talepId] });
@@ -100,6 +113,7 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     }
     case 'dys.belge': {
       void qc.invalidateQueries({ queryKey: ['belgeler'] });
+      void qc.invalidateQueries({ queryKey: ['dys-ozet'] });
       const belgeId = typeof olay.id === 'number' ? olay.id : undefined;
       if (belgeId !== undefined) {
         void qc.invalidateQueries({ queryKey: ['belge', belgeId] });

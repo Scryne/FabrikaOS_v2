@@ -1,31 +1,82 @@
 /**
- * Kalite kontrol listesi — sunucu-taraflı tablo (kod/tür/sonuç rozeti/numune) + "yeni kayıt"
- * (``kalite:yaz``) + sonuç filtresi. Denetim kayıtları salt-liste (satır detayı yok).
+ * Kalite kontrol çalışma alanı — KPI şeridi (geçti oranı + toplam/geçen kontrol + açık
+ * uygunsuzluk; `/kalite/ozet` yeniden kullanılır) + zengin tablo (sonuç pimi, tür, numune/uygunsuz,
+ * zaman) + sonuç filtresi. Denetim kayıtları salt-liste.
  */
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  IssuesCloseOutlined,
+  PercentageOutlined,
+  PlusOutlined,
+  SafetyCertificateOutlined,
+} from '@ant-design/icons';
 import { Button, Card, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
 
+import { pimUret } from '@/components/DurumPim';
+import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
+import { BOLUM_RENGI } from '@/tema/modulKimlik';
+import { RENKLER } from '@/tema/tema';
 
-import { type KaliteKontrol, useKaliteKontroller } from './hooks';
+import { type KaliteKontrol, useKaliteKontroller, useKaliteOzet } from './hooks';
 import { KaliteKontrolFormu } from './KaliteKontrolFormu';
-import { KontrolSonucEtiketi } from './rozetler';
 
+const HAT = BOLUM_RENGI['menu.bolum_kalite'];
 const SONUCLAR = ['gecti', 'kaldi', 'sartli'];
+
+const SONUC_RENK: Record<string, string> = {
+  gecti: RENKLER.basari,
+  kaldi: RENKLER.hata,
+  sartli: RENKLER.uyari,
+};
+const SonucPim = pimUret(SONUC_RENK, 'kalite.sonuc_');
 
 export function KaliteKontrolListesi() {
   const { t } = useTranslation();
   const yazabilir = useAuthStore((s) => s.izinVar('kalite:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const { data, isPending, isError } = useKaliteKontroller(param);
+  const { data: ozet, isPending: ozetYukleniyor } = useKaliteOzet();
   const [formAcik, setFormAcik] = useState(false);
+
+  const metrikler: OzetMetrik[] = ozet
+    ? [
+        {
+          anahtar: 'oran',
+          baslik: t('kalite.kpi_gecti_orani'),
+          deger: String(Math.round(ozet.gecti_orani * 100)),
+          birim: '%',
+          ikon: <PercentageOutlined />,
+        },
+        {
+          anahtar: 'toplam',
+          baslik: t('kalite.kpi_toplam_kontrol'),
+          deger: String(ozet.toplam_kontrol),
+          ikon: <SafetyCertificateOutlined />,
+        },
+        {
+          anahtar: 'gecti',
+          baslik: t('kalite.kpi_gecti'),
+          deger: String(ozet.gecti_kontrol),
+          ikon: <CheckCircleOutlined />,
+        },
+        {
+          anahtar: 'uygunsuzluk',
+          baslik: t('kalite.kpi_acik'),
+          deger: String(ozet.acik_uygunsuzluk),
+          ikon: <IssuesCloseOutlined />,
+        },
+      ]
+    : [];
 
   const kolonlar: ColumnsType<KaliteKontrol> = [
     {
@@ -46,7 +97,7 @@ export function KaliteKontrolListesi() {
       dataIndex: 'sonuc',
       key: 'sonuc',
       sorter: true,
-      render: (v: string) => <KontrolSonucEtiketi sonuc={v} />,
+      render: (v: string) => <SonucPim durum={v} />,
     },
     {
       title: t('kalite.numune_adedi'),
@@ -67,12 +118,12 @@ export function KaliteKontrolListesi() {
       dataIndex: 'zaman',
       key: 'zaman',
       sorter: true,
-      render: (v: string) => <span className="sayisal">{new Date(v).toLocaleString()}</span>,
+      render: (v: string) => <span className="sayisal">{dayjs(v).format('DD.MM.YYYY HH:mm')}</span>,
     },
   ];
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={t('menu.kalite')}
         alt={t('kalite.alt')}
@@ -84,6 +135,11 @@ export function KaliteKontrolListesi() {
           )
         }
       />
+
+      <OzetSerit renk={HAT} metrikler={metrikler} yukleniyor={ozetYukleniyor} />
+
+      <div style={{ height: 20 }} />
+
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<KaliteKontrol>
           kolonlar={kolonlar}
@@ -108,6 +164,6 @@ export function KaliteKontrolListesi() {
         />
       </Card>
       <KaliteKontrolFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

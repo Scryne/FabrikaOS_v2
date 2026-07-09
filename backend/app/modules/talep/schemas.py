@@ -44,3 +44,18 @@ class TalepCevapDTO(BaseModel):
     talep_eden_kullanici_id: int | None = None
     talep_eden_ad: str
     olusturma_tarihi: datetime
+
+
+class TalepSayiDTO(BaseModel):
+    durum: str
+    adet: int
+
+
+class TalepOzetDTO(BaseModel):
+    """Talep KPI özeti (OzetSerit + board sayaçları) — salt-okunur."""
+
+    acik: int
+    atanmamis: int
+    cozulen: int
+    toplam: int
+    durum_dagilimi: list[TalepSayiDTO]

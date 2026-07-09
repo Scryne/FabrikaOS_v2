@@ -27,7 +27,7 @@ export function RaporFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
       onCancel={kapat}
       onOk={() => form.submit()}
       okText={t('rapor.uret')}
-      cancelText={t('ortak.vazgec')}
+      cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
     >

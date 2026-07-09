@@ -35,6 +35,7 @@ vi.mock('./hooks', () => {
       isError: false,
     }),
     useIzin: () => ({ data: undefined }),
+    useIzinPano: () => ({ data: [], isPending: false, isError: false }),
     useIzinOlustur: sahteMutasyon,
     useIzinDurumAksiyon: sahteMutasyon,
   };

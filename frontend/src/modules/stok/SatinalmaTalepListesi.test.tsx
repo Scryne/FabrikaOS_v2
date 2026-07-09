@@ -33,6 +33,18 @@ vi.mock('./hooks', () => {
       isError: false,
     }),
     useTalep: () => ({ data: undefined }),
+    useTalepPano: () => ({ data: [], isPending: false, isError: false }),
+    useSatinalmaOzet: () => ({
+      data: {
+        onay_bekleyen: 0,
+        taslak: 1,
+        onaylandi: 0,
+        reddedildi: 0,
+        toplam: 1,
+        durum_dagilimi: [],
+      },
+      isPending: false,
+    }),
     useTalepOlustur: sahteMutasyon,
     useTalepDurumAksiyon: sahteMutasyon,
     useMalzemeler: () => ({ data: { veri: [], meta: { sayfa: 1, adet: 100, toplam: 0 } } }),

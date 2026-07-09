@@ -141,6 +141,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/kullanicilar/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kullanıcı özeti (KPI) */
+        get: operations["kullanici_ozet_api_v1_kullanicilar_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/roller": {
         parameters: {
             query?: never;
@@ -265,6 +282,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/uretim/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Üretim özeti (pano/KPI) */
+        get: operations["uretim_ozet_api_v1_uretim_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/ikiz/yerlesim": {
         parameters: {
             query?: never;
@@ -363,6 +397,23 @@ export interface paths {
         put?: never;
         /** CSV ile ölçüm yükle */
         post: operations["olcum_csv_api_v1_saha_olcumler_csv_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/saha/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Saha cihaz özeti (KPI) */
+        get: operations["saha_ozet_api_v1_saha_ozet_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -472,6 +523,23 @@ export interface paths {
         head?: never;
         /** Bakım planını güncelle */
         patch: operations["bakim_guncelle_api_v1_bakim_planlari__plan_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/bakim/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Bakım özeti (KPI) */
+        get: operations["bakim_ozet_api_v1_bakim_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/malzemeler": {
@@ -649,6 +717,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/stok/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stok özeti (pano/KPI) */
+        get: operations["stok_ozet_api_v1_stok_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Satınalma özeti (pano/KPI) */
+        get: operations["satinalma_ozet_api_v1_satinalma_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/kalite-kontrolleri": {
         parameters: {
             query?: never;
@@ -771,6 +873,23 @@ export interface paths {
         patch: operations["aksiyon_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar__aksiyon_id__patch"];
         trace?: never;
     };
+    "/api/v1/kalite/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kalite/CAPA özeti (KPI) */
+        get: operations["kalite_ozet_api_v1_kalite_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/enerji-tuketimleri": {
         parameters: {
             query?: never;
@@ -798,6 +917,23 @@ export interface paths {
         };
         /** Enerji tüketim trendi (continuous aggregate) */
         get: operations["enerji_trend_api_v1_enerji_tuketimleri_trend_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/enerji/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Enerji özeti (KPI) */
+        get: operations["enerji_ozet_api_v1_enerji_ozet_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -876,6 +1012,23 @@ export interface paths {
         head?: never;
         /** Risk değerlendirme düzenle (skor/seviye yeniden hesaplanır) */
         patch: operations["risk_guncelle_api_v1_risk_degerlendirmeleri__risk_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/isg/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İSG özeti (kaza + risk KPI) */
+        get: operations["isg_ozet_api_v1_isg_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/personeller": {
@@ -1106,6 +1259,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ik/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İK özeti (KPI) */
+        get: operations["ik_ozet_api_v1_ik_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/firmalar": {
         parameters: {
             query?: never;
@@ -1264,6 +1434,23 @@ export interface paths {
         patch: operations["sozlesme_durum_api_v1_sozlesmeler__sozlesme_id__durum_patch"];
         trace?: never;
     };
+    "/api/v1/sozlesme/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sözleşme özeti (KPI) */
+        get: operations["sozlesme_ozet_api_v1_sozlesme_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/talepler": {
         parameters: {
             query?: never;
@@ -1315,6 +1502,23 @@ export interface paths {
         head?: never;
         /** Talep durumunu değiştir */
         patch: operations["talep_durum_api_v1_talepler__talep_id__durum_patch"];
+        trace?: never;
+    };
+    "/api/v1/talep/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Talep özeti (KPI) */
+        get: operations["talep_ozet_api_v1_talep_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/belgeler": {
@@ -1380,6 +1584,23 @@ export interface paths {
         };
         /** Belge sürümünü indir (ikili içerik) */
         get: operations["surum_indir_api_v1_belgeler__belge_id__surumler__surum_no__indir_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dys/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** DYS (belge) özeti (KPI) */
+        get: operations["dys_ozet_api_v1_dys_ozet_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1730,6 +1951,22 @@ export interface components {
             /** Geciken */
             geciken: number;
         };
+        /**
+         * BakimOzetDTO
+         * @description Bakım planı KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        BakimOzetDTO: {
+            /** Aktif Plan */
+            aktif_plan: number;
+            /** Bu Hafta Vadesi */
+            bu_hafta_vadesi: number;
+            /** Gecikmis */
+            gecikmis: number;
+            /** Toplam Plan */
+            toplam_plan: number;
+            /** Tip Dagilimi */
+            tip_dagilimi: components["schemas"]["BakimSayiDTO"][];
+        };
         /** BakimPlaniCevapDTO */
         BakimPlaniCevapDTO: {
             /** Id */
@@ -1790,6 +2027,13 @@ export interface components {
              * @default
              */
             aciklama: string;
+        };
+        /** BakimSayiDTO */
+        BakimSayiDTO: {
+            /** Ad */
+            ad: string;
+            /** Adet */
+            adet: number;
         };
         /** BelgeCevapDTO */
         BelgeCevapDTO: {
@@ -1970,6 +2214,13 @@ export interface components {
             /** Atanan Kullanici Id */
             atanan_kullanici_id?: number | null;
         };
+        /** DurumSayiDTO */
+        DurumSayiDTO: {
+            /** Durum */
+            durum: string;
+            /** Adet */
+            adet: number;
+        };
         /** DuyuruCevapDTO */
         DuyuruCevapDTO: {
             /** Id */
@@ -2036,6 +2287,20 @@ export interface components {
             /** Bitis Tarihi */
             bitis_tarihi?: string | null;
         };
+        /**
+         * DysOzetDTO
+         * @description DYS (belge) KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        DysOzetDTO: {
+            /** Toplam Belge */
+            toplam_belge: number;
+            /** Kategori Sayisi */
+            kategori_sayisi: number;
+            /** Bu Ay Surum */
+            bu_ay_surum: number;
+            /** Toplam Boyut */
+            toplam_boyut: number;
+        };
         /** EgitimIstekDTO */
         EgitimIstekDTO: {
             /**
@@ -2088,6 +2353,20 @@ export interface components {
             birim: string;
             /** Zaman */
             zaman?: string | null;
+        };
+        /**
+         * EnerjiOzetDTO
+         * @description Enerji KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        EnerjiOzetDTO: {
+            /** Toplam Kayit */
+            toplam_kayit: number;
+            /** Bugun Kayit */
+            bugun_kayit: number;
+            /** Tur Sayisi */
+            tur_sayisi: number;
+            /** Izlenen Makine */
+            izlenen_makine: number;
         };
         /** EnerjiTrendNoktaDTO */
         EnerjiTrendNoktaDTO: {
@@ -2274,6 +2553,22 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * IkOzetDTO
+         * @description İK KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        IkOzetDTO: {
+            /** Aktif Personel */
+            aktif_personel: number;
+            /** Toplam Personel */
+            toplam_personel: number;
+            /** Bugun Izinli */
+            bugun_izinli: number;
+            /** Yaklasan Sertifika */
+            yaklasan_sertifika: number;
+            /** Acik Zimmet */
+            acik_zimmet: number;
         };
         /** IkizDugumCevapDTO */
         IkizDugumCevapDTO: {
@@ -2576,6 +2871,28 @@ export interface components {
             /** Kaza Sayisi */
             kaza_sayisi: number;
         };
+        /**
+         * IsgOzetDTO
+         * @description İSG KPI özeti (İş kazaları + Risk ekranları) — salt-okunur toplulaştırma.
+         */
+        IsgOzetDTO: {
+            /** Gunluk Kazasiz */
+            gunluk_kazasiz: number;
+            /** Bu Yil Kaza */
+            bu_yil_kaza: number;
+            /** Ramak Kala */
+            ramak_kala: number;
+            /** Toplam Kayip Gun */
+            toplam_kayip_gun: number;
+            /** Acik Risk */
+            acik_risk: number;
+            /** Yuksek Risk */
+            yuksek_risk: number;
+            /** Toplam Risk */
+            toplam_risk: number;
+            /** Risk Matrisi */
+            risk_matrisi: components["schemas"]["RiskHucreDTO"][];
+        };
         /** IzinTalebiCevapDTO */
         IzinTalebiCevapDTO: {
             /** Id */
@@ -2732,6 +3049,28 @@ export interface components {
             /** Acik Uygunsuzluk */
             acik_uygunsuzluk: number;
         };
+        /**
+         * KaliteOzetDTO
+         * @description Kalite/CAPA KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        KaliteOzetDTO: {
+            /** Acik Uygunsuzluk */
+            acik_uygunsuzluk: number;
+            /** Dogrulamada */
+            dogrulamada: number;
+            /** Kapali Uygunsuzluk */
+            kapali_uygunsuzluk: number;
+            /** Bu Ay Kapanan */
+            bu_ay_kapanan: number;
+            /** Toplam Uygunsuzluk */
+            toplam_uygunsuzluk: number;
+            /** Toplam Kontrol */
+            toplam_kontrol: number;
+            /** Gecti Kontrol */
+            gecti_kontrol: number;
+            /** Gecti Orani */
+            gecti_orani: number;
+        };
         /** KpiCevapDTO */
         KpiCevapDTO: {
             /** Gun */
@@ -2781,6 +3120,22 @@ export interface components {
             ad_soyad: string;
             /** Roller */
             roller?: string[];
+        };
+        /**
+         * KullaniciOzetDTO
+         * @description Kullanıcı KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        KullaniciOzetDTO: {
+            /** Toplam */
+            toplam: number;
+            /** Aktif */
+            aktif: number;
+            /** Pasif */
+            pasif: number;
+            /** Rol Sayisi */
+            rol_sayisi: number;
+            /** Rol Dagilimi */
+            rol_dagilimi: components["schemas"]["RolSayiDTO"][];
         };
         /** MakineCevapDTO */
         MakineCevapDTO: {
@@ -3347,6 +3702,15 @@ export interface components {
             /** Gecerlilik Tarihi */
             gecerlilik_tarihi?: string | null;
         };
+        /** RiskHucreDTO */
+        RiskHucreDTO: {
+            /** Olasilik */
+            olasilik: number;
+            /** Siddet */
+            siddet: number;
+            /** Adet */
+            adet: number;
+        };
         /** RolCevapDTO */
         RolCevapDTO: {
             /** Id */
@@ -3357,6 +3721,34 @@ export interface components {
             aciklama: string;
             /** Izinler */
             izinler: string[];
+        };
+        /** RolSayiDTO */
+        RolSayiDTO: {
+            /** Ad */
+            ad: string;
+            /** Adet */
+            adet: number;
+        };
+        /**
+         * SahaOzetDTO
+         * @description Saha cihaz KPI özeti (OzetSerit) — salt-okunur toplulaştırma.
+         */
+        SahaOzetDTO: {
+            /** Toplam Cihaz */
+            toplam_cihaz: number;
+            /** Cevrimici */
+            cevrimici: number;
+            /** Bugun Olcum */
+            bugun_olcum: number;
+            /** Protokol Dagilimi */
+            protokol_dagilimi: components["schemas"]["SahaSayiDTO"][];
+        };
+        /** SahaSayiDTO */
+        SahaSayiDTO: {
+            /** Ad */
+            ad: string;
+            /** Adet */
+            adet: number;
         };
         /** SatinalmaKalemCevapDTO */
         SatinalmaKalemCevapDTO: {
@@ -3388,6 +3780,31 @@ export interface components {
              * @default
              */
             aciklama: string;
+        };
+        /**
+         * SatinalmaOzetDTO
+         * @description Satınalma talebi KPI özeti (OzetSerit + board sayaçları) — salt-okunur.
+         */
+        SatinalmaOzetDTO: {
+            /** Onay Bekleyen */
+            onay_bekleyen: number;
+            /** Taslak */
+            taslak: number;
+            /** Onaylandi */
+            onaylandi: number;
+            /** Reddedildi */
+            reddedildi: number;
+            /** Toplam */
+            toplam: number;
+            /** Durum Dagilimi */
+            durum_dagilimi: components["schemas"]["SatinalmaSayiDTO"][];
+        };
+        /** SatinalmaSayiDTO */
+        SatinalmaSayiDTO: {
+            /** Durum */
+            durum: string;
+            /** Adet */
+            adet: number;
         };
         /** SatinalmaTalebiCevapDTO */
         SatinalmaTalebiCevapDTO: {
@@ -3663,6 +4080,29 @@ export interface components {
              */
             aciklama: string;
         };
+        /**
+         * SozlesmeOzetDTO
+         * @description Sözleşme KPI özeti (OzetSerit + board sayaçları) — salt-okunur.
+         */
+        SozlesmeOzetDTO: {
+            /** Aktif */
+            aktif: number;
+            /** Yaklasan */
+            yaklasan: number;
+            /** Taslak */
+            taslak: number;
+            /** Toplam */
+            toplam: number;
+            /** Durum Dagilimi */
+            durum_dagilimi: components["schemas"]["SozlesmeSayiDTO"][];
+        };
+        /** SozlesmeSayiDTO */
+        SozlesmeSayiDTO: {
+            /** Durum */
+            durum: string;
+            /** Adet */
+            adet: number;
+        };
         /** StokHareketiCevapDTO */
         StokHareketiCevapDTO: {
             /** Id */
@@ -3709,6 +4149,24 @@ export interface components {
             toplam_malzeme: number;
             /** Kritik Sayisi */
             kritik_sayisi: number;
+        };
+        /**
+         * StokOzetDTO
+         * @description Malzeme/stok KPI özeti (OzetSerit + analiz donut) — salt-okunur.
+         */
+        StokOzetDTO: {
+            /** Toplam Malzeme */
+            toplam_malzeme: number;
+            /** Aktif Malzeme */
+            aktif_malzeme: number;
+            /** Kritik Alti */
+            kritik_alti: number;
+            /** Min Alti */
+            min_alti: number;
+            /** Bugun Hareket */
+            bugun_hareket: number;
+            /** Kategori Sayisi */
+            kategori_sayisi: number;
         };
         /**
          * TahminCevapDTO
@@ -3841,6 +4299,29 @@ export interface components {
              */
             talep_eden_ad: string;
         };
+        /**
+         * TalepOzetDTO
+         * @description Talep KPI özeti (OzetSerit + board sayaçları) — salt-okunur.
+         */
+        TalepOzetDTO: {
+            /** Acik */
+            acik: number;
+            /** Atanmamis */
+            atanmamis: number;
+            /** Cozulen */
+            cozulen: number;
+            /** Toplam */
+            toplam: number;
+            /** Durum Dagilimi */
+            durum_dagilimi: components["schemas"]["TalepSayiDTO"][];
+        };
+        /** TalepSayiDTO */
+        TalepSayiDTO: {
+            /** Durum */
+            durum: string;
+            /** Adet */
+            adet: number;
+        };
         /** TicariOzetDTO */
         TicariOzetDTO: {
             sayaclar: components["schemas"]["TicariSayaclarDTO"];
@@ -3931,6 +4412,28 @@ export interface components {
             kalite: number;
             /** Oee */
             oee: number;
+        };
+        /**
+         * UretimOzetDTO
+         * @description Üretim modülü KPI özeti (pano/OzetSerit) — salt-okunur toplulaştırma.
+         */
+        UretimOzetDTO: {
+            /** Toplam Makine */
+            toplam_makine: number;
+            /** Calisan */
+            calisan: number;
+            /** Durdu */
+            durdu: number;
+            /** Bakimda */
+            bakimda: number;
+            /** Arizali */
+            arizali: number;
+            /** Uretimli Makine */
+            uretimli_makine: number;
+            /** Ortalama Oee */
+            ortalama_oee: number;
+            /** Durum Dagilimi */
+            durum_dagilimi: components["schemas"]["DurumSayiDTO"][];
         };
         /** UretimVerisiCevapDTO */
         UretimVerisiCevapDTO: {
@@ -4133,6 +4636,21 @@ export interface components {
             /** Metin */
             metin: string;
         };
+        /** Zarf[BakimOzetDTO] */
+        Zarf_BakimOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["BakimOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[BakimPlaniCevapDTO] */
         Zarf_BakimPlaniCevapDTO_: {
             /**
@@ -4223,6 +4741,21 @@ export interface components {
             data?: components["schemas"]["DuyuruCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[DysOzetDTO] */
+        Zarf_DysOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["DysOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[EnerjiOlcumCevapDTO] */
         Zarf_EnerjiOlcumCevapDTO_: {
             /**
@@ -4236,6 +4769,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["EnerjiOlcumCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[EnerjiOzetDTO] */
+        Zarf_EnerjiOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["EnerjiOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[FazlaMesaiCevapDTO] */
@@ -4266,6 +4814,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["FirmaCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[IkOzetDTO] */
+        Zarf_IkOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["IkOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[IkizDurumCevapDTO] */
@@ -4343,6 +4906,21 @@ export interface components {
             data?: components["schemas"]["IsKazasiCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[IsgOzetDTO] */
+        Zarf_IsgOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["IsgOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[IzinTalebiCevapDTO] */
         Zarf_IzinTalebiCevapDTO_: {
             /**
@@ -4373,6 +4951,21 @@ export interface components {
             data?: components["schemas"]["KaliteKontrolCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[KaliteOzetDTO] */
+        Zarf_KaliteOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KaliteOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[KpiCevapDTO] */
         Zarf_KpiCevapDTO_: {
             /**
@@ -4401,6 +4994,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["KullaniciCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[KullaniciOzetDTO] */
+        Zarf_KullaniciOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KullaniciOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[MakineCevapDTO] */
@@ -4539,6 +5147,36 @@ export interface components {
             data?: components["schemas"]["RiskDegerlendirmeCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[SahaOzetDTO] */
+        Zarf_SahaOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SahaOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[SatinalmaOzetDTO] */
+        Zarf_SatinalmaOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SatinalmaOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[SatinalmaTalebiCevapDTO] */
         Zarf_SatinalmaTalebiCevapDTO_: {
             /**
@@ -4599,6 +5237,21 @@ export interface components {
             data?: components["schemas"]["SozlesmeCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[SozlesmeOzetDTO] */
+        Zarf_SozlesmeOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SozlesmeOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[StokHareketiCevapDTO] */
         Zarf_StokHareketiCevapDTO_: {
             /**
@@ -4612,6 +5265,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["StokHareketiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[StokOzetDTO] */
+        Zarf_StokOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["StokOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[TahminCevapDTO] */
@@ -4644,6 +5312,21 @@ export interface components {
             data?: components["schemas"]["TalepCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[TalepOzetDTO] */
+        Zarf_TalepOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["TalepOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[TicariOzetDTO] */
         Zarf_TicariOzetDTO_: {
             /**
@@ -4672,6 +5355,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["TokenCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[UretimOzetDTO] */
+        Zarf_UretimOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["UretimOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[UretimVerisiCevapDTO] */
@@ -5642,6 +6340,26 @@ export interface operations {
             };
         };
     };
+    kullanici_ozet_api_v1_kullanicilar_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KullaniciOzetDTO_"];
+                };
+            };
+        };
+    };
     rolleri_listele_api_v1_roller_get: {
         parameters: {
             query?: never;
@@ -5933,6 +6651,26 @@ export interface operations {
             };
         };
     };
+    uretim_ozet_api_v1_uretim_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_UretimOzetDTO_"];
+                };
+            };
+        };
+    };
     yerlesim_getir_api_v1_ikiz_yerlesim_get: {
         parameters: {
             query?: never;
@@ -6181,6 +6919,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    saha_ozet_api_v1_saha_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SahaOzetDTO_"];
                 };
             };
         };
@@ -6489,6 +7247,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bakim_ozet_api_v1_bakim_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_BakimOzetDTO_"];
                 };
             };
         };
@@ -6985,6 +7763,46 @@ export interface operations {
             };
         };
     };
+    stok_ozet_api_v1_stok_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_StokOzetDTO_"];
+                };
+            };
+        };
+    };
+    satinalma_ozet_api_v1_satinalma_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatinalmaOzetDTO_"];
+                };
+            };
+        };
+    };
     kontrol_listele_api_v1_kalite_kontrolleri_get: {
         parameters: {
             query?: {
@@ -7330,6 +8148,26 @@ export interface operations {
             };
         };
     };
+    kalite_ozet_api_v1_kalite_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KaliteOzetDTO_"];
+                };
+            };
+        };
+    };
     olcum_listele_api_v1_enerji_tuketimleri_get: {
         parameters: {
             query?: {
@@ -7432,6 +8270,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    enerji_ozet_api_v1_enerji_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EnerjiOzetDTO_"];
                 };
             };
         };
@@ -7705,6 +8563,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    isg_ozet_api_v1_isg_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_IsgOzetDTO_"];
                 };
             };
         };
@@ -8370,6 +9248,26 @@ export interface operations {
             };
         };
     };
+    ik_ozet_api_v1_ik_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_IkOzetDTO_"];
+                };
+            };
+        };
+    };
     firma_listele_api_v1_firmalar_get: {
         parameters: {
             query?: {
@@ -8844,6 +9742,26 @@ export interface operations {
             };
         };
     };
+    sozlesme_ozet_api_v1_sozlesme_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SozlesmeOzetDTO_"];
+                };
+            };
+        };
+    };
     talep_listele_api_v1_talepler_get: {
         parameters: {
             query?: {
@@ -9014,6 +9932,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    talep_ozet_api_v1_talep_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TalepOzetDTO_"];
                 };
             };
         };
@@ -9248,6 +10186,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dys_ozet_api_v1_dys_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_DysOzetDTO_"];
                 };
             };
         };

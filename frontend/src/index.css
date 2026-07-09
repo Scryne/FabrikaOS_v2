@@ -383,6 +383,230 @@ body {
   line-height: 1.1;
 }
 
+/* ---------------------------------------------------------------------------
+ * "Kontrol Odası (Evrim)" desen sözlüğü — hat şeridi, özet şeridi, enstrüman
+ * panel kartı, durum pimi, satır-içi mini bar, varlık hücresi, board kolonu,
+ * komut paleti. Hepsi "renk = sinyal, ~%2-3 yüzey" kuralına sadık (DESIGN.md).
+ * ------------------------------------------------------------------------- */
+
+/* Hat şeridi (page rail) — sayfa başlığının üstünde modül hat renginde hairline. */
+.hat-serit {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--hat, var(--mavi)) 75%, transparent),
+    color-mix(in srgb, var(--hat, var(--mavi)) 24%, transparent) 42%,
+    transparent 90%
+  );
+}
+
+/* Özet şeridi — modül üstü KPI kartları responsive ızgara (3-4 metrik). */
+.ozet-serit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
+  gap: 14px;
+}
+
+/* Enstrüman-panel kart — üst iç ışık çizgisi + başlıkta hat aksanı. */
+.panel-kart {
+  position: relative;
+  overflow: hidden;
+}
+.panel-kart::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.09) 22%,
+    rgba(255, 255, 255, 0.09) 78%,
+    transparent
+  );
+  pointer-events: none;
+}
+.panel-kart-baslik {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 600;
+  color: var(--metin);
+}
+.panel-kart-aksan {
+  width: 3px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--hat, var(--mavi));
+  flex-shrink: 0;
+}
+
+/* Durum pimi — birleşik nokta + etiket (renk körlüğü güvenli: nokta + metin). */
+.durum-pim {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: var(--metin);
+}
+.durum-pim .pim-nokta {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pim-renk, var(--metin-soluk));
+  flex-shrink: 0;
+}
+.durum-pim.solgun {
+  color: var(--metin-soluk);
+}
+
+/* Satır-içi mini oran barı — tablo hücrelerinde (OEE, stok/kritik, risk). */
+.mini-bar {
+  width: 100%;
+  min-width: 48px;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+.mini-bar-dolu {
+  height: 100%;
+  border-radius: 4px;
+  transform-origin: left;
+  transition: transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Varlık hücresi — ikon/avatar + ad + alt metin (zengin tablo satırları). */
+.varlik-hucre {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.varlik-hucre .varlik-ad {
+  color: var(--metin);
+  font-weight: 600;
+  line-height: 1.25;
+}
+.varlik-hucre .varlik-alt {
+  color: var(--metin-soluk);
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+/* Board / kanban kolonu — durum sütunu (kart deseni .kanban-kart ile paylaşılır). */
+.board-serit {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+.board-kolon {
+  flex: 1 0 272px;
+  min-width: 272px;
+  background: var(--yuzey-2);
+  border: 1px solid var(--kenarlik);
+  border-radius: 14px;
+  padding: 12px;
+}
+.board-kolon-baslik {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+.board-sayac {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  background: var(--yuzey-ust);
+  border-radius: 8px;
+  padding: 1px 8px;
+}
+
+/* Komut paleti (⌘K) — global gezinme paleti. */
+.komut-oge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--metin-soluk);
+  transition: background var(--gecis);
+}
+.komut-oge[aria-selected='true'],
+.komut-oge:hover {
+  background: rgba(59, 110, 246, 0.14);
+  color: var(--metin);
+}
+.komut-oge .komut-hat {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--hat, var(--kenarlik-parlak));
+  flex-shrink: 0;
+}
+.komut-kisayol {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--metin-soluk);
+  border: 1px solid var(--kenarlik);
+  border-radius: 6px;
+  padding: 1px 6px;
+}
+
+/* Üst bar palet tetikleyicisi — arama alanı görünümlü buton (⌘K ipucu sağda). */
+.komut-tetik {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  width: 320px;
+  max-width: 40vw;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--kenarlik);
+  background: var(--yuzey-ust);
+  color: var(--metin-soluk);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color var(--gecis),
+    background var(--gecis);
+}
+.komut-tetik:hover {
+  border-color: var(--kenarlik-parlak);
+}
+.komut-tetik .tetik-metin {
+  margin-right: auto;
+}
+
+/* Uyarı kartı — önem-renkli hafif tint + eş-renk yumuşak kenar + renkli ikon
+ * (AntD Alert token deseniyle aynı: ~%9 tint zemin, ~%26 kenar; renk sinyal, dekor değil). */
+.uyari-karti {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--onem-renk, var(--uyari)) 26%, transparent);
+  background: color-mix(in srgb, var(--onem-renk, var(--uyari)) 9%, var(--yuzey));
+}
+.uyari-karti .uyari-ikon {
+  color: var(--onem-renk, var(--uyari));
+  font-size: 16px;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+/* KPI değeri — uzak-okuma (kiosk) ölçeği. */
+.kpi-deger.dev {
+  font-size: clamp(40px, 6vw, 60px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -396,5 +620,8 @@ body {
   }
   .kanban-kart:hover {
     transform: none;
+  }
+  .mini-bar-dolu {
+    transition: none;
   }
 }

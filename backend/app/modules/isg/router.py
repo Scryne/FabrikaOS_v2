@@ -7,9 +7,11 @@ Tüm uçlar tenant-kapsamlı + RBAC (``isg:oku``/``isg:yaz``); yazma işlemleri 
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -25,12 +27,14 @@ from app.modules.isg import repository, risk_matrisi, service
 from app.modules.isg.birimler import KAZA_AGIRLIKLARI, KAZA_TURLERI, RISK_DURUMLARI
 from app.modules.isg.models import IsKazasi, RiskDegerlendirme
 from app.modules.isg.schemas import (
+    IsgOzetDTO,
     IsKazasiCevapDTO,
     IsKazasiGuncelleDTO,
     IsKazasiOlusturDTO,
     RiskDegerlendirmeCevapDTO,
     RiskDegerlendirmeGuncelleDTO,
     RiskDegerlendirmeOlusturDTO,
+    RiskHucreDTO,
 )
 
 router = APIRouter(tags=["İSG"])
@@ -369,3 +373,72 @@ async def risk_guncelle(
         kullanici=kullanici,
     )
     return basari(_risk_cevap(risk), mesaj="Risk değerlendirme güncellendi")
+
+
+@router.get("/isg/ozet", response_model=Zarf[IsgOzetDTO], summary="İSG özeti (kaza + risk KPI)")
+async def isg_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("isg:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    simdi = datetime.now(UTC)
+    yil_basi = simdi.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    son_kaza = await db.scalar(select(func.max(IsKazasi.olay_tarihi)).where(IsKazasi.tur == "kaza"))
+    gunluk_kazasiz = (simdi - son_kaza).days if son_kaza is not None else -1
+    bu_yil_kaza = (
+        await db.scalar(
+            select(func.count())
+            .select_from(IsKazasi)
+            .where(IsKazasi.tur == "kaza", IsKazasi.olay_tarihi >= yil_basi)
+        )
+        or 0
+    )
+    ramak_kala = (
+        await db.scalar(
+            select(func.count()).select_from(IsKazasi).where(IsKazasi.tur == "ramak_kala")
+        )
+        or 0
+    )
+    toplam_kayip_gun = (
+        await db.scalar(select(func.coalesce(func.sum(IsKazasi.kaybedilen_gun), 0))) or 0
+    )
+
+    acik_risk = (
+        await db.scalar(
+            select(func.count())
+            .select_from(RiskDegerlendirme)
+            .where(RiskDegerlendirme.durum == "acik")
+        )
+        or 0
+    )
+    yuksek_risk = (
+        await db.scalar(
+            select(func.count())
+            .select_from(RiskDegerlendirme)
+            .where(RiskDegerlendirme.risk_seviyesi.in_(("yuksek", "cok_yuksek")))
+        )
+        or 0
+    )
+    toplam_risk = await db.scalar(select(func.count()).select_from(RiskDegerlendirme)) or 0
+
+    matris_sonuc = await db.execute(
+        select(RiskDegerlendirme.olasilik, RiskDegerlendirme.siddet, func.count()).group_by(
+            RiskDegerlendirme.olasilik, RiskDegerlendirme.siddet
+        )
+    )
+    matris = [
+        RiskHucreDTO(olasilik=int(o), siddet=int(s), adet=int(a)) for o, s, a in matris_sonuc.all()
+    ]
+
+    ozet = IsgOzetDTO(
+        gunluk_kazasiz=gunluk_kazasiz,
+        bu_yil_kaza=int(bu_yil_kaza),
+        ramak_kala=int(ramak_kala),
+        toplam_kayip_gun=int(toplam_kayip_gun),
+        acik_risk=int(acik_risk),
+        yuksek_risk=int(yuksek_risk),
+        toplam_risk=int(toplam_risk),
+        risk_matrisi=matris,
+    )
+    return basari(ozet.model_dump(), mesaj="İSG özeti")

@@ -20,6 +20,8 @@ export type StokHareketiOlustur = components['schemas']['StokHareketiOlusturDTO'
 export type SatinalmaTalebi = components['schemas']['SatinalmaTalebiCevapDTO'];
 export type SatinalmaTalebiDetay = components['schemas']['SatinalmaTalebiDetayDTO'];
 export type SatinalmaTalebiOlustur = components['schemas']['SatinalmaTalebiOlusturDTO'];
+export type StokOzet = components['schemas']['StokOzetDTO'];
+export type SatinalmaOzet = components['schemas']['SatinalmaOzetDTO'];
 
 export const STOK_ANAHTAR = {
   malzemeler: ['malzemeler'] as const,
@@ -28,7 +30,25 @@ export const STOK_ANAHTAR = {
   hareketler: ['stok-hareketleri'] as const,
   talepler: ['satinalma-talepleri'] as const,
   talep: (id: number) => ['satinalma-talebi', id] as const,
+  stokOzet: ['stok-ozet'] as const,
+  satinalmaOzet: ['satinalma-ozet'] as const,
 };
+
+/** Stok KPI özeti (OzetSerit + kritik dağılımı). */
+export function useStokOzet() {
+  return useQuery({
+    queryKey: STOK_ANAHTAR.stokOzet,
+    queryFn: () => istek<StokOzet>('GET', `${PREFIX}/stok/ozet`),
+  });
+}
+
+/** Satınalma KPI özeti (OzetSerit + board sayaçları). */
+export function useSatinalmaOzet() {
+  return useQuery({
+    queryKey: STOK_ANAHTAR.satinalmaOzet,
+    queryFn: () => istek<SatinalmaOzet>('GET', `${PREFIX}/satinalma/ozet`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -66,6 +86,7 @@ export function useMalzemeOlustur() {
     mutationFn: (govde: MalzemeOlustur) => istek<Malzeme>('POST', `${PREFIX}/malzemeler`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.malzemeler });
+      void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.stokOzet });
       message.success(t('stok.malzeme_olusturuldu'));
     },
     onError: hataGoster,
@@ -84,6 +105,7 @@ export function useMalzemeGuncelle() {
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.malzemeler });
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.malzeme(id) });
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.kritik });
+      void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.stokOzet });
       message.success(t('stok.guncellendi'));
     },
     onError: hataGoster,
@@ -113,6 +135,7 @@ export function useStokHareketEkle() {
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.hareketler });
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.malzemeler });
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.kritik });
+      void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.stokOzet });
       message.success(t('stok.hareket_eklendi'));
     },
     onError: hataGoster,
@@ -132,6 +155,18 @@ export function useTalep(id: number) {
   });
 }
 
+/** Board için tek çekim (istemcide gruplama): en güncel 100 talep. */
+export function useTalepPano() {
+  return useQuery({
+    queryKey: [...STOK_ANAHTAR.talepler, 'pano'],
+    queryFn: () =>
+      istek<SatinalmaTalebi[]>(
+        'GET',
+        `${PREFIX}/satinalma-talepleri?sayfa=1&adet=100&siralama=id&yon=desc`,
+      ),
+  });
+}
+
 export function useTalepOlustur() {
   const qc = useQueryClient();
   const { message } = App.useApp();
@@ -142,6 +177,7 @@ export function useTalepOlustur() {
       istek<SatinalmaTalebiDetay>('POST', `${PREFIX}/satinalma-talepleri`, govde),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.talepler });
+      void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.satinalmaOzet });
       message.success(t('satinalma.olusturuldu'));
     },
     onError: hataGoster,
@@ -172,6 +208,7 @@ export function useTalepDurumAksiyon() {
     onSuccess: (_v, { id }) => {
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.talepler });
       void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.talep(id) });
+      void qc.invalidateQueries({ queryKey: STOK_ANAHTAR.satinalmaOzet });
       message.success(t('satinalma.durum_guncellendi'));
     },
     onError: hataGoster,

@@ -62,3 +62,17 @@ class OlcumKabulDTO(BaseModel):
 
     cihaz_kod: str = Field(min_length=1, max_length=50)
     olcumler: list[OlcumPaketi] = Field(min_length=1)
+
+
+class SahaSayiDTO(BaseModel):
+    ad: str
+    adet: int
+
+
+class SahaOzetDTO(BaseModel):
+    """Saha cihaz KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    toplam_cihaz: int
+    cevrimici: int  # son görülme < 5 dk
+    bugun_olcum: int
+    protokol_dagilimi: list[SahaSayiDTO]

@@ -6,19 +6,29 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusOutlined } from '@ant-design/icons';
+import {
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  PlusOutlined,
+  ToolOutlined,
+  WarningOutlined,
+} from '@ant-design/icons';
 import { Button, Card, Select, Switch, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 import { useAuthStore } from '@/store/authStore';
+import { BOLUM_RENGI } from '@/tema/modulKimlik';
 
 import { BakimPlaniFormu } from './BakimPlaniFormu';
-import { type BakimPlani, useBakimPlaniGuncelle, useBakimPlanlari } from './hooks';
+import { type BakimPlani, useBakimOzet, useBakimPlaniGuncelle, useBakimPlanlari } from './hooks';
 
+const HAT = BOLUM_RENGI['menu.bolum_uretim'];
 const TIP_RENK: Record<string, string> = {
   onleyici: 'blue',
   kestirimci: 'purple',
@@ -31,10 +41,40 @@ export function BakimPlanListesi() {
   const [param, paramDegistir] = useSayfaParam();
   const { data, isPending, isError } = useBakimPlanlari(param);
   const { data: makineler } = useMakineSecenekleri();
+  const { data: ozet, isPending: ozetYukleniyor } = useBakimOzet();
   const guncelle = useBakimPlaniGuncelle();
   const [formAcik, setFormAcik] = useState(false);
 
   const makineHarita = useMemo(() => new Map((makineler ?? []).map((m) => [m.id, m])), [makineler]);
+
+  const metrikler: OzetMetrik[] = ozet
+    ? [
+        {
+          anahtar: 'aktif',
+          baslik: t('bakim.kpi_aktif'),
+          deger: String(ozet.aktif_plan),
+          ikon: <ToolOutlined />,
+        },
+        {
+          anahtar: 'hafta',
+          baslik: t('bakim.kpi_bu_hafta'),
+          deger: String(ozet.bu_hafta_vadesi),
+          ikon: <ClockCircleOutlined />,
+        },
+        {
+          anahtar: 'gecik',
+          baslik: t('bakim.kpi_gecikmis'),
+          deger: String(ozet.gecikmis),
+          ikon: <WarningOutlined />,
+        },
+        {
+          anahtar: 'toplam',
+          baslik: t('bakim.kpi_toplam'),
+          deger: String(ozet.toplam_plan),
+          ikon: <CheckCircleOutlined />,
+        },
+      ]
+    : [];
 
   const kolonlar: ColumnsType<BakimPlani> = [
     { title: t('bakim.ad'), dataIndex: 'ad', key: 'ad', sorter: true },
@@ -115,7 +155,7 @@ export function BakimPlanListesi() {
   ];
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik
         baslik={t('menu.bakim')}
         alt={t('bakim.alt')}
@@ -127,6 +167,8 @@ export function BakimPlanListesi() {
           )
         }
       />
+      <OzetSerit renk={HAT} metrikler={metrikler} yukleniyor={ozetYukleniyor} />
+      <div style={{ height: 20 }} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<BakimPlani>
           kolonlar={kolonlar}
@@ -166,6 +208,6 @@ export function BakimPlanListesi() {
         />
       </Card>
       <BakimPlaniFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

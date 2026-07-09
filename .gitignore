@@ -37,6 +37,9 @@ Thumbs.db
 *.key
 secrets/
 
+# --- Geçici doğrulama ekran görüntüleri (canlı tur artığı; commit'lenmez) ---
+/*.png
+
 # --- Claude Code / araç ve skill dosyaları (proje kodu değil) ---
 .claude/
 .agents/

@@ -31,6 +31,17 @@ vi.mock('./hooks', () => {
       isPending: false,
       isError: false,
     }),
+    useStokOzet: () => ({
+      data: {
+        toplam_malzeme: 1,
+        aktif_malzeme: 1,
+        kritik_alti: 1,
+        min_alti: 1,
+        bugun_hareket: 0,
+        kategori_sayisi: 0,
+      },
+      isPending: false,
+    }),
     useMalzemeOlustur: sahteMutasyon,
     useMalzemeGuncelle: sahteMutasyon,
     useStokHareketEkle: sahteMutasyon,
@@ -38,13 +49,14 @@ vi.mock('./hooks', () => {
 });
 
 describe('MalzemeListesi', () => {
-  it('malzemeleri sunucu-taraflı tabloda listeler', () => {
+  it('malzemeleri çalışma alanı tablosunda listeler (varlık hücresi + KPI şeridi)', () => {
     render(
       <MemoryRouter>
         <MalzemeListesi />
       </MemoryRouter>,
     );
-    expect(screen.getByText('MLZ-1')).toBeInTheDocument();
     expect(screen.getByText('Rulman 6203')).toBeInTheDocument();
+    expect(screen.getByText(/MLZ-1/)).toBeInTheDocument(); // kod + birim aynı hücrede
+    expect(screen.getByText('Toplam kalem')).toBeInTheDocument(); // KPI şeridi
   });
 });

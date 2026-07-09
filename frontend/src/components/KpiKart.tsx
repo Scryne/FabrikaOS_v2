@@ -7,6 +7,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { Card } from 'antd';
 
+import { MiniTrend } from '@/components/MiniTrend';
+
 export function KpiKart({
   baslik,
   deger,
@@ -17,6 +19,7 @@ export function KpiKart({
   yon,
   olumlu,
   altMetin,
+  seri,
 }: {
   baslik: string;
   deger: string;
@@ -29,6 +32,8 @@ export function KpiKart({
   yon?: 'yukari' | 'asagi';
   olumlu?: boolean;
   altMetin?: string;
+  /** Verilirse kartın altında satır-içi sparkline çizilir (modül hat renginde). */
+  seri?: number[];
 }) {
   const deltaRenk = olumlu ? 'var(--basari)' : 'var(--hata)';
   return (
@@ -83,6 +88,11 @@ export function KpiKart({
             </span>
           )}
           {altMetin && <span style={{ color: 'var(--metin-soluk)' }}>{altMetin}</span>}
+        </div>
+      )}
+      {seri && seri.length >= 2 && (
+        <div style={{ marginTop: 10, marginInline: -2 }}>
+          <MiniTrend seri={seri} renk={renk ?? 'var(--mavi)'} genislik="100%" yukseklik={30} />
         </div>
       )}
     </Card>

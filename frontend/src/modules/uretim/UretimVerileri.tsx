@@ -11,6 +11,7 @@ import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
 import { SayfaBaslik } from '@/components/SayfaBaslik';
+import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
@@ -94,7 +95,7 @@ export function UretimVerileri() {
   );
 
   return (
-    <div style={{ maxWidth: 1320 }}>
+    <SayfaKapsayici>
       <SayfaBaslik baslik={t('uretim.uretim_verileri')} alt={t('uretim.uretim_alt')} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<UretimVerisi>
@@ -111,6 +112,6 @@ export function UretimVerileri() {
       </Card>
 
       <UretimGirisFormu acik={formAcik} kapat={() => setFormAcik(false)} />
-    </div>
+    </SayfaKapsayici>
   );
 }

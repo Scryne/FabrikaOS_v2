@@ -12,11 +12,21 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 export type EnerjiOlcum = components['schemas']['EnerjiOlcumCevapDTO'];
 export type EnerjiOlcumOlustur = components['schemas']['EnerjiOlcumOlusturDTO'];
 export type TrendNokta = components['schemas']['EnerjiTrendNoktaDTO'];
+export type EnerjiOzet = components['schemas']['EnerjiOzetDTO'];
 
 export const ENERJI_ANAHTAR = {
   olcumler: ['enerji-tuketimleri'] as const,
   trend: ['enerji-trend'] as const,
+  ozet: ['enerji-ozet'] as const,
 };
+
+/** Enerji KPI özeti (OzetSerit). */
+export function useEnerjiOzet() {
+  return useQuery({
+    queryKey: ENERJI_ANAHTAR.ozet,
+    queryFn: () => istek<EnerjiOzet>('GET', `${PREFIX}/enerji/ozet`),
+  });
+}
 
 function useHataGoster() {
   const { message } = App.useApp();
@@ -40,6 +50,7 @@ export function useOlcumEkle() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ENERJI_ANAHTAR.olcumler });
       void qc.invalidateQueries({ queryKey: ENERJI_ANAHTAR.trend });
+      void qc.invalidateQueries({ queryKey: ENERJI_ANAHTAR.ozet });
       message.success(t('enerji.olcum_eklendi'));
     },
     onError: hataGoster,

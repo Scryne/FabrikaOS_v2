@@ -6,9 +6,11 @@ Cihaz yönetimi tenant-kapsamlı + RBAC korumalı (``saha:oku``/``saha:yaz``); y
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, File, Query, UploadFile
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -22,12 +24,14 @@ from app.ingestion.service import IngestSonuc, olcum_yaz_toplu
 from app.kimlik.models import Kullanici
 from app.modules.saha import repository
 from app.modules.saha.csv_ice import CsvGecersiz, csv_satirlari_coz
-from app.modules.saha.models import Cihaz
+from app.modules.saha.models import AlinanOlcum, Cihaz
 from app.modules.saha.schemas import (
     CihazCevapDTO,
     CihazOlusturDTO,
     OlcumKabulDTO,
     OlcumPaketi,
+    SahaOzetDTO,
+    SahaSayiDTO,
 )
 
 router = APIRouter(prefix="/saha", tags=["Saha"])
@@ -142,3 +146,38 @@ async def olcum_csv(
         raise DogrulamaHatasi(str(exc)) from exc
     veri = await _yaz_ve_yayinla(db, tenant, cihaz_kod, paketler)
     return basari(veri, mesaj="CSV ölçümleri alındı")
+
+
+@router.get("/ozet", response_model=Zarf[SahaOzetDTO], summary="Saha cihaz özeti (KPI)")
+async def saha_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("saha:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    simdi = datetime.now(UTC)
+    esik = simdi - timedelta(minutes=5)
+    gun_basi = simdi.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    toplam = await db.scalar(select(func.count()).select_from(Cihaz)) or 0
+    cevrimici = (
+        await db.scalar(select(func.count()).select_from(Cihaz).where(Cihaz.son_gorulme >= esik))
+        or 0
+    )
+    bugun_olcum = (
+        await db.scalar(
+            select(func.count())
+            .select_from(AlinanOlcum)
+            .where(AlinanOlcum.alinma_zamani >= gun_basi)
+        )
+        or 0
+    )
+    protokol_sonuc = await db.execute(select(Cihaz.protokol, func.count()).group_by(Cihaz.protokol))
+    protokol_dagilimi = [SahaSayiDTO(ad=p, adet=int(a)) for p, a in protokol_sonuc.all()]
+
+    ozet = SahaOzetDTO(
+        toplam_cihaz=int(toplam),
+        cevrimici=int(cevrimici),
+        bugun_olcum=int(bugun_olcum),
+        protokol_dagilimi=protokol_dagilimi,
+    )
+    return basari(ozet.model_dump(), mesaj="Saha özeti")

@@ -7,10 +7,11 @@ KVKK: personel yanıtlarında TC kimlik ``tc_maskele`` ile maskelenir.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -27,6 +28,7 @@ from app.modules.ik.models import FazlaMesai, IzinTalebi, Personel, Sertifika, Z
 from app.modules.ik.schemas import (
     FazlaMesaiCevapDTO,
     FazlaMesaiOlusturDTO,
+    IkOzetDTO,
     IzinTalebiCevapDTO,
     IzinTalebiGuncelleDTO,
     IzinTalebiOlusturDTO,
@@ -683,3 +685,56 @@ async def sertifika_listele(
         db, sayfa=sayfa, adet=adet, personel_id=personel_id
     )
     return sayfali([_sertifika_cevap(s) for s in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.get("/ik/ozet", response_model=Zarf[IkOzetDTO], summary="İK özeti (KPI)")
+async def ik_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("ik:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    bugun = datetime.now(UTC).date()
+    sinir = bugun + timedelta(days=30)
+
+    toplam = await db.scalar(select(func.count()).select_from(Personel)) or 0
+    aktif = (
+        await db.scalar(select(func.count()).select_from(Personel).where(Personel.aktif.is_(True)))
+        or 0
+    )
+    bugun_izinli = (
+        await db.scalar(
+            select(func.count())
+            .select_from(IzinTalebi)
+            .where(
+                IzinTalebi.durum == "onaylandi",
+                IzinTalebi.baslangic_tarihi <= bugun,
+                IzinTalebi.bitis_tarihi >= bugun,
+            )
+        )
+        or 0
+    )
+    yaklasan_sertifika = (
+        await db.scalar(
+            select(func.count())
+            .select_from(Sertifika)
+            .where(
+                Sertifika.gecerlilik_tarihi.is_not(None),
+                Sertifika.gecerlilik_tarihi >= bugun,
+                Sertifika.gecerlilik_tarihi <= sinir,
+            )
+        )
+        or 0
+    )
+    acik_zimmet = (
+        await db.scalar(select(func.count()).select_from(Zimmet).where(Zimmet.durum == "zimmetli"))
+        or 0
+    )
+
+    ozet = IkOzetDTO(
+        aktif_personel=int(aktif),
+        toplam_personel=int(toplam),
+        bugun_izinli=int(bugun_izinli),
+        yaklasan_sertifika=int(yaklasan_sertifika),
+        acik_zimmet=int(acik_zimmet),
+    )
+    return basari(ozet.model_dump(), mesaj="İK özeti")

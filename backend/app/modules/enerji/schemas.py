@@ -32,3 +32,12 @@ class EnerjiTrendNoktaDTO(BaseModel):
     zaman: datetime
     toplam: float
     adet: int
+
+
+class EnerjiOzetDTO(BaseModel):
+    """Enerji KPI özeti (OzetSerit) — salt-okunur toplulaştırma."""
+
+    toplam_kayit: int
+    bugun_kayit: int
+    tur_sayisi: int
+    izlenen_makine: int

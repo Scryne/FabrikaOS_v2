@@ -6,10 +6,12 @@ Tüm uçlar tenant-kapsamlı + RBAC. Okuma/indirme ``dys:oku``, yazma/yükleme `
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import Annotated, Any
 from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, Response, UploadFile
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.control_plane.models import Tenant
@@ -27,6 +29,7 @@ from app.modules.dys.schemas import (
     BelgeGuncelleDTO,
     BelgeOlusturDTO,
     BelgeSurumuCevapDTO,
+    DysOzetDTO,
 )
 
 router = APIRouter(tags=["DYS"])
@@ -238,3 +241,37 @@ async def surum_indir(
         media_type=surum.icerik_tipi,
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{dosya}"},
     )
+
+
+@router.get("/dys/ozet", response_model=Zarf[DysOzetDTO], summary="DYS (belge) özeti (KPI)")
+async def dys_ozet(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("dys:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    ay_basi = datetime.now(UTC).replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    toplam_belge = await db.scalar(select(func.count()).select_from(Belge)) or 0
+    kategori_sayisi = (
+        await db.scalar(
+            select(func.count(func.distinct(Belge.kategori))).where(Belge.kategori != "")
+        )
+        or 0
+    )
+    bu_ay_surum = (
+        await db.scalar(
+            select(func.count())
+            .select_from(BelgeSurumu)
+            .where(BelgeSurumu.olusturma_tarihi >= ay_basi)
+        )
+        or 0
+    )
+    toplam_boyut = await db.scalar(select(func.coalesce(func.sum(BelgeSurumu.boyut), 0))) or 0
+
+    ozet = DysOzetDTO(
+        toplam_belge=int(toplam_belge),
+        kategori_sayisi=int(kategori_sayisi),
+        bu_ay_surum=int(bu_ay_surum),
+        toplam_boyut=int(toplam_boyut),
+    )
+    return basari(ozet.model_dump(), mesaj="DYS özeti")

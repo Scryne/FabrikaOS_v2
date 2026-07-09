@@ -19,6 +19,7 @@ export type UretimVerisi = components['schemas']['UretimVerisiCevapDTO'];
 export type UretimGiris = components['schemas']['UretimGirisDTO'];
 export type Oee = components['schemas']['OeeCevapDTO'];
 export type OeeOzetSatir = components['schemas']['OeeOzetSatirDTO'];
+export type UretimOzet = components['schemas']['UretimOzetDTO'];
 
 export const URETIM_ANAHTAR = {
   makineler: ['makineler'] as const,
@@ -26,10 +27,19 @@ export const URETIM_ANAHTAR = {
   makineOee: (id: number) => ['makine', id, 'oee'] as const,
   uretim: ['uretim-verileri'] as const,
   oeeOzet: ['oee-ozet'] as const,
+  uretimOzet: ['uretim-ozet'] as const,
 };
 
 export function useMakineler(param: SayfaParam) {
   return useSayfaliSorgu<Makine>(URETIM_ANAHTAR.makineler, '/makineler', param);
+}
+
+/** Üretim modülü KPI özeti (OzetSerit + analiz donut). */
+export function useUretimOzet() {
+  return useQuery({
+    queryKey: URETIM_ANAHTAR.uretimOzet,
+    queryFn: () => istek<UretimOzet>('GET', `${PREFIX}/uretim/ozet`),
+  });
 }
 
 /** Filtreler/seçim için hafif makine sözlüğü (id → makine); büyük sayfa, tek istek. */
@@ -86,6 +96,7 @@ export function useMakineOlustur() {
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.makineler });
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.oeeOzet });
+      void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.uretimOzet });
       message.success(t('uretim.makine_eklendi'));
     },
     onError: hataGoster,
@@ -104,6 +115,7 @@ export function useMakineDurumGuncelle() {
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.makine(id) });
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.makineler });
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.oeeOzet });
+      void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.uretimOzet });
       message.success(t('uretim.durum_guncellendi'));
     },
     onError: hataGoster,
@@ -121,6 +133,7 @@ export function useUretimGiris() {
     onSuccess: (_veri, govde) => {
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.uretim });
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.oeeOzet });
+      void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.uretimOzet });
       void qc.invalidateQueries({ queryKey: URETIM_ANAHTAR.makineOee(govde.makine_id) });
       message.success(t('uretim.uretim_kaydedildi'));
     },
