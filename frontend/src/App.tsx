@@ -14,6 +14,7 @@ import { oturumBaslat } from '@/api/kimlik';
 import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
+import { AbonelikSayfasi } from '@/modules/abonelik/AbonelikSayfasi';
 import { TahminPanosu } from '@/modules/ai/TahminPanosu';
 import { AnalitikPano } from '@/modules/analitik/AnalitikPano';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
@@ -103,6 +104,7 @@ function OnizlemeOturum() {
         'kullanici:oku',
         'kullanici:yaz',
         'rol:oku',
+        'abonelik:oku',
       ],
     });
   }, [ayarlaOturum]);
@@ -394,6 +396,14 @@ export function App() {
             element={
               <IzinKapisi izin="kullanici:oku">
                 <KullaniciListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="abonelik"
+            element={
+              <IzinKapisi izin="abonelik:oku">
+                <AbonelikSayfasi />
               </IzinKapisi>
             }
           />

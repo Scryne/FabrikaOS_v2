@@ -227,6 +227,13 @@ export const MENU: MenuOgesi[] = [
     yol: '/kullanicilar',
     izin: 'kullanici:oku',
   },
+  {
+    anahtar: 'abonelik',
+    etiketAnahtari: 'menu.abonelik',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/abonelik',
+    izin: 'abonelik:oku',
+  },
 ];
 
 /**

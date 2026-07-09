@@ -13,6 +13,7 @@ import {
   AreaChartOutlined,
   BankOutlined,
   CalendarOutlined,
+  CreditCardOutlined,
   DashboardOutlined,
   ExperimentOutlined,
   FileDoneOutlined,
@@ -81,6 +82,31 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   analitik: <AreaChartOutlined />,
   raporlar: <FileTextOutlined />,
   kullanicilar: <IdcardOutlined />,
+  abonelik: <CreditCardOutlined />,
+};
+
+/**
+ * Entitlement modül kodu → menü bölümü (hat rengi kaynağı) + temsilci menü anahtarı
+ * (ikon kaynağı). Abonelik ekranındaki modül matrisi bu eşlemeden beslenir (S16).
+ */
+export const MODUL_KIMLIK: Record<string, { bolum: string; anahtar: string }> = {
+  uretim: { bolum: 'menu.bolum_uretim', anahtar: 'makineler' },
+  saha: { bolum: 'menu.bolum_uretim', anahtar: 'saha-cihazlar' },
+  isemri: { bolum: 'menu.bolum_uretim', anahtar: 'is-emirleri' },
+  bakim: { bolum: 'menu.bolum_uretim', anahtar: 'bakim' },
+  stok: { bolum: 'menu.bolum_stok', anahtar: 'malzemeler' },
+  kalite: { bolum: 'menu.bolum_kalite', anahtar: 'kalite' },
+  enerji: { bolum: 'menu.bolum_kalite', anahtar: 'enerji' },
+  isg: { bolum: 'menu.bolum_isg_ik', anahtar: 'is-kazalari' },
+  ik: { bolum: 'menu.bolum_isg_ik', anahtar: 'personeller' },
+  crm: { bolum: 'menu.bolum_ticari', anahtar: 'firmalar' },
+  sozlesme: { bolum: 'menu.bolum_ticari', anahtar: 'sozlesmeler' },
+  talep: { bolum: 'menu.bolum_ticari', anahtar: 'talepler' },
+  dys: { bolum: 'menu.bolum_dokuman', anahtar: 'belgeler' },
+  duyuru: { bolum: 'menu.bolum_dokuman', anahtar: 'duyurular' },
+  ai: { bolum: 'menu.bolum_zeka', anahtar: 'tahminler' },
+  analitik: { bolum: 'menu.bolum_zeka', anahtar: 'analitik' },
+  rapor: { bolum: 'menu.bolum_zeka', anahtar: 'raporlar' },
 };
 
 export type ModulKimlik = {

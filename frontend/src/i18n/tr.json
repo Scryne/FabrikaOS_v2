@@ -938,6 +938,7 @@
   },
   "abonelik": {
     "baslik": "Abonelik & Modüller",
+    "alt": "Planınız, koltuk kullanımı ve modül erişim matrisi",
     "modul_kapali": "Bu modül planınızda kapalı",
     "modul_kapali_aciklama": "Modül mevcut aboneliğinizin kapsamında değil. Erişim için planınızı yükseltin veya yöneticinizle görüşün.",
     "plani_goruntule": "Aboneliği görüntüle",

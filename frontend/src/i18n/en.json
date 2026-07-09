@@ -938,6 +938,7 @@
   },
   "abonelik": {
     "baslik": "Subscription & Modules",
+    "alt": "Your plan, seat usage and module access matrix",
     "modul_kapali": "This module is not in your plan",
     "modul_kapali_aciklama": "The module is outside your current subscription. Upgrade your plan or contact your administrator.",
     "plani_goruntule": "View subscription",

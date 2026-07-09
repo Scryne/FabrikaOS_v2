@@ -35,12 +35,12 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
     expect(gorunur.map((o) => o.anahtar)).toContain('tahminler');
   });
 
-  it('modülsüz çekirdek öğeler (pano, kullanıcılar) süzgeçten etkilenmez', () => {
+  it('modülsüz çekirdek öğeler (pano, kullanıcılar, abonelik) süzgeçten etkilenmez', () => {
     const gorunur = gorunurMenu(
       MENU,
       () => true,
       () => false, // her modül kapalı
     );
-    expect(gorunur.map((o) => o.anahtar)).toEqual(['pano', 'kullanicilar']);
+    expect(gorunur.map((o) => o.anahtar)).toEqual(['pano', 'kullanicilar', 'abonelik']);
   });
 });

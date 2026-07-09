@@ -16,7 +16,7 @@ export default defineConfig({
   build: {
     // Büyük satıcıları ayrı, önbellek-dostu parçalara böl (echarts ~1MB, antd ~1.1MB —
     // DatePicker/rc-picker ile büyüdü; ikisi de tek izole satıcı parçası, gzip'te ~345KB).
-    chunkSizeWarningLimit: 1200,
+    chunkSizeWarningLimit: 1250,
     rollupOptions: {
       output: {
         manualChunks: {
