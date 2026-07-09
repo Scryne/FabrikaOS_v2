@@ -72,12 +72,15 @@ async def _db_sifirla() -> None:
 
 
 async def _tenantlari_provizyonla() -> None:
+    # kurumsal plan: sınırsız koltuk + tüm modüller — mevcut testler S16 koltuk/entitlement
+    # limitlerine takılmasın (limit senaryoları gamma16/temel ile ayrıca test edilir).
     for t in (ALFA, BETA):
         await tenant_provizyonla(
             slug=t["slug"],
             ad=t["ad"],
             admin_eposta=t["eposta"],
             admin_parola=t["parola"],
+            plan_kodu="kurumsal",
             db_url=TEST_URL,
         )
 

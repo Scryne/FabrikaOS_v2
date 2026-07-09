@@ -14,9 +14,11 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.control_plane import entitlement_service
+from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli
+from app.core.deps import izin_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.core.responses import Zarf, basari, sayfali
 from app.core.security.parola import parola_ozetle
@@ -96,8 +98,27 @@ async def kullanici_ozet(
 async def olustur(
     govde: KullaniciOlusturDTO,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("kullanici:yaz"))],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
     db: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, Any]:
+    # Koltuk (seat) limiti — S16/ADR-0018: eşzamanlı oluşturmalar public.tenant satırı
+    # kilidiyle serileştirilir; aktif kullanıcı sayısı limiti aşamaz (pasifler sayılmaz).
+    await db.execute(select(Tenant.id).where(Tenant.id == tenant.id).with_for_update())
+    koltuk = await entitlement_service.koltuk_limiti_getir(db, tenant)
+    if koltuk is not None:
+        aktif_sayi = (
+            await db.scalar(
+                select(func.count()).select_from(Kullanici).where(Kullanici.aktif.is_(True))
+            )
+            or 0
+        )
+        if aktif_sayi >= koltuk:
+            raise CakismaHatasi(
+                f"Koltuk limiti doldu ({aktif_sayi}/{koltuk}) — plan yükseltin veya "
+                "bir kullanıcıyı pasifleştirin",
+                hata_kodu="KOLTUK_LIMITI",
+            )
+
     var = await db.scalar(select(Kullanici).where(Kullanici.eposta == govde.eposta))
     if var is not None:
         raise CakismaHatasi("Bu e-posta ile kullanıcı zaten var")

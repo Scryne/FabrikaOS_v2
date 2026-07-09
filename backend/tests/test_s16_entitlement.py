@@ -102,7 +102,7 @@ async def test_override_aninda_etkili_ve_kaldirilinca_plana_doner(
     alfa_id = await _tenant_id(oturum, "alfa")
 
     r = await kurulu_istemci.get("/api/v1/tahmin/modeller", headers=h)
-    assert r.status_code == 200, r.text  # deneme planında ai açık
+    assert r.status_code == 200, r.text  # kurumsal planda ai açık
 
     try:
         await entitlement_service.modul_hakki_ayarla(oturum, alfa_id, "ai", False)
@@ -120,9 +120,7 @@ async def test_override_aninda_etkili_ve_kaldirilinca_plana_doner(
     assert r.status_code == 200, r.text  # override kalktı → plana döndü
 
 
-async def test_override_tenant_izoledir(
-    kurulu_istemci: AsyncClient, oturum: AsyncSession
-) -> None:
+async def test_override_tenant_izoledir(kurulu_istemci: AsyncClient, oturum: AsyncSession) -> None:
     alfa_id = await _tenant_id(oturum, "alfa")
     try:
         await entitlement_service.modul_hakki_ayarla(oturum, alfa_id, "ai", False)
@@ -143,16 +141,12 @@ async def test_katalog_disi_kod_reddedilir(oturum: AsyncSession) -> None:
         await entitlement_service.ozellik_bayragi_ayarla(oturum, 1, "olmayan-ozellik", True)
 
 
-async def test_ozellik_bayragi_override_servisi(
-    oturum: AsyncSession, test_db: str
-) -> None:
+async def test_ozellik_bayragi_override_servisi(oturum: AsyncSession, test_db: str) -> None:
     alfa_id = await _tenant_id(oturum, "alfa")
-    tenant = (
-        await oturum.execute(select(Tenant).where(Tenant.id == alfa_id))
-    ).scalar_one()
+    tenant = (await oturum.execute(select(Tenant).where(Tenant.id == alfa_id))).scalar_one()
 
     once = await entitlement_service.tenant_etkin_ozellikler(oturum, tenant)
-    assert once["mobil-api"] is True  # deneme planı tüm özellikleri açar
+    assert once["mobil-api"] is True  # kurumsal plan (test fixture) tüm özellikleri açar
 
     try:
         await entitlement_service.ozellik_bayragi_ayarla(oturum, alfa_id, "mobil-api", False)
