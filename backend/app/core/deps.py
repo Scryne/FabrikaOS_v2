@@ -18,6 +18,7 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.control_plane import entitlement_service
 from app.control_plane.models import Tenant
 from app.core.config import get_settings
 from app.core.db.session import get_session
@@ -95,5 +96,25 @@ def izin_gerekli(izin_kodu: str) -> Callable[..., Awaitable[Kullanici]]:
         if not kullanici.izin_var(izin_kodu):
             raise YetkiHatasi(f"Gerekli izin yok: {izin_kodu}")
         return kullanici
+
+    return kontrol
+
+
+def modul_gerekli(modul_kodu: str) -> Callable[..., Awaitable[None]]:
+    """Modülün tenant aboneliğinde açık olmasını şart koşar (S16 / ADR-0018).
+
+    RBAC'den bağımsızdır: modül kapalıysa **admin dahil** herkes 403 ``MODUL_KAPALI``
+    alır (entitlement = ne satın alındığı; izin = kimin ne yapabildiği). Router
+    seviyesinde ``dependencies=[Depends(modul_gerekli("stok"))]`` olarak bağlanır.
+    """
+
+    async def kontrol(
+        tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+    ) -> None:
+        if not await entitlement_service.tenant_modul_acik_mi(db, tenant, modul_kodu):
+            raise YetkiHatasi(
+                f"Bu modül aboneliğinizde kapalı: {modul_kodu}", hata_kodu="MODUL_KAPALI"
+            )
 
     return kontrol

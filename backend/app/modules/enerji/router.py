@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
@@ -30,7 +30,7 @@ from app.modules.enerji.schemas import (
     EnerjiTrendNoktaDTO,
 )
 
-router = APIRouter(tags=["Enerji"])
+router = APIRouter(tags=["Enerji"], dependencies=[Depends(modul_gerekli("enerji"))])
 
 # Trend granülerlik beyaz-listesi (SQL enjeksiyonuna karşı; geçersiz → varsayılan 'saat').
 _ARALIKLAR = frozenset({"saat", "gun"})

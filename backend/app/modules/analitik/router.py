@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.responses import Zarf, basari
 from app.kimlik.models import Kullanici
 from app.modules.analitik import repository
@@ -32,7 +32,9 @@ from app.modules.analitik.schemas import (
     UretimKpiDTO,
 )
 
-router = APIRouter(prefix="/analitik", tags=["Analitik"])
+router = APIRouter(
+    prefix="/analitik", tags=["Analitik"], dependencies=[Depends(modul_gerekli("analitik"))]
+)
 
 _GunParam = Annotated[int, Query(ge=1, le=365, description="Geriye dönük pencere (gün)")]
 

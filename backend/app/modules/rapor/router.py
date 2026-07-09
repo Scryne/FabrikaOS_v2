@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
@@ -26,7 +26,9 @@ from app.modules.rapor.birimler import RAPOR_DURUMLARI
 from app.modules.rapor.models import Rapor
 from app.modules.rapor.schemas import RaporCevapDTO, RaporOlusturDTO
 
-router = APIRouter(prefix="/raporlar", tags=["Rapor"])
+router = APIRouter(
+    prefix="/raporlar", tags=["Rapor"], dependencies=[Depends(modul_gerekli("rapor"))]
+)
 
 
 def _cevap(r: Rapor) -> dict[str, Any]:

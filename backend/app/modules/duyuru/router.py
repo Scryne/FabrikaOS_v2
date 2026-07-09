@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
@@ -24,7 +24,7 @@ from app.modules.duyuru.birimler import ONEM_DUZEYLERI
 from app.modules.duyuru.models import Duyuru
 from app.modules.duyuru.schemas import DuyuruCevapDTO, DuyuruGuncelleDTO, DuyuruOlusturDTO
 
-router = APIRouter(tags=["Duyuru"])
+router = APIRouter(tags=["Duyuru"], dependencies=[Depends(modul_gerekli("duyuru"))])
 
 
 def _cevap(d: Duyuru) -> dict[str, Any]:

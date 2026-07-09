@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.ai import repository, service
@@ -28,7 +28,9 @@ from app.modules.ai.schemas import (
     TahminGecmisCevapDTO,
 )
 
-router = APIRouter(prefix="/tahmin", tags=["AI Tahmin"])
+router = APIRouter(
+    prefix="/tahmin", tags=["AI Tahmin"], dependencies=[Depends(modul_gerekli("ai"))]
+)
 
 
 def _kayit_cevap(k: ModelKaydi) -> dict[str, Any]:

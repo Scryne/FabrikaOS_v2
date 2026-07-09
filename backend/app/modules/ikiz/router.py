@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
-from app.core.deps import izin_gerekli, tenant_cozumle
+from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari
@@ -36,7 +36,9 @@ from app.modules.ikiz.schemas import (
 )
 from app.modules.uretim.models import Makine
 
-router = APIRouter(prefix="/ikiz", tags=["Dijital İkiz"])
+router = APIRouter(
+    prefix="/ikiz", tags=["Dijital İkiz"], dependencies=[Depends(modul_gerekli("uretim"))]
+)
 
 _SaatParam = Annotated[int, Query(ge=1, le=168, description="Geriye dönük pencere (saat)")]
 

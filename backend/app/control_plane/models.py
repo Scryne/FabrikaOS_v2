@@ -39,8 +39,8 @@ class Tenant(KimlikMixin, ZamanDamgaliMixin, PublicBase):
     )
 
     @property
-    def abonelik_gecerli(self) -> bool:
-        """Geçerli (deneme/aktif ve süresi geçmemiş) bir abonelik var mı?
+    def gecerli_abonelik(self) -> Abonelik | None:
+        """İlk geçerli (deneme/aktif ve süresi geçmemiş) aboneliği döndürür.
 
         Not: ``abonelikler`` ilişkisinin önceden yüklenmiş olması gerekir (eager load).
         """
@@ -50,8 +50,13 @@ class Tenant(KimlikMixin, ZamanDamgaliMixin, PublicBase):
                 continue
             if ab.bitis_tarihi is not None and ab.bitis_tarihi < simdi:
                 continue
-            return True
-        return False
+            return ab
+        return None
+
+    @property
+    def abonelik_gecerli(self) -> bool:
+        """Geçerli bir abonelik var mı? (bkz. ``gecerli_abonelik``)."""
+        return self.gecerli_abonelik is not None
 
 
 class Abonelik(KimlikMixin, ZamanDamgaliMixin, PublicBase):
