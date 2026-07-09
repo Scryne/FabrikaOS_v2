@@ -25,6 +25,7 @@ import { KomutPaleti } from '@/components/KomutPaleti';
 import { LogoIsareti } from '@/components/Marka';
 import { DILLER, dilDegistir } from '@/i18n';
 import { gorunurMenu, MENU } from '@/layouts/menu';
+import { useModulAcik } from '@/modules/abonelik/hooks';
 import { useGercekZaman } from '@/modules/ortak/gercekZamanBaglam';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI, MENU_IKONLARI } from '@/tema/modulKimlik';
@@ -95,7 +96,11 @@ export function UygulamaKabugu() {
       : 'Ctrl K';
 
   const tenant = cozumleTenant();
-  const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
+  const modulAcik = useModulAcik();
+  const gorunur = useMemo(
+    () => gorunurMenu(MENU, (izin) => izinler.has(izin), modulAcik),
+    [izinler, modulAcik],
+  );
 
   // Bölümlere göre grupla (sidebar grup başlıkları — hat rengi noktası ile).
   const menuOgeleri: MenuProps['items'] = useMemo(() => {

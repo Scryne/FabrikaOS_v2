@@ -18,4 +18,29 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
     const gorunur = gorunurMenu(MENU, () => true);
     expect(gorunur).toHaveLength(MENU.length);
   });
+
+  it('kapalı entitlement modülünün öğeleri gizlenir (S16)', () => {
+    const gorunur = gorunurMenu(
+      MENU,
+      () => true,
+      (modul) => modul !== 'ai',
+    );
+    expect(gorunur.map((o) => o.anahtar)).not.toContain('tahminler');
+    // ai dışındaki her şey durur (tahminler tek ai öğesi).
+    expect(gorunur).toHaveLength(MENU.length - 1);
+  });
+
+  it('modul suzgeci verilmezse entitlement uygulanmaz (fail-open)', () => {
+    const gorunur = gorunurMenu(MENU, () => true);
+    expect(gorunur.map((o) => o.anahtar)).toContain('tahminler');
+  });
+
+  it('modülsüz çekirdek öğeler (pano, kullanıcılar) süzgeçten etkilenmez', () => {
+    const gorunur = gorunurMenu(
+      MENU,
+      () => true,
+      () => false, // her modül kapalı
+    );
+    expect(gorunur.map((o) => o.anahtar)).toEqual(['pano', 'kullanicilar']);
+  });
 });

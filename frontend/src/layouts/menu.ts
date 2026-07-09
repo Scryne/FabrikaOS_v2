@@ -14,6 +14,8 @@ export type MenuOgesi = {
   yol: string;
   /** Gerekli RBAC izni; yoksa öğe herkese görünür (yalnız oturum yeterli). */
   izin?: string;
+  /** Bağlı olduğu entitlement modülü; kapalıysa öğe gizlenir (S16). Yoksa çekirdek. */
+  modul?: string;
 };
 
 export const MENU: MenuOgesi[] = [
@@ -24,6 +26,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/makineler',
     izin: 'uretim:oku',
+    modul: 'uretim',
   },
   {
     anahtar: 'uretim-verileri',
@@ -31,6 +34,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/uretim-verileri',
     izin: 'uretim:oku',
+    modul: 'uretim',
   },
   {
     anahtar: 'is-emirleri',
@@ -38,6 +42,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/is-emirleri',
     izin: 'isemri:oku',
+    modul: 'isemri',
   },
   {
     anahtar: 'ikiz',
@@ -45,6 +50,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/ikiz',
     izin: 'uretim:oku',
+    modul: 'uretim',
   },
   {
     anahtar: 'saha-cihazlar',
@@ -52,6 +58,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/saha/cihazlar',
     izin: 'saha:oku',
+    modul: 'saha',
   },
   {
     anahtar: 'bakim',
@@ -59,6 +66,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_uretim',
     yol: '/bakim-planlari',
     izin: 'bakim:oku',
+    modul: 'bakim',
   },
   {
     anahtar: 'malzemeler',
@@ -66,6 +74,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_stok',
     yol: '/malzemeler',
     izin: 'stok:oku',
+    modul: 'stok',
   },
   {
     anahtar: 'kritik-stok',
@@ -73,6 +82,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_stok',
     yol: '/stok/kritik',
     izin: 'stok:oku',
+    modul: 'stok',
   },
   {
     anahtar: 'satinalma',
@@ -80,6 +90,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_stok',
     yol: '/satinalma-talepleri',
     izin: 'satinalma:oku',
+    modul: 'stok',
   },
   {
     anahtar: 'kalite',
@@ -87,6 +98,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_kalite',
     yol: '/kalite-kontrolleri',
     izin: 'kalite:oku',
+    modul: 'kalite',
   },
   {
     anahtar: 'uygunsuzluklar',
@@ -94,6 +106,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_kalite',
     yol: '/uygunsuzluklar',
     izin: 'kalite:oku',
+    modul: 'kalite',
   },
   {
     anahtar: 'enerji',
@@ -101,6 +114,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_kalite',
     yol: '/enerji-tuketimleri',
     izin: 'enerji:oku',
+    modul: 'enerji',
   },
   {
     anahtar: 'is-kazalari',
@@ -108,6 +122,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_isg_ik',
     yol: '/is-kazalari',
     izin: 'isg:oku',
+    modul: 'isg',
   },
   {
     anahtar: 'risk-degerlendirme',
@@ -115,6 +130,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_isg_ik',
     yol: '/risk-degerlendirmeleri',
     izin: 'isg:oku',
+    modul: 'isg',
   },
   {
     anahtar: 'personeller',
@@ -122,6 +138,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_isg_ik',
     yol: '/personeller',
     izin: 'ik:oku',
+    modul: 'ik',
   },
   {
     anahtar: 'izin-talepleri',
@@ -129,6 +146,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_isg_ik',
     yol: '/izin-talepleri',
     izin: 'ik:oku',
+    modul: 'ik',
   },
   {
     anahtar: 'ticari-pano',
@@ -136,6 +154,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_ticari',
     yol: '/ticari',
     izin: 'crm:oku',
+    modul: 'crm',
   },
   {
     anahtar: 'firmalar',
@@ -143,6 +162,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_ticari',
     yol: '/firmalar',
     izin: 'crm:oku',
+    modul: 'crm',
   },
   {
     anahtar: 'sozlesmeler',
@@ -150,6 +170,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_ticari',
     yol: '/sozlesmeler',
     izin: 'sozlesme:oku',
+    modul: 'sozlesme',
   },
   {
     anahtar: 'talepler',
@@ -157,6 +178,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_ticari',
     yol: '/talepler',
     izin: 'talep:oku',
+    modul: 'talep',
   },
   {
     anahtar: 'belgeler',
@@ -164,6 +186,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_dokuman',
     yol: '/belgeler',
     izin: 'dys:oku',
+    modul: 'dys',
   },
   {
     anahtar: 'duyurular',
@@ -171,6 +194,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_dokuman',
     yol: '/duyurular',
     izin: 'duyuru:oku',
+    modul: 'duyuru',
   },
   {
     anahtar: 'tahminler',
@@ -178,6 +202,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_zeka',
     yol: '/tahminler',
     izin: 'ai:oku',
+    modul: 'ai',
   },
   {
     anahtar: 'analitik',
@@ -185,6 +210,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_zeka',
     yol: '/analitik',
     izin: 'analitik:oku',
+    modul: 'analitik',
   },
   {
     anahtar: 'raporlar',
@@ -192,6 +218,7 @@ export const MENU: MenuOgesi[] = [
     bolum: 'menu.bolum_zeka',
     yol: '/raporlar',
     izin: 'rapor:oku',
+    modul: 'rapor',
   },
   {
     anahtar: 'kullanicilar',
@@ -202,7 +229,18 @@ export const MENU: MenuOgesi[] = [
   },
 ];
 
-/** İzin gerektiren öğelerden yalnız kullanıcının yetkili olduklarını döndürür. */
-export function gorunurMenu(ogeler: MenuOgesi[], izinVar: (izin: string) => boolean): MenuOgesi[] {
-  return ogeler.filter((o) => o.izin === undefined || izinVar(o.izin));
+/**
+ * İzin gerektiren öğelerden yalnız kullanıcının yetkili olduklarını, entitlement
+ * modülü kapalı olanları da eleyerek döndürür. `modulAcik` verilmezse modül süzgeci
+ * uygulanmaz (fail-open — güvenlik backend'de; S16/ADR-0018).
+ */
+export function gorunurMenu(
+  ogeler: MenuOgesi[],
+  izinVar: (izin: string) => boolean,
+  modulAcik: (modul: string) => boolean = () => true,
+): MenuOgesi[] {
+  return ogeler.filter(
+    (o) =>
+      (o.izin === undefined || izinVar(o.izin)) && (o.modul === undefined || modulAcik(o.modul)),
+  );
 }

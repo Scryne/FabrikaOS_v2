@@ -77,6 +77,7 @@
     "enerji": "Enerji",
     "enerji_trend": "Enerji trendi",
     "kullanicilar": "Kullanıcılar",
+    "abonelik": "Abonelik & Modüller",
     "bolum_isg_ik": "İSG & İK",
     "is_kazalari": "İş kazaları",
     "risk_degerlendirme": "Risk değerlendirme",
@@ -934,5 +935,27 @@
     "durum_hazirlaniyor": "Hazırlanıyor",
     "durum_hazir": "Hazır",
     "durum_basarisiz": "Başarısız"
+  },
+  "abonelik": {
+    "baslik": "Abonelik & Modüller",
+    "modul_kapali": "Bu modül planınızda kapalı",
+    "modul_kapali_aciklama": "Modül mevcut aboneliğinizin kapsamında değil. Erişim için planınızı yükseltin veya yöneticinizle görüşün.",
+    "plani_goruntule": "Aboneliği görüntüle",
+    "plan": "Plan",
+    "durum": "Durum",
+    "baslangic": "Başlangıç",
+    "bitis": "Bitiş",
+    "bitis_yok": "Süresiz",
+    "koltuk": "Koltuk kullanımı",
+    "koltuk_sinirsiz": "Sınırsız koltuk",
+    "koltuk_deger": "{{kullanilan}} / {{limit}} aktif kullanıcı",
+    "moduller": "Modüller",
+    "modul_acik": "Açık",
+    "modul_kapali_rozet": "Kapalı",
+    "kaynak_hak": "Özel hak",
+    "ozellikler": "Özellik bayrakları",
+    "deneysel": "Deneysel",
+    "durum_deneme": "Deneme",
+    "durum_aktif": "Aktif"
   }
 }

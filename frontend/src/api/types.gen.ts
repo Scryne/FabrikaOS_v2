@@ -178,6 +178,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/moduller": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Etkin modüller (menü) */
+        get: operations["moduller_api_v1_moduller_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/abonelik": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Abonelik özeti */
+        get: operations["abonelik_ozeti_api_v1_abonelik_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/makineler": {
         parameters: {
             query?: never;
@@ -1905,6 +1939,27 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AbonelikCevapDTO
+         * @description `GET /abonelik` yanıtı — plan künyesi + dönem + koltuk + modül/özellik matrisi.
+         */
+        AbonelikCevapDTO: {
+            plan: components["schemas"]["PlanDTO"];
+            /** Durum */
+            durum: string;
+            /**
+             * Baslangic Tarihi
+             * Format: date-time
+             */
+            baslangic_tarihi: string;
+            /** Bitis Tarihi */
+            bitis_tarihi: string | null;
+            koltuk: components["schemas"]["KoltukDTO"];
+            /** Moduller */
+            moduller: components["schemas"]["ModulDurumDTO"][];
+            /** Ozellikler */
+            ozellikler: components["schemas"]["OzellikDurumDTO"][];
+        };
         /** AksiyonCevapDTO */
         AksiyonCevapDTO: {
             /** Id */
@@ -3071,6 +3126,16 @@ export interface components {
             /** Gecti Orani */
             gecti_orani: number;
         };
+        /**
+         * KoltukDTO
+         * @description Koltuk kullanımı; ``limit=None`` sınırsız demektir.
+         */
+        KoltukDTO: {
+            /** Limit */
+            limit: number | null;
+            /** Kullanilan */
+            kullanilan: number;
+        };
         /** KpiCevapDTO */
         KpiCevapDTO: {
             /** Gun */
@@ -3281,6 +3346,33 @@ export interface components {
              */
             olusturma_tarihi: string;
         };
+        /**
+         * ModulDurumDTO
+         * @description Bir modülün tenant için etkin durumu; ``kaynak`` kararın nereden geldiğini söyler.
+         */
+        ModulDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /**
+             * Kaynak
+             * @enum {string}
+             */
+            kaynak: "plan" | "hak";
+        };
+        /**
+         * ModullerCevapDTO
+         * @description `GET /moduller` yanıtı — menü süzgeci için hafif görünürlük verisi.
+         */
+        ModullerCevapDTO: {
+            /** Moduller */
+            moduller: components["schemas"]["ModulDurumDTO"][];
+            /** Ozellikler */
+            ozellikler: components["schemas"]["OzellikDurumDTO"][];
+        };
         /** OeeCevapDTO */
         OeeCevapDTO: {
             /** Makine Id */
@@ -3433,6 +3525,20 @@ export interface components {
              */
             aciklama: string;
         };
+        /**
+         * OzellikDurumDTO
+         * @description Bir özellik bayrağının tenant için etkin durumu.
+         */
+        OzellikDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /** Deneysel */
+            deneysel: boolean;
+        };
         /** ParolaDegistirDTO */
         ParolaDegistirDTO: {
             /** Eski Parola */
@@ -3552,6 +3658,15 @@ export interface components {
              * @default true
              */
             aktif: boolean;
+        };
+        /** PlanDTO */
+        PlanDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Koltuk Limiti */
+            koltuk_limiti: number | null;
         };
         /** RaporCevapDTO */
         RaporCevapDTO: {
@@ -4636,6 +4751,21 @@ export interface components {
             /** Metin */
             metin: string;
         };
+        /** Zarf[AbonelikCevapDTO] */
+        Zarf_AbonelikCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["AbonelikCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[BakimOzetDTO] */
         Zarf_BakimOzetDTO_: {
             /**
@@ -5054,6 +5184,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["ModelKaydiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[ModullerCevapDTO] */
+        Zarf_ModullerCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["ModullerCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[NoneType] */
@@ -6376,6 +6521,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_list_RolCevapDTO__"];
+                };
+            };
+        };
+    };
+    moduller_api_v1_moduller_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_ModullerCevapDTO_"];
+                };
+            };
+        };
+    };
+    abonelik_ozeti_api_v1_abonelik_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_AbonelikCevapDTO_"];
                 };
             };
         };

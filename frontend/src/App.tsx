@@ -156,7 +156,7 @@ export function App() {
         <Route
           path="kiosk"
           element={
-            <IzinKapisi izin="uretim:oku">
+            <IzinKapisi izin="uretim:oku" modul="uretim">
               <GercekZamanSaglayici>
                 <KioskSayfasi />
               </GercekZamanSaglayici>
@@ -168,7 +168,7 @@ export function App() {
           <Route
             path="makineler"
             element={
-              <IzinKapisi izin="uretim:oku">
+              <IzinKapisi izin="uretim:oku" modul="uretim">
                 <MakineListesi />
               </IzinKapisi>
             }
@@ -176,7 +176,7 @@ export function App() {
           <Route
             path="makineler/:id"
             element={
-              <IzinKapisi izin="uretim:oku">
+              <IzinKapisi izin="uretim:oku" modul="uretim">
                 <MakineDetay />
               </IzinKapisi>
             }
@@ -184,7 +184,7 @@ export function App() {
           <Route
             path="uretim-verileri"
             element={
-              <IzinKapisi izin="uretim:oku">
+              <IzinKapisi izin="uretim:oku" modul="uretim">
                 <UretimVerileri />
               </IzinKapisi>
             }
@@ -192,7 +192,7 @@ export function App() {
           <Route
             path="is-emirleri"
             element={
-              <IzinKapisi izin="isemri:oku">
+              <IzinKapisi izin="isemri:oku" modul="isemri">
                 <IsEmriEkrani />
               </IzinKapisi>
             }
@@ -200,7 +200,7 @@ export function App() {
           <Route
             path="ikiz"
             element={
-              <IzinKapisi izin="uretim:oku">
+              <IzinKapisi izin="uretim:oku" modul="uretim">
                 <IkizSayfasi />
               </IzinKapisi>
             }
@@ -208,7 +208,7 @@ export function App() {
           <Route
             path="saha/cihazlar"
             element={
-              <IzinKapisi izin="saha:oku">
+              <IzinKapisi izin="saha:oku" modul="saha">
                 <CihazListesi />
               </IzinKapisi>
             }
@@ -216,7 +216,7 @@ export function App() {
           <Route
             path="malzemeler"
             element={
-              <IzinKapisi izin="stok:oku">
+              <IzinKapisi izin="stok:oku" modul="stok">
                 <MalzemeListesi />
               </IzinKapisi>
             }
@@ -224,7 +224,7 @@ export function App() {
           <Route
             path="malzemeler/:id"
             element={
-              <IzinKapisi izin="stok:oku">
+              <IzinKapisi izin="stok:oku" modul="stok">
                 <MalzemeDetay />
               </IzinKapisi>
             }
@@ -232,7 +232,7 @@ export function App() {
           <Route
             path="stok/kritik"
             element={
-              <IzinKapisi izin="stok:oku">
+              <IzinKapisi izin="stok:oku" modul="stok">
                 <KritikStok />
               </IzinKapisi>
             }
@@ -240,7 +240,7 @@ export function App() {
           <Route
             path="satinalma-talepleri"
             element={
-              <IzinKapisi izin="satinalma:oku">
+              <IzinKapisi izin="satinalma:oku" modul="stok">
                 <SatinalmaTalepListesi />
               </IzinKapisi>
             }
@@ -248,7 +248,7 @@ export function App() {
           <Route
             path="kalite-kontrolleri"
             element={
-              <IzinKapisi izin="kalite:oku">
+              <IzinKapisi izin="kalite:oku" modul="kalite">
                 <KaliteKontrolListesi />
               </IzinKapisi>
             }
@@ -256,7 +256,7 @@ export function App() {
           <Route
             path="uygunsuzluklar"
             element={
-              <IzinKapisi izin="kalite:oku">
+              <IzinKapisi izin="kalite:oku" modul="kalite">
                 <UygunsuzlukListesi />
               </IzinKapisi>
             }
@@ -264,7 +264,7 @@ export function App() {
           <Route
             path="enerji-tuketimleri"
             element={
-              <IzinKapisi izin="enerji:oku">
+              <IzinKapisi izin="enerji:oku" modul="enerji">
                 <EnerjiTuketimListesi />
               </IzinKapisi>
             }
@@ -272,7 +272,7 @@ export function App() {
           <Route
             path="is-kazalari"
             element={
-              <IzinKapisi izin="isg:oku">
+              <IzinKapisi izin="isg:oku" modul="isg">
                 <KazaListesi />
               </IzinKapisi>
             }
@@ -280,7 +280,7 @@ export function App() {
           <Route
             path="risk-degerlendirmeleri"
             element={
-              <IzinKapisi izin="isg:oku">
+              <IzinKapisi izin="isg:oku" modul="isg">
                 <RiskListesi />
               </IzinKapisi>
             }
@@ -288,7 +288,7 @@ export function App() {
           <Route
             path="personeller"
             element={
-              <IzinKapisi izin="ik:oku">
+              <IzinKapisi izin="ik:oku" modul="ik">
                 <PersonelListesi />
               </IzinKapisi>
             }
@@ -296,7 +296,7 @@ export function App() {
           <Route
             path="personeller/:id"
             element={
-              <IzinKapisi izin="ik:oku">
+              <IzinKapisi izin="ik:oku" modul="ik">
                 <PersonelDetay />
               </IzinKapisi>
             }
@@ -304,7 +304,7 @@ export function App() {
           <Route
             path="izin-talepleri"
             element={
-              <IzinKapisi izin="ik:oku">
+              <IzinKapisi izin="ik:oku" modul="ik">
                 <IzinListesi />
               </IzinKapisi>
             }
@@ -312,7 +312,7 @@ export function App() {
           <Route
             path="ticari"
             element={
-              <IzinKapisi izin="crm:oku">
+              <IzinKapisi izin="crm:oku" modul="crm">
                 <TicariPano />
               </IzinKapisi>
             }
@@ -320,7 +320,7 @@ export function App() {
           <Route
             path="firmalar"
             element={
-              <IzinKapisi izin="crm:oku">
+              <IzinKapisi izin="crm:oku" modul="crm">
                 <FirmaListesi />
               </IzinKapisi>
             }
@@ -328,7 +328,7 @@ export function App() {
           <Route
             path="sozlesmeler"
             element={
-              <IzinKapisi izin="sozlesme:oku">
+              <IzinKapisi izin="sozlesme:oku" modul="sozlesme">
                 <SozlesmeListesi />
               </IzinKapisi>
             }
@@ -336,7 +336,7 @@ export function App() {
           <Route
             path="talepler"
             element={
-              <IzinKapisi izin="talep:oku">
+              <IzinKapisi izin="talep:oku" modul="talep">
                 <TalepListesi />
               </IzinKapisi>
             }
@@ -344,7 +344,7 @@ export function App() {
           <Route
             path="belgeler"
             element={
-              <IzinKapisi izin="dys:oku">
+              <IzinKapisi izin="dys:oku" modul="dys">
                 <BelgeListesi />
               </IzinKapisi>
             }
@@ -352,7 +352,7 @@ export function App() {
           <Route
             path="duyurular"
             element={
-              <IzinKapisi izin="duyuru:oku">
+              <IzinKapisi izin="duyuru:oku" modul="duyuru">
                 <DuyuruListesi />
               </IzinKapisi>
             }
@@ -360,7 +360,7 @@ export function App() {
           <Route
             path="bakim-planlari"
             element={
-              <IzinKapisi izin="bakim:oku">
+              <IzinKapisi izin="bakim:oku" modul="bakim">
                 <BakimPlanListesi />
               </IzinKapisi>
             }
@@ -368,7 +368,7 @@ export function App() {
           <Route
             path="tahminler"
             element={
-              <IzinKapisi izin="ai:oku">
+              <IzinKapisi izin="ai:oku" modul="ai">
                 <TahminPanosu />
               </IzinKapisi>
             }
@@ -376,7 +376,7 @@ export function App() {
           <Route
             path="analitik"
             element={
-              <IzinKapisi izin="analitik:oku">
+              <IzinKapisi izin="analitik:oku" modul="analitik">
                 <AnalitikPano />
               </IzinKapisi>
             }
@@ -384,7 +384,7 @@ export function App() {
           <Route
             path="raporlar"
             element={
-              <IzinKapisi izin="rapor:oku">
+              <IzinKapisi izin="rapor:oku" modul="rapor">
                 <RaporListesi />
               </IzinKapisi>
             }

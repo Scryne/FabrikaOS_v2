@@ -77,6 +77,7 @@
     "enerji": "Energy",
     "enerji_trend": "Energy trend",
     "kullanicilar": "Users",
+    "abonelik": "Subscription & Modules",
     "bolum_isg_ik": "OHS & HR",
     "is_kazalari": "Work accidents",
     "risk_degerlendirme": "Risk assessment",
@@ -934,5 +935,27 @@
     "durum_hazirlaniyor": "Preparing",
     "durum_hazir": "Ready",
     "durum_basarisiz": "Failed"
+  },
+  "abonelik": {
+    "baslik": "Subscription & Modules",
+    "modul_kapali": "This module is not in your plan",
+    "modul_kapali_aciklama": "The module is outside your current subscription. Upgrade your plan or contact your administrator.",
+    "plani_goruntule": "View subscription",
+    "plan": "Plan",
+    "durum": "Status",
+    "baslangic": "Start",
+    "bitis": "End",
+    "bitis_yok": "Unlimited",
+    "koltuk": "Seat usage",
+    "koltuk_sinirsiz": "Unlimited seats",
+    "koltuk_deger": "{{kullanilan}} / {{limit}} active users",
+    "moduller": "Modules",
+    "modul_acik": "Enabled",
+    "modul_kapali_rozet": "Disabled",
+    "kaynak_hak": "Custom entitlement",
+    "ozellikler": "Feature flags",
+    "deneysel": "Experimental",
+    "durum_deneme": "Trial",
+    "durum_aktif": "Active"
   }
 }
