@@ -19,6 +19,8 @@ import { TahminPanosu } from '@/modules/ai/TahminPanosu';
 import { AnalitikPano } from '@/modules/analitik/AnalitikPano';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
+import { DisPortalSayfasi } from '@/modules/dis/DisPortalSayfasi';
+import { sadeceDisKullanici } from '@/modules/dis/hooks';
 import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
 import { EntegrasyonKapisi } from '@/modules/entegrasyon/EntegrasyonKapisi';
 import { WebhookSayfasi } from '@/modules/entegrasyon/WebhookSayfasi';
@@ -130,6 +132,15 @@ function CanliKabuk() {
   );
 }
 
+/** Ana giriş: yalnız dış portal kullanıcısı (tek izni dis:erisim) `/dis`e yönlenir. */
+function AnaGiris() {
+  const kullanici = useAuthStore((s) => s.kullanici);
+  if (kullanici && sadeceDisKullanici(kullanici.izinler)) {
+    return <Navigate to="/dis" replace />;
+  }
+  return <PanoSayfasi />;
+}
+
 function TamEkranYukleniyor() {
   const { t } = useTranslation();
   return (
@@ -187,8 +198,17 @@ export function App() {
             </IzinKapisi>
           }
         />
+        {/* Dış portal: kabuksuz hafif kabuk (kiosk deseni) — yalnız dis-panel yüzeyi. */}
+        <Route
+          path="dis"
+          element={
+            <IzinKapisi izin="dis:erisim" modul="dis-portal">
+              <DisPortalSayfasi />
+            </IzinKapisi>
+          }
+        />
         <Route element={<CanliKabuk />}>
-          <Route index element={<PanoSayfasi />} />
+          <Route index element={<AnaGiris />} />
           <Route
             path="makineler"
             element={
