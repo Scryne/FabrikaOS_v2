@@ -77,7 +77,10 @@ async def test_kullanici_olustur_ve_listele(kurulu_istemci: AsyncClient) -> None
     )
     assert r.status_code == 201, r.text
 
-    r = await kurulu_istemci.get(KULLANICILAR, headers=_baslik("alfa", access))
+    # adet=100: paylaşılan test tenant'ında kullanıcı sayısı bir sayfayı aşabilir.
+    r = await kurulu_istemci.get(
+        KULLANICILAR, params={"adet": 100}, headers=_baslik("alfa", access)
+    )
     assert r.status_code == 200
     epostalar = [k["eposta"] for k in r.json()["data"]]
     assert "uretici1@alfa.test" in epostalar

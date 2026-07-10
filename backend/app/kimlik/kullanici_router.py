@@ -42,6 +42,7 @@ def _cevap(kullanici: Kullanici) -> dict[str, Any]:
         ad_soyad=kullanici.ad_soyad,
         aktif=kullanici.aktif,
         roller=sorted(r.ad for r in kullanici.roller),
+        firma_id=kullanici.firma_id,
     ).model_dump()
 
 
@@ -134,12 +135,23 @@ async def olustur(
             )
         roller = list(bulunan)
 
+    # Dış portal firma bağlantısı (S18): verilen firma tenant şemasında var olmalı.
+    if govde.firma_id is not None:
+        from app.modules.crm.repository import firma_getir
+
+        if await firma_getir(db, govde.firma_id) is None:
+            raise DogrulamaHatasi(
+                "Firma bulunamadı",
+                detaylar=[{"alan": "firma_id", "mesaj": f"Firma yok: {govde.firma_id}"}],
+            )
+
     yeni = Kullanici(
         eposta=govde.eposta,
         parola_ozet=parola_ozetle(govde.parola),
         ad_soyad=govde.ad_soyad,
         aktif=True,
         roller=roller,
+        firma_id=govde.firma_id,
     )
     db.add(yeni)
     await db.flush()

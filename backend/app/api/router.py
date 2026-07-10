@@ -18,6 +18,7 @@ from app.modules.ai.router import router as ai_router
 from app.modules.analitik.router import router as analitik_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.crm.router import router as crm_router
+from app.modules.dis.router import router as dis_router
 from app.modules.duyuru.router import router as duyuru_router
 from app.modules.dys.router import router as dys_router
 from app.modules.enerji.router import router as enerji_router
@@ -65,6 +66,7 @@ api_router.include_router(ticari_router)
 api_router.include_router(entegrasyon_router)
 api_router.include_router(api_anahtar_router)
 api_router.include_router(disveri_router)
+api_router.include_router(dis_router)
 api_router.include_router(ai_router)
 api_router.include_router(analitik_router)
 api_router.include_router(rapor_router)

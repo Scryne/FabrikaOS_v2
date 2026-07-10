@@ -40,6 +40,8 @@ class KullaniciOlusturDTO(BaseModel):
     parola: str = Field(min_length=8, max_length=128)
     ad_soyad: str = Field(default="", max_length=200)
     roller: list[str] = Field(default_factory=list)
+    # Dış portal (S18): dis-panel kullanıcısını CRM firmasına bağlar; iç kullanıcıda None.
+    firma_id: int | None = None
 
 
 class KullaniciCevapDTO(BaseModel):
@@ -48,6 +50,7 @@ class KullaniciCevapDTO(BaseModel):
     ad_soyad: str
     aktif: bool
     roller: list[str]
+    firma_id: int | None = None
 
 
 class RolCevapDTO(BaseModel):

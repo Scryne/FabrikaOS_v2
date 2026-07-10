@@ -51,3 +51,18 @@ async def test_public_down_up_roundtrip(test_db: str) -> None:
     for t in _TABLOLAR:
         assert await _var_mi(t), t
     assert await _sorgu("SELECT count(*) FROM public.planlar") == 4
+
+    # Migration seed'i STATİKTİR (S16 anındaki katalog); katalog kod tarafında evrildi
+    # (S18: +entegrasyon +dis-portal). Operasyondaki prosedürün aynısı: idempotent plan
+    # senkronu koş — sonraki testler güncel katalogla çalışsın (S16 operasyon dersi).
+    from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+    from sqlalchemy.pool import NullPool
+
+    from app.control_plane.provizyon import _plan_tohumla
+
+    engine = create_async_engine(TEST_URL, poolclass=NullPool)
+    try:
+        await _plan_tohumla(async_sessionmaker(engine, expire_on_commit=False))
+    finally:
+        await engine.dispose()
+    assert await _sorgu("SELECT moduller ? 'dis-portal' FROM public.planlar WHERE kod='kurumsal'")
