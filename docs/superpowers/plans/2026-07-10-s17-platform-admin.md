@@ -29,5 +29,5 @@ Spec: `docs/superpowers/specs/2026-07-10-s17-platform-admin-design.md` · Dal:
   AbonelikListesi; vitest.
 - [x] **T11 — Dokümantasyon + DoD:** ADR-0019, veri-sozlugu, yol-haritasi S17 ✅,
   README; BE pytest+ruff+mypy / FE vitest+eslint+tsc+build tam koşu.
-- [ ] **T12 — Canlı doğrulama:** dev DB'ye karşı uvicorn + tarayıcı (provizyon
+- [x] **T12 — Canlı doğrulama:** dev DB'ye karşı uvicorn + tarayıcı (provizyon
   sihirbazı → yeni tenant'a giriş; askıya alma; ihraç indir; entitlement switch).
