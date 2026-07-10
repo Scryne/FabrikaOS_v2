@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import secrets
+from urllib.parse import urlsplit
 
 from app.core.exceptions import DogrulamaHatasi
 from app.modules.entegrasyon.birimler import ENTEGRASYON_IZIN_KAPSAMLARI, OLAY_TURU_KATALOGU
@@ -62,11 +63,22 @@ def olay_turleri_dogrula(turler: list[str]) -> None:
 
 def url_dogrula(url: str) -> None:
     """Hedef URL politikası: ``https://`` zorunlu; yalnız yerel geliştirme/test alıcıları
-    için ``http://localhost`` ve ``http://127.0.0.1`` serbesttir."""
-    if url.startswith("https://"):
-        return
-    if url.startswith(("http://localhost", "http://127.0.0.1")):
-        return
+    için ``http://localhost`` ve ``http://127.0.0.1`` serbesttir.
+
+    Host adı TAM eşleşmeyle kontrol edilir — önek eşleşmesi ``http://localhost.evil.com``
+    gibi adresleri geçirirdi.
+    """
+    try:
+        parca = urlsplit(url)
+        host = parca.hostname
+    except ValueError:
+        parca = None
+        host = None
+    if parca is not None and host:
+        if parca.scheme == "https":
+            return
+        if parca.scheme == "http" and host in ("localhost", "127.0.0.1"):
+            return
     raise DogrulamaHatasi(
         "Webhook URL'i https olmalı",
         detaylar=[

@@ -1,8 +1,10 @@
-import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import '@/i18n';
+
+import { useAuthStore } from '@/store/authStore';
 
 import { KullaniciListesi } from './KullaniciListesi';
 
@@ -36,19 +38,52 @@ vi.mock('./hooks', () => ({
   }),
 }));
 
-vi.mock('./KullaniciFormu', () => ({ KullaniciFormu: () => null }));
+vi.mock('./KullaniciFormu', () => ({
+  KullaniciFormu: ({
+    acik,
+    duzenlenen,
+  }: {
+    acik: boolean;
+    duzenlenen?: { eposta: string } | null;
+  }) => (acik ? <div data-testid="kullanici-form">{duzenlenen?.eposta ?? 'yeni'}</div> : null),
+}));
+
+function ekrana() {
+  return render(
+    <MemoryRouter>
+      <KullaniciListesi />
+    </MemoryRouter>,
+  );
+}
 
 describe('KullaniciListesi', () => {
+  beforeEach(() => useAuthStore.getState().temizle());
+
   it('kullanıcıları rol rozetleri ve durumla listeler', () => {
-    render(
-      <MemoryRouter>
-        <KullaniciListesi />
-      </MemoryRouter>,
-    );
+    ekrana();
     expect(screen.getByText('admin@alfa.test')).toBeInTheDocument();
     expect(screen.getByText('Tenant Yöneticisi')).toBeInTheDocument();
     expect(screen.getByText('admin')).toBeInTheDocument();
     expect(screen.getByText('Aktif')).toBeInTheDocument();
     expect(screen.getByText('Pasif')).toBeInTheDocument();
+  });
+
+  it('kullanici:yaz ile satıra tıklama düzenleme formunu seçili kullanıcıyla açar', () => {
+    useAuthStore.getState().ayarlaOturum('access', {
+      id: 1,
+      eposta: 'admin@alfa.test',
+      ad_soyad: 'Yönetici',
+      roller: ['admin'],
+      izinler: ['kullanici:yaz'],
+    });
+    ekrana();
+    fireEvent.click(screen.getByText('izleyici@alfa.test'));
+    expect(screen.getByTestId('kullanici-form')).toHaveTextContent('izleyici@alfa.test');
+  });
+
+  it('yazma izni yokken satır tıklaması form açmaz', () => {
+    ekrana();
+    fireEvent.click(screen.getByText('izleyici@alfa.test'));
+    expect(screen.queryByTestId('kullanici-form')).not.toBeInTheDocument();
   });
 });

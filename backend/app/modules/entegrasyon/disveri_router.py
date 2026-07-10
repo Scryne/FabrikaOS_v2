@@ -137,18 +137,20 @@ async def uretim_ozeti(
     baslangic = datetime(gun.year, gun.month, gun.day, tzinfo=UTC)
     bitis = baslangic + timedelta(days=1)
     satirlar = await uretim_repository.oee_ozet(db, baslangic=baslangic, bitis=bitis)
-    veri = [
-        UretimOzetiSatirDTO(
-            makine_id=makine_id,
-            makine_kod=kod,
-            toplam_adet=toplam.toplam_adet,
-            saglam_adet=toplam.saglam_adet,
-            fire_adet=toplam.toplam_adet - toplam.saglam_adet,
-            oee=oee_toplamdan(toplam).oee,
-            kullanilabilirlik=oee_toplamdan(toplam).kullanilabilirlik,
-            performans=oee_toplamdan(toplam).performans,
-            kalite=oee_toplamdan(toplam).kalite,
-        ).model_dump()
-        for makine_id, kod, toplam in satirlar
-    ]
+    veri: list[dict[str, Any]] = []
+    for makine_id, kod, toplam in satirlar:
+        sonuc = oee_toplamdan(toplam)
+        veri.append(
+            UretimOzetiSatirDTO(
+                makine_id=makine_id,
+                makine_kod=kod,
+                toplam_adet=toplam.toplam_adet,
+                saglam_adet=toplam.saglam_adet,
+                fire_adet=toplam.toplam_adet - toplam.saglam_adet,
+                oee=sonuc.oee,
+                kullanilabilirlik=sonuc.kullanilabilirlik,
+                performans=sonuc.performans,
+                kalite=sonuc.kalite,
+            ).model_dump()
+        )
     return basari(veri, mesaj=f"{gun.isoformat()} üretim özeti")

@@ -894,7 +894,13 @@
     "kpi_toplam": "Toplam kullanıcı",
     "kpi_aktif": "Aktif kullanıcı",
     "kpi_pasif": "Pasif kullanıcı",
-    "kpi_rol": "Rol sayısı"
+    "kpi_rol": "Rol sayısı",
+    "duzenle": "Kullanıcıyı düzenle",
+    "guncellendi": "Kullanıcı güncellendi",
+    "firma": "Firma (dış portal)",
+    "firma_sec": "Firma seçin",
+    "firma_aciklama": "Dış portal kullanıcısını CRM firmasına bağlar; iç kullanıcıda boş bırakın.",
+    "kendi_hesap_kilidi": "Kendi hesabınızda bu alan değiştirilemez — başka bir yönetici yapmalı."
   },
   "ai": {
     "alt": "Tenant verisiyle eğitilen modeller: kestirimci bakım, anomali, OEE ve stok ihtiyaç tahmini.",

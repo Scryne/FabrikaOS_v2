@@ -1,7 +1,8 @@
 /**
  * Kullanıcılar çalışma alanı — KPI şeridi (toplam/aktif/pasif/rol sayısı; `/kullanicilar/ozet`)
  * + zengin tablo (avatar varlık hücre + rol çipleri + durum pimi) + "yeni kullanıcı"
- * (``kullanici:yaz``). Backend listesi yalnız sayfalama destekler.
+ * + satıra tıklayınca düzenleme (ad/roller/aktif/firma) — ikisi de ``kullanici:yaz``.
+ * Backend listesi yalnız sayfalama destekler.
  */
 
 import { useState } from 'react';
@@ -51,6 +52,7 @@ export function KullaniciListesi() {
   const { data, isPending, isError } = useKullanicilar(param);
   const { data: ozet, isPending: ozetYukleniyor } = useKullaniciOzet();
   const [formAcik, setFormAcik] = useState(false);
+  const [secili, setSecili] = useState<Kullanici | null>(null);
 
   const metrikler: OzetMetrik[] = ozet
     ? [
@@ -145,7 +147,14 @@ export function KullaniciListesi() {
         alt={t('kullanici.alt')}
         sag={
           yazabilir && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setFormAcik(true)}>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => {
+                setSecili(null);
+                setFormAcik(true);
+              }}
+            >
               {t('kullanici.yeni')}
             </Button>
           )
@@ -162,10 +171,21 @@ export function KullaniciListesi() {
           param={param}
           paramDegistir={paramDegistir}
           rowKey="id"
+          onRow={
+            yazabilir
+              ? (kayit) => ({
+                  onClick: () => {
+                    setSecili(kayit);
+                    setFormAcik(true);
+                  },
+                  style: { cursor: 'pointer' },
+                })
+              : undefined
+          }
           bosMetin={isError ? t('ortak.hata_baslik') : t('kullanici.bos')}
         />
       </Card>
-      <KullaniciFormu acik={formAcik} kapat={() => setFormAcik(false)} />
+      <KullaniciFormu acik={formAcik} kapat={() => setFormAcik(false)} duzenlenen={secili} />
     </SayfaKapsayici>
   );
 }

@@ -433,6 +433,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/kullanicilar/{kullanici_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Kullanıcı güncelle (ad/aktif/roller/firma)
+         * @description Kısmi güncelleme. Kilitlenme koruması: kullanıcı KENDİ hesabının ``aktif``/``roller``
+         *     alanlarını değiştiremez (tek admin kendini pasifleştirip tenant'ı kilitleyemesin).
+         *     Yeniden aktifleştirme koltuk limitine tabidir (oluşturma ile aynı seri kontrol).
+         */
+        patch: operations["guncelle_api_v1_kullanicilar__kullanici_id__patch"];
+        trace?: never;
+    };
     "/api/v1/roller": {
         parameters: {
             query?: never;
@@ -3905,6 +3927,23 @@ export interface components {
             aktif: boolean;
             /** Roller */
             roller: string[];
+            /** Firma Id */
+            firma_id?: number | null;
+        };
+        /**
+         * KullaniciGuncelleDTO
+         * @description Kısmi güncelleme — yalnız gönderilen alanlar işlenir (``exclude_unset``).
+         *
+         *     ``firma_id`` açıkça ``null`` gönderilerek firma bağlantısı kaldırılabilir;
+         *     ``aktif=false`` koltuk açar, ``aktif=true`` koltuk limitine tabidir.
+         */
+        KullaniciGuncelleDTO: {
+            /** Ad Soyad */
+            ad_soyad?: string | null;
+            /** Aktif */
+            aktif?: boolean | null;
+            /** Roller */
+            roller?: string[] | null;
             /** Firma Id */
             firma_id?: number | null;
         };
@@ -8504,6 +8543,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_KullaniciOzetDTO_"];
+                };
+            };
+        };
+    };
+    guncelle_api_v1_kullanicilar__kullanici_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kullanici_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KullaniciGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KullaniciCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

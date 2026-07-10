@@ -19,12 +19,13 @@ from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
 from app.core.security.parola import parola_ozetle
 from app.kimlik.models import Kullanici, Rol
 from app.kimlik.schemas import (
     KullaniciCevapDTO,
+    KullaniciGuncelleDTO,
     KullaniciOlusturDTO,
     KullaniciOzetDTO,
     RolCevapDTO,
@@ -90,6 +91,52 @@ async def kullanici_ozet(
     return basari(ozet.model_dump(), mesaj="Kullanıcı özeti")
 
 
+async def _koltuk_kontrol(db: AsyncSession, tenant: Tenant) -> None:
+    """Koltuk (seat) limiti — S16/ADR-0018: eşzamanlı yazmalar public.tenant satırı
+    kilidiyle serileştirilir; aktif kullanıcı sayısı limiti aşamaz (pasifler sayılmaz)."""
+    await db.execute(select(Tenant.id).where(Tenant.id == tenant.id).with_for_update())
+    koltuk = await entitlement_service.koltuk_limiti_getir(db, tenant)
+    if koltuk is None:
+        return
+    aktif_sayi = (
+        await db.scalar(
+            select(func.count()).select_from(Kullanici).where(Kullanici.aktif.is_(True))
+        )
+        or 0
+    )
+    if aktif_sayi >= koltuk:
+        raise CakismaHatasi(
+            f"Koltuk limiti doldu ({aktif_sayi}/{koltuk}) — plan yükseltin veya "
+            "bir kullanıcıyı pasifleştirin",
+            hata_kodu="KOLTUK_LIMITI",
+        )
+
+
+async def _roller_dogrula(db: AsyncSession, roller: list[str]) -> list[Rol]:
+    """Rol adlarını tenant kataloğunda doğrular; tanımsız ad 422."""
+    if not roller:
+        return []
+    bulunan = (await db.execute(select(Rol).where(Rol.ad.in_(roller)))).scalars().all()
+    eksik = set(roller) - {r.ad for r in bulunan}
+    if eksik:
+        raise DogrulamaHatasi(
+            "Tanımsız rol(ler)",
+            detaylar=[{"alan": "roller", "mesaj": f"Bulunamadı: {', '.join(sorted(eksik))}"}],
+        )
+    return list(bulunan)
+
+
+async def _firma_dogrula(db: AsyncSession, firma_id: int) -> None:
+    """Dış portal firma bağlantısı (S18): verilen firma tenant şemasında var olmalı."""
+    from app.modules.crm.repository import firma_getir
+
+    if await firma_getir(db, firma_id) is None:
+        raise DogrulamaHatasi(
+            "Firma bulunamadı",
+            detaylar=[{"alan": "firma_id", "mesaj": f"Firma yok: {firma_id}"}],
+        )
+
+
 @router.post(
     "",
     response_model=Zarf[KullaniciCevapDTO],
@@ -102,48 +149,15 @@ async def olustur(
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
     db: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, Any]:
-    # Koltuk (seat) limiti — S16/ADR-0018: eşzamanlı oluşturmalar public.tenant satırı
-    # kilidiyle serileştirilir; aktif kullanıcı sayısı limiti aşamaz (pasifler sayılmaz).
-    await db.execute(select(Tenant.id).where(Tenant.id == tenant.id).with_for_update())
-    koltuk = await entitlement_service.koltuk_limiti_getir(db, tenant)
-    if koltuk is not None:
-        aktif_sayi = (
-            await db.scalar(
-                select(func.count()).select_from(Kullanici).where(Kullanici.aktif.is_(True))
-            )
-            or 0
-        )
-        if aktif_sayi >= koltuk:
-            raise CakismaHatasi(
-                f"Koltuk limiti doldu ({aktif_sayi}/{koltuk}) — plan yükseltin veya "
-                "bir kullanıcıyı pasifleştirin",
-                hata_kodu="KOLTUK_LIMITI",
-            )
+    await _koltuk_kontrol(db, tenant)
 
     var = await db.scalar(select(Kullanici).where(Kullanici.eposta == govde.eposta))
     if var is not None:
         raise CakismaHatasi("Bu e-posta ile kullanıcı zaten var")
 
-    roller: list[Rol] = []
-    if govde.roller:
-        bulunan = (await db.execute(select(Rol).where(Rol.ad.in_(govde.roller)))).scalars().all()
-        eksik = set(govde.roller) - {r.ad for r in bulunan}
-        if eksik:
-            raise DogrulamaHatasi(
-                "Tanımsız rol(ler)",
-                detaylar=[{"alan": "roller", "mesaj": f"Bulunamadı: {', '.join(sorted(eksik))}"}],
-            )
-        roller = list(bulunan)
-
-    # Dış portal firma bağlantısı (S18): verilen firma tenant şemasında var olmalı.
+    roller = await _roller_dogrula(db, govde.roller)
     if govde.firma_id is not None:
-        from app.modules.crm.repository import firma_getir
-
-        if await firma_getir(db, govde.firma_id) is None:
-            raise DogrulamaHatasi(
-                "Firma bulunamadı",
-                detaylar=[{"alan": "firma_id", "mesaj": f"Firma yok: {govde.firma_id}"}],
-            )
+        await _firma_dogrula(db, govde.firma_id)
 
     yeni = Kullanici(
         eposta=govde.eposta,
@@ -164,6 +178,58 @@ async def olustur(
         detay={"eposta": yeni.eposta},
     )
     return basari(_cevap(yeni), mesaj="Kullanıcı oluşturuldu")
+
+
+@router.patch(
+    "/{kullanici_id}",
+    response_model=Zarf[KullaniciCevapDTO],
+    summary="Kullanıcı güncelle (ad/aktif/roller/firma)",
+)
+async def guncelle(
+    kullanici_id: int,
+    govde: KullaniciGuncelleDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("kullanici:yaz"))],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    """Kısmi güncelleme. Kilitlenme koruması: kullanıcı KENDİ hesabının ``aktif``/``roller``
+    alanlarını değiştiremez (tek admin kendini pasifleştirip tenant'ı kilitleyemesin).
+    Yeniden aktifleştirme koltuk limitine tabidir (oluşturma ile aynı seri kontrol)."""
+    hedef = await db.scalar(select(Kullanici).where(Kullanici.id == kullanici_id))
+    if hedef is None:
+        raise KaynakBulunamadi("Kullanıcı bulunamadı")
+
+    degisenler = govde.model_dump(exclude_unset=True)
+    if hedef.id == kullanici.id and ("aktif" in degisenler or "roller" in degisenler):
+        raise DogrulamaHatasi(
+            "Kendi hesabınızın aktifliğini veya rollerini değiştiremezsiniz",
+            detaylar=[{"alan": "aktif", "mesaj": "Bu işlemi başka bir yönetici yapmalı"}],
+        )
+
+    if degisenler.get("aktif") is True and not hedef.aktif:
+        # Pasif → aktif: koltuk açılıyor olabilir; limit oluşturmadaki gibi zorlanır.
+        await _koltuk_kontrol(db, tenant)
+    if "roller" in degisenler:
+        hedef.roller = await _roller_dogrula(db, govde.roller or [])
+    if "firma_id" in degisenler and govde.firma_id is not None:
+        await _firma_dogrula(db, govde.firma_id)
+    if "firma_id" in degisenler:
+        hedef.firma_id = govde.firma_id
+    if "ad_soyad" in degisenler and govde.ad_soyad is not None:
+        hedef.ad_soyad = govde.ad_soyad
+    if "aktif" in degisenler and govde.aktif is not None:
+        hedef.aktif = govde.aktif
+
+    await db.flush()
+    await denetim_yaz(
+        db,
+        eylem="guncelle",
+        kaynak="kullanici",
+        kaynak_id=str(hedef.id),
+        kullanici=kullanici,
+        detay={"eposta": hedef.eposta, "degisenler": sorted(degisenler)},
+    )
+    return basari(_cevap(hedef), mesaj="Kullanıcı güncellendi")
 
 
 @rol_router.get("", response_model=Zarf[list[RolCevapDTO]], summary="Rolleri listele")

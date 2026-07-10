@@ -44,6 +44,19 @@ class KullaniciOlusturDTO(BaseModel):
     firma_id: int | None = None
 
 
+class KullaniciGuncelleDTO(BaseModel):
+    """Kısmi güncelleme — yalnız gönderilen alanlar işlenir (``exclude_unset``).
+
+    ``firma_id`` açıkça ``null`` gönderilerek firma bağlantısı kaldırılabilir;
+    ``aktif=false`` koltuk açar, ``aktif=true`` koltuk limitine tabidir.
+    """
+
+    ad_soyad: str | None = Field(default=None, max_length=200)
+    aktif: bool | None = None
+    roller: list[str] | None = None
+    firma_id: int | None = None
+
+
 class KullaniciCevapDTO(BaseModel):
     id: int
     eposta: str

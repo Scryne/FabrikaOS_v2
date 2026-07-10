@@ -11,6 +11,7 @@ import { useSayfaliSorgu } from '@/modules/ortak/useSayfaliSorgu';
 
 export type Kullanici = components['schemas']['KullaniciCevapDTO'];
 export type KullaniciOlustur = components['schemas']['KullaniciOlusturDTO'];
+export type KullaniciGuncelle = components['schemas']['KullaniciGuncelleDTO'];
 export type Rol = components['schemas']['RolCevapDTO'];
 export type KullaniciOzet = components['schemas']['KullaniciOzetDTO'];
 
@@ -48,6 +49,17 @@ export function useRoller(etkin = true) {
   });
 }
 
+type Firma = components['schemas']['FirmaCevapDTO'];
+
+/** Firma seçenekleri (S18: dış portal kullanıcısını firmaya bağlamak için) — `crm:oku` ister. */
+export function useFirmaSecenekleri(etkin: boolean) {
+  return useQuery({
+    queryKey: ['firmalar', 'secenekler'],
+    queryFn: () => istek<Firma[]>('GET', `${PREFIX}/firmalar?adet=100`),
+    enabled: etkin,
+  });
+}
+
 export function useKullaniciOlustur() {
   const qc = useQueryClient();
   const { message } = App.useApp();
@@ -60,6 +72,24 @@ export function useKullaniciOlustur() {
       void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.kullanicilar });
       void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.ozet });
       message.success(t('kullanici.olusturuldu'));
+    },
+    onError: hataGoster,
+  });
+}
+
+/** Kısmi güncelleme (ad/aktif/roller/firma) — pasifleştirme koltuk açar (S16). */
+export function useKullaniciGuncelle() {
+  const qc = useQueryClient();
+  const { message } = App.useApp();
+  const { t } = useTranslation();
+  const hataGoster = useHataGoster();
+  return useMutation({
+    mutationFn: ({ id, govde }: { id: number; govde: KullaniciGuncelle }) =>
+      istek<Kullanici>('PATCH', `${PREFIX}/kullanicilar/${id}`, govde),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.kullanicilar });
+      void qc.invalidateQueries({ queryKey: KULLANICI_ANAHTAR.ozet });
+      message.success(t('kullanici.guncellendi'));
     },
     onError: hataGoster,
   });

@@ -73,6 +73,21 @@ async def test_gecersiz_url_ve_olay_turu_422(
     )
     assert r.status_code == 422, r.text
 
+    # Önek hilesi: host TAM eşleşmeli — "localhost.evil.com" localhost DEĞİLDİR.
+    for hileli in (
+        "http://localhost.evil.com/hook",
+        "http://127.0.0.1.evil.com/hook",
+        "http://localhost@evil.com/hook",
+    ):
+        r = await kurulu_istemci.post(WEBHOOKLAR, json={**GECERLI, "url": hileli}, headers=alfa_h)
+        assert r.status_code == 422, f"{hileli}: {r.text}"
+
+    # Yerel test alıcısı (port dahil) serbest kalır.
+    r = await kurulu_istemci.post(
+        WEBHOOKLAR, json={**GECERLI, "url": "http://localhost:9099/hook"}, headers=alfa_h
+    )
+    assert r.status_code == 201, r.text
+
     r = await kurulu_istemci.post(
         WEBHOOKLAR, json={**GECERLI, "olay_turleri": ["olmayan.olay"]}, headers=alfa_h
     )

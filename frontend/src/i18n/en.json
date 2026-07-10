@@ -894,7 +894,13 @@
     "kpi_toplam": "Total users",
     "kpi_aktif": "Active users",
     "kpi_pasif": "Inactive users",
-    "kpi_rol": "Role count"
+    "kpi_rol": "Role count",
+    "duzenle": "Edit user",
+    "guncellendi": "User updated",
+    "firma": "Company (external portal)",
+    "firma_sec": "Select a company",
+    "firma_aciklama": "Links an external portal user to a CRM company; leave empty for internal users.",
+    "kendi_hesap_kilidi": "You cannot change this field on your own account — another admin must do it."
   },
   "ai": {
     "alt": "Models trained on tenant data: predictive maintenance, anomaly, OEE and stock demand forecast.",
