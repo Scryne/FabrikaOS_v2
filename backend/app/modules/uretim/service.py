@@ -1,4 +1,4 @@
-"""Üretim modülü iş kuralları — OEE toplulaştırma.
+"""Üretim modülü iş kuralları — OEE toplulaştırma + düşük-OEE taraması (S18).
 
 Toplulaştırılmış girdiler (``OeeToplam``) saf ``oee_hesapla`` fonksiyonuna bağlanır:
 toplam ideal süreden "efektif çevrim süresi" türetilerek tek doğruluk kaynağı korunur.
@@ -6,11 +6,15 @@ toplam ideal süreden "efektif çevrim süresi" türetilerek tek doğruluk kayna
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, date, datetime, timedelta
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.gercekzaman import yayinla
+from app.core.olaylar import GidenOlay, olay_yayinla
 from app.modules.uretim import repository
+from app.modules.uretim.models import Makine
 from app.modules.uretim.oee import OeeSonuc, oee_hesapla
 from app.modules.uretim.repository import OeeToplam
 
@@ -47,3 +51,63 @@ async def oee_ozet(
 ) -> list[tuple[int, str, OeeSonuc, int]]:
     satirlar = await repository.oee_ozet(db, baslangic=baslangic, bitis=bitis)
     return [(mid, kod, oee_toplamdan(t), t.kayit_sayisi) for mid, kod, t in satirlar]
+
+
+async def _oee_dustu_bildirildi_mi(db: AsyncSession, makine_id: int, tarih: date) -> bool:
+    """Aynı makine+gün için daha önce ``oee.dustu`` olayı üretildi mi (dedup)?"""
+    sayi = (
+        await db.execute(
+            select(func.count())
+            .select_from(GidenOlay)
+            .where(
+                GidenOlay.olay_turu == "oee.dustu",
+                GidenOlay.govde["makine_id"].astext == str(makine_id),
+                GidenOlay.govde["tarih"].astext == tarih.isoformat(),
+            )
+        )
+    ).scalar_one()
+    return int(sayi) > 0
+
+
+async def dusuk_oee_tara(
+    db: AsyncSession, *, tenant_slug: str, esik: float = 0.6, bugun: date | None = None
+) -> int:
+    """Bugünkü OEE'si eşiğin altındaki makineler için kenar-tetikli ``oee.dustu`` yazar.
+
+    Eşik makine başına ``makine.oee_hedefi``'dir (doluysa); yoksa ``esik`` parametresi.
+    Aynı makine+gün için olay **bir kez** üretilir (outbox dedup — S12 ``yaklasan-tara``
+    deseninin durumsuz eşdeğeri). Üretim verisi olmayan makineler atlanır (OEE'si 0
+    görünür ama "veri yok" ≠ "düştü"). İşlenen makine sayısını döner.
+    """
+    bugun = bugun or datetime.now(UTC).date()
+    baslangic = datetime(bugun.year, bugun.month, bugun.day, tzinfo=UTC)
+    satirlar = await oee_ozet(db, baslangic=baslangic, bitis=baslangic + timedelta(days=1))
+    hedefler = {
+        m.id: m.oee_hedefi
+        for m in (await db.execute(select(Makine))).scalars()
+        if m.oee_hedefi is not None
+    }
+    islenen = 0
+    for makine_id, kod, sonuc, kayit_sayisi in satirlar:
+        if kayit_sayisi == 0:
+            continue
+        hedef = hedefler.get(makine_id, esik)
+        if sonuc.oee >= hedef:
+            continue
+        if await _oee_dustu_bildirildi_mi(db, makine_id, bugun):
+            continue
+        await olay_yayinla(
+            db,
+            olay_turu="oee.dustu",
+            govde={
+                "makine_id": makine_id,
+                "makine_kod": kod,
+                "tarih": bugun.isoformat(),
+                "oee": round(sonuc.oee, 4),
+                "esik": round(hedef, 4),
+            },
+        )
+        await yayinla(tenant_slug, {"tur": "oee.dustu", "makine_id": makine_id})
+        islenen += 1
+    await db.flush()
+    return islenen

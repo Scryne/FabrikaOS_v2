@@ -106,8 +106,11 @@ Olay türü doğrulaması katalogdan (S16 `modul_hakki_ayarla` deseni: katalog d
 
 ### 3.6 Yeni olay üreticileri
 
-- **`ariza.olustu`:** üretim modülünde arıza kaydı POST'u artık kayıtla aynı
-  transaction'da outbox olayı yazar (makine_id, aciklama, tarih).
+- **`ariza.olustu`:** makine durumu **arızaya geçtiğinde** (kenar-tetikli:
+  `PATCH /makineler/{id}/durum` hedef `ariza` ∧ önceki ≠ `ariza`) durum değişikliğiyle
+  aynı transaction'da outbox olayı yazılır (makine_id/kod/ad + onceki_durum).
+  *(Uygulama notu: ayrı bir "arıza kaydı POST" ucu yok — arıza akışı durum
+  makinesiyle yaşıyor; olay doğal kaynağına bağlandı.)*
 - **`oee.dustu`:** `POST /oee/dusuk-tara` (izin `uretim:yaz`) — kenar-tetikli tarama
   (S12 `yaklasan-tara` deseni): her aktif makinenin **bugünkü** OEE'si `esik`
   (varsayılan 0.60) altındaysa olay yazar; aynı makine+gün için ikinci olay

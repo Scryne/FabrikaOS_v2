@@ -19,6 +19,7 @@ from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
+from app.core.olaylar import olay_yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.uretim import repository, service
@@ -131,7 +132,21 @@ async def makine_durum_guncelle(
     makine = await repository.makine_getir(db, makine_id)
     if makine is None:
         raise KaynakBulunamadi("Makine bulunamadı")
+    onceki_durum = makine.durum
     makine.durum = govde.durum
+    # Kenar-tetikli `ariza.olustu` (S18): yalnız arızaya GEÇİŞTE bir kez — durum
+    # değişikliğiyle aynı transaction'da outbox'a yazılır (webhook relay teslim eder).
+    if govde.durum == "ariza" and onceki_durum != "ariza":
+        await olay_yayinla(
+            db,
+            olay_turu="ariza.olustu",
+            govde={
+                "makine_id": makine.id,
+                "makine_kod": makine.kod,
+                "makine_ad": makine.ad,
+                "onceki_durum": onceki_durum,
+            },
+        )
     await denetim_yaz(
         db,
         eylem="durum_guncelle",
@@ -265,6 +280,31 @@ async def oee_ozet(
         for mid, kod, s, sayi in satirlar
     ]
     return basari(veri, mesaj="OEE özeti")
+
+
+@router.post(
+    "/oee/dusuk-tara",
+    response_model=Zarf[dict[str, int]],
+    summary="Düşük OEE taraması (kenar-tetikli oee.dustu olayı; makine+gün başına bir kez)",
+)
+async def oee_dusuk_tara(
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+    esik: Annotated[float, Query(gt=0, le=1)] = 0.6,
+) -> dict[str, Any]:
+    """Bugünkü OEE'si hedefin (``makine.oee_hedefi``, yoksa ``esik``) altındaki makineler
+    için ``oee.dustu`` outbox olayı yazar — S12 ``yaklasan-tara`` deseni (webhook S18)."""
+    islenen = await service.dusuk_oee_tara(db, tenant_slug=tenant.slug, esik=esik)
+    await denetim_yaz(
+        db,
+        eylem="dusuk_oee_tara",
+        kaynak="makine",
+        kaynak_id="-",
+        kullanici=kullanici,
+        detay={"esik": esik, "islenen": islenen},
+    )
+    return basari({"islenen": islenen}, mesaj=f"{islenen} makine için oee.dustu üretildi")
 
 
 @router.get("/uretim/ozet", response_model=Zarf[UretimOzetDTO], summary="Üretim özeti (pano/KPI)")
