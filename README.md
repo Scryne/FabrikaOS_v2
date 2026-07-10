@@ -35,16 +35,18 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S15 | Dijital ikiz (SVG tesis şeması, canlı durum + sürükle-yerleştir) + Kiosk (salt-okunur büyük ekran) | ✅ |
 | S16 | Abonelik, Entitlement & Feature Flag (plan katalogu + modül hakları + koltuk limiti + `/abonelik` ekranı) | ✅ |
 | S17 | Platform Admin Paneli (control-plane kimlik düzlemi + tenant yaşam döngüsü + entitlement yazma API'si + KVKK ihracı + `/platform` paneli) | ✅ |
-| S18 → S22 | Dış portal/webhook, operasyon, GA | ⬜ planlı |
+| S18 | Dış Portal (firma-kapsamlı self-servis) + Webhook (imzalı/retry'lı relay) + API anahtarı (`/entegrasyon` dış veri yüzeyi) | ✅ |
+| S19 → S22 | Operasyon, GA | ⬜ planlı |
 
-Backend: **458 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+Backend: **509 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
 depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım + analitik KPI +
 async rapor üretimi/indirme + dijital ikiz yerleşim/canlı durum + kiosk salt-okunurluk +
 entitlement zorlaması/koltuk limiti/plan kataloğu + platform kimlik düzlem ayrımı/tenant
-yaşam döngüsü/KVKK ihracı).
-Frontend: **162 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+yaşam döngüsü/KVKK ihracı + webhook imza/relay-backoff/teslimat günlüğü + API anahtarı
+özet-saklama/kapsam + dış portal firma izolasyonu).
+Frontend: **167 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)

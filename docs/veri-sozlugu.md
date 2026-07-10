@@ -123,7 +123,7 @@ API garantisi (ADR-0017).
 
 ## Abonelik & entitlement (S16)
 **Entitlement ≠ RBAC**: izin "bu kullanıcı ne yapabilir", entitlement "bu tenant neyi
-satın aldı". Satılabilir birim = **modül** (`MODUL_KATALOGU`, 17 kod; ikiz+kiosk →
+satın aldı". Satılabilir birim = **modül** (`MODUL_KATALOGU`, 19 kod — S18: +`entegrasyon` +`dis-portal`; ikiz+kiosk →
 `uretim`, ticari pano → `crm`, satınalma → `stok`). Planlar: `deneme` (5 koltuk, tümü) /
 `temel` (10) / `profesyonel` (50) / `kurumsal` (sınırsız, tümü). Etkin entitlement =
 `modul_haklari` override'ı > planın `moduller` listesi; katalog dışı kod **kapalı**
@@ -144,3 +144,40 @@ hazirlaniyor → hazir | basarisiz`) + 202 süreç-içi görev; tenant şeması 
 `information_schema` keşfiyle JSON→ZIP → nesne deposu `platform/ihrac/<slug>/<id>/...`
 (control-plane öneki, tenant öneki DEĞİL); indirme hazir değilse 409. Tüm platform
 yazmaları `platform_denetim_izi`'ne işlenir. ADR-0019.
+
+## Entegrasyon: webhook + API anahtarı (S18)
+**Webhook** = outbox'ın dışa akışı. `webhook_abonelikleri` (tenant şeması): `ad`, `url`
+(https zorunlu; yalnız yerel test için `http://localhost`), `gizli_anahtar` (`whs_`+43,
+imzalama için düz saklanır — API'de maskeli, tam değer yalnız oluşturma/anahtar-yenile
+yanıtında bir kez), `olay_turleri` JSONB (katalogdan alt küme; **boş = tümü**), `aktif`.
+`webhook_teslimatlari` = olay×abonelik teslimat günlüğü: `durum` (`beklemede → basarili |
+yeniden_denenecek → … → basarisiz`), `deneme_sayisi`, `sonraki_deneme_tarihi` (vade
+taraması), `yanit_kodu`/`yanit_ozeti`, `govde` (gönderilen zarf v1 anlık görüntüsü),
+`dis_anahtar` (tüketici idempotency). İmza: `X-FabrikaOS-Signature: t=<unix>,v1=<hex>` =
+HMAC-SHA256(gizli_anahtar, `{t}.{govde}`); backoff 1dk/5dk/30dk/2sa/6sa, 6 deneme →
+terminal. Relay ayrı süreç (`scripts/webhook_relay.py`). **Not:** `giden_olaylar.durum`
+= `gonderildi` artık "fan-out yapıldı" demektir (teslimat durumu satır başına);
+outbox'taki `basarisiz` değeri kullanım dışıdır. Olay kataloğu (8): `is_emri.kapandi`,
+`ariza.olustu` (makine arızaya geçişinde kenar-tetikli), `stok.kritik`, `oee.dustu`
+(`POST /oee/dusuk-tara`; eşik = `makine.oee_hedefi` yoksa parametre; makine+gün dedup),
+`sozlesme.yaklasiyor`, `anomali.tespit`, `kalite.uygunsuzluk`, `isg.kaza`.
+
+**API anahtarı** = 3. taraf (ERP/e-Fatura) erişimi. `api_anahtarlari`: düz anahtar
+(`fos_`+43) ASLA saklanmaz — `anahtar_ozet` (SHA-256) ile aranır; `onek` (ilk 12)
+görüntü kimliği; `izinler` JSONB kapsamları yalnız beyaz-listeden (`uretim:oku`,
+`stok:oku`, `satinalma:oku`); `gecerlilik_tarihi` (null = süresiz), `son_kullanim_tarihi`.
+Kimlik `X-API-Anahtar` başlığı + `X-Tenant`; eksik/bilinmeyen/pasif/dolmuş ayrımı
+sızdırılmaz (hepsi 401), kapsam yetersiz 403. Dış veri yüzeyi `/api/v1/entegrasyon/*`
+salt-okunur: `stok-bakiyeleri`, `satinalma-talepleri` (`?durum=onaylandi` varsayılan),
+`uretim-ozeti` (`?gun=`).
+
+## Dış portal (S18)
+`kullanici.firma_id` (nullable FK `firmalar`, SET NULL) dış kullanıcıyı CRM firmasına
+bağlar. Rol `dis-panel` = yalnız `{dis:erisim}` — iç uçlarda yapısal 403. `/api/v1/dis/*`
+(`modul_gerekli("dis-portal")`): firma süzgeci **dependency'de** zorlanır
+(`dis_firma_kullanici`); başka firmanın talebi listede yok + ID ile 404; firmasız
+kullanıcı (admin dahil) 403. Portal talebi iç `talepler` tablosuna yazar (TL- kod +
+durum makinesi + `talep.olusturuldu` gerçek-zamanı aynen); dış DTO iç alanları
+(atama, firma_id) sızdırmaz. Modüller `entegrasyon` + `dis-portal` yalnız
+deneme/kurumsal planlarında; webhook uçları `entegrasyon` VEYA `webhook-onizleme`
+bayrağıyla açılır (S16 tüketimi). ADR-0020.

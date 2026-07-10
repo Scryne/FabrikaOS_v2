@@ -31,7 +31,7 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | | S15 | Dijital ikiz + Kiosk | ✅ ADR-0017 |
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ✅ ADR-0018 |
 | | S17 | Platform Admin Paneli | ✅ ADR-0019 |
-| | S18 | Dış Portal + Webhook + API Entegrasyon | ⬜ |
+| | S18 | Dış Portal + Webhook + API Entegrasyon | ✅ ADR-0020 |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
@@ -316,15 +316,20 @@ matrisi, slug-yazarak-onay tehlikeli aksiyonlar), provizyon sihirbazı, sağlık
 ANINDA keser (404, giriş dahil); ihraç ZIP'i bilinen veriyi bayt düzeyi doğrulamayla
 içerir; entitlement yazımı bir sonraki istekte etkili; migration public up/down.
 
-#### ⬜ S18 — Dış Portal + Webhook + API Entegrasyon
+#### ✅ S18 — Dış Portal + Webhook + API Entegrasyon
 Dış self-servis portal (`dis-panel`): `/dis/talepler`, `/dis/durum`. **Webhook** altyapısı: imzalı
 (`X-FabrikaOS-Signature`), sürümlü, retry/sıra; olaylar: `is_emri.kapandi`, `ariza.olustu`,
 `stok.kritik`, `oee.dustu`, `sozlesme.yaklasiyor`, `anomali.tespit`. 3. taraf ERP/muhasebe
 (Logo/SAP/e-Fatura) için anahtar tabanlı erişim.
-**Kabul:** Webhook imza doğrulanabilir, retry korunur; dış portal yalnızca `dis-panel` kapsamı.
+**Kabul (karşılandı):** imza HMAC `t=..,v1=..` alıcı tarafta doğrulanır (testli);
+backoff 1dk→6sa, 6 deneme → terminal `basarisiz` + panelden yeniden-dene; dış portal
+firma-kapsamı dependency'de (başka firma 404, iç uçlar 403, firmasız 403); API anahtarı
+SHA-256 özet + kapsam beyaz-listesi (`/entegrasyon/*` salt-okunur). Yeni modüller
+`entegrasyon`+`dis-portal`; `webhook-onizleme` bayrağı tüketildi. Relay ayrı süreç
+(`scripts/webhook_relay.py`). ADR-0020.
 
-> **🚦 Faz 4 Geçiş Kapısı:** Entitlement + platform admin + webhook/dış portal hazır
-> (ürün modül modül satılabilir).
+> **🚦 Faz 4 Geçiş Kapısı: GEÇİLDİ** — Entitlement (S16) + platform admin (S17) +
+> webhook/dış portal/API anahtarı (S18) hazır (ürün modül modül satılabilir ve dışa entegre).
 
 ---
 
