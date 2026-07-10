@@ -65,7 +65,8 @@ export function ProvizyonSihirbazi() {
     }
   }
 
-  const degerler = form.getFieldsValue(true) as Partial<Alanlar>;
+  // Form bağlanmadan (ilk render) form metodu çağrılmaz — AntD useForm uyarısı.
+  const degerler = adim === 3 ? (form.getFieldsValue(true) as Partial<Alanlar>) : {};
 
   return (
     <Card style={{ maxWidth: 640 }} title={t('platform.provizyon_baslik')}>
