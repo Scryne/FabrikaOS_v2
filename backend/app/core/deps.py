@@ -118,3 +118,27 @@ def modul_gerekli(modul_kodu: str) -> Callable[..., Awaitable[None]]:
             )
 
     return kontrol
+
+
+def modul_veya_ozellik_gerekli(
+    modul_kodu: str, ozellik_kodu: str
+) -> Callable[..., Awaitable[None]]:
+    """Modül entitlement'ı VEYA özellik bayrağı açıksa geçirir (S18 / ADR-0020).
+
+    ``webhook-onizleme`` tüketimi: ``entegrasyon`` modülünü satın almamış bir tenant'a
+    platform admin bayrak override'ıyla (S17 PUT ozellik-bayraklari) ön izleme verebilir.
+    İkisi de kapalıysa ``modul_gerekli`` ile aynı sözleşme: 403 ``MODUL_KAPALI``.
+    """
+
+    async def kontrol(
+        tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+        db: Annotated[AsyncSession, Depends(get_session)],
+    ) -> None:
+        if await entitlement_service.tenant_modul_acik_mi(db, tenant, modul_kodu):
+            return
+        ozellikler = await entitlement_service.tenant_etkin_ozellikler(db, tenant)
+        if ozellikler.get(ozellik_kodu, False):
+            return
+        raise YetkiHatasi(f"Bu modül aboneliğinizde kapalı: {modul_kodu}", hata_kodu="MODUL_KAPALI")
+
+    return kontrol

@@ -53,6 +53,9 @@ IZIN_KATALOGU: dict[str, str] = {
     "analitik:oku": "Analitik panoları görüntüleme",
     "rapor:oku": "Raporları görüntüleme",
     "rapor:yaz": "Rapor oluşturma",
+    "entegrasyon:oku": "Webhook aboneliklerini ve API anahtarlarını görüntüleme",
+    "entegrasyon:yaz": "Webhook aboneliği ve API anahtarı yönetimi",
+    "dis:erisim": "Dış self-servis portal erişimi (firma-kapsamlı)",
 }
 
 # Salt-okunur (izleyici) rolü için *:oku izinleri.
@@ -100,4 +103,9 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     # Kiosk (büyük ekran): yalnız üretim/ikiz görünümü okur — salt-okunurluk API
     # seviyesinde garanti (en az ayrıcalık; S15/ADR-0017).
     "kiosk": frozenset({"uretim:oku"}),
+    # Entegrasyon sorumlusu: webhook aboneliği + API anahtarı yönetir (S18).
+    "entegrasyon": frozenset({"entegrasyon:oku", "entegrasyon:yaz"}),
+    # Dış portal (müşteri/tedarikçi) kullanıcısı: YALNIZ /dis/* yüzeyi — iç modül
+    # izinleriyle karışmaz (tenant-rbac-conventions); firma bağlantısı zorunlu.
+    "dis-panel": frozenset({"dis:erisim"}),
 }

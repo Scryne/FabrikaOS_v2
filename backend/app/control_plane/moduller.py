@@ -31,6 +31,9 @@ MODUL_KATALOGU: dict[str, str] = {
     "ai": "AI Tahminleri",
     "analitik": "Analitik",
     "rapor": "Raporlama",
+    # S18 üst-segment eklentileri: yalnız deneme/kurumsal planlarında.
+    "entegrasyon": "Entegrasyon (webhook, API anahtarları)",
+    "dis-portal": "Dış Portal (müşteri self-servis)",
 }
 
 
@@ -43,8 +46,8 @@ class OzellikTanim:
 
 
 # Özellik bayrakları: modül değil, kesitsel/erken-erişim anahtarları.
-# Tüketimleri ilgili sprintte gelir (mobil-api → FAZ 7, webhook-onizleme → S18);
-# S16 mekanizmayı ve görünürlüğü kurar.
+# `webhook-onizleme` S18'de tüketilir: webhook uçları `entegrasyon` modülü VEYA bu
+# bayrak açıksa erişilir (modülü satın almamış tenant'a ön izleme). `mobil-api` → FAZ 7.
 OZELLIK_KATALOGU: dict[str, OzellikTanim] = {
     "mobil-api": OzellikTanim(ad="Mobil Saha API'si (ön izleme)", deneysel=True),
     "webhook-onizleme": OzellikTanim(ad="Webhook entegrasyonu (ön izleme)", deneysel=True),
