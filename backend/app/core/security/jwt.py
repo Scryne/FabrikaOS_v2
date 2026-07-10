@@ -71,6 +71,36 @@ def refresh_uret(kullanici_id: int, tenant_slug: str) -> tuple[str, str]:
     )
 
 
+# --- Platform (control-plane) düzlemi — S17 / ADR-0019 ---
+# Ayrı ``tip`` değerleri düzlemleri YAPISAL olarak ayırır: tenant token'ı platform
+# ucunda, platform token'ı tenant ucunda tip kontrolünden geçemez (401).
+# ``tenant_slug`` claim'i platform token'larında inert bir sabittir.
+PLATFORM_SLUG_SABITI = "platform"
+
+
+def platform_access_uret(yonetici_id: int, eposta: str) -> tuple[str, str]:
+    """Platform yöneticisi access token'ı üretir → (token, jti)."""
+    ayar = get_settings()
+    return _kodla(
+        {
+            "sub": str(yonetici_id),
+            "tenant_slug": PLATFORM_SLUG_SABITI,
+            "eposta": eposta,
+            "tip": "platform_access",
+        },
+        timedelta(minutes=ayar.access_token_dakika),
+    )
+
+
+def platform_refresh_uret(yonetici_id: int) -> tuple[str, str]:
+    """Platform yöneticisi refresh token'ı üretir → (token, jti)."""
+    ayar = get_settings()
+    return _kodla(
+        {"sub": str(yonetici_id), "tenant_slug": PLATFORM_SLUG_SABITI, "tip": "platform_refresh"},
+        timedelta(days=ayar.refresh_token_gun),
+    )
+
+
 def coz(token: str, beklenen_tip: str) -> TokenIcerigi:
     """Token'ı doğrular ve içeriğini döndürür; geçersizse ``TokenGecersiz``."""
     ayar = get_settings()
