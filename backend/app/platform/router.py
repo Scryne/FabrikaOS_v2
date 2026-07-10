@@ -8,19 +8,24 @@ Tüm uçlar ``mevcut_platform_yonetici`` korumalıdır; tenant çözümlemesi YO
 from __future__ import annotations
 
 from typing import Annotated, Any
+from urllib.parse import quote
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.control_plane.models import Abonelik, Plan, PlatformYonetici, Tenant
+from app.control_plane.models import Abonelik, Plan, PlatformYonetici, Tenant, TenantIhrac
 from app.core.db.session import get_session
+from app.core.exceptions import CakismaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
+from app.platform import ihrac as ihrac_mod
 from app.platform import service
+from app.platform.denetim import platform_denetim_yaz
 from app.platform.deps import mevcut_platform_yonetici
 from app.platform.schemas import (
     AbonelikSatirDTO,
     HakAyarlaDTO,
+    IhracCevapDTO,
     ModulDurumDTO,
     OzellikDurumDTO,
     PlanSatirDTO,
@@ -198,6 +203,91 @@ async def abonelikleri_listele(
         for ab, t in sonuc.all()
     ]
     return sayfali(kayitlar, sayfa=sayfa, adet=adet, toplam=int(toplam))
+
+
+def _ihrac_cevap(k: TenantIhrac) -> dict[str, Any]:
+    return IhracCevapDTO(
+        id=k.id,
+        tenant_id=k.tenant_id,
+        slug=k.slug,
+        durum=k.durum,
+        boyut=k.boyut,
+        tablo_sayisi=k.tablo_sayisi,
+        hata=k.hata,
+        olusturan_eposta=k.olusturan_eposta,
+        olusturma_tarihi=k.olusturma_tarihi,
+    ).model_dump()
+
+
+@router.post(
+    "/tenantlar/{tenant_id}/ihrac",
+    response_model=Zarf[IhracCevapDTO],
+    status_code=202,
+    summary="KVKK veri ihracını başlat (arka plan)",
+)
+async def ihrac_baslat(
+    tenant_id: int,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_getir(db, tenant_id)
+    kayit = TenantIhrac(tenant_id=tenant.id, slug=tenant.slug, olusturan_eposta=yonetici.eposta)
+    db.add(kayit)
+    await db.flush()
+    await platform_denetim_yaz(
+        db,
+        eylem="ihrac",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay={"slug": tenant.slug, "ihrac_id": kayit.id},
+    )
+    cevap = _ihrac_cevap(kayit)  # "kuyrukta" anlık görüntüsü
+    # Arka plan görevi kaydı kendi oturumundan okuyacak → önce kalıcı olmalı.
+    await db.commit()
+    await ihrac_mod.uretim_planla(kayit.id)
+    return basari(cevap, mesaj="İhraç başlatıldı")
+
+
+@router.get("/ihraclar", response_model=Zarf[list[IhracCevapDTO]], summary="İhraçları listele")
+async def ihraclari_listele(
+    _yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    sayfa: int = 1,
+    adet: int = 20,
+    tenant_id: int | None = None,
+) -> dict[str, Any]:
+    sayfa = max(sayfa, 1)
+    adet = min(max(adet, 1), 100)
+    sorgu = select(TenantIhrac)
+    if tenant_id is not None:
+        sorgu = sorgu.where(TenantIhrac.tenant_id == tenant_id)
+    toplam = await db.scalar(select(func.count()).select_from(sorgu.subquery())) or 0
+    sonuc = await db.execute(
+        sorgu.order_by(TenantIhrac.id.desc()).offset((sayfa - 1) * adet).limit(adet)
+    )
+    kayitlar = [_ihrac_cevap(k) for k in sonuc.scalars()]
+    return sayfali(kayitlar, sayfa=sayfa, adet=adet, toplam=int(toplam))
+
+
+@router.get("/ihraclar/{ihrac_id}/indir", summary="Hazır ihracı indir (ZIP)")
+async def ihrac_indir(
+    ihrac_id: int,
+    _yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> Response:
+    kayit = await db.get(TenantIhrac, ihrac_id)
+    if kayit is None:
+        raise KaynakBulunamadi("İhraç kaydı bulunamadı")
+    if kayit.durum != "hazir":
+        raise CakismaHatasi(f"İhraç indirilebilir durumda değil (durum: {kayit.durum})")
+    veri = await ihrac_mod.ihrac_icerik_indir(kayit)
+    dosya = quote(f"tenant-{kayit.slug}-ihrac-{kayit.id}.zip")
+    return Response(
+        content=veri,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{dosya}"},
+    )
 
 
 @router.get("/planlar", response_model=Zarf[list[PlanSatirDTO]], summary="Plan kataloğu")
