@@ -1,9 +1,40 @@
-"""Entegrasyon iş kuralları — anahtar maskeleme + doğrulamalar."""
+"""Entegrasyon iş kuralları — anahtar üretimi/özeti/maskeleme + doğrulamalar."""
 
 from __future__ import annotations
 
+import hashlib
+import secrets
+
 from app.core.exceptions import DogrulamaHatasi
-from app.modules.entegrasyon.birimler import OLAY_TURU_KATALOGU
+from app.modules.entegrasyon.birimler import ENTEGRASYON_IZIN_KAPSAMLARI, OLAY_TURU_KATALOGU
+
+ONEK_UZUNLUGU = 12  # görüntü kimliği: anahtarın ilk 12 karakteri (ör. "fos_AbCd1234")
+
+
+def api_anahtar_uret() -> str:
+    """Yeni 3. taraf erişim anahtarı: ``fos_`` + 43 char urlsafe rastgele."""
+    return f"fos_{secrets.token_urlsafe(32)}"
+
+
+def anahtar_ozetle(anahtar: str) -> str:
+    """SHA-256 özet (hex) — DB'de düz anahtar yerine bu saklanır ve bununla aranır."""
+    return hashlib.sha256(anahtar.encode()).hexdigest()
+
+
+def kapsamlar_dogrula(izinler: list[str]) -> None:
+    """Anahtara yalnız beyaz-listedeki okuma kapsamları atanabilir (en az ayrıcalık)."""
+    bilinmeyen = sorted(set(izinler) - set(ENTEGRASYON_IZIN_KAPSAMLARI))
+    if bilinmeyen:
+        raise DogrulamaHatasi(
+            "Geçersiz anahtar kapsamı",
+            detaylar=[
+                {
+                    "alan": "izinler",
+                    "mesaj": f"Bilinmeyen: {', '.join(bilinmeyen)} — "
+                    f"geçerli: {', '.join(sorted(ENTEGRASYON_IZIN_KAPSAMLARI))}",
+                }
+            ],
+        )
 
 
 def anahtar_maskele(anahtar: str) -> str:

@@ -55,3 +55,76 @@ class TeslimatCevapDTO(BaseModel):
 class OlayTuruCevapDTO(BaseModel):
     kod: str
     aciklama: str
+
+
+# --- API anahtarı ---
+
+
+class ApiAnahtariOlusturDTO(BaseModel):
+    ad: str = Field(min_length=1, max_length=120)
+    # ENTEGRASYON_IZIN_KAPSAMLARI alt kümesi; en az bir kapsam zorunlu.
+    izinler: list[str] = Field(min_length=1)
+    gecerlilik_tarihi: datetime | None = None
+
+
+class ApiAnahtariGuncelleDTO(BaseModel):
+    ad: str | None = Field(default=None, min_length=1, max_length=120)
+    aktif: bool | None = None
+
+
+class ApiAnahtariCevapDTO(BaseModel):
+    """``anahtar`` yalnız oluşturma yanıtında doludur (bir kez); listede hep ``None``."""
+
+    id: int
+    ad: str
+    onek: str
+    izinler: list[str]
+    aktif: bool
+    gecerlilik_tarihi: datetime | None
+    son_kullanim_tarihi: datetime | None
+    olusturma_tarihi: datetime
+    anahtar: str | None = None
+
+
+# --- Dış veri uçları (3. taraf ERP/muhasebe) ---
+
+
+class StokBakiyeDTO(BaseModel):
+    malzeme_id: int
+    kod: str
+    ad: str
+    birim: str
+    kategori: str
+    mevcut_miktar: float
+    kritik_stok: float
+    kritik_altinda: bool
+
+
+class SatinalmaKalemiDisDTO(BaseModel):
+    malzeme_id: int
+    miktar: float
+    birim: str
+    tahmini_birim_fiyat: float | None
+
+
+class SatinalmaTalebiDisDTO(BaseModel):
+    id: int
+    kod: str
+    baslik: str
+    durum: str
+    para_birimi: str
+    onay_tarihi: datetime | None
+    olusturma_tarihi: datetime
+    kalemler: list[SatinalmaKalemiDisDTO]
+
+
+class UretimOzetiSatirDTO(BaseModel):
+    makine_id: int
+    makine_kod: str
+    toplam_adet: int
+    saglam_adet: int
+    fire_adet: int
+    oee: float
+    kullanilabilirlik: float
+    performans: float
+    kalite: float
