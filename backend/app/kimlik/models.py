@@ -74,6 +74,11 @@ class Kullanici(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     son_giris_tarihi: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    # Dış portal bağlantısı (S18): dis-panel kullanıcısını CRM firmasına bağlar;
+    # /dis/* uçları yalnız bu firmanın kayıtlarını gösterir. İç kullanıcılarda NULL.
+    firma_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("firmalar.id", ondelete="SET NULL"), index=True, nullable=True
+    )
 
     roller: Mapped[list[Rol]] = relationship(
         secondary=kullanici_rol, back_populates="kullanicilar", lazy="selectin"
