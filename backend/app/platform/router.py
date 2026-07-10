@@ -23,7 +23,10 @@ from app.platform.schemas import (
     PlanSatirDTO,
     PlatformSaglikDTO,
     TenantDetayDTO,
+    TenantGuncelleDTO,
     TenantOzetDTO,
+    TenantProvizyonDTO,
+    TenantSilDTO,
 )
 
 router = APIRouter(prefix="/platform", tags=["Platform"])
@@ -41,6 +44,79 @@ async def tenantlari_listele(
     adet = min(max(adet, 1), 100)
     kayitlar, toplam = await service.tenant_listele(db, sayfa=sayfa, adet=adet, arama=arama)
     return sayfali([k.model_dump() for k in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.post(
+    "/tenantlar",
+    response_model=Zarf[TenantDetayDTO],
+    status_code=201,
+    summary="Tenant provizyonla",
+)
+async def tenant_provizyonla_uc(
+    govde: TenantProvizyonDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_provizyon(db, yonetici, govde)
+    detay = await service.tenant_detayi(db, tenant)
+    return basari(detay.model_dump(), mesaj="Tenant provizyonlandı")
+
+
+@router.patch(
+    "/tenantlar/{tenant_id}", response_model=Zarf[TenantDetayDTO], summary="Tenant güncelle"
+)
+async def tenant_guncelle_uc(
+    tenant_id: int,
+    govde: TenantGuncelleDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_guncelle(db, yonetici, tenant_id, govde)
+    detay = await service.tenant_detayi(db, tenant)
+    return basari(detay.model_dump(), mesaj="Tenant güncellendi")
+
+
+@router.post(
+    "/tenantlar/{tenant_id}/askiya-al",
+    response_model=Zarf[TenantDetayDTO],
+    summary="Tenant'ı askıya al",
+)
+async def tenant_askiya_al(
+    tenant_id: int,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_aktiflik_ayarla(db, yonetici, tenant_id, aktif=False)
+    detay = await service.tenant_detayi(db, tenant)
+    return basari(detay.model_dump(), mesaj="Tenant askıya alındı")
+
+
+@router.post(
+    "/tenantlar/{tenant_id}/aktiflestir",
+    response_model=Zarf[TenantDetayDTO],
+    summary="Tenant'ı aktifleştir",
+)
+async def tenant_aktiflestir(
+    tenant_id: int,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_aktiflik_ayarla(db, yonetici, tenant_id, aktif=True)
+    detay = await service.tenant_detayi(db, tenant)
+    return basari(detay.model_dump(), mesaj="Tenant aktifleştirildi")
+
+
+@router.delete(
+    "/tenantlar/{tenant_id}", response_model=Zarf[None], summary="Tenant'ı sil (geri dönüşsüz)"
+)
+async def tenant_sil_uc(
+    tenant_id: int,
+    govde: TenantSilDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    await service.tenant_sil(db, yonetici, tenant_id, onay=govde.onay)
+    return basari(None, mesaj="Tenant silindi")
 
 
 @router.get("/tenantlar/{tenant_id}", response_model=Zarf[TenantDetayDTO], summary="Tenant detayı")

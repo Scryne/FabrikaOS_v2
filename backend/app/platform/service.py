@@ -15,20 +15,24 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import __version__
 from app.control_plane import entitlement_service
-from app.control_plane.models import Abonelik, Plan, Tenant
-from app.control_plane.moduller import MODUL_KATALOGU, OZELLIK_KATALOGU
+from app.control_plane.models import Abonelik, Plan, PlatformYonetici, Tenant
+from app.control_plane.moduller import MODUL_KATALOGU, OZELLIK_KATALOGU, PLAN_KATALOGU
+from app.control_plane.provizyon import tenant_provizyonla
 from app.core.config import get_settings
-from app.core.db.tenancy import sema_adi
-from app.core.exceptions import KaynakBulunamadi
+from app.core.db.tenancy import sema_adi, slug_gecerli_mi, tenant_bul
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.security.redis_istemci import get_redis
 from app.modules.dys.depolama import nesne_depo_al
+from app.platform.denetim import platform_denetim_yaz
 from app.platform.schemas import (
     ModulDurumDTO,
     OzellikDurumDTO,
     PlatformSaglikDTO,
     SondaDTO,
     TenantDetayDTO,
+    TenantGuncelleDTO,
     TenantOzetDTO,
+    TenantProvizyonDTO,
 )
 
 # Testlerin provizyon/ihraç hedef veritabanını enjekte etmesi için (rapor
@@ -162,6 +166,128 @@ async def tenant_detayi(db: AsyncSession, tenant: Tenant) -> TenantDetayDTO:
         ozellikler=await _ozellik_durumlari(db, tenant),
         olusturma_tarihi=tenant.olusturma_tarihi,
     )
+
+
+# --- Tenant yaşam döngüsü (yazma) ---
+
+
+async def tenant_provizyon(
+    db: AsyncSession, yonetici: PlatformYonetici, govde: TenantProvizyonDTO
+) -> Tenant:
+    """Yeni tenant'ı uçtan uca provizyonlar (public kayıt + şema + migrate + tohum).
+
+    Senkron beklenir: provizyon idempotenttir ve saniyeler sürer; 202'ye yükseltme
+    yolu ADR-0019'da not edilmiştir.
+    """
+    if not slug_gecerli_mi(govde.slug):
+        raise DogrulamaHatasi(
+            "Geçersiz tenant slug",
+            detaylar=[{"alan": "slug", "mesaj": "küçük harf/rakam/tire (DNS-label) olmalı"}],
+        )
+    if govde.plan_kodu not in PLAN_KATALOGU:
+        raise DogrulamaHatasi(
+            "Katalogda olmayan plan",
+            detaylar=[{"alan": "plan_kodu", "mesaj": f"şunlardan biri: {sorted(PLAN_KATALOGU)}"}],
+        )
+    if await tenant_bul(db, govde.slug) is not None:
+        raise CakismaHatasi("Bu slug ile tenant zaten var")
+
+    tenant_id = await tenant_provizyonla(
+        slug=govde.slug,
+        ad=govde.ad,
+        admin_eposta=govde.admin_eposta,
+        admin_parola=govde.admin_parola,
+        plan_kodu=govde.plan_kodu,
+        db_url=db_url_al(),
+    )
+    await platform_denetim_yaz(
+        db,
+        eylem="provizyon",
+        kaynak="tenant",
+        kaynak_id=str(tenant_id),
+        yonetici=yonetici,
+        detay={"slug": govde.slug, "plan_kodu": govde.plan_kodu},
+    )
+    return await tenant_getir(db, tenant_id)
+
+
+async def tenant_guncelle(
+    db: AsyncSession, yonetici: PlatformYonetici, tenant_id: int, govde: TenantGuncelleDTO
+) -> Tenant:
+    """Tenant adını ve/veya planını değiştirir (plan değişimi ANINDA etkili — S16)."""
+    tenant = await tenant_getir(db, tenant_id)
+    detay: dict[str, str] = {}
+    if govde.ad is not None:
+        tenant.ad = govde.ad
+        detay["ad"] = govde.ad
+    if govde.plan_kodu is not None:
+        if govde.plan_kodu not in PLAN_KATALOGU:
+            raise DogrulamaHatasi(
+                "Katalogda olmayan plan",
+                detaylar=[
+                    {"alan": "plan_kodu", "mesaj": f"şunlardan biri: {sorted(PLAN_KATALOGU)}"}
+                ],
+            )
+        ab = _son_abonelik(tenant)
+        if ab is None:
+            raise CakismaHatasi("Tenant'ın abonelik kaydı yok")
+        ab.plan_kodu = govde.plan_kodu
+        detay["plan_kodu"] = govde.plan_kodu
+    await platform_denetim_yaz(
+        db,
+        eylem="guncelle",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay=detay,
+    )
+    return tenant
+
+
+async def tenant_aktiflik_ayarla(
+    db: AsyncSession, yonetici: PlatformYonetici, tenant_id: int, aktif: bool
+) -> Tenant:
+    """Askıya alır / yeniden aktifleştirir — ``tenant_cozumle`` aktif olmayanı
+    404'lediği için erişim bir sonraki istekte kesilir/açılır (önbellek yok)."""
+    tenant = await tenant_getir(db, tenant_id)
+    tenant.aktif = aktif
+    await platform_denetim_yaz(
+        db,
+        eylem="aktiflestir" if aktif else "askiya_al",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay={"slug": tenant.slug},
+    )
+    return tenant
+
+
+async def tenant_sil(
+    db: AsyncSession, yonetici: PlatformYonetici, tenant_id: int, onay: str
+) -> None:
+    """Tenant'ı GERİ DÖNÜŞSÜZ siler: şema DROP CASCADE + public kayıtlar (FK CASCADE).
+
+    ``onay`` slug ile birebir eşleşmek zorundadır (GitHub deseni) — panel bunun
+    üstüne ad-yazarak-onayla modalı koyar. Denetim kaydı silmeden ÖNCE yazılır.
+    """
+    tenant = await tenant_getir(db, tenant_id)
+    if onay != tenant.slug:
+        raise DogrulamaHatasi(
+            "Onay metni tenant slug'ı ile eşleşmiyor",
+            detaylar=[{"alan": "onay", "mesaj": f"silmek için {tenant.slug!r} yazın"}],
+        )
+    await platform_denetim_yaz(
+        db,
+        eylem="sil",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay={"slug": tenant.slug, "ad": tenant.ad},
+    )
+    sema = sema_adi(tenant.slug)
+    await db.execute(text(f'DROP SCHEMA IF EXISTS "{sema}" CASCADE'))
+    await db.delete(tenant)
+    await db.flush()
 
 
 async def _veritabani_sondasi(db: AsyncSession) -> SondaDTO:
