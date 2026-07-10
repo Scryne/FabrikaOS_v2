@@ -26,9 +26,9 @@ from app.platform.schemas import (
     AbonelikSatirDTO,
     HakAyarlaDTO,
     IhracCevapDTO,
-    ModulDurumDTO,
-    OzellikDurumDTO,
     PlanSatirDTO,
+    PlatformModulDurumDTO,
+    PlatformOzellikDurumDTO,
     PlatformSaglikDTO,
     TenantDetayDTO,
     TenantGuncelleDTO,
@@ -140,7 +140,7 @@ async def tenant_detay(
 
 @router.put(
     "/tenantlar/{tenant_id}/modul-haklari/{modul_kodu}",
-    response_model=Zarf[list[ModulDurumDTO]],
+    response_model=Zarf[list[PlatformModulDurumDTO]],
     summary="Modül hakkını ayarla (null = plana dön)",
 )
 async def modul_hakki_ayarla_uc(
@@ -156,7 +156,7 @@ async def modul_hakki_ayarla_uc(
 
 @router.put(
     "/tenantlar/{tenant_id}/ozellik-bayraklari/{kod}",
-    response_model=Zarf[list[OzellikDurumDTO]],
+    response_model=Zarf[list[PlatformOzellikDurumDTO]],
     summary="Özellik bayrağını ayarla (null = plana dön)",
 )
 async def ozellik_bayragi_ayarla_uc(

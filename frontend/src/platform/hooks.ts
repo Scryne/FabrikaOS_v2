@@ -20,8 +20,8 @@ export type PlatformSaglik = S['PlatformSaglikDTO'];
 export type AbonelikSatir = S['AbonelikSatirDTO'];
 export type PlanSatir = S['PlanSatirDTO'];
 export type IhracCevap = S['IhracCevapDTO'];
-export type ModulDurum = S['ModulDurumDTO'];
-export type OzellikDurum = S['OzellikDurumDTO'];
+export type ModulDurum = S['PlatformModulDurumDTO'];
+export type OzellikDurum = S['PlatformOzellikDurumDTO'];
 
 function girisliMi(): boolean {
   return usePlatformAuthStore.getState().girisYapildi;

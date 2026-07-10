@@ -25,8 +25,8 @@ from app.core.security.redis_istemci import get_redis
 from app.modules.dys.depolama import nesne_depo_al
 from app.platform.denetim import platform_denetim_yaz
 from app.platform.schemas import (
-    ModulDurumDTO,
-    OzellikDurumDTO,
+    PlatformModulDurumDTO,
+    PlatformOzellikDurumDTO,
     PlatformSaglikDTO,
     SondaDTO,
     TenantDetayDTO,
@@ -118,11 +118,11 @@ async def tenant_listele(
     return kayitlar, int(toplam)
 
 
-async def _modul_durumlari(db: AsyncSession, tenant: Tenant) -> list[ModulDurumDTO]:
+async def _modul_durumlari(db: AsyncSession, tenant: Tenant) -> list[PlatformModulDurumDTO]:
     etkin = await entitlement_service.tenant_etkin_moduller(db, tenant)
     haklar = await entitlement_service.hak_haritasi_getir(db, tenant.id)
     return [
-        ModulDurumDTO(
+        PlatformModulDurumDTO(
             kod=kod,
             ad=MODUL_KATALOGU[kod],
             acik=acik,
@@ -132,11 +132,11 @@ async def _modul_durumlari(db: AsyncSession, tenant: Tenant) -> list[ModulDurumD
     ]
 
 
-async def _ozellik_durumlari(db: AsyncSession, tenant: Tenant) -> list[OzellikDurumDTO]:
+async def _ozellik_durumlari(db: AsyncSession, tenant: Tenant) -> list[PlatformOzellikDurumDTO]:
     etkin = await entitlement_service.tenant_etkin_ozellikler(db, tenant)
     bayraklar = await entitlement_service.bayrak_haritasi_getir(db, tenant.id)
     return [
-        OzellikDurumDTO(
+        PlatformOzellikDurumDTO(
             kod=kod,
             ad=OZELLIK_KATALOGU[kod].ad,
             acik=acik,
@@ -299,7 +299,7 @@ async def modul_hakki_yaz(
     tenant_id: int,
     modul_kodu: str,
     acik: bool | None,
-) -> list[ModulDurumDTO]:
+) -> list[PlatformModulDurumDTO]:
     """Modül override'ı yazar (``None`` = kaldır, plana dön); etkin matrisi döndürür.
 
     Etki ANINDA: tenant tarafı önbelleksiz sorgular (S16/ADR-0018).
@@ -328,7 +328,7 @@ async def ozellik_bayragi_yaz(
     tenant_id: int,
     kod: str,
     acik: bool | None,
-) -> list[OzellikDurumDTO]:
+) -> list[PlatformOzellikDurumDTO]:
     """Özellik bayrağı override'ı yazar (``None`` = kaldır); etkin listeyi döndürür."""
     tenant = await tenant_getir(db, tenant_id)
     try:

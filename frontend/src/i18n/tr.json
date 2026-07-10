@@ -1030,6 +1030,7 @@
     "durum_kuyrukta": "Kuyrukta",
     "durum_hazirlaniyor": "Hazırlanıyor",
     "durum_hazir": "Hazır",
-    "durum_basarisiz": "Başarısız"
+    "durum_basarisiz": "Başarısız",
+    "ileri": "İleri"
   }
 }

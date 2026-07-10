@@ -28,14 +28,14 @@ class TenantOzetDTO(BaseModel):
     olusturma_tarihi: datetime
 
 
-class ModulDurumDTO(BaseModel):
+class PlatformModulDurumDTO(BaseModel):
     kod: str
     ad: str
     acik: bool
     kaynak: str  # "plan" | "hak"
 
 
-class OzellikDurumDTO(BaseModel):
+class PlatformOzellikDurumDTO(BaseModel):
     kod: str
     ad: str
     acik: bool
@@ -54,8 +54,8 @@ class TenantDetayDTO(BaseModel):
     abonelik_bitis: datetime | None
     koltuk_limiti: int | None
     koltuk_kullanilan: int | None
-    moduller: list[ModulDurumDTO]
-    ozellikler: list[OzellikDurumDTO]
+    moduller: list[PlatformModulDurumDTO]
+    ozellikler: list[PlatformOzellikDurumDTO]
     olusturma_tarihi: datetime
 
 

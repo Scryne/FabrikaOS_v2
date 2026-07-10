@@ -50,6 +50,14 @@ import { TicariPano } from '@/modules/ticari/TicariPano';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
+import { AbonelikListesi as PlatformAbonelikListesi } from '@/platform/AbonelikListesi';
+import { PlatformGiris } from '@/platform/PlatformGiris';
+import { PlatformKabuk } from '@/platform/PlatformKabuk';
+import { PlatformKorunanRota } from '@/platform/PlatformKorunanRota';
+import { ProvizyonSihirbazi } from '@/platform/ProvizyonSihirbazi';
+import { SaglikPano } from '@/platform/SaglikPano';
+import { TenantDetay } from '@/platform/TenantDetay';
+import { TenantListesi } from '@/platform/TenantListesi';
 import { IzinKapisi, KorunanRota } from '@/routes/KorunanRota';
 import { useAuthStore } from '@/store/authStore';
 
@@ -152,6 +160,18 @@ export function App() {
   return (
     <Routes>
       <Route path="/giris" element={<GirisSayfasi />} />
+
+      {/* Platform (control-plane) düzlemi — tenant kabuğundan ayrık (S17/ADR-0019). */}
+      <Route path="/platform/giris" element={<PlatformGiris />} />
+      <Route path="/platform" element={<PlatformKorunanRota />}>
+        <Route element={<PlatformKabuk />}>
+          <Route index element={<TenantListesi />} />
+          <Route path="tenantlar/:id" element={<TenantDetay />} />
+          <Route path="yeni" element={<ProvizyonSihirbazi />} />
+          <Route path="abonelikler" element={<PlatformAbonelikListesi />} />
+          <Route path="saglik" element={<SaglikPano />} />
+        </Route>
+      </Route>
 
       <Route element={<KorunanRota />}>
         {/* Kiosk: kabuksuz tam ekran büyük pano (salt-okunur; ADR-0017). */}

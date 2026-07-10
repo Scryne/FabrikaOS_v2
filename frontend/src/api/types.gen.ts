@@ -2231,9 +2231,9 @@ export interface components {
             bitis_tarihi: string | null;
             koltuk: components["schemas"]["KoltukDTO"];
             /** Moduller */
-            moduller: components["schemas"]["app__modules__abonelik__schemas__ModulDurumDTO"][];
+            moduller: components["schemas"]["ModulDurumDTO"][];
             /** Ozellikler */
-            ozellikler: components["schemas"]["app__modules__abonelik__schemas__OzellikDurumDTO"][];
+            ozellikler: components["schemas"]["OzellikDurumDTO"][];
         };
         /** AbonelikSatirDTO */
         AbonelikSatirDTO: {
@@ -3697,14 +3697,31 @@ export interface components {
             olusturma_tarihi: string;
         };
         /**
+         * ModulDurumDTO
+         * @description Bir modülün tenant için etkin durumu; ``kaynak`` kararın nereden geldiğini söyler.
+         */
+        ModulDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /**
+             * Kaynak
+             * @enum {string}
+             */
+            kaynak: "plan" | "hak";
+        };
+        /**
          * ModullerCevapDTO
          * @description `GET /moduller` yanıtı — menü süzgeci için hafif görünürlük verisi.
          */
         ModullerCevapDTO: {
             /** Moduller */
-            moduller: components["schemas"]["app__modules__abonelik__schemas__ModulDurumDTO"][];
+            moduller: components["schemas"]["ModulDurumDTO"][];
             /** Ozellikler */
-            ozellikler: components["schemas"]["app__modules__abonelik__schemas__OzellikDurumDTO"][];
+            ozellikler: components["schemas"]["OzellikDurumDTO"][];
         };
         /** OeeCevapDTO */
         OeeCevapDTO: {
@@ -3858,6 +3875,20 @@ export interface components {
              */
             aciklama: string;
         };
+        /**
+         * OzellikDurumDTO
+         * @description Bir özellik bayrağının tenant için etkin durumu.
+         */
+        OzellikDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /** Deneysel */
+            deneysel: boolean;
+        };
         /** ParolaDegistirDTO */
         ParolaDegistirDTO: {
             /** Eski Parola */
@@ -4010,6 +4041,30 @@ export interface components {
             ad_soyad: string;
             /** Son Giris Tarihi */
             son_giris_tarihi: string | null;
+        };
+        /** PlatformModulDurumDTO */
+        PlatformModulDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /** Kaynak */
+            kaynak: string;
+        };
+        /** PlatformOzellikDurumDTO */
+        PlatformOzellikDurumDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Acik */
+            acik: boolean;
+            /** Deneysel */
+            deneysel: boolean;
+            /** Kaynak */
+            kaynak: string;
         };
         /** PlatformSaglikDTO */
         PlatformSaglikDTO: {
@@ -4826,9 +4881,9 @@ export interface components {
             /** Koltuk Kullanilan */
             koltuk_kullanilan: number | null;
             /** Moduller */
-            moduller: components["schemas"]["app__platform__schemas__ModulDurumDTO"][];
+            moduller: components["schemas"]["PlatformModulDurumDTO"][];
             /** Ozellikler */
-            ozellikler: components["schemas"]["app__platform__schemas__OzellikDurumDTO"][];
+            ozellikler: components["schemas"]["PlatformOzellikDurumDTO"][];
             /**
              * Olusturma Tarihi
              * Format: date-time
@@ -6440,22 +6495,6 @@ export interface components {
             data?: components["schemas"]["ModelKaydiCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
-        /** Zarf[list[ModulDurumDTO]] */
-        Zarf_list_ModulDurumDTO__: {
-            /**
-             * Success
-             * @default true
-             */
-            success: boolean;
-            /**
-             * Message
-             * @default İşlem başarılı
-             */
-            message: string;
-            /** Data */
-            data?: components["schemas"]["app__platform__schemas__ModulDurumDTO"][] | null;
-            meta?: components["schemas"]["SayfaMeta"] | null;
-        };
         /** Zarf[list[OeeOzetSatirDTO]] */
         Zarf_list_OeeOzetSatirDTO__: {
             /**
@@ -6488,22 +6527,6 @@ export interface components {
             data?: components["schemas"]["OrtakCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
-        /** Zarf[list[OzellikDurumDTO]] */
-        Zarf_list_OzellikDurumDTO__: {
-            /**
-             * Success
-             * @default true
-             */
-            success: boolean;
-            /**
-             * Message
-             * @default İşlem başarılı
-             */
-            message: string;
-            /** Data */
-            data?: components["schemas"]["app__platform__schemas__OzellikDurumDTO"][] | null;
-            meta?: components["schemas"]["SayfaMeta"] | null;
-        };
         /** Zarf[list[PersonelCevapDTO]] */
         Zarf_list_PersonelCevapDTO__: {
             /**
@@ -6534,6 +6557,38 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["PlanSatirDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[PlatformModulDurumDTO]] */
+        Zarf_list_PlatformModulDurumDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["PlatformModulDurumDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[PlatformOzellikDurumDTO]] */
+        Zarf_list_PlatformOzellikDurumDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["PlatformOzellikDurumDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[RaporCevapDTO]] */
@@ -6809,37 +6864,6 @@ export interface components {
              */
             aciklama: string;
         };
-        /**
-         * ModulDurumDTO
-         * @description Bir modülün tenant için etkin durumu; ``kaynak`` kararın nereden geldiğini söyler.
-         */
-        app__modules__abonelik__schemas__ModulDurumDTO: {
-            /** Kod */
-            kod: string;
-            /** Ad */
-            ad: string;
-            /** Acik */
-            acik: boolean;
-            /**
-             * Kaynak
-             * @enum {string}
-             */
-            kaynak: "plan" | "hak";
-        };
-        /**
-         * OzellikDurumDTO
-         * @description Bir özellik bayrağının tenant için etkin durumu.
-         */
-        app__modules__abonelik__schemas__OzellikDurumDTO: {
-            /** Kod */
-            kod: string;
-            /** Ad */
-            ad: string;
-            /** Acik */
-            acik: boolean;
-            /** Deneysel */
-            deneysel: boolean;
-        };
         /** RedDTO */
         app__modules__ik__schemas__RedDTO: {
             /** Red Nedeni */
@@ -6852,30 +6876,6 @@ export interface components {
              * @default
              */
             red_nedeni: string;
-        };
-        /** ModulDurumDTO */
-        app__platform__schemas__ModulDurumDTO: {
-            /** Kod */
-            kod: string;
-            /** Ad */
-            ad: string;
-            /** Acik */
-            acik: boolean;
-            /** Kaynak */
-            kaynak: string;
-        };
-        /** OzellikDurumDTO */
-        app__platform__schemas__OzellikDurumDTO: {
-            /** Kod */
-            kod: string;
-            /** Ad */
-            ad: string;
-            /** Acik */
-            acik: boolean;
-            /** Deneysel */
-            deneysel: boolean;
-            /** Kaynak */
-            kaynak: string;
         };
     };
     responses: never;
@@ -7448,7 +7448,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Zarf_list_ModulDurumDTO__"];
+                    "application/json": components["schemas"]["Zarf_list_PlatformModulDurumDTO__"];
                 };
             };
             /** @description Validation Error */
@@ -7484,7 +7484,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Zarf_list_OzellikDurumDTO__"];
+                    "application/json": components["schemas"]["Zarf_list_PlatformOzellikDurumDTO__"];
                 };
             };
             /** @description Validation Error */

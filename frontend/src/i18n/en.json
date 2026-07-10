@@ -1030,6 +1030,7 @@
     "durum_kuyrukta": "Queued",
     "durum_hazirlaniyor": "Preparing",
     "durum_hazir": "Ready",
-    "durum_basarisiz": "Failed"
+    "durum_basarisiz": "Failed",
+    "ileri": "Next"
   }
 }
