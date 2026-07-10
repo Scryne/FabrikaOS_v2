@@ -34,10 +34,12 @@ from app.modules.talep.router import router as talep_router
 from app.modules.ticari.router import router as ticari_router
 from app.modules.uretim.router import router as uretim_router
 from app.platform.kimlik_router import router as platform_kimlik_router
+from app.platform.router import router as platform_router
 
 api_router = APIRouter()
 api_router.include_router(kimlik_router)
 api_router.include_router(platform_kimlik_router)
+api_router.include_router(platform_router)
 api_router.include_router(kullanici_router)
 api_router.include_router(rol_router)
 api_router.include_router(abonelik_router)
