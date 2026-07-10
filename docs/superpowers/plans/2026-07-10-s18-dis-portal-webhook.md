@@ -35,6 +35,6 @@ Spec: `docs/superpowers/specs/2026-07-10-s18-dis-portal-webhook-design.md` · Da
   zaman çizelgesi (müşteri-dili) + giriş yönlendirmesi + i18n; vitest.
 - [x] **T13 — Dokümantasyon + DoD:** ADR-0020, veri-sozlugu, yol-haritasi S18 ✅,
   README; BE pytest+ruff+mypy / FE vitest+eslint+tsc+build tam koşu.
-- [ ] **T14 — Canlı doğrulama:** dev DB + uvicorn + relay `--tek-tur`: abonelik →
+- [x] **T14 — Canlı doğrulama:** dev DB + uvicorn + relay `--tek-tur`: abonelik →
   olay → yerel alıcıda imza doğrulama → retry; API anahtarıyla `/entegrasyon`
   çekme; dış portal + webhook ekranı tarayıcı turu (Playwright MCP).
