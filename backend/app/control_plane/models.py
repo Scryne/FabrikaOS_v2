@@ -1,5 +1,6 @@
 """Control-plane modelleri (public şema): ``Tenant``, ``Abonelik``, ``Plan``,
-``ModulHakki`` ve ``OzellikBayragi``.
+``ModulHakki``, ``OzellikBayragi``, ``PlatformYonetici``, ``TenantIhrac`` ve
+``PlatformDenetimIzi``.
 
 ``Tenant.slug`` aynı zamanda şema adının (``tenant_<slug>``) kaynağıdır; bu yüzden
 katı bir biçim (küçük harf, rakam, tire) zorunludur — bkz. ``tenancy.SLUG_DESENI``.
@@ -7,11 +8,16 @@ katı bir biçim (küçük harf, rakam, tire) zorunludur — bkz. ``tenancy.SLUG
 S16 (ADR-0018): ``planlar`` satış planlarını (modül seti + koltuk limiti) tutar;
 ``modul_haklari`` / ``ozellik_bayraklari`` tenant-başına istisnalardır (override).
 Etkin entitlement hesabı için bkz. ``entitlement.py`` (saf) + ``entitlement_service.py``.
+
+S17 (ADR-0019): ``platform_yonetici`` control-plane operatör kimliğidir (tenant
+RBAC'inden ayrık düzlem); ``tenant_ihraclari`` KVKK dışa aktarma işleri,
+``platform_denetim_izi`` platform yazma işlemlerinin denetim kaydıdır.
 """
 
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
@@ -115,3 +121,65 @@ class OzellikBayragi(KimlikMixin, ZamanDamgaliMixin, PublicBase):
     )
     kod: Mapped[str] = mapped_column(String(50), nullable=False)
     acik: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
+
+class PlatformYonetici(KimlikMixin, ZamanDamgaliMixin, PublicBase):
+    """Control-plane operatör hesabı — hiçbir tenant'a bağlı DEĞİLDİR (S17/ADR-0019).
+
+    Tenant ``Kullanici``/RBAC düzleminden ayrıktır; token tipi ``platform_access``
+    olduğu için tenant uçlarında yapısal olarak geçersizdir (ve tersi).
+    """
+
+    __tablename__ = "platform_yonetici"
+
+    eposta: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    parola_ozet: Mapped[str] = mapped_column(String(255), nullable=False)
+    ad_soyad: Mapped[str] = mapped_column(String(200), default="", nullable=False)
+    aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    son_giris_tarihi: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+
+# İhraç durum makinesi: kuyrukta → hazirlaniyor → hazir | basarisiz (terminalden çıkış yok).
+IHRAC_DURUMLARI = frozenset({"kuyrukta", "hazirlaniyor", "hazir", "basarisiz"})
+
+
+class TenantIhrac(KimlikMixin, ZamanDamgaliMixin, PublicBase):
+    """KVKK tenant veri ihracı işi (S14 rapor async deseninin control-plane aynası).
+
+    ``slug`` denormalize tutulur: artefakt anahtarı ve arka plan görevi, tenant
+    satırı kilitlenmeden/silinmeden bağımsız çalışabilsin.
+    """
+
+    __tablename__ = "tenant_ihraclari"
+
+    tenant_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("tenant.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    slug: Mapped[str] = mapped_column(String(63), nullable=False)
+    durum: Mapped[str] = mapped_column(String(20), default="kuyrukta", nullable=False)
+    nesne_anahtari: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    boyut: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    tablo_sayisi: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    hata: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    olusturan_eposta: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+
+class PlatformDenetimIzi(KimlikMixin, ZamanDamgaliMixin, PublicBase):
+    """Platform (control-plane) yazma işlemlerinin kim-ne-ne zaman kaydı.
+
+    Tenant şemasındaki ``denetim_izi``'nin platform düzlemi aynasıdır; tenant
+    yaşam döngüsü işlemleri (provizyon/askıya alma/silme/entitlement) buraya işlenir.
+    """
+
+    __tablename__ = "platform_denetim_izi"
+
+    yonetici_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True, index=True)
+    yonetici_eposta: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    eylem: Mapped[str] = mapped_column(String(50), nullable=False)
+    kaynak: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    kaynak_id: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    request_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    ip_adresi: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    detay: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
