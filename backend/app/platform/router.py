@@ -20,6 +20,9 @@ from app.platform import service
 from app.platform.deps import mevcut_platform_yonetici
 from app.platform.schemas import (
     AbonelikSatirDTO,
+    HakAyarlaDTO,
+    ModulDurumDTO,
+    OzellikDurumDTO,
     PlanSatirDTO,
     PlatformSaglikDTO,
     TenantDetayDTO,
@@ -128,6 +131,38 @@ async def tenant_detay(
     tenant = await service.tenant_getir(db, tenant_id)
     detay = await service.tenant_detayi(db, tenant)
     return basari(detay.model_dump(), mesaj="Tenant detayı")
+
+
+@router.put(
+    "/tenantlar/{tenant_id}/modul-haklari/{modul_kodu}",
+    response_model=Zarf[list[ModulDurumDTO]],
+    summary="Modül hakkını ayarla (null = plana dön)",
+)
+async def modul_hakki_ayarla_uc(
+    tenant_id: int,
+    modul_kodu: str,
+    govde: HakAyarlaDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    moduller = await service.modul_hakki_yaz(db, yonetici, tenant_id, modul_kodu, govde.acik)
+    return basari([m.model_dump() for m in moduller], mesaj="Modül hakkı güncellendi")
+
+
+@router.put(
+    "/tenantlar/{tenant_id}/ozellik-bayraklari/{kod}",
+    response_model=Zarf[list[OzellikDurumDTO]],
+    summary="Özellik bayrağını ayarla (null = plana dön)",
+)
+async def ozellik_bayragi_ayarla_uc(
+    tenant_id: int,
+    kod: str,
+    govde: HakAyarlaDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    ozellikler = await service.ozellik_bayragi_yaz(db, yonetici, tenant_id, kod, govde.acik)
+    return basari([o.model_dump() for o in ozellikler], mesaj="Özellik bayrağı güncellendi")
 
 
 @router.get(

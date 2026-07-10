@@ -290,6 +290,62 @@ async def tenant_sil(
     await db.flush()
 
 
+# --- Entitlement yazma (S16'nın ertelediği API) ---
+
+
+async def modul_hakki_yaz(
+    db: AsyncSession,
+    yonetici: PlatformYonetici,
+    tenant_id: int,
+    modul_kodu: str,
+    acik: bool | None,
+) -> list[ModulDurumDTO]:
+    """Modül override'ı yazar (``None`` = kaldır, plana dön); etkin matrisi döndürür.
+
+    Etki ANINDA: tenant tarafı önbelleksiz sorgular (S16/ADR-0018).
+    """
+    tenant = await tenant_getir(db, tenant_id)
+    try:
+        await entitlement_service.modul_hakki_ayarla(db, tenant.id, modul_kodu, acik)
+    except ValueError as exc:
+        raise DogrulamaHatasi(
+            str(exc), detaylar=[{"alan": "modul_kodu", "mesaj": str(exc)}]
+        ) from exc
+    await platform_denetim_yaz(
+        db,
+        eylem="modul_hakki",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay={"modul_kodu": modul_kodu, "acik": acik},
+    )
+    return await _modul_durumlari(db, tenant)
+
+
+async def ozellik_bayragi_yaz(
+    db: AsyncSession,
+    yonetici: PlatformYonetici,
+    tenant_id: int,
+    kod: str,
+    acik: bool | None,
+) -> list[OzellikDurumDTO]:
+    """Özellik bayrağı override'ı yazar (``None`` = kaldır); etkin listeyi döndürür."""
+    tenant = await tenant_getir(db, tenant_id)
+    try:
+        await entitlement_service.ozellik_bayragi_ayarla(db, tenant.id, kod, acik)
+    except ValueError as exc:
+        raise DogrulamaHatasi(str(exc), detaylar=[{"alan": "kod", "mesaj": str(exc)}]) from exc
+    await platform_denetim_yaz(
+        db,
+        eylem="ozellik_bayragi",
+        kaynak="tenant",
+        kaynak_id=str(tenant.id),
+        yonetici=yonetici,
+        detay={"kod": kod, "acik": acik},
+    )
+    return await _ozellik_durumlari(db, tenant)
+
+
 async def _veritabani_sondasi(db: AsyncSession) -> SondaDTO:
     try:
         await db.execute(text("SELECT 1"))
