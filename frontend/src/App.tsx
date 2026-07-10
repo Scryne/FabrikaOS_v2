@@ -20,6 +20,8 @@ import { AnalitikPano } from '@/modules/analitik/AnalitikPano';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
 import { DuyuruListesi } from '@/modules/duyuru/DuyuruListesi';
+import { EntegrasyonKapisi } from '@/modules/entegrasyon/EntegrasyonKapisi';
+import { WebhookSayfasi } from '@/modules/entegrasyon/WebhookSayfasi';
 import { BelgeListesi } from '@/modules/dys/BelgeListesi';
 import { EnerjiTuketimListesi } from '@/modules/enerji/EnerjiTuketimListesi';
 import { IzinListesi } from '@/modules/ik/IzinListesi';
@@ -424,6 +426,18 @@ export function App() {
             element={
               <IzinKapisi izin="abonelik:oku">
                 <AbonelikSayfasi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="webhooklar"
+            element={
+              // Modül kapısı özel: `entegrasyon` modülü VEYA `webhook-onizleme` bayrağı
+              // (backend `modul_veya_ozellik_gerekli` ile hizalı; S18/ADR-0020).
+              <IzinKapisi izin="entegrasyon:oku">
+                <EntegrasyonKapisi>
+                  <WebhookSayfasi />
+                </EntegrasyonKapisi>
               </IzinKapisi>
             }
           />

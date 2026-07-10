@@ -234,6 +234,14 @@ export const MENU: MenuOgesi[] = [
     yol: '/abonelik',
     izin: 'abonelik:oku',
   },
+  {
+    anahtar: 'webhooklar',
+    etiketAnahtari: 'menu.webhooklar',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/webhooklar',
+    izin: 'entegrasyon:oku',
+    modul: 'entegrasyon',
+  },
 ];
 
 /**
