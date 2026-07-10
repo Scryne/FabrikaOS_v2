@@ -30,7 +30,7 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | | S14 | Analitik & Raporlama | ✅ ADR-0016 |
 | | S15 | Dijital ikiz + Kiosk | ✅ ADR-0017 |
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ✅ ADR-0018 |
-| | S17 | Platform Admin Paneli | ⬜ |
+| | S17 | Platform Admin Paneli | ✅ ADR-0019 |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ⬜ |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
 | | S20 | Yedekleme/DR + Staging | ⬜ |
@@ -299,11 +299,22 @@ modül matrisi, "deneysel" rozetleri). Entitlement yazma API'si S17'de (CLI:
 koltuk limiti aşımı engellenir (eşzamanlılık kilitli); entitlement değişimi anında
 etkili (testli); bypass güvenlik testi (tüm izinli admin yine 403) + tenant izolasyonu.
 
-#### ⬜ S17 — Platform Admin Paneli (control-plane)
-Platform uçları (`platform-admin`): tenant listele/oluştur/güncelle/askıya-al/**ihraç**/sil;
-`/platform/abonelikler`, `/platform/saglik`. Platform admin SPA.
-**Kabul:** Panelden yeni tenant **dakikalar içinde** provizyonlanır; askıya alma erişimi keser;
-ihraç tenant verisini eksiksiz dışa aktarır (KVKK).
+#### ✅ S17 — Platform Admin Paneli (control-plane) (karşılandı — ADR-0019)
+Ayrık kimlik düzlemi: `public.platform_yonetici` + `platform_access/refresh` JWT
+tipleri (tenant token'ı platform ucunda ve tersi yapısal 401; rotasyon + rate limit
+aynı çekirdek). Uçlar `/api/v1/platform/*`: kimlik · tenantlar (liste+arama+koltuk
+kullanımı, detay+entitlement matrisi, **senkron provizyon**, PATCH ad/plan,
+askıya-al/aktifleştir, DELETE `onay=slug` + `DROP SCHEMA CASCADE`) · **entitlement
+yazma** (S16 devri: PUT modul-haklari/ozellik-bayraklari, `null`=plana dön) ·
+abonelikler · planlar · saglik (db/redis/nesne depo sondaları) · **KVKK ihracı**
+(`tenant_ihraclari` + 202 süreç-içi görev; `information_schema` keşifli tam şema
+dump → ZIP → `platform/ihrac/...`; indirme 409 korumalı). Platform yazmaları
+`platform_denetim_izi`'nde. FE: `/platform/*` ayrı düzlem (ayrı store/istemci,
+X-Tenant yok) — turuncu hat + PLATFORM filigranı; tenant listesi/detayı (switch
+matrisi, slug-yazarak-onay tehlikeli aksiyonlar), provizyon sihirbazı, sağlık panosu.
+**Kabul (karşılandı):** provizyon→yeni admin girişi testli; askıya alma erişimi
+ANINDA keser (404, giriş dahil); ihraç ZIP'i bilinen veriyi bayt düzeyi doğrulamayla
+içerir; entitlement yazımı bir sonraki istekte etkili; migration public up/down.
 
 #### ⬜ S18 — Dış Portal + Webhook + API Entegrasyon
 Dış self-servis portal (`dis-panel`): `/dis/talepler`, `/dis/durum`. **Webhook** altyapısı: imzalı

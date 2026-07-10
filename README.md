@@ -16,7 +16,7 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ · Faz 2 (Saha & Modüller) ✅ · Faz 3 (Zekâ) ✅ · Faz 4 (Lisanslama & Dış Entegrasyon) → S16 ✅.**
+**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ · Faz 2 (Saha & Modüller) ✅ · Faz 3 (Zekâ) ✅ · Faz 4 (Lisanslama & Dış Entegrasyon) → S17 ✅.**
 
 | Sprint | Konu | Durum |
 |---|---|---|
@@ -34,15 +34,17 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 | S14 | Analitik & Raporlama (modüller-arası KPI panosu + async PDF/Excel rapor, MinIO) | ✅ |
 | S15 | Dijital ikiz (SVG tesis şeması, canlı durum + sürükle-yerleştir) + Kiosk (salt-okunur büyük ekran) | ✅ |
 | S16 | Abonelik, Entitlement & Feature Flag (plan katalogu + modül hakları + koltuk limiti + `/abonelik` ekranı) | ✅ |
-| S17 → S22 | Platform admin, dış portal/webhook, operasyon, GA | ⬜ planlı |
+| S17 | Platform Admin Paneli (control-plane kimlik düzlemi + tenant yaşam döngüsü + entitlement yazma API'si + KVKK ihracı + `/platform` paneli) | ✅ |
+| S18 → S22 | Dış portal/webhook, operasyon, GA | ⬜ planlı |
 
-Backend: **426 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
+Backend: **458 test** (tenant izolasyonu + RBAC + fan-out + OEE + iş emri yaşam döngüsü +
 gerçek-zaman + edge/ingestion + stok/satınalma + kalite/CAPA + enerji/continuous aggregate +
 İSG risk matrisi + İK izin onay akışı/KVKK + CRM/sözleşme/talep + DYS sürümlü belge/nesne
 depolama + duyuru + AI feature pipeline/model çıktı doğrulama/eğitim-çıkarım + analitik KPI +
 async rapor üretimi/indirme + dijital ikiz yerleşim/canlı durum + kiosk salt-okunurluk +
-entitlement zorlaması/koltuk limiti/plan kataloğu).
-Frontend: **153 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
+entitlement zorlaması/koltuk limiti/plan kataloğu + platform kimlik düzlem ayrımı/tenant
+yaşam döngüsü/KVKK ihracı).
+Frontend: **162 test** (Vitest + RTL) + Playwright **E2E** (canlı güncelleme);
 `tsc --strict` + ESLint temiz. Ayrıntı: [yol haritası](docs/yol-haritasi.md).
 
 ## Mimari (özet)
@@ -71,7 +73,7 @@ backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
 backend/tests/      # birim + entegrasyon testleri
 frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
 frontend/e2e/       # Playwright E2E (gerçek-zaman canlı güncelleme)
-docs/adr/           # mimari karar kayıtları (0001–0018)
+docs/adr/           # mimari karar kayıtları (0001–0019)
 docs/yol-haritasi.md# faz/sprint planı
 docker-compose.yml  # api, db, redis, minio, mqtt, traefik
 ```
@@ -164,7 +166,7 @@ REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcumler` (+`/csv`, `edge` i
 - **Identifier:** Türkçe-ASCII (ç/ş/ı/ğ/ö/ü yok) — bkz. [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md)
 - **API:** `/api/v1`, kaynak-odaklı çoğul Türkçe uçlar, yanıt zarfı `{success, message, data, meta}`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0018 mevcut)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (0001–0019 mevcut)
 
 ## Yol haritası
 

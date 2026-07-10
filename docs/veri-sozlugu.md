@@ -77,6 +77,9 @@ kelimeyle anılır. Yeni terim eklerken buraya yaz.
 | Modül hakkı (entitlement override, tenant-başına, public) | `modul_hakki` / `modul_haklari` |
 | Özellik bayrağı (feature flag override, tenant-başına, public) | `ozellik_bayragi` / `ozellik_bayraklari` |
 | Koltuk (seat — aktif kullanıcı üst sınırı) | `koltuk` / `koltuk_limiti` |
+| Platform yöneticisi (control-plane operatörü, public) | `platform_yonetici` |
+| Tenant ihracı (KVKK dışa aktarma işi, public) | `tenant_ihrac` / `tenant_ihraclari` |
+| Platform denetim izi (control-plane audit, public) | `platform_denetim_izi` |
 
 ## Ortak kolonlar
 `olusturma_tarihi`, `guncelleme_tarihi`, `olusturan_id`, `durum`, `<x>_id` (FK).
@@ -128,3 +131,16 @@ satın aldı". Satılabilir birim = **modül** (`MODUL_KATALOGU`, 17 kod; ikiz+k
 `409 KOLTUK_LIMITI` (pasif kullanıcı sayılmaz). Özellik bayrağı = kesitsel/erken-erişim
 anahtarı (`mobil-api`, `webhook-onizleme`); modül değildir. Uçlar: `GET /moduller`
 (oturum; menü süzgeci), `GET /abonelik` (`abonelik:oku`). ADR-0018.
+
+## Platform admin / control-plane (S17)
+Platform yöneticisi **tenant düzleminden ayrık** kimliktir: `public.platform_yonetici` +
+JWT tipleri `platform_access`/`platform_refresh` (tenant token'ı platform ucunda ve tersi
+**yapısal olarak** 401). Uçlar `/api/v1/platform/*` (`tenant_cozumle` YOK): kimlik,
+tenantlar (provizyon senkron; PATCH ad/plan; askıya-al = `tenant.aktif=false` → erişim
+ANINDA kesilir; DELETE `onay=slug` şartlı + `DROP SCHEMA CASCADE`), entitlement yazma
+(PUT `modul-haklari/{kod}` / `ozellik-bayraklari/{kod}`, `acik:null` = plana dön),
+abonelikler, planlar, saglik. **KVKK ihracı**: `tenant_ihraclari` (`kuyrukta →
+hazirlaniyor → hazir | basarisiz`) + 202 süreç-içi görev; tenant şeması tabloları
+`information_schema` keşfiyle JSON→ZIP → nesne deposu `platform/ihrac/<slug>/<id>/...`
+(control-plane öneki, tenant öneki DEĞİL); indirme hazir değilse 409. Tüm platform
+yazmaları `platform_denetim_izi`'ne işlenir. ADR-0019.
