@@ -19,7 +19,7 @@ export type MenuOgesi = {
 };
 
 export const MENU: MenuOgesi[] = [
-  { anahtar: 'pano', etiketAnahtari: 'menu.pano', bolum: 'menu.bolum_genel', yol: '/' },
+  { anahtar: 'pano', etiketAnahtari: 'menu.pano', bolum: 'menu.bolum_genel', yol: '/pano' },
   {
     anahtar: 'makineler',
     etiketAnahtari: 'menu.makineler',

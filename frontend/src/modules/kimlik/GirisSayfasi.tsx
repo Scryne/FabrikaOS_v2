@@ -5,7 +5,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, Form, Input } from 'antd';
 
 import { girisYap } from '@/api/kimlik';
@@ -110,7 +110,7 @@ export function GirisSayfasi() {
         degerler.eposta,
         degerler.parola,
       );
-      navigate('/', { replace: true });
+      navigate('/pano', { replace: true });
     } catch {
       setHata(true);
     } finally {
@@ -121,7 +121,13 @@ export function GirisSayfasi() {
   return (
     <div className="giris-sayfa">
       <aside className="giris-marka">
-        <Marka boyut={34} />
+        <Link
+          to="/"
+          aria-label="FabrikaOS"
+          style={{ display: 'inline-flex', width: 'fit-content' }}
+        >
+          <Marka boyut={34} />
+        </Link>
         <div>
           <h1 className="giris-baslik-buyuk">{t('kimlik.giris_basligi')}</h1>
           <p style={{ color: 'var(--metin-soluk)', maxWidth: '38ch', margin: '0 0 36px' }}>
@@ -138,7 +144,9 @@ export function GirisSayfasi() {
       <main className="giris-form-alan">
         <div className="giris-form icerik-acilis">
           <div className="giris-form-marka">
-            <Marka boyut={26} />
+            <Link to="/" aria-label="FabrikaOS" style={{ display: 'inline-flex' }}>
+              <Marka boyut={26} />
+            </Link>
           </div>
 
           <h2 className="giris-form-baslik">{t('kimlik.form_baslik')}</h2>

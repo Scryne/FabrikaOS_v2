@@ -7,10 +7,19 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Descriptions, Space, Table, Tabs, Tag } from 'antd';
+import {
+  ArrowLeftOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  InboxOutlined,
+  PlusOutlined,
+  SafetyCertificateOutlined,
+} from '@ant-design/icons';
+import { Button, Descriptions, Skeleton, Space, Table, Tabs, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
+import { PanelKart } from '@/components/PanelKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { useAuthStore } from '@/store/authStore';
@@ -29,6 +38,8 @@ import {
 } from './hooks';
 import { IzinFormu } from './IzinFormu';
 import { ZimmetDurumEtiketi } from './rozetler';
+
+const HAT = '#f59e0b';
 
 function MesaiSekmesi({ personelId }: { personelId: number }) {
   const { t } = useTranslation();
@@ -200,29 +211,85 @@ export function PersonelDetay() {
   const id = Number(params.id);
   const yazabilir = useAuthStore((s) => s.izinVar('ik:yaz'));
   const { data: personel, isPending } = usePersonel(id);
+  // Alt-listeler KPI şeridi için üstte de çekilir (sekmelerle aynı anahtar → React Query dedup).
+  const mesailer = useMesailer(id);
+  const zimmetler = useZimmetler(id);
+  const sertifikalar = useSertifikalar(id);
   const [izinAcik, setIzinAcik] = useState(false);
+
+  const onayliMesai = (mesailer.data ?? []).filter((m) => m.onayli).reduce((a, m) => a + m.saat, 0);
+  const acikZimmet = (zimmetler.data ?? []).filter((z) => z.durum === 'zimmetli').length;
+  const sertifikaSayisi = (sertifikalar.data ?? []).length;
+
+  const ozetMetrikler: OzetMetrik[] = [
+    {
+      anahtar: 'izin',
+      baslik: t('ik.kpi_izin'),
+      deger: String(personel?.yillik_izin_hakki ?? 0),
+      birim: t('ik.birim_gun'),
+      ikon: <CalendarOutlined />,
+    },
+    {
+      anahtar: 'mesai',
+      baslik: t('ik.kpi_mesai'),
+      deger: String(onayliMesai),
+      birim: t('ik.birim_saat'),
+      ikon: <ClockCircleOutlined />,
+    },
+    {
+      anahtar: 'zimmet',
+      baslik: t('ik.kpi_zimmet'),
+      deger: String(acikZimmet),
+      ikon: <InboxOutlined />,
+    },
+    {
+      anahtar: 'sertifika',
+      baslik: t('ik.sekme_sertifika'),
+      deger: String(sertifikaSayisi),
+      ikon: <SafetyCertificateOutlined />,
+    },
+  ];
 
   return (
     <SayfaKapsayici enGenis={1160}>
       <SayfaBaslik
-        baslik={personel ? `${personel.ad} ${personel.soyad}` : t('menu.personeller')}
-        alt={personel?.sicil_no}
-        sag={
-          <Space>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/personeller')}>
-              {t('ortak.geri')}
-            </Button>
-            {yazabilir && personel && (
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setIzinAcik(true)}>
-                {t('ik.izin_yeni')}
-              </Button>
+        baslik={
+          <Space size={12} align="center" wrap>
+            <Button
+              type="text"
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate('/personeller')}
+              aria-label={t('ortak.geri')}
+            />
+            <span>{personel ? `${personel.ad} ${personel.soyad}` : t('menu.personeller')}</span>
+            {personel?.unvan && (
+              <Tag bordered={false} style={{ fontWeight: 400 }}>
+                {personel.unvan}
+              </Tag>
             )}
+            {personel && !personel.aktif && <Tag bordered={false}>{t('ik.aktif_hayir')}</Tag>}
           </Space>
         }
+        alt={personel?.sicil_no}
+        sag={
+          yazabilir &&
+          personel && (
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIzinAcik(true)}>
+              {t('ik.izin_yeni')}
+            </Button>
+          )
+        }
       />
-      <Card loading={isPending} styles={{ body: { padding: 18 } }}>
-        {personel && (
-          <Descriptions column={2} size="small" bordered>
+
+      <div style={{ marginBottom: 16 }}>
+        <OzetSerit metrikler={ozetMetrikler} renk={HAT} yukleniyor={isPending} />
+      </div>
+
+      <PanelKart baslik={t('ik.kunye')} renk={HAT}>
+        {isPending || !personel ? (
+          <Skeleton active paragraph={{ rows: 4 }} />
+        ) : (
+          <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small">
             <Descriptions.Item label={t('ik.sicil_no')}>
               <span className="sayisal">{personel.sicil_no}</span>
             </Descriptions.Item>
@@ -238,9 +305,6 @@ export function PersonelDetay() {
             <Descriptions.Item label={t('ik.ise_giris_tarihi')}>
               {personel.ise_giris_tarihi ?? '—'}
             </Descriptions.Item>
-            <Descriptions.Item label={t('ik.yillik_izin_hakki')}>
-              <span className="sayisal">{personel.yillik_izin_hakki}</span>
-            </Descriptions.Item>
             <Descriptions.Item label={t('ik.aktif')}>
               <Tag color={personel.aktif ? 'success' : 'default'} bordered={false}>
                 {personel.aktif ? t('ik.aktif_evet') : t('ik.aktif_hayir')}
@@ -248,29 +312,32 @@ export function PersonelDetay() {
             </Descriptions.Item>
           </Descriptions>
         )}
-      </Card>
+      </PanelKart>
+
       {personel && (
-        <Card style={{ marginTop: 16 }} styles={{ body: { padding: 18 } }}>
-          <Tabs
-            items={[
-              {
-                key: 'mesai',
-                label: t('ik.sekme_mesai'),
-                children: <MesaiSekmesi personelId={id} />,
-              },
-              {
-                key: 'zimmet',
-                label: t('ik.sekme_zimmet'),
-                children: <ZimmetSekmesi personelId={id} />,
-              },
-              {
-                key: 'sertifika',
-                label: t('ik.sekme_sertifika'),
-                children: <SertifikaSekmesi personelId={id} />,
-              },
-            ]}
-          />
-        </Card>
+        <div style={{ marginTop: 16 }}>
+          <PanelKart renk={HAT} govdeDolgu={16}>
+            <Tabs
+              items={[
+                {
+                  key: 'mesai',
+                  label: t('ik.sekme_mesai'),
+                  children: <MesaiSekmesi personelId={id} />,
+                },
+                {
+                  key: 'zimmet',
+                  label: t('ik.sekme_zimmet'),
+                  children: <ZimmetSekmesi personelId={id} />,
+                },
+                {
+                  key: 'sertifika',
+                  label: t('ik.sekme_sertifika'),
+                  children: <SertifikaSekmesi personelId={id} />,
+                },
+              ]}
+            />
+          </PanelKart>
+        </div>
       )}
       <IzinFormu acik={izinAcik} kapat={() => setIzinAcik(false)} personelId={id} />
     </SayfaKapsayici>

@@ -45,6 +45,7 @@ import { RaporListesi } from '@/modules/rapor/RaporListesi';
 import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { CihazListesi } from '@/modules/saha/CihazListesi';
 import { SozlesmeListesi } from '@/modules/sozlesme/SozlesmeListesi';
+import { TanitimSayfasi } from '@/modules/tanitim/TanitimSayfasi';
 import { KritikStok } from '@/modules/stok/KritikStok';
 import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
 import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
@@ -132,8 +133,8 @@ function CanliKabuk() {
   );
 }
 
-/** Ana giriş: yalnız dış portal kullanıcısı (tek izni dis:erisim) `/dis`e yönlenir. */
-function AnaGiris() {
+/** `/pano` rotası: yalnız dış portal kullanıcısı (tek izni dis:erisim) `/dis`e yönlenir. */
+function PanoRota() {
   const kullanici = useAuthStore((s) => s.kullanici);
   if (kullanici && sadeceDisKullanici(kullanici.izinler)) {
     return <Navigate to="/dis" replace />;
@@ -172,6 +173,8 @@ export function App() {
 
   return (
     <Routes>
+      {/* Kök `/` = kurumsal tanıtım (public landing) — doğrudan açılır, oturum gerektirmez. */}
+      <Route path="/" element={<TanitimSayfasi />} />
       <Route path="/giris" element={<GirisSayfasi />} />
 
       {/* Platform (control-plane) düzlemi — tenant kabuğundan ayrık (S17/ADR-0019). */}
@@ -208,7 +211,7 @@ export function App() {
           }
         />
         <Route element={<CanliKabuk />}>
-          <Route index element={<AnaGiris />} />
+          <Route path="pano" element={<PanoRota />} />
           <Route
             path="makineler"
             element={
@@ -473,7 +476,7 @@ export function App() {
         </Route>
       )}
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/pano" replace />} />
     </Routes>
   );
 }

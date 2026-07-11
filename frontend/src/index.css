@@ -442,6 +442,11 @@ body {
   flex-shrink: 0;
 }
 
+/* Satır içinde eşit yükseklik (AntD Row/Col stretch ile) — grafik+tablo panelleri. */
+.tam-yukseklik {
+  height: 100%;
+}
+
 /* Durum pimi — birleşik nokta + etiket (renk körlüğü güvenli: nokta + metin). */
 .durum-pim {
   display: inline-flex;
@@ -650,4 +655,155 @@ body {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+/* ---------------------------------------------------------------------------
+ * Persona panosu — kişiye/role göre kompoze pano: hero başlık + bento ızgara +
+ * kompakt istatistik + domain paneli (widget). Depo kullanıcısı yalnız stok
+ * panellerini, yönetici tüm bento'yu görür. Renk yine sinyal (hat rengi kimlik).
+ * ------------------------------------------------------------------------- */
+
+.pano-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px 30px;
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+}
+.pano-hero-kirinti {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--metin-soluk);
+  margin-bottom: 6px;
+}
+.pano-hero-kirinti .hat-nokta {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--hat, var(--mavi));
+  flex-shrink: 0;
+}
+.pano-hero-selam {
+  margin: 0;
+  font-size: clamp(21px, 3vw, 27px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--metin);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.pano-hero-mefta {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  flex-wrap: wrap;
+  color: var(--metin-soluk);
+  font-size: 12.5px;
+}
+.pano-hero-mefta .ayrac {
+  width: 1px;
+  height: 13px;
+  background: var(--kenarlik);
+}
+
+/* Bento — otomatik dolan ızgara; "genis" panel iki iz kaplar (grafik taşıyanlar). */
+.pano-bento {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(306px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.pano-bento > .genis {
+  grid-column: span 2;
+}
+@media (max-width: 680px) {
+  .pano-bento > .genis {
+    grid-column: auto;
+  }
+}
+
+/* Kompakt istatistik bloğu (widget içi KPI sırası) — büyük mono değer + soluk etiket. */
+.pano-istat-sira {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 26px;
+}
+.pano-istat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 56px;
+}
+.pano-istat .deger {
+  font-size: 25px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--istat-renk, var(--metin));
+}
+.pano-istat .etiket {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  line-height: 1.25;
+}
+
+/* Domain paneli "panele git" bağlantısı + iç liste satırı. */
+.widget-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  color: var(--metin-soluk);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--gecis);
+}
+.widget-link:hover {
+  color: var(--metin);
+}
+.widget-satir {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--kenarlik);
+}
+.widget-satir:first-child {
+  border-top: none;
+  padding-top: 3px;
+}
+.widget-satir-ad {
+  color: var(--metin);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.widget-bos {
+  color: var(--metin-soluk);
+  font-size: 13px;
+  padding: 12px 0 4px;
+}
+/* Widget içi bölünmüş düzen (grafik + istatistik yan yana; darda alt alta). */
+.widget-split {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.widget-split > .widget-gorsel {
+  flex: 0 0 auto;
+  width: 168px;
+  max-width: 100%;
+}
+.widget-split > .widget-yan {
+  flex: 1 1 200px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }

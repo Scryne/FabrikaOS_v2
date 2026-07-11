@@ -67,6 +67,19 @@ export function useMakineOee(id: number) {
   });
 }
 
+/** Bu makinenin son ``adet`` üretim kaydı (trend grafiği + vardiya kırılımı + toplulaştırma için). */
+export function useMakineUretimSerisi(id: number, adet = 24) {
+  return useQuery({
+    queryKey: [...URETIM_ANAHTAR.makine(id), 'seri', adet] as const,
+    queryFn: () =>
+      istek<UretimVerisi[]>(
+        'GET',
+        `${PREFIX}/uretim-verileri?makine_id=${id}&sayfa=1&adet=${adet}&siralama=zaman&yon=desc`,
+      ),
+    enabled: id > 0,
+  });
+}
+
 export function useOeeOzet() {
   return useQuery({
     queryKey: URETIM_ANAHTAR.oeeOzet,

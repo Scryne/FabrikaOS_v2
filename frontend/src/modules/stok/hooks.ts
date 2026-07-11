@@ -77,6 +77,19 @@ export function useKritikStok() {
   });
 }
 
+/** Bu malzemenin son ``adet`` stok hareketi (bakiye trendi + giriş/çıkış kırılımı + toplamlar). */
+export function useStokHareketSerisi(malzemeId: number, adet = 24) {
+  return useQuery({
+    queryKey: [...STOK_ANAHTAR.hareketler, malzemeId, 'seri', adet] as const,
+    queryFn: () =>
+      istek<StokHareketi[]>(
+        'GET',
+        `${PREFIX}/stok-hareketleri?malzeme_id=${malzemeId}&sayfa=1&adet=${adet}`,
+      ),
+    enabled: malzemeId > 0,
+  });
+}
+
 export function useMalzemeOlustur() {
   const qc = useQueryClient();
   const { message } = App.useApp();
@@ -114,12 +127,15 @@ export function useMalzemeGuncelle() {
 
 // --- Stok hareketi ---
 export function useStokHareketleri(param: SayfaParam, malzemeId?: number) {
-  const yol = malzemeId ? `/stok-hareketleri?malzeme_id=${malzemeId}` : '/stok-hareketleri';
-  // Not: useSayfaliSorgu sorgu dizesini ekler; malzeme filtresi için ayrı anahtar kullan.
+  // Filtre param.filtreler'den geçer (sorguDizesi serileştirir); path'e ?malzeme_id gömmek
+  // çift `?` üretir (useSayfaliSorgu ayrıca `?` ekler → 422). Ayrı anahtar cache'i böler.
+  const tamParam = malzemeId
+    ? { ...param, filtreler: { ...param.filtreler, malzeme_id: malzemeId } }
+    : param;
   return useSayfaliSorgu<StokHareketi>(
     malzemeId ? [...STOK_ANAHTAR.hareketler, malzemeId] : STOK_ANAHTAR.hareketler,
-    yol,
-    param,
+    '/stok-hareketleri',
+    tamParam,
   );
 }
 
