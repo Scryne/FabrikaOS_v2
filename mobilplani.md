@@ -150,7 +150,7 @@ ekranında yaşar. Fabrika, cebe bakınca "nabzını" gösterir.
 
 ---
 
-## 6. Teknoloji & mimari (ADR-0027 adayı kararlar)
+## 6. Teknoloji & mimari (ADR-0032 adayı kararlar)
 
 | Karar | Seçim | Gerekçe / reddedilenler |
 |---|---|---|
@@ -249,7 +249,7 @@ tema (cep lehçesi) + i18n TR/EN; kimlik akışı: tenant kodu → e-posta/parol
 SecureStore + sessiz yenileme + biyometrik kilit; 5 sekme iskeleti + rol-duyarlı boş
 Bugün; Sentry; `GET /mobil/surum` + zorlama ekranı.
 **Kabul:** iki gerçek tenant ile giriş/çıkış/yenileme cihazda (iOS+Android) çalışır;
-yanlış tenant token reddi görünür hatayla; biyometrik kilit açılışta; CI yeşil. ADR-0027.
+yanlış tenant token reddi görünür hatayla; biyometrik kilit açılışta; CI yeşil. ADR-0032.
 
 #### ⬜ M1 — Operatör paketi + offline çekirdek
 Görevlerim (iş emirleri) + detay + durum geçişi + yorum; hızlı üretim girişi (sayı pedi,

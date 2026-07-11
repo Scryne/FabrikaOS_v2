@@ -1,8 +1,9 @@
 # FabrikaOS — Yol Haritası (Faz & Sprint Planı)
 
 Bu belge, `FabrikaOS_Proje_Plani.pdf` şartnamesinin **uygulanabilir, görev-görev** yol
-haritasıdır: 7 faz / 28 sprint (Faz 6 = GA sonrası kurumsal derinleşme), her sprint için
-kapsam + kabul kriteri + Definition of Done (DoD).
+haritasıdır: 8 faz / 33 sprint (Faz 4B = vitrin bütünlüğü köprüsü; Faz 6 = GA sonrası kurumsal
+derinleşme; Faz 7 = yeni satılabilir modüller), her sprint için kapsam + kabul kriteri +
+Definition of Done (DoD).
 Çalışma modeli **TDD disiplinli** (kırmızı → yeşil → refactor → doğrulama → DoD) ve **trunk-based**'tir.
 
 > Kaynak şartname: `FabrikaOS_Proje_Plani.pdf` (46 sayfa, FR/NFR + REST spesifikasyonu + test/güvenlik/DR).
@@ -32,6 +33,7 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ✅ ADR-0018 |
 | | S17 | Platform Admin Paneli | ✅ ADR-0019 |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ✅ ADR-0020 |
+| **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ⬜ ▶ |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
@@ -42,7 +44,11 @@ kapsam + kabul kriteri + Definition of Done (DoD).
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
-| **7 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⬜ |
+| **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ⬜ |
+| | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ⬜ |
+| | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ⬜ |
+| | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ⬜ |
+| **8 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⬜ |
 
 İşaretler: ✅ tamam · ▶ sıradaki · ⬜ planlı.
 
@@ -333,6 +339,41 @@ SHA-256 özet + kapsam beyaz-listesi (`/entegrasyon/*` salt-okunur). Yeni modül
 
 ---
 
+### FAZ 4B — Vitrin Bütünlüğü (köprü) · ~1 sprint · ▶ SIRADAKI (demo-öncelikli)
+**Amaç:** `/tanitim` blueprint vitrininde (**"27 Entegre Modül"**) müşteriye vaat edilip henüz kodda
+olmayan **görünür** özellikleri **demo-yeterli çekirdek** seviyede gerçekleştirerek vitrini dürüst +
+etkileyici yapmak (truth-in-advertising). Bu kalemlerin **kurumsal-tam sürümleri** Faz 6'da derinleşir
+(bildirim → S27, tedarikçi skoru/PO → S25, vardiya/operatör atama → S24); burada amaç kapsam değil,
+**vitrin ↔ gerçek örtüşmesi**. Yeni çekirdek icat edilmez; mevcut desenler (outbox, `yaklasanlari-tara`,
+saf skor fonksiyonu, S13 AI çıkarımı) yeniden kullanılır.
+
+#### ⬜ S-VB — Vitrin bütünlüğü & Bildirim Merkezi çekirdeği
+- **Bildirim Merkezi (çekirdek):** `Bildirim` tablosu (kişi-hedefli, tenant içi) — **mevcut outbox
+  olaylarından** üretim (`stok.kritik`, `sozlesme.yaklasiyor`, `anomali.tespit`, `rapor.hazir`,
+  `ariza.olustu`, `oee.dustu`); kabuk header'da **zil paneli** (okundu yönetimi, tümünü okundu say) +
+  **tercih ekranı** (olay türü başına aç/kapa); **e-posta kanal iskeleti** (SMTP + şablon; digest ops.)
+  + **SMS stub**. → Reuse: `core/olaylar.py` tüketici + S18 webhook fan-out deseni.
+- **SLA takibi:** `IsEmri`/`Talep`'e hedef süre alanı; kenar-tetikli tarama → `sla.asildi` outbox →
+  Bildirim. → Reuse: S12 `sozlesme.yaklasiyor` `/yaklasanlari-tara` deseni birebir.
+- **AI Operatör Eşleştirme:** `POST /tahmin/operator-eslesme` (iş emri gereksinimi ⋈ personel geçmiş
+  OEE/beceri → sıralı öneri; saf, deterministik). → Reuse: S13 AI çıkarım deseni.
+- **Tedarikçi performans skoru (öz):** CRM `Firma` detayında saf skor fonksiyonu (zamanında teslim +
+  kalite kontrol bağlantısı). → Reuse: `oee_hesapla` tarzı saf-fonksiyon + birim test kalıbı.
+- **Coğrafi site haritası:** tesis/cihaza `enlem/boylam`; FE `/ikiz` yanında **React-Leaflet** harita
+  sekmesi (SVG şema geo haritayla tamamlanır).
+- **Takvim görünümü:** bakım planları + İSG eğitim + izin → FE takvim (mevcut uçlardan besleme).
+- **Landing hizalama:** `frontend/src/modules/tanitim/TanitimSayfasi.tsx` + i18n + `MODUL_KATALOGU`
+  gerçekle örtüşür ("27 modül" iddiası ya gerçek modüllerle desteklenir ya da dürüstçe düzeltilir).
+**Kabul:** Bildirim canlı düşer + okundu kalıcı + tercih kapatınca üretilmez; SLA aşımı **bir-kez**
+bildirir (dedup); operatör eşleştirme deterministik + tenant izole; yeni yazma uçları RBAC 403 +
+tenant izolasyon testli; migration eklenirse `public`+≥2 tenant fan-out up/down. ADR-0021
+(detaylı tasarım: `docs/superpowers/specs/2026-07-11-svb-vitrin-butunlugu-design.md`).
+
+> **🚦 Köprü Kapısı:** Vitrinde gösterilen her müşteri-görünür özelliğin çalışan bir karşılığı var
+> (vitrin = gerçek); demo/portföy güvenilir.
+
+---
+
 ### FAZ 5 — Operasyon & GA · ~4 sprint
 **Amaç:** Üretime hazır operasyon, gözlemlenebilirlik, yedekleme/DR, tohumlama, pilot, UAT, GA.
 
@@ -395,7 +436,7 @@ dokümanı başlangıcı (`docs/uyum/`).
 **Kabul:** 2FA'lı giriş uçtan uca (yanlış kod reddi + kurtarma kodu); denetim ekranında
 kim-ne-ne zaman filtrelenebilir ve kayıt değiştirilemez; kişi bazlı ihraç dosyası tüm
 modüllerdeki kişisel veriyi kapsar (test: bilinen veriyle bayt düzeyi kontrol); tüm yeni
-uçlar RBAC 403 + tenant izolasyonu testli. ADR-0021.
+uçlar RBAC 403 + tenant izolasyonu testli. ADR-0022.
 
 #### ⬜ S24 — Üretim & Bakım Derinleşmesi (MES olgunluğu)
 **Vardiya:** `Vardiya` tanımları (ad, saat aralığı, takvim) + üretim verisi/OEE'nin vardiya
@@ -413,7 +454,7 @@ garantisi outbox'la); yedek parça = malzeme ilişkisi.
 **Kabul:** Duruş kaydı girildiğinde dönem OEE'si deterministik değişir (birim + entegrasyon);
 BOM patlatma doğru miktarları tüketir ve idempotent (çift kapanış çift hareket üretmez);
 lot ileri/geri izleme zinciri doğru; MTBF/MTTR bilinen seriyle doğrulanır; otomatik bakım
-iş emri bir-kez üretilir; migration fan-out up/down. ADR-0022.
+iş emri bir-kez üretilir; migration fan-out up/down. ADR-0023.
 
 #### ⬜ S25 — Tedarik Zinciri Derinleşmesi (WMS & satınalma olgunluğu)
 **Depo/lokasyon:** `Depo` + `Lokasyon` hiyerarşisi; stok hareketlerine lokasyon boyutu +
@@ -428,7 +469,7 @@ performansı:** zamanında-teslim + kalite skoru (kalite kontrol bağlantısı; 
 fonksiyonu) → firma detayında.
 **Kabul:** Transfer iki bacağı atomik (kısmi yazım imkânsız — test); sayım farkı onaysız
 uygulanamaz (403) ve onay sonrası bakiye doğru düzelir; PO→kısmi teslim→stok bakiye zinciri
-uçtan uca testli; tedarikçi skoru deterministik; migration fan-out up/down. ADR-0023.
+uçtan uca testli; tedarikçi skoru deterministik; migration fan-out up/down. ADR-0024.
 
 #### ⬜ S26 — Kalite, İSG & İK Kurumsal Tamamlama (QMS olgunluğu)
 **Kalite:** `KontrolPlani` (ürün/operasyon başına karakteristik + tolerans); **SPC**
@@ -443,7 +484,7 @@ aşım 409); vardiya planlama = S24 `Vardiya` + personel atama; organizasyon şe
 (birim/pozisyon hiyerarşisi, `Personel.yonetici_id`); işe giriş/çıkış kontrol listesi.
 **Kabul:** SPC bilinen seriyle doğru sinyal üretir (birim test); kalibrasyon hatırlatması
 bir-kez; izin onayı bakiye düşer + bakiye aşımı 409 + `ik:onay` görev ayrımı korunur;
-kaza→CAPA köprüsü izolasyon/RBAC testli; migration fan-out up/down. ADR-0024.
+kaza→CAPA köprüsü izolasyon/RBAC testli; migration fan-out up/down. ADR-0025.
 
 #### ⬜ S27 — Platform Deneyimi: Bildirim, Onay Kutusu & UI Master Planı
 **Bildirim merkezi:** `Bildirim` (kişi-hedefli, tenant içi) — outbox olaylarından üretim
@@ -463,7 +504,7 @@ bütçesi; backend N+1 taraması + indeks gözden geçirmesi.
 kutusunda ≥2 modülün bekleyenleri tek listede ve aksiyon alınabilir; ⌘K'den kayda
 gidilir (RBAC dışı sonuç sızmaz — test); dışa aktarma büyük veri setinde zaman aşımı
 yaşamaz (async 202 deseni); Lighthouse erişilebilirlik ≥95; tüm FE/BE test + codegen yeşil.
-ADR-0025.
+ADR-0026.
 
 #### ⬜ S28 — Kurumsal Güvence & Sürdürülebilirlik
 **Test derinliği:** mutation testing (mutmut/Stryker) kritik çekirdekte (OEE, durum
@@ -480,7 +521,7 @@ otomasyonu (Conventional Commits → CHANGELOG); ISO 27001/9001 kontrol eşlemes
 veri, eşzamanlılık) — bulunanlar bu sprintte kapatılır.
 **Kabul:** Mutation skoru eşiği CI'da; üç kesinti senaryosu da testli ve veri kaybı yok;
 SBOM her build'de üretilir; doküman seti yayınlanmış ve sürüm treniyle güncellenebilir;
-sertleştirme pası bulguları kapatılmış. ADR-0026.
+sertleştirme pası bulguları kapatılmış. ADR-0027.
 
 > **🚦 Faz 6 Kapısı (Kurumsal Olgunluk):** Modüller sektör-standart derinlikte (vardiya/
 > duruş/BOM/izlenebilirlik + depo/sayım/PO + SPC/kalibrasyon + hakediş/org) + kurumsal
@@ -489,13 +530,62 @@ sertleştirme pası bulguları kapatılmış. ADR-0026.
 
 ---
 
-### FAZ 7 — Mobil Saha Uygulaması ("FabrikaOS Saha") · M0–M5 (tüm fazlar sonrası; ayrı master plan)
+### FAZ 7 — Kurumsal Uygulama Genişlemesi (Yeni Satılabilir Modüller) · ~4 sprint (v2.x)
+**Amaç:** FabrikaOS'u "üretim + operasyon" platformundan **uçtan uca kurumsal ERP/MES**'e taşıyan
+**yeni satılabilir modüller**. Faz 6 mevcut modülleri *derinleştirir*; Faz 7 kataloğu *genişletir*.
+Her modül yeni bir `MODUL_KATALOGU` girdisi + `modul_gerekli` entitlement kapısı + plan ataması alır
+(katalog **19 → 23 modül**; vitrinin "27 modül" iddiası gerçek modüllerle desteklenir).
+
+**İlkeler (Faz 6 ile aynı):** yeni çekirdek icat edilmez — mevcut desenler yeniden kullanılır
+(saf durum makinesi, outbox `GidenOlay`, `FOR UPDATE` satır kilidi, `NesneDepo`, `/ozet`, Alembic
+fan-out, `require_perm` görev ayrımı, 202+süreç-içi async). Her sprint **dikey dilim** (migration
+fan-out up/down + API + FE ekran + birim/entegrasyon testi + canlı e2e); global DoD aynen geçerli;
+kapsam modül başına **MoSCoW** ile korunur.
+
+#### ⬜ S29 — Finans & Muhasebe (MVP)
+Modül `finans`. **Cari hesap:** müşteri/tedarikçi bakiyesi (CRM `Firma`'ya bağlı, tutulan bakiye +
+`FOR UPDATE`). **Fatura:** satış/alış (oto kod `FT-`, saf durum makinesi `taslak→kesildi→tahsil/ödendi`
++ iptal). **Tahsilat/Ödeme:** hareket → cari bakiye günceller (idempotent). **Maliyet:** basit üretim/
+malzeme maliyeti raporu (S14 ReportLab/openpyxl deseni). Roller `finans` / `finans:onay` (görev ayrımı);
+olaylar `fatura.kesildi` / `odeme.alindi` → webhook (S18) + Bildirim (S-VB). e-Fatura alanları iskeleti
+(S18 API anahtarı üstünden entegrasyon). → Reuse: S9 bakiye+kilit, S12 CRM `Firma`, S14 rapor, outbox.
+**Kabul:** cari bakiye eşzamanlılık-güvenli (çift hareket çift saymaz); fatura durum geçişi + geçersiz
+409; RBAC 403 + tenant izolasyon; migration fan-out up/down. ADR-0028.
+
+#### ⬜ S30 — Üretim Planlama & Çizelgeleme (APS)
+Modül `planlama`. Üretim emri **sıralama** + **sonlu kapasite** (makine/vardiya bazlı yük) + **Gantt
+board** (FE); iş emrine plan bağlama; kapasite aşımı tespiti (saf hesap fonksiyonu, birim testli).
+→ Reuse: `oee_hesapla` saf çekirdeği, iş emri durum makinesi, S24 `Vardiya`.
+**Kabul:** kapasite aşımı deterministik tespit; sıralama tekrarlanabilir; FE Gantt; RBAC/izolasyon;
+migration fan-out up/down. ADR-0029.
+
+#### ⬜ S31 — Satış & Sipariş → MRP
+Modül `satis`. Müşteri **siparişi** (oto kod `SP-`, CRM `Firma`) → **malzeme ihtiyaç planlama** (BOM
+patlatma, S24 reçete) → satınalma talebi / iş emri **tetikleme** (idempotent, kenar-tetikli outbox).
+S18 dış portal talebini gerçek siparişe bağlar (uçtan uca tedarik zinciri). → Reuse: S9 satınalma,
+S24 BOM, S4 iş emri, outbox.
+**Kabul:** sipariş→MRP→tetik zinciri idempotent (çift üretim yok) + tenant izole; RBAC 403;
+migration fan-out up/down. ADR-0030.
+
+#### ⬜ S32 — ESG & Sürdürülebilirlik
+Modül `esg`. **Karbon/emisyon** takibi (enerji + üretim verisinden faktörlü hesap) + **enerji
+verimliliği** raporu; dönemsel toplulaştırma. Rol `esg`. → Reuse: S10 enerji hypertable + continuous
+aggregate, S14 async rapor deseni, `/ozet` toplulaştırma.
+**Kabul:** emisyon toplulaştırma bilinen seriyle doğru; rapor async (202) MinIO'ya yazılır/indirilir;
+tenant izolasyon + RBAC; migration fan-out up/down. ADR-0031.
+
+> **🚦 Faz 7 Kapısı:** 4 yeni modül (`finans`/`planlama`/`satis`/`esg`) entitlement'lı satılabilir +
+> izole + test yeşil → katalog 23 modül; ürün **tam ERP/MES kapsamına** yaklaşır.
+
+---
+
+### FAZ 8 — Mobil Saha Uygulaması ("FabrikaOS Saha") · M0–M5 (tüm fazlar sonrası; ayrı master plan)
 **Amaç:** Fabrika çalışanlarının cebindeki **görev-odaklı saha terminali** — web'in
 kopyası değil: rol paketleri (operatör/bakım/depo/kalite/İSG/self-servis/yönetici),
 **offline-first store-and-forward** (edge deseninin kullanıcı katmanı, `Idempotency-Key`),
 QR/NFC "makineye dokun", tek-tuş ramak kala, vardiya cihazı modu (paylaşımlı tablet +
 rozet-QR/PIN), push bildirim + Onaylarım. React Native + Expo, mevcut API/WS ve OpenAPI
-codegen tiplerinin paylaşımı; ADR-0027+.
+codegen tiplerinin paylaşımı; ADR-0032+.
 Kapsam, mimari, kilometre taşları (M0–M5), NFR ve kabul kriterleri: **`mobilplani.md`**.
 **Bağımlılıklar:** S16 (entitlement), S23 (oturum/2FA), S25 (barkod/sayım), S27 (bildirim);
 asgari erken-başlama kümesi mobilplani §13'te.
@@ -510,10 +600,12 @@ asgari erken-başlama kümesi mobilplani §13'te.
 | Faz 1 (MVP) | Üretim/OEE + iş emri uçtan uca, canlı, izole, korumalı | ✅ geçildi |
 | Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ✅ geçildi |
 | Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ✅ geçildi |
-| Faz 4 | Entitlement + platform admin + webhook/dış portal | ⬜ |
+| Faz 4 | Entitlement + platform admin + webhook/dış portal | ✅ geçildi |
+| Faz 4B (Köprü) | Vitrinde gösterilen her müşteri-görünür özelliğin çalışan karşılığı var (vitrin = gerçek) | ⬜ ▶ |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |
 | Faz 6 | Modül derinliği (MES/WMS/QMS) + kurumsal güvenlik/uyum + bildirim/onay + güvence → `v2.0` adayı | ⬜ |
-| Faz 7 (Mobil) | `mobilplani.md` M0–M5 + offline kayıpsız + push izole + saha pilotu → mağaza yayını `saha-v1.0.0` | ⬜ |
+| Faz 7 (Yeni modüller) | `finans`/`planlama`/`satis`/`esg` entitlement'lı satılabilir + izole + test yeşil → katalog 23 modül | ⬜ |
+| Faz 8 (Mobil) | `mobilplani.md` M0–M5 + offline kayıpsız + push izole + saha pilotu → mağaza yayını `saha-v1.0.0` | ⬜ |
 
 ---
 
@@ -521,7 +613,7 @@ asgari erken-başlama kümesi mobilplani §13'te.
 
 | Risk | Azaltım |
 |---|---|
-| R1 — 27 modül kapsam şişmesi | MoSCoW + MVP-öncelik; faz kapıları |
+| R1 — Modül kapsam şişmesi (katalog 19→23; vitrin "27 modül") | MoSCoW + MVP-öncelik; faz kapıları; yeni satılabilir modül = ayrı dikey-dilim sprint (Faz 7); vitrin ↔ gerçek örtüşmesi Köprü'de (Faz 4B) sağlanır |
 | R3 — Çok-kiracı veri sızıntısı | `search_path` tek-nokta disiplini + zorunlu izolasyon testleri |
 | R6 — Migrasyon fan-out hatası | Fan-out DoD'de; CI'da iki-şema testi; downgrade zorunlu |
 | R5 — Edge/MQTT zorluğu | Store-and-forward; erken simülatörle test; gerekirse ertele |
