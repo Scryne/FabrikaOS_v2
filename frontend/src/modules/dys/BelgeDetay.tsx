@@ -1,17 +1,22 @@
 /**
- * Belge detayı (Drawer) — künye + sürüm listesi (indir) + yeni sürüm yükleme.
- * Yükleme ``dys:yaz``; indirme ``dys:oku`` (herkes okuyabilir).
+ * Belge detayı (Drawer) — KPI şeridi (güncel sürüm / sürüm sayısı / kategori) + künye +
+ * sürüm listesi (güncel işaretli, indir) + yeni sürüm yükleme. Yükleme ``dys:yaz``;
+ * indirme ``dys:oku`` (herkes okuyabilir).
  */
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
-import { App, Button, Descriptions, Drawer, Input, List, Space, Upload } from 'antd';
+import { App, Button, Descriptions, Drawer, Input, List, Space, Tag, Upload } from 'antd';
 import type { UploadFile } from 'antd';
 
+import { DetayIstatSira } from '@/components/DetayOgeleri';
 import { useAuthStore } from '@/store/authStore';
+import { BOLUM_RENGI } from '@/tema/modulKimlik';
 
 import { type BelgeSurumu, surumuIndir, useBelge, useSurumler, useSurumYukle } from './hooks';
+
+const HAT = BOLUM_RENGI['menu.bolum_dokuman'];
 
 export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void }) {
   const { t } = useTranslation();
@@ -42,16 +47,26 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
   };
 
   return (
-    <Drawer open={id != null} onClose={kapat} width={620} title={belge?.ad}>
+    <Drawer open={id != null} onClose={kapat} width={620} destroyOnHidden title={belge?.ad}>
       {belge && (
         <>
-          <Descriptions column={1} size="small" bordered>
+          <DetayIstatSira
+            ogeler={[
+              {
+                anahtar: 'guncel',
+                deger: <span className="sayisal">v{belge.guncel_surum}</span>,
+                etiket: t('dys.guncel_surum'),
+                ton: HAT,
+              },
+              { anahtar: 'sayi', deger: surumler?.length ?? 0, etiket: t('dys.surumler') },
+              { anahtar: 'kategori', deger: belge.kategori || '—', etiket: t('dys.kategori') },
+            ]}
+          />
+
+          <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
+          <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
             <Descriptions.Item label={t('dys.kod')}>
               <span className="sayisal">{belge.kod}</span>
-            </Descriptions.Item>
-            <Descriptions.Item label={t('dys.kategori')}>{belge.kategori || '—'}</Descriptions.Item>
-            <Descriptions.Item label={t('dys.guncel_surum')}>
-              {belge.guncel_surum}
             </Descriptions.Item>
             {belge.aciklama && (
               <Descriptions.Item label={t('dys.aciklama')}>{belge.aciklama}</Descriptions.Item>
@@ -91,10 +106,9 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
             </Space>
           )}
 
-          <h4 style={{ marginTop: 24 }}>{t('dys.surumler')}</h4>
+          <div className="detay-bolum-baslik">{t('dys.surumler')}</div>
           <List
             size="small"
-            bordered
             dataSource={surumler ?? []}
             locale={{ emptyText: t('dys.surum_bos') }}
             renderItem={(s) => (
@@ -112,9 +126,16 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
               >
                 <List.Item.Meta
                   title={
-                    <span className="sayisal">
-                      v{s.surum_no} · {s.dosya_adi}
-                    </span>
+                    <Space size={8}>
+                      <span className="sayisal">
+                        v{s.surum_no} · {s.dosya_adi}
+                      </span>
+                      {s.surum_no === belge.guncel_surum && (
+                        <Tag color="success" bordered={false}>
+                          {t('dys.guncel')}
+                        </Tag>
+                      )}
+                    </Space>
                   }
                   description={`${(s.boyut / 1024).toFixed(1)} KB${s.aciklama ? ` · ${s.aciklama}` : ''}`}
                 />

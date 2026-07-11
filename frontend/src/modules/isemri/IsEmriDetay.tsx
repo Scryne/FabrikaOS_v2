@@ -18,12 +18,15 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 
+import { DurumZamanCizelgesi } from '@/components/DetayOgeleri';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 import { useAuthStore } from '@/store/authStore';
 
 import { DurumGecis } from './DurumGecis';
 import { useIsEmri, useKullaniciSecenekleri, useYorumEkle } from './hooks';
 import { DurumEtiketi, OncelikRozet } from './rozetler';
+
+const CIZELGE = ['acik', 'atandi', 'devam_ediyor', 'kapandi'];
 
 function tarih(v?: string | null): string {
   return v ? dayjs(v).format('DD.MM.YYYY HH:mm') : '—';
@@ -110,6 +113,13 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
               {isEmri.aciklama}
             </Typography.Paragraph>
           )}
+
+          <div className="detay-bolum-baslik">{t('ortak.durum_akisi')}</div>
+          <DurumZamanCizelgesi
+            adimlar={CIZELGE.map((d) => ({ anahtar: d, baslik: t(`isemri.durum_${d}`) }))}
+            mevcut={isEmri.durum}
+            olumsuz={{ anahtar: 'iptal', baslik: t('isemri.durum_iptal') }}
+          />
 
           <Divider orientation="left" plain>
             {t('isemri.yorumlar')}

@@ -1,17 +1,27 @@
 /**
- * Talep detayı (Drawer) — künye + durum/öncelik rozetleri + durum geçiş butonları
- * (``gecerliHedefler`` ∩ ``talep:yaz``) + atama (InputNumber, ``talep:yaz``).
+ * Talep detayı (Drawer) — KPI şeridi (öncelik / tür / atanan) + künye (Descriptions) +
+ * **durum zaman çizelgesi** (açık→inceleniyor→çözüldü→kapandı; iptal olumsuz terminal) +
+ * atama (InputNumber, ``talep:yaz``) + durum geçiş butonları (``gecerliHedefler`` ∩ ``talep:yaz``).
  */
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Descriptions, Drawer, InputNumber, Space } from 'antd';
 
+import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
 import { useAuthStore } from '@/store/authStore';
+import { RENKLER } from '@/tema/tema';
 
 import { gecerliHedefler } from './durum';
 import { useTalep, useTalepDurum, useTalepGuncelle } from './hooks';
-import { TalepDurumEtiketi, TalepOncelikEtiketi } from './rozetler';
+import { TalepDurumEtiketi } from './rozetler';
+
+const CIZELGE = ['acik', 'inceleniyor', 'cozuldu', 'kapandi'];
+const ONCELIK_RENK: Record<string, string> = {
+  dusuk: RENKLER.metinSoluk,
+  orta: RENKLER.mavi,
+  yuksek: RENKLER.uyari,
+};
 
 export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void }) {
   const { t } = useTranslation();
@@ -34,32 +44,56 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
       open={id != null}
       onClose={kapat}
       width={620}
-      title={talep?.kod}
+      destroyOnHidden
+      title={<span className="sayisal">{talep?.kod}</span>}
       extra={talep && <TalepDurumEtiketi durum={talep.durum} />}
     >
       {talep && (
         <>
-          <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label={t('talep.baslik')}>{talep.baslik}</Descriptions.Item>
-            <Descriptions.Item label={t('talep.tur')}>
-              {t(`talep.tur_${talep.tur}`)}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('talep.oncelik')}>
-              <TalepOncelikEtiketi oncelik={talep.oncelik} />
-            </Descriptions.Item>
-            <Descriptions.Item label={t('talep.firma')}>
-              {talep.firma_id ? `#${talep.firma_id}` : '—'}
-            </Descriptions.Item>
-            <Descriptions.Item label={t('talep.atanan')}>
-              {talep.atanan_kullanici_id ? `#${talep.atanan_kullanici_id}` : '—'}
-            </Descriptions.Item>
-            {talep.aciklama && (
-              <Descriptions.Item label={t('talep.aciklama')}>{talep.aciklama}</Descriptions.Item>
-            )}
-          </Descriptions>
+          <h3 style={{ margin: '0 0 16px', fontWeight: 600 }}>{talep.baslik}</h3>
+
+          <DetayIstatSira
+            ogeler={[
+              {
+                anahtar: 'oncelik',
+                deger: t(`talep.oncelik_${talep.oncelik}`),
+                etiket: t('talep.oncelik'),
+                ton: ONCELIK_RENK[talep.oncelik],
+              },
+              { anahtar: 'tur', deger: t(`talep.tur_${talep.tur}`), etiket: t('talep.tur') },
+              {
+                anahtar: 'atanan',
+                deger: talep.atanan_kullanici_id ? `#${talep.atanan_kullanici_id}` : '—',
+                etiket: t('talep.atanan'),
+              },
+            ]}
+          />
+
+          {(talep.firma_id || talep.aciklama) && (
+            <>
+              <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
+              <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
+                {talep.firma_id && (
+                  <Descriptions.Item label={t('talep.firma')}>#{talep.firma_id}</Descriptions.Item>
+                )}
+                {talep.aciklama && (
+                  <Descriptions.Item label={t('talep.aciklama')}>
+                    {talep.aciklama}
+                  </Descriptions.Item>
+                )}
+              </Descriptions>
+            </>
+          )}
+
+          <div className="detay-bolum-baslik">{t('ortak.durum_akisi')}</div>
+          <DurumZamanCizelgesi
+            adimlar={CIZELGE.map((d) => ({ anahtar: d, baslik: t(`talep.asama_${d}`) }))}
+            mevcut={talep.durum}
+            olumsuz={{ anahtar: 'iptal', baslik: t('talep.asama_iptal') }}
+          />
 
           {yazabilir && (
-            <Space style={{ marginTop: 16 }}>
+            <Space style={{ marginTop: 20 }} wrap>
               <InputNumber
                 min={1}
                 value={atanan ?? undefined}
@@ -76,19 +110,21 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
             </Space>
           )}
 
-          <Space style={{ marginTop: 16 }} wrap>
-            {hedefler.map((h) => (
-              <Button
-                key={h}
-                type={h === 'cozuldu' || h === 'kapandi' ? 'primary' : 'default'}
-                danger={h === 'iptal'}
-                loading={durumMut.isPending}
-                onClick={() => void durumMut.mutateAsync({ id: talep.id, durum: h })}
-              >
-                {t(`talep.durum_${h}`)}
-              </Button>
-            ))}
-          </Space>
+          {hedefler.length > 0 && (
+            <Space style={{ marginTop: 12 }} wrap>
+              {hedefler.map((h) => (
+                <Button
+                  key={h}
+                  type={h === 'cozuldu' || h === 'kapandi' ? 'primary' : 'default'}
+                  danger={h === 'iptal'}
+                  loading={durumMut.isPending}
+                  onClick={() => void durumMut.mutateAsync({ id: talep.id, durum: h })}
+                >
+                  {t(`talep.durum_${h}`)}
+                </Button>
+              ))}
+            </Space>
+          )}
         </>
       )}
     </Drawer>

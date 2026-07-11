@@ -27,7 +27,9 @@
     "hata_baslik": "Something went wrong",
     "tekrar_dene": "Try again",
     "canli": "Live",
-    "calisma_alani": "Workspace"
+    "calisma_alani": "Workspace",
+    "durum_akisi": "Status flow",
+    "kunye": "Details"
   },
   "tablo": {
     "toplam": "{{aralik}} of {{toplam}} records",
@@ -215,7 +217,8 @@
     "kpi_firma": "Companies",
     "kpi_aktif": "Active companies",
     "kpi_sozlesme": "Active contracts",
-    "kpi_talep": "Open requests"
+    "kpi_talep": "Open requests",
+    "ist_birincil": "Primary contact"
   },
   "sozlesme": {
     "alt": "Company contracts; status lifecycle and upcoming expiry alerts.",
@@ -251,7 +254,17 @@
     "kpi_aktif": "Active",
     "kpi_yaklasan": "Ending within 30 days",
     "kpi_taslak": "Draft",
-    "kpi_toplam": "Total"
+    "kpi_toplam": "Total",
+    "asama_taslak": "Draft",
+    "asama_aktif": "Active",
+    "asama_sonlandi": "Ended",
+    "asama_feshedildi": "Terminated",
+    "asama_iptal": "Cancelled",
+    "ist_kalan": "Remaining",
+    "ist_kalan_gun": "Days left",
+    "ist_sure": "Term (days)",
+    "ist_doldu": "Expired",
+    "ist_ilerleme": "Term progress"
   },
   "talep": {
     "alt": "Customer/internal requests; quote, support and complaint lifecycle.",
@@ -294,7 +307,12 @@
     "hal_inceleniyor": "In review",
     "hal_cozuldu": "Resolved",
     "hal_kapandi": "Closed",
-    "hal_iptal": "Cancelled"
+    "hal_iptal": "Cancelled",
+    "asama_acik": "Open",
+    "asama_inceleniyor": "In review",
+    "asama_cozuldu": "Resolved",
+    "asama_kapandi": "Closed",
+    "asama_iptal": "Cancelled"
   },
   "dys": {
     "alt": "Versioned documents; content in object storage, old versions retained.",
@@ -317,7 +335,8 @@
     "kpi_belge": "Total documents",
     "kpi_kategori": "Categories",
     "kpi_surum": "Versions this month",
-    "kpi_boyut": "Total size"
+    "kpi_boyut": "Total size",
+    "guncel": "Current"
   },
   "duyuru": {
     "alt": "Corporate announcements; notify connected users when published.",
@@ -536,7 +555,9 @@
     "kpi_gecti_orani": "Pass rate",
     "kpi_toplam_kontrol": "Total checks",
     "kpi_gecti": "Passed checks",
-    "yas_gun": "{{n}}d"
+    "yas_gun": "{{n}}d",
+    "ist_aksiyon": "Actions",
+    "ist_tamam": "Completed"
   },
   "enerji": {
     "alt": "Energy consumption measurements and hourly/daily trend.",

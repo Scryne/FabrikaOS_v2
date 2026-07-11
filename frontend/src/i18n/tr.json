@@ -27,7 +27,9 @@
     "hata_baslik": "Bir şeyler ters gitti",
     "tekrar_dene": "Tekrar dene",
     "canli": "Canlı",
-    "calisma_alani": "Çalışma alanı"
+    "calisma_alani": "Çalışma alanı",
+    "durum_akisi": "Durum akışı",
+    "kunye": "Künye"
   },
   "tablo": {
     "toplam": "{{aralik}} / {{toplam}} kayıt",
@@ -215,7 +217,8 @@
     "kpi_firma": "Firma",
     "kpi_aktif": "Aktif firma",
     "kpi_sozlesme": "Aktif sözleşme",
-    "kpi_talep": "Açık talep"
+    "kpi_talep": "Açık talep",
+    "ist_birincil": "Birincil kontak"
   },
   "sozlesme": {
     "alt": "Firma sözleşmeleri; durum yaşam döngüsü ve yaklaşan bitiş uyarıları.",
@@ -251,7 +254,17 @@
     "kpi_aktif": "Aktif",
     "kpi_yaklasan": "30 gün içinde biten",
     "kpi_taslak": "Taslak",
-    "kpi_toplam": "Toplam"
+    "kpi_toplam": "Toplam",
+    "asama_taslak": "Taslak",
+    "asama_aktif": "Aktif",
+    "asama_sonlandi": "Sonlandı",
+    "asama_feshedildi": "Feshedildi",
+    "asama_iptal": "İptal",
+    "ist_kalan": "Kalan",
+    "ist_kalan_gun": "Kalan gün",
+    "ist_sure": "Süre (gün)",
+    "ist_doldu": "Doldu",
+    "ist_ilerleme": "Süre ilerlemesi"
   },
   "talep": {
     "alt": "Müşteri/iç talepler; teklif, destek ve şikayet yaşam döngüsü.",
@@ -294,7 +307,12 @@
     "hal_inceleniyor": "İnceleniyor",
     "hal_cozuldu": "Çözüldü",
     "hal_kapandi": "Kapandı",
-    "hal_iptal": "İptal"
+    "hal_iptal": "İptal",
+    "asama_acik": "Açık",
+    "asama_inceleniyor": "İnceleniyor",
+    "asama_cozuldu": "Çözüldü",
+    "asama_kapandi": "Kapandı",
+    "asama_iptal": "İptal"
   },
   "dys": {
     "alt": "Sürümlü belgeler; içerik nesne depolamada, eski sürümler korunur.",
@@ -317,7 +335,8 @@
     "kpi_belge": "Toplam belge",
     "kpi_kategori": "Kategori",
     "kpi_surum": "Bu ay sürüm",
-    "kpi_boyut": "Toplam boyut"
+    "kpi_boyut": "Toplam boyut",
+    "guncel": "Güncel"
   },
   "duyuru": {
     "alt": "Kurumsal duyurular; yayınlandığında bağlı kullanıcılara bildirim.",
@@ -536,7 +555,9 @@
     "kpi_gecti_orani": "Geçti oranı",
     "kpi_toplam_kontrol": "Toplam kontrol",
     "kpi_gecti": "Geçen kontrol",
-    "yas_gun": "{{n}}g"
+    "yas_gun": "{{n}}g",
+    "ist_aksiyon": "Aksiyon",
+    "ist_tamam": "Tamamlanan"
   },
   "enerji": {
     "alt": "Enerji tüketim ölçümleri ve saatlik/günlük trend.",

@@ -9,7 +9,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Descriptions, Drawer, Form, Input, List, Modal, Select, Space, Tag } from 'antd';
 
+import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
 import { useAuthStore } from '@/store/authStore';
+import { RENKLER } from '@/tema/tema';
 
 import {
   type AksiyonOlustur,
@@ -19,7 +21,15 @@ import {
   useUygunsuzluk,
 } from './hooks';
 import { gecerliHedefler } from './durum';
-import { OnemEtiketi, UygunsuzlukDurumEtiketi } from './rozetler';
+import { UygunsuzlukDurumEtiketi } from './rozetler';
+
+const CIZELGE = ['acik', 'kok_neden', 'aksiyon_plani', 'uygulama', 'dogrulama', 'kapandi'];
+const ONEM_RENK: Record<string, string> = {
+  dusuk: RENKLER.metinSoluk,
+  orta: RENKLER.mavi,
+  yuksek: RENKLER.uyari,
+  kritik: RENKLER.hata,
+};
 
 const AKSIYON_TURLERI = ['duzeltici', 'onleyici'];
 // Not isteyen hedef geçişler: hangi alana yazılacağı.
@@ -82,23 +92,55 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
     >
       {u && (
         <>
-          <Descriptions column={1} size="small" bordered>
-            <Descriptions.Item label={t('kalite.baslik')}>{u.baslik}</Descriptions.Item>
-            <Descriptions.Item label={t('kalite.onem')}>
-              <OnemEtiketi onem={u.onem} />
-            </Descriptions.Item>
-            {u.aciklama && (
-              <Descriptions.Item label={t('kalite.aciklama')}>{u.aciklama}</Descriptions.Item>
-            )}
-            {u.kok_neden && (
-              <Descriptions.Item label={t('kalite.kok_neden')}>{u.kok_neden}</Descriptions.Item>
-            )}
-            {u.dogrulama_notu && (
-              <Descriptions.Item label={t('kalite.dogrulama_notu')}>
-                {u.dogrulama_notu}
-              </Descriptions.Item>
-            )}
-          </Descriptions>
+          <h3 style={{ margin: '0 0 16px', fontWeight: 600 }}>{u.baslik}</h3>
+
+          <DetayIstatSira
+            ogeler={[
+              {
+                anahtar: 'onem',
+                deger: t(`kalite.onem_${u.onem}`),
+                etiket: t('kalite.onem'),
+                ton: ONEM_RENK[u.onem],
+              },
+              {
+                anahtar: 'aksiyon',
+                deger: (u.aksiyonlar ?? []).length,
+                etiket: t('kalite.ist_aksiyon'),
+              },
+              {
+                anahtar: 'tamam',
+                deger: (u.aksiyonlar ?? []).filter((a) => a.durum === 'tamamlandi').length,
+                etiket: t('kalite.ist_tamam'),
+                ton: RENKLER.basari,
+              },
+            ]}
+          />
+
+          {(u.aciklama || u.kok_neden || u.dogrulama_notu) && (
+            <>
+              <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
+              <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
+                {u.aciklama && (
+                  <Descriptions.Item label={t('kalite.aciklama')}>{u.aciklama}</Descriptions.Item>
+                )}
+                {u.kok_neden && (
+                  <Descriptions.Item label={t('kalite.kok_neden')}>{u.kok_neden}</Descriptions.Item>
+                )}
+                {u.dogrulama_notu && (
+                  <Descriptions.Item label={t('kalite.dogrulama_notu')}>
+                    {u.dogrulama_notu}
+                  </Descriptions.Item>
+                )}
+              </Descriptions>
+            </>
+          )}
+
+          <div className="detay-bolum-baslik">{t('ortak.durum_akisi')}</div>
+          <DurumZamanCizelgesi
+            adimlar={CIZELGE.map((d) => ({ anahtar: d, baslik: t(`kalite.durum_${d}`) }))}
+            mevcut={u.durum}
+            olumsuz={{ anahtar: 'iptal', baslik: t('kalite.durum_iptal') }}
+          />
 
           {yazabilir && hedefler.length > 0 && (
             <Space style={{ marginTop: 16 }} wrap>
