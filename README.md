@@ -172,8 +172,31 @@ npm run dev                 # http://localhost:5173
 ```bash
 docker compose run --rm api python -m backend.scripts.demo_verisi   # tekrar-çalıştırılabilir seed
 ```
-- Tenant: **`demo`** · Giriş: **admin@demo.test** / **Demo1234!** (tüm modüller gerçekçi veriyle dolu)
-- Tenant'a istek atarken `X-Tenant: demo` başlığı (veya `demo.fabrikaos.localhost` subdomain)
+- Tenant: **`demo`** (tüm modüller gerçekçi veriyle dolu) · giriş ekranında **Firma kodu = `demo`**
+  (veya `demo.fabrikaos.localhost` subdomain); API isteklerinde `X-Tenant: demo` başlığı.
+
+**Demo hesapları** — hepsi aynı parola: **`Demo1234!`**. Her hesap kendi rolünün RBAC
+kısıtlarını sergiler (görev ayrımı, salt-okunur izleme, KVKK erişimi vb.):
+
+| E-posta | Ad Soyad | Rol | Ne gösterir |
+|---|---|---|---|
+| `admin@demo.test` | (Yönetici) | tüm yetkiler | Tam erişim — tüm modüller ve yönetim |
+| `uretim.sefi@demo.test` | Mehmet Yılmaz | `izleyici` | Salt-okunur izleme (pano/üretim) |
+| `depo@demo.test` | Ayşe Demir | `depo` | Stok & satınalma talebi oluşturma |
+| `satinalma.onay@demo.test` | Hakan Koç | `satinalma-onaylayan` | Satınalma onayı (talep edenden ayrı) |
+| `kalite@demo.test` | Elif Şahin | `kalite` | Kalite kontrol + CAPA |
+| `ik@demo.test` | Zeynep Arslan | `ik` | İK/personel (KVKK TC maskeli) |
+| `ik.yonetici@demo.test` | Murat Çelik | `ik-onaylayan` | İzin onayı (`ik:onay` görev ayrımı) |
+| `crm@demo.test` | Deniz Aydın | `crm` | CRM/sözleşme/talep |
+
+**Platform yöneticisi (control-plane, ayrık kimlik düzlemi)** — demo seed'inden bağımsız,
+`backend/scripts/platform_yonetici_olustur.py` ile açılır; giriş **`/platform`** rotasından:
+
+| E-posta | Parola | Erişim |
+|---|---|---|
+| `root@fabrikaos.test` | `Platform12345!` | Tenant yaşam döngüsü, entitlement, KVKK ihracı |
+
+> ⚠️ Bu parolalar yalnızca yerel/demo ortamı içindir; üretimde kullanılmamalıdır.
 
 ### Kalite (Python kuruluysa)
 Entegrasyon testleri çalışan bir PostgreSQL ister (`fabrikaos_test` veritabanını otomatik oluşturur):
