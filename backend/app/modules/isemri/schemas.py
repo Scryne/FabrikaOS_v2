@@ -14,6 +14,8 @@ class IsEmriOlusturDTO(BaseModel):
     oncelik: str = Field(default="orta", max_length=10)
     kod: str | None = Field(default=None, max_length=50)
     atanan_kullanici_id: int | None = None
+    # SLA hedefi (S-VB): boş = SLA takibi yok.
+    hedef_tarih: datetime | None = None
 
 
 class DurumGuncelleDTO(BaseModel):
@@ -36,6 +38,7 @@ class IsEmriCevapDTO(BaseModel):
     durum: str
     oncelik: str
     kapanis_tarihi: datetime | None = None
+    hedef_tarih: datetime | None = None
     olusturma_tarihi: datetime
 
 

@@ -91,3 +91,15 @@ class OrtakCevapDTO(BaseModel):
     aktif: bool
     aciklama: str
     olusturma_tarihi: datetime
+
+
+class TedarikciSkorDTO(BaseModel):
+    """Tedarikçi performans skoru (S-VB): 0-100 + bileşen kırılımı + dürüstlük notları."""
+
+    firma_id: int
+    skor: float
+    kalite_gecme_orani: float
+    sozlesme_uyumu: float
+    talep_cozum_orani: float
+    zamaninda_teslim: float | None = None  # S25 (PO teslim alma) ile dolar
+    yetersiz_veri: list[str]

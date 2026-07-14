@@ -8,14 +8,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-  BellOutlined,
   DownOutlined,
   GlobalOutlined,
   LogoutOutlined,
   SearchOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Badge, Dropdown, Layout, Menu } from 'antd';
+import { Avatar, Dropdown, Layout, Menu } from 'antd';
 import type { CSSProperties } from 'react';
 import type { MenuProps } from 'antd';
 
@@ -26,6 +25,7 @@ import { LogoIsareti } from '@/components/Marka';
 import { DILLER, dilDegistir } from '@/i18n';
 import { gorunurMenu, MENU } from '@/layouts/menu';
 import { useModulAcik } from '@/modules/abonelik/hooks';
+import { BildirimZili } from '@/modules/bildirim/BildirimZili';
 import { useGercekZaman } from '@/modules/ortak/gercekZamanBaglam';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI, MENU_IKONLARI } from '@/tema/modulKimlik';
@@ -291,11 +291,7 @@ export function UygulamaKabugu() {
             </button>
           </Dropdown>
 
-          <button type="button" className="bar-dugme" aria-label={t('ortak.bildirimler')}>
-            <Badge dot offset={[-1, 3]} color="var(--mavi)">
-              <BellOutlined style={{ fontSize: 17, color: 'inherit' }} />
-            </Badge>
-          </button>
+          <BildirimZili />
 
           <span className="bar-ayrac" aria-hidden="true" />
 

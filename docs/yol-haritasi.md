@@ -33,7 +33,7 @@ Definition of Done (DoD).
 | **4 — Lisanslama & Dış Entegrasyon** | S16 | Abonelik, Entitlement & Feature Flag | ✅ ADR-0018 |
 | | S17 | Platform Admin Paneli | ✅ ADR-0019 |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ✅ ADR-0020 |
-| **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ⬜ ▶ |
+| **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ✅ ADR-0021 |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
@@ -347,7 +347,7 @@ etkileyici yapmak (truth-in-advertising). Bu kalemlerin **kurumsal-tam sürümle
 **vitrin ↔ gerçek örtüşmesi**. Yeni çekirdek icat edilmez; mevcut desenler (outbox, `yaklasanlari-tara`,
 saf skor fonksiyonu, S13 AI çıkarımı) yeniden kullanılır.
 
-#### ⬜ S-VB — Vitrin bütünlüğü & Bildirim Merkezi çekirdeği
+#### ✅ S-VB — Vitrin bütünlüğü & Bildirim Merkezi çekirdeği (karşılandı — ADR-0021)
 - **Bildirim Merkezi (çekirdek):** `Bildirim` tablosu (kişi-hedefli, tenant içi) — **mevcut outbox
   olaylarından** üretim (`stok.kritik`, `sozlesme.yaklasiyor`, `anomali.tespit`, `rapor.hazir`,
   `ariza.olustu`, `oee.dustu`); kabuk header'da **zil paneli** (okundu yönetimi, tümünü okundu say) +
@@ -601,7 +601,7 @@ asgari erken-başlama kümesi mobilplani §13'te.
 | Faz 2 | Saha verisi otomatik; iş modülleri çekirdeği tam + izole | ✅ geçildi |
 | Faz 3 | AI tahmin + analitik + rapor + ikiz + kiosk | ✅ geçildi |
 | Faz 4 | Entitlement + platform admin + webhook/dış portal | ✅ geçildi |
-| Faz 4B (Köprü) | Vitrinde gösterilen her müşteri-görünür özelliğin çalışan karşılığı var (vitrin = gerçek) | ⬜ ▶ |
+| Faz 4B (Köprü) | Vitrinde gösterilen her müşteri-görünür özelliğin çalışan karşılığı var (vitrin = gerçek) | ✅ geçildi (landing sayı hizalaması Faz 7 kapanışında) |
 | GA | NFR + güvenlik/KVKK + dokümantasyon + UAT kabul | ⬜ |
 | Faz 6 | Modül derinliği (MES/WMS/QMS) + kurumsal güvenlik/uyum + bildirim/onay + güvence → `v2.0` adayı | ⬜ |
 | Faz 7 (Yeni modüller) | `finans`/`planlama`/`satis`/`esg` entitlement'lı satılabilir + izole + test yeşil → katalog 23 modül | ⬜ |

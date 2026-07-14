@@ -52,3 +52,22 @@ class TahminGecmisCevapDTO(BaseModel):
     sonuc_sayisi: int
     veri_ozeti: dict[str, Any] | None = None
     olusturma_tarihi: datetime
+
+
+class OperatorEslesmeIstekDTO(BaseModel):
+    """Operatör önerisi girdisi: iş emri VEYA (makine + opsiyonel iş türü)."""
+
+    is_emri_id: int | None = None
+    makine_id: int | None = None
+    is_turu: str = Field(default="uretim", max_length=30)
+
+
+class OperatorEslesmeCevapDTO(BaseModel):
+    """Sıralı operatör önerisi satırı (skor 0–1, kural-tabanlı gerekçeli)."""
+
+    personel_id: int
+    ad_soyad: str
+    departman: str
+    unvan: str
+    skor: float
+    gerekce: str

@@ -58,6 +58,9 @@ class IkizDugumDurumDTO(BaseModel):
     oee: float | None
     toplam_adet: int
     son_veri_zamani: datetime | None
+    # Coğrafi harita sekmesi (S-VB): koordinatsız makine haritada görünmez.
+    enlem: float | None = None
+    boylam: float | None = None
 
 
 class YerlesmemisMakineDTO(BaseModel):
@@ -67,6 +70,8 @@ class YerlesmemisMakineDTO(BaseModel):
     makine_kod: str
     makine_ad: str
     durum: str
+    enlem: float | None = None
+    boylam: float | None = None
 
 
 class IkizDurumCevapDTO(BaseModel):

@@ -17,11 +17,13 @@ export type FirmaOlustur = components['schemas']['FirmaOlusturDTO'];
 export type FirmaGuncelle = components['schemas']['FirmaGuncelleDTO'];
 export type Ortak = components['schemas']['OrtakCevapDTO'];
 export type OrtakOlustur = components['schemas']['OrtakOlusturDTO'];
+export type TedarikciSkor = components['schemas']['TedarikciSkorDTO'];
 
 export const CRM_ANAHTAR = {
   firmalar: ['firmalar'] as const,
   firma: (id: number) => ['firma', id] as const,
   ortaklar: (firmaId: number) => ['ortaklar', firmaId] as const,
+  skor: (firmaId: number) => ['firma-skor', firmaId] as const,
 };
 
 function useHataGoster() {
@@ -72,6 +74,15 @@ export function useFirmaGuncelle() {
       message.success(t('crm.guncellendi'));
     },
     onError: hataGoster,
+  });
+}
+
+/** Tedarikçi performans skoru (S-VB) — 0–100 + bileşen kırılımı + dürüstlük notları. */
+export function useTedarikciSkoru(firmaId: number, etkin = true) {
+  return useQuery({
+    queryKey: CRM_ANAHTAR.skor(firmaId),
+    queryFn: () => istek<TedarikciSkor>('GET', `${PREFIX}/firmalar/${firmaId}/skor`),
+    enabled: etkin && firmaId > 0,
   });
 }
 

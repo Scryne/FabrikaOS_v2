@@ -19,6 +19,7 @@ from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.crm import repository
+from app.modules.crm import tedarikci_skoru as skor_mod
 from app.modules.crm.birimler import FIRMA_TIPLERI
 from app.modules.crm.models import Firma, Ortak
 from app.modules.crm.schemas import (
@@ -28,6 +29,7 @@ from app.modules.crm.schemas import (
     OrtakCevapDTO,
     OrtakGuncelleDTO,
     OrtakOlusturDTO,
+    TedarikciSkorDTO,
 )
 
 router = APIRouter(tags=["CRM"], dependencies=[Depends(modul_gerekli("crm"))])
@@ -112,6 +114,35 @@ async def firma_detay(
     if firma is None:
         raise KaynakBulunamadi("Firma bulunamadı")
     return basari(_firma_cevap(firma), mesaj="Firma detayı")
+
+
+@router.get(
+    "/firmalar/{firma_id}/skor",
+    response_model=Zarf[TedarikciSkorDTO],
+    summary="Tedarikçi performans skoru (0–100, bileşen kırılımlı)",
+)
+async def firma_skor(
+    firma_id: int,
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("crm:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    firma = await repository.firma_getir(db, firma_id)
+    if firma is None:
+        raise KaynakBulunamadi("Firma bulunamadı")
+    detay = skor_mod.tedarikci_skoru(await skor_mod.sinyal_topla(db, firma_id))
+    return basari(
+        TedarikciSkorDTO(
+            firma_id=firma_id,
+            skor=detay.skor,
+            kalite_gecme_orani=detay.kalite_gecme_orani,
+            sozlesme_uyumu=detay.sozlesme_uyumu,
+            talep_cozum_orani=detay.talep_cozum_orani,
+            zamaninda_teslim=detay.zamaninda_teslim,
+            yetersiz_veri=detay.yetersiz_veri,
+        ).model_dump(),
+        mesaj="Tedarikçi skoru",
+    )
 
 
 @router.patch("/firmalar/{firma_id}", response_model=Zarf[FirmaCevapDTO], summary="Firma düzenle")

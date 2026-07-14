@@ -40,6 +40,10 @@ class Malzeme(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     max_stok: Mapped[Decimal | None] = mapped_column(_MIKTAR, nullable=True)
     kritik_stok: Mapped[Decimal] = mapped_column(_MIKTAR, default=Decimal(0), nullable=False)
     aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Ana tedarikçi (S-VB): tedarikçi performans skorunun kalite bileşeni + S25 PO hazırlığı.
+    tedarikci_firma_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("firmalar.id", ondelete="SET NULL"), index=True, nullable=True
+    )
 
 
 class StokHareketi(KimlikMixin, ZamanDamgaliMixin, TenantBase):

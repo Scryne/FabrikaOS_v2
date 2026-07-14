@@ -20,6 +20,8 @@ class MalzemeOlusturDTO(BaseModel):
     min_stok: Decimal = Field(default=Decimal(0), ge=0)
     max_stok: Decimal | None = Field(default=None, ge=0)
     kritik_stok: Decimal = Field(default=Decimal(0), ge=0)
+    # Ana tedarikçi (S-VB): tedarikçi performans skoru kalite bileşeni bağlantısı.
+    tedarikci_firma_id: int | None = None
 
 
 class MalzemeGuncelleDTO(BaseModel):
@@ -30,6 +32,7 @@ class MalzemeGuncelleDTO(BaseModel):
     max_stok: Decimal | None = Field(default=None, ge=0)
     kritik_stok: Decimal | None = Field(default=None, ge=0)
     aktif: bool | None = None
+    tedarikci_firma_id: int | None = None
 
 
 class MalzemeCevapDTO(BaseModel):
@@ -44,6 +47,7 @@ class MalzemeCevapDTO(BaseModel):
     kritik_stok: float
     aktif: bool
     kritik: bool
+    tedarikci_firma_id: int | None = None
     olusturma_tarihi: datetime
 
 

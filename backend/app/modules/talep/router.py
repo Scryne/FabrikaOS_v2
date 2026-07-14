@@ -48,6 +48,7 @@ def _cevap(t: Talep) -> dict[str, Any]:
         atanan_kullanici_id=t.atanan_kullanici_id,
         talep_eden_kullanici_id=t.talep_eden_kullanici_id,
         talep_eden_ad=t.talep_eden_ad,
+        hedef_tarih=t.hedef_tarih,
         olusturma_tarihi=t.olusturma_tarihi,
     ).model_dump()
 
@@ -132,6 +133,28 @@ async def talep_listele(
         yon=yon,
     )
     return sayfali([_cevap(t) for t in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.post(
+    "/talepler/sla-tara",
+    response_model=Zarf[dict[str, int]],
+    summary="SLA aşımı taraması (kenar-tetikli sla.asildi olayı)",
+)
+async def talep_sla_tara(
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("talep:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    islenen = await service.sla_tara(db, tenant_slug=tenant.slug)
+    await denetim_yaz(
+        db,
+        eylem="sla_tara",
+        kaynak="talep",
+        kaynak_id="-",
+        kullanici=kullanici,
+        detay={"islenen": islenen},
+    )
+    return basari({"islenen": islenen}, mesaj="SLA taraması tamamlandı")
 
 
 @router.get("/talepler/{talep_id}", response_model=Zarf[TalepCevapDTO], summary="Talep detayı")

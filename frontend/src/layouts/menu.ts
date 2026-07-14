@@ -235,6 +235,13 @@ export const MENU: MenuOgesi[] = [
     izin: 'abonelik:oku',
   },
   {
+    // Kişisel bildirim tercihleri — izin/modül kapısı yok (oturum yeterli; S-VB).
+    anahtar: 'bildirim-tercihleri',
+    etiketAnahtari: 'menu.bildirim_tercihleri',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/bildirim-tercihleri',
+  },
+  {
     anahtar: 'webhooklar',
     etiketAnahtari: 'menu.webhooklar',
     bolum: 'menu.bolum_yonetim',

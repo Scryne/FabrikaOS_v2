@@ -17,6 +17,7 @@ from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
+from app.core.olaylar import olay_yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.duyuru import repository, service
@@ -152,6 +153,13 @@ async def duyuru_yayinla(
     duyuru.yayinda = True
     duyuru.yayin_tarihi = datetime.now(UTC)
     await db.flush()
+    # Bildirim üretici (S-VB) outbox'tan beslenir: duyuru yayını dayanıklı olay olarak
+    # da yazılır (gerçek-zaman sinyali best-effort kalır; outbox otoritedir).
+    await olay_yayinla(
+        db,
+        olay_turu="duyuru.yeni",
+        govde={"kaynak_tur": "duyuru", "kaynak_id": duyuru.id, "baslik": duyuru.baslik},
+    )
     await denetim_yaz(
         db, eylem="yayinla", kaynak="duyuru", kaynak_id=str(duyuru.id), kullanici=kullanici
     )

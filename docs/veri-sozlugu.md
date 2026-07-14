@@ -181,3 +181,40 @@ durum makinesi + `talep.olusturuldu` gerçek-zamanı aynen); dış DTO iç alanl
 (atama, firma_id) sızdırmaz. Modüller `entegrasyon` + `dis-portal` yalnız
 deneme/kurumsal planlarında; webhook uçları `entegrasyon` VEYA `webhook-onizleme`
 bayrağıyla açılır (S16 tüketimi). ADR-0020.
+
+## Bildirim Merkezi + SLA + skor/harita (S-VB / ADR-0021)
+**Bildirim** = kişi-hedefli, tenant içi uygulama-içi bildirim. `bildirimler`:
+`kullanici_id` (CASCADE), `giden_olay_id` (kaynak outbox olayı; nullable),
+`olay_turu` (denorm), `baslik`/`govde` (TR referans metin), `veri` JSONB
+(derin-bağlantı `{kaynak_tur, kaynak_id}`), `onem` (`bilgi`/`uyari`/`kritik`),
+`okundu`+`okundu_tarihi`. **`UNIQUE(kullanici_id, giden_olay_id)`** = üretici
+idempotency (ikinci tarama çift bildirim üretemez). `bildirim_tercihleri`:
+kullanıcı × olay türü `uygulama_ici`/`eposta` (kayıt yoksa varsayılan: içi açık,
+e-posta kapalı). `bildirim_imleci`: üreticinin tek satırlık outbox yüksek-su-işareti
+(`son_islenen_olay_id`). Üretici ayrı süreçtir (`scripts/bildirim_uretici.py`);
+hedefleme saf kural tablosu (`bildirim/hedefleme.py`): izne-göre (ör. `stok.kritik`
+→ `stok:oku` sahipleri) veya kişi-hedefli (`rapor.hazir` → oluşturan). Uçlar
+`/bildirimler*` + `/bildirim-tercihleri` **kişisel yüzeydir** (oturum yeter; izin ve
+modül kapısı yok); süzgeç repository imzasında zorlanır. `duyuru.yeni` artık outbox'a
+da yazılır.
+
+**SLA**: `is_emirleri.hedef_tarih` + `talepler.hedef_tarih` (nullable; boş = takip yok).
+`POST /is-emirleri/sla-tara` (`isemri:yaz`) + `POST /talepler/sla-tara` (`talep:yaz`)
+kenar-tetikli `sla.asildi` outbox olayı üretir; **dedup outbox'tan** sorgulanır
+(`core/sla.py` — kaynak başına bir kez). Webhook kataloğu 8 → **9** (`sla.asildi`).
+Talep SLA'sında yalnız `acik`/`inceleniyor` taranır (`cozuldu` karşılanmış sayılır).
+
+**Operatör eşleştirme**: `POST /tahmin/operator-eslesme` (`ai:oku`, modül `ai`) —
+kural-tabanlı saf skor (0.5 departman + 0.3 geçmiş kapanış + 0.2 müsaitlik), kesin
+sıralı, model artefaktsız.
+
+**Tedarikçi skoru**: `GET /firmalar/{id}/skor` (`crm:oku`) = `40·kalite_gecme +
+30·sozlesme_uyumu + 30·talep_cozum` (0–100); sinyalsiz bileşen nötr 0.5 +
+`yetersiz_veri` listesi; `zamaninda_teslim` S25'te dolar. Bağlantı kolonları:
+`malzemeler.tedarikci_firma_id` (ana tedarikçi) + `kalite_kontrolleri.malzeme_id`
+(giriş kontrolü) — ikisi de nullable FK.
+
+**Coğrafi harita**: `makineler.enlem`/`boylam` (nullable; ±90/±180 doğrulamalı);
+`PATCH /makineler/{id}` (ad/oee_hedefi/koordinat) eklendi; `/ikiz/durum` koordinat
+taşır; FE `/ikiz` "Harita" sekmesi (react-leaflet + OSM). Takvim: `/bakim-planlari`
+"Takvim" sekmesi (bakım vadeleri + onaylı izinler; FE-only).

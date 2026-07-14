@@ -58,6 +58,14 @@ class Settings(BaseSettings):
     rate_limit_istek: int = 100  # pencere başına izinli istek
     rate_limit_pencere_sn: int = 60  # pencere süresi (saniye)
 
+    # --- Bildirim e-posta kanalı / SMTP (S-VB) ---
+    # smtp_host boş = e-posta kanalı kapalı (dev/test varsayılanı; uygulama-içi otoritedir).
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_kullanici: str = ""
+    smtp_parola: str = ""
+    smtp_gonderen: str = "bildirim@fabrikaos.test"
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == "prod"

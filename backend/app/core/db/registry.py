@@ -15,6 +15,7 @@ import app.core.audit  # noqa: F401
 import app.core.olaylar  # noqa: F401
 import app.kimlik.models  # noqa: F401
 import app.modules.bakim.models  # noqa: F401
+import app.modules.bildirim.models  # noqa: F401
 import app.modules.crm.models  # noqa: F401  (kullanici.firma_id FK hedefi — S18)
 import app.modules.enerji.models  # noqa: F401
 import app.modules.entegrasyon.models  # noqa: F401

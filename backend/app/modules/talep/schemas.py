@@ -15,6 +15,8 @@ class TalepOlusturDTO(BaseModel):
     oncelik: str = Field(default="orta", max_length=10)
     atanan_kullanici_id: int | None = None
     talep_eden_ad: str = Field(default="", max_length=200)
+    # SLA hedefi (S-VB): boş = SLA takibi yok.
+    hedef_tarih: datetime | None = None
 
 
 class TalepGuncelleDTO(BaseModel):
@@ -43,6 +45,7 @@ class TalepCevapDTO(BaseModel):
     atanan_kullanici_id: int | None = None
     talep_eden_kullanici_id: int | None = None
     talep_eden_ad: str
+    hedef_tarih: datetime | None = None
     olusturma_tarihi: datetime
 
 

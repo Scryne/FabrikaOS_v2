@@ -56,6 +56,7 @@ def _cevap(e: IsEmri) -> dict[str, Any]:
         durum=e.durum,
         oncelik=e.oncelik,
         kapanis_tarihi=e.kapanis_tarihi,
+        hedef_tarih=e.hedef_tarih,
         olusturma_tarihi=e.olusturma_tarihi,
     ).model_dump()
 
@@ -71,6 +72,7 @@ def _detay_cevap(e: IsEmri) -> dict[str, Any]:
         durum=e.durum,
         oncelik=e.oncelik,
         kapanis_tarihi=e.kapanis_tarihi,
+        hedef_tarih=e.hedef_tarih,
         olusturma_tarihi=e.olusturma_tarihi,
         yorumlar=[
             IsEmriYorumCevapDTO(
@@ -117,6 +119,7 @@ async def is_emri_olustur(
         atanan_kullanici_id=govde.atanan_kullanici_id,
         durum=ILK_DURUM,
         oncelik=govde.oncelik,
+        hedef_tarih=govde.hedef_tarih,
     )
     await repository.ekle(db, is_emri)
     if govde.kod is None:
@@ -160,6 +163,28 @@ async def is_emri_listele(
         yon=yon,
     )
     return sayfali([_cevap(e) for e in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+
+
+@router.post(
+    "/is-emirleri/sla-tara",
+    response_model=Zarf[dict[str, int]],
+    summary="SLA aşımı taraması (kenar-tetikli sla.asildi olayı)",
+)
+async def is_emri_sla_tara(
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("isemri:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    islenen = await service.sla_tara(db, tenant_slug=tenant.slug)
+    await denetim_yaz(
+        db,
+        eylem="sla_tara",
+        kaynak="is_emri",
+        kaynak_id="-",
+        kullanici=kullanici,
+        detay={"islenen": islenen},
+    )
+    return basari({"islenen": islenen}, mesaj="SLA taraması tamamlandı")
 
 
 @router.get(

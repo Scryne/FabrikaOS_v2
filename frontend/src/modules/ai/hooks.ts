@@ -52,3 +52,24 @@ export function useTahmin(tur: ModelTuru) {
 export function modelYok(hata: unknown): boolean {
   return hata instanceof ApiHata && hata.durum === 404;
 }
+
+export type OperatorOneri = {
+  personel_id: number;
+  ad_soyad: string;
+  departman: string;
+  unvan: string;
+  skor: number;
+  gerekce: string;
+};
+
+/** Operatör eşleştirme önerisi (S-VB) — kural-tabanlı, deterministik; istekle tetiklenir. */
+export function useOperatorOner() {
+  const { message } = App.useApp();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: (govde: { is_emri_id?: number; makine_id?: number; is_turu?: string }) =>
+      istek<OperatorOneri[]>('POST', `${PREFIX}/tahmin/operator-eslesme`, govde),
+    onError: (hata) =>
+      message.error(hata instanceof ApiHata ? hata.message : t('ortak.hata_baslik')),
+  });
+}

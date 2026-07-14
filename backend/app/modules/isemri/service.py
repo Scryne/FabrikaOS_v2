@@ -3,6 +3,10 @@
 Durum geçiş tablosu saf ``durum.py``'dedir; bu katman onu DB ve outbox ile birleştirir.
 ``kapandi``'ya geçişte, iş emrini kapatan iş ile **aynı transaction'da** bir
 ``is_emri.kapandi`` olayı outbox'a yazılır (transactional outbox / ADR-0007).
+
+``sla_tara`` (S-VB) kenar-tetiklidir: hedef tarihi geçmiş **açık** iş emirleri için
+``sla.asildi`` olayını kaynak başına yalnız bir kez yazar (dedup outbox sorgusuyla —
+S12 ``sozlesme.yaklasiyor`` deseni).
 """
 
 from __future__ import annotations
@@ -10,12 +14,14 @@ from __future__ import annotations
 import uuid
 from datetime import UTC, datetime
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.olaylar import olay_yayinla
+from app.core.sla import SlaAdayi, sla_asildi_yayinla
 from app.modules.isemri import repository
-from app.modules.isemri.durum import DURUMLAR, gecis_gecerli_mi
+from app.modules.isemri.durum import DURUMLAR, TERMINAL_DURUMLAR, gecis_gecerli_mi
 from app.modules.isemri.models import IsEmri
 
 OLAY_KAPANDI = "is_emri.kapandi"
@@ -85,3 +91,39 @@ async def durum_gecisi(
         )
     await db.flush()
     return is_emri
+
+
+async def sla_tara(db: AsyncSession, *, tenant_slug: str, simdi: datetime | None = None) -> int:
+    """Hedef tarihi geçmiş **açık** iş emirleri için ``sla.asildi`` yazar (bir-kez).
+
+    Terminal (kapandi/iptal) kayıtlar olay üretmez; dedup ``core.sla`` outbox
+    sorgusuyla sağlanır. İşlenen kayıt sayısını döner.
+    """
+    simdi = simdi or datetime.now(UTC)
+    adaylar = (
+        (
+            await db.execute(
+                select(IsEmri).where(
+                    IsEmri.durum.notin_(TERMINAL_DURUMLAR),
+                    IsEmri.hedef_tarih.isnot(None),
+                    IsEmri.hedef_tarih < simdi,
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    return await sla_asildi_yayinla(
+        db,
+        tenant_slug=tenant_slug,
+        kaynak_tur="is_emri",
+        adaylar=[
+            SlaAdayi(
+                kaynak_id=ie.id,
+                kod=ie.kod,
+                hedef_tarih=ie.hedef_tarih,  # type: ignore[arg-type]
+                sorumlu_kullanici_id=ie.atanan_kullanici_id,
+            )
+            for ie in adaylar
+        ],
+    )

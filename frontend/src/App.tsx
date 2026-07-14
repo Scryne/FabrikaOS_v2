@@ -18,6 +18,7 @@ import { AbonelikSayfasi } from '@/modules/abonelik/AbonelikSayfasi';
 import { TahminPanosu } from '@/modules/ai/TahminPanosu';
 import { AnalitikPano } from '@/modules/analitik/AnalitikPano';
 import { BakimPlanListesi } from '@/modules/bakim/BakimPlanListesi';
+import { BildirimTercihleri } from '@/modules/bildirim/BildirimTercihleri';
 import { FirmaListesi } from '@/modules/crm/FirmaListesi';
 import { DisPortalSayfasi } from '@/modules/dis/DisPortalSayfasi';
 import { sadeceDisKullanici } from '@/modules/dis/hooks';
@@ -212,6 +213,8 @@ export function App() {
         />
         <Route element={<CanliKabuk />}>
           <Route path="pano" element={<PanoRota />} />
+          {/* Kişisel ayar — izin/modül kapısı yok (oturum yeterli; S-VB). */}
+          <Route path="bildirim-tercihleri" element={<BildirimTercihleri />} />
           <Route
             path="makineler"
             element={

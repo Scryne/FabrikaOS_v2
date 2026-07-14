@@ -83,6 +83,7 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   raporlar: <FileTextOutlined />,
   kullanicilar: <IdcardOutlined />,
   abonelik: <CreditCardOutlined />,
+  'bildirim-tercihleri': <NotificationOutlined />,
 };
 
 /**

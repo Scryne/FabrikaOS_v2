@@ -41,6 +41,8 @@ class IsEmri(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     durum: Mapped[str] = mapped_column(String(20), default=ILK_DURUM, index=True, nullable=False)
     oncelik: Mapped[str] = mapped_column(String(10), default="orta", nullable=False)
     kapanis_tarihi: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # SLA hedefi (S-VB): boş = SLA takibi yok; aşımı sla-tara kenar-tetikli üretir.
+    hedef_tarih: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     yorumlar: Mapped[list[IsEmriYorum]] = relationship(
         back_populates="is_emri",

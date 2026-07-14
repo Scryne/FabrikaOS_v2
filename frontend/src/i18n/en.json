@@ -82,6 +82,7 @@
     "enerji_trend": "Energy trend",
     "kullanicilar": "Users",
     "abonelik": "Subscription & Modules",
+    "bildirim_tercihleri": "Notification preferences",
     "bolum_isg_ik": "OHS & HR",
     "is_kazalari": "Work accidents",
     "risk_degerlendirme": "Risk assessment",
@@ -218,7 +219,12 @@
     "kpi_aktif": "Active companies",
     "kpi_sozlesme": "Active contracts",
     "kpi_talep": "Open requests",
-    "ist_birincil": "Primary contact"
+    "ist_birincil": "Primary contact",
+    "skor_baslik": "Supplier performance",
+    "skor_yetersiz": "Insufficient data",
+    "skor_kalite": "Quality pass rate",
+    "skor_sozlesme": "Contract compliance",
+    "skor_talep": "Request resolution rate"
   },
   "sozlesme": {
     "alt": "Company contracts; status lifecycle and upcoming expiry alerts.",
@@ -312,7 +318,9 @@
     "asama_inceleniyor": "In review",
     "asama_cozuldu": "Resolved",
     "asama_kapandi": "Closed",
-    "asama_iptal": "Cancelled"
+    "asama_iptal": "Cancelled",
+    "hedef_tarih": "Target date (SLA)",
+    "hedef_ipucu": "Leave empty to disable SLA tracking."
   },
   "dys": {
     "alt": "Versioned documents; content in object storage, old versions retained.",
@@ -688,7 +696,13 @@
     "kpi_kapandi": "Closed",
     "kpi_toplam": "Total",
     "analiz_durum": "Status distribution",
-    "analiz_oncelik": "Priority distribution"
+    "analiz_oncelik": "Priority distribution",
+    "hedef_tarih": "Target date (SLA)",
+    "hedef_ipucu": "Leave empty to disable SLA tracking.",
+    "sla_asildi": "SLA exceeded",
+    "operator_oneri": "Operator suggestion",
+    "operator_oner": "Suggest operator",
+    "operator_yok": "No suitable candidate found"
   },
   "yetki": {
     "yetkisiz_baslik": "You don’t have access to this page",
@@ -996,7 +1010,9 @@
     "kpi_aktif": "Active plans",
     "kpi_bu_hafta": "Due this week",
     "kpi_gecikmis": "Overdue",
-    "kpi_toplam": "Total plans"
+    "kpi_toplam": "Total plans",
+    "takvim": "Calendar",
+    "takvim_izin": "Leave"
   },
   "kullanici": {
     "alt": "Tenant users, their roles and account status.",
@@ -1082,7 +1098,10 @@
     "son_veri": "Last data",
     "bolge": "Zone",
     "makine_sayfasi": "Machine page",
-    "detay_ipucu": "Click a machine on the diagram for details"
+    "detay_ipucu": "Click a machine on the diagram for details",
+    "sekme_sema": "Schematic",
+    "sekme_harita": "Map",
+    "harita_bos": "No machine has coordinates yet — add latitude/longitude from machine details."
   },
   "kiosk": {
     "baslik": "Production board",
@@ -1329,5 +1348,25 @@
     "cta_alt": "Connect to your factory's production intelligence. From the floor to the office, everything at a glance.",
     "cta_dugme": "Sign in",
     "footer_telif": "© 2026 FabrikaOS"
+  },
+  "bildirim": {
+    "tercihler": "Notification preferences",
+    "tercihler_alt": "Manage in-app and e-mail channels per event type.",
+    "tercih_kaydedildi": "Notification preference saved",
+    "tumunu_okundu": "Mark all as read",
+    "bos": "No notifications",
+    "olay_turu": "Event type",
+    "uygulama_ici": "In-app",
+    "eposta": "E-mail",
+    "olay": {
+      "stok_kritik": "Stock below critical threshold",
+      "sozlesme_yaklasiyor": "Contract end approaching",
+      "anomali_tespit": "AI anomaly detected",
+      "rapor_hazir": "Report ready",
+      "ariza_olustu": "Breakdown recorded",
+      "oee_dustu": "OEE below target",
+      "sla_asildi": "SLA target date exceeded",
+      "duyuru_yeni": "New announcement"
+    }
   }
 }

@@ -137,6 +137,16 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       // Üretim bitti/başarısız → liste durum rozetleri + indirme butonu tazelensin.
       void qc.invalidateQueries({ queryKey: ['raporlar'] });
       break;
+    case 'bildirim.yeni':
+      // Zil rozeti + panel canlı artsın (kişisel süzgeç backend'de; refetch kendi verisini getirir).
+      void qc.invalidateQueries({ queryKey: ['bildirim-ozet'] });
+      void qc.invalidateQueries({ queryKey: ['bildirimler'] });
+      break;
+    case 'sla.asildi':
+      // SLA aşımı iş emri/talep listelerindeki hedef rozetlerini etkiler.
+      void qc.invalidateQueries({ queryKey: ['is-emirleri'] });
+      void qc.invalidateQueries({ queryKey: ['talepler'] });
+      break;
     default:
       break;
   }

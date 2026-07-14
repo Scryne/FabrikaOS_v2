@@ -15,6 +15,8 @@ from pydantic import BaseModel, Field
 class KaliteKontrolOlusturDTO(BaseModel):
     makine_id: int | None = None
     is_emri_id: int | None = None
+    # Giriş kontrolü malzeme bağlantısı (S-VB): tedarikçi skoru kalite bileşeni.
+    malzeme_id: int | None = None
     kontrol_turu: str = Field(default="uretim", max_length=20)
     sonuc: str = Field(min_length=1, max_length=20)
     olculen_deger: Decimal | None = None
@@ -31,6 +33,7 @@ class KaliteKontrolCevapDTO(BaseModel):
     kod: str
     makine_id: int | None = None
     is_emri_id: int | None = None
+    malzeme_id: int | None = None
     kontrol_turu: str
     sonuc: str
     olculen_deger: float | None = None

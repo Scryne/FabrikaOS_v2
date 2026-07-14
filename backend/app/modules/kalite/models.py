@@ -34,6 +34,10 @@ class KaliteKontrol(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     is_emri_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("is_emirleri.id", ondelete="SET NULL"), index=True, nullable=True
     )
+    # Giriş kalite kontrolü malzeme bağlantısı (S-VB): tedarikçi skoru kalite bileşeni.
+    malzeme_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("malzemeler.id", ondelete="SET NULL"), index=True, nullable=True
+    )
     kontrol_turu: Mapped[str] = mapped_column(String(20), default="uretim", nullable=False)
     sonuc: Mapped[str] = mapped_column(String(20), nullable=False)
     olculen_deger: Mapped[Decimal | None] = mapped_column(_OLCU, nullable=True)

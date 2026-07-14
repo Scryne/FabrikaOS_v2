@@ -82,6 +82,7 @@
     "enerji_trend": "Enerji trendi",
     "kullanicilar": "Kullanıcılar",
     "abonelik": "Abonelik & Modüller",
+    "bildirim_tercihleri": "Bildirim tercihleri",
     "bolum_isg_ik": "İSG & İK",
     "is_kazalari": "İş kazaları",
     "risk_degerlendirme": "Risk değerlendirme",
@@ -218,7 +219,12 @@
     "kpi_aktif": "Aktif firma",
     "kpi_sozlesme": "Aktif sözleşme",
     "kpi_talep": "Açık talep",
-    "ist_birincil": "Birincil kontak"
+    "ist_birincil": "Birincil kontak",
+    "skor_baslik": "Tedarikçi performansı",
+    "skor_yetersiz": "Yetersiz veri",
+    "skor_kalite": "Kalite geçme oranı",
+    "skor_sozlesme": "Sözleşme uyumu",
+    "skor_talep": "Talep çözüm oranı"
   },
   "sozlesme": {
     "alt": "Firma sözleşmeleri; durum yaşam döngüsü ve yaklaşan bitiş uyarıları.",
@@ -312,7 +318,9 @@
     "asama_inceleniyor": "İnceleniyor",
     "asama_cozuldu": "Çözüldü",
     "asama_kapandi": "Kapandı",
-    "asama_iptal": "İptal"
+    "asama_iptal": "İptal",
+    "hedef_tarih": "Hedef tarih (SLA)",
+    "hedef_ipucu": "Boş bırakılırsa SLA takibi yapılmaz."
   },
   "dys": {
     "alt": "Sürümlü belgeler; içerik nesne depolamada, eski sürümler korunur.",
@@ -688,7 +696,13 @@
     "kpi_kapandi": "Kapandı",
     "kpi_toplam": "Toplam",
     "analiz_durum": "Durum dağılımı",
-    "analiz_oncelik": "Öncelik dağılımı"
+    "analiz_oncelik": "Öncelik dağılımı",
+    "hedef_tarih": "Hedef tarih (SLA)",
+    "hedef_ipucu": "Boş bırakılırsa SLA takibi yapılmaz.",
+    "sla_asildi": "SLA aşıldı",
+    "operator_oneri": "Operatör önerisi",
+    "operator_oner": "Operatör öner",
+    "operator_yok": "Uygun aday bulunamadı"
   },
   "yetki": {
     "yetkisiz_baslik": "Bu sayfaya yetkiniz yok",
@@ -996,7 +1010,9 @@
     "kpi_aktif": "Aktif plan",
     "kpi_bu_hafta": "Bu hafta vadesi",
     "kpi_gecikmis": "Gecikmiş",
-    "kpi_toplam": "Toplam plan"
+    "kpi_toplam": "Toplam plan",
+    "takvim": "Takvim",
+    "takvim_izin": "İzin"
   },
   "kullanici": {
     "alt": "Tenant kullanıcıları, rolleri ve hesap durumu.",
@@ -1082,7 +1098,10 @@
     "son_veri": "Son veri",
     "bolge": "Bölge",
     "makine_sayfasi": "Makine sayfası",
-    "detay_ipucu": "Detay için şemadaki bir makineye tıklayın"
+    "detay_ipucu": "Detay için şemadaki bir makineye tıklayın",
+    "sekme_sema": "Şema",
+    "sekme_harita": "Harita",
+    "harita_bos": "Koordinatı girilmiş makine yok — makine detayından enlem/boylam ekleyin."
   },
   "kiosk": {
     "baslik": "Üretim panosu",
@@ -1329,5 +1348,25 @@
     "cta_alt": "Fabrikanızın üretim zekâsına bağlanın. Sahadan yönetime, her şey tek bakışta.",
     "cta_dugme": "Giriş yap",
     "footer_telif": "© 2026 FabrikaOS"
+  },
+  "bildirim": {
+    "tercihler": "Bildirim tercihleri",
+    "tercihler_alt": "Olay türü başına uygulama içi ve e-posta kanallarını yönetin.",
+    "tercih_kaydedildi": "Bildirim tercihi kaydedildi",
+    "tumunu_okundu": "Tümünü okundu say",
+    "bos": "Bildirim yok",
+    "olay_turu": "Olay türü",
+    "uygulama_ici": "Uygulama içi",
+    "eposta": "E-posta",
+    "olay": {
+      "stok_kritik": "Stok kritik eşiğin altında",
+      "sozlesme_yaklasiyor": "Sözleşme bitişi yaklaşıyor",
+      "anomali_tespit": "AI anomali tespiti",
+      "rapor_hazir": "Rapor hazır",
+      "ariza_olustu": "Arıza kaydı oluştu",
+      "oee_dustu": "OEE hedefin altında",
+      "sla_asildi": "SLA hedef tarihi aşıldı",
+      "duyuru_yeni": "Yeni duyuru"
+    }
   }
 }

@@ -149,6 +149,8 @@ async def ikiz_durum(
                 oee=makine_oee,
                 toplam_adet=int(satir["toplam_adet"]) if satir is not None else 0,
                 son_veri_zamani=satir["son_veri_zamani"] if satir is not None else None,
+                enlem=makine.enlem,
+                boylam=makine.boylam,
             )
         )
 
@@ -182,7 +184,14 @@ async def ikiz_durum(
         ),
         dugumler=dugum_cevaplari,
         yerlesmemis=[
-            YerlesmemisMakineDTO(makine_id=m.id, makine_kod=m.kod, makine_ad=m.ad, durum=m.durum)
+            YerlesmemisMakineDTO(
+                makine_id=m.id,
+                makine_kod=m.kod,
+                makine_ad=m.ad,
+                durum=m.durum,
+                enlem=m.enlem,
+                boylam=m.boylam,
+            )
             for m in makineler
             if m.id not in yerlesik_idler
         ],

@@ -17,16 +17,20 @@ from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
+from app.core.exceptions import KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
-from app.modules.ai import repository, service
+from app.modules.ai import operator_eslestir, repository, service
 from app.modules.ai.models import ModelKaydi
 from app.modules.ai.schemas import (
     EgitimIstekDTO,
     ModelKaydiCevapDTO,
+    OperatorEslesmeCevapDTO,
+    OperatorEslesmeIstekDTO,
     TahminCevapDTO,
     TahminGecmisCevapDTO,
 )
+from app.modules.isemri import repository as isemri_repository
 
 router = APIRouter(
     prefix="/tahmin", tags=["AI Tahmin"], dependencies=[Depends(modul_gerekli("ai"))]
@@ -202,3 +206,45 @@ async def anomali_tahmini(
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     return await _tahmin_ucu("anomali", kullanici, db, tenant)
+
+
+@router.post(
+    "/operator-eslesme",
+    response_model=Zarf[list[OperatorEslesmeCevapDTO]],
+    summary="Operatör eşleştirme önerisi (kural-tabanlı, deterministik)",
+)
+async def operator_eslesme(
+    govde: OperatorEslesmeIstekDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("ai:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[object, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    is_turu = govde.is_turu
+    if govde.is_emri_id is not None:
+        is_emri = await isemri_repository.getir(db, govde.is_emri_id)
+        if is_emri is None:
+            raise KaynakBulunamadi("İş emri bulunamadı")
+    adaylar = await operator_eslestir.aday_topla(db)
+    oneriler = operator_eslestir.operator_puanla(adaylar, is_turu=is_turu)
+    await denetim_yaz(
+        db,
+        eylem="tahmin",
+        kaynak="operator_eslesme",
+        kaynak_id=str(govde.is_emri_id or govde.makine_id or "-"),
+        kullanici=kullanici,
+        detay={"is_turu": is_turu, "oneri_sayisi": len(oneriler)},
+    )
+    return basari(
+        [
+            OperatorEslesmeCevapDTO(
+                personel_id=o.personel_id,
+                ad_soyad=o.ad_soyad,
+                departman=o.departman,
+                unvan=o.unvan,
+                skor=o.skor,
+                gerekce=o.gerekce,
+            ).model_dump()
+            for o in oneriler
+        ],
+        mesaj="Operatör önerileri üretildi",
+    )

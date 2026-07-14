@@ -64,6 +64,7 @@ def _malzeme_cevap(m: Malzeme) -> dict[str, Any]:
         kritik_stok=float(m.kritik_stok),
         aktif=m.aktif,
         kritik=kritik,
+        tedarikci_firma_id=m.tedarikci_firma_id,
         olusturma_tarihi=m.olusturma_tarihi,
     ).model_dump()
 
@@ -96,6 +97,7 @@ async def malzeme_olustur(
         min_stok=govde.min_stok,
         max_stok=govde.max_stok,
         kritik_stok=govde.kritik_stok,
+        tedarikci_firma_id=govde.tedarikci_firma_id,
     )
     await repository.malzeme_ekle(db, malzeme)
     await denetim_yaz(
@@ -177,7 +179,15 @@ async def malzeme_guncelle(
     if govde.birim is not None:
         _birim_dogrula(govde.birim)
         malzeme.birim = govde.birim
-    for alan in ("ad", "kategori", "min_stok", "max_stok", "kritik_stok", "aktif"):
+    for alan in (
+        "ad",
+        "kategori",
+        "min_stok",
+        "max_stok",
+        "kritik_stok",
+        "aktif",
+        "tedarikci_firma_id",
+    ):
         deger = getattr(govde, alan)
         if deger is not None:
             setattr(malzeme, alan, deger)

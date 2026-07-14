@@ -41,6 +41,9 @@ class Makine(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     ad: Mapped[str] = mapped_column(String(200), nullable=False)
     durum: Mapped[str] = mapped_column(String(20), default="durdu", nullable=False)
     oee_hedefi: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Coğrafi site haritası (S-VB): koordinatsız makine yalnız SVG şemada görünür.
+    enlem: Mapped[float | None] = mapped_column(Float, nullable=True)
+    boylam: Mapped[float | None] = mapped_column(Float, nullable=True)
 
     uretim_verileri: Mapped[list[UretimVerisi]] = relationship(
         back_populates="makine", cascade="all, delete-orphan"

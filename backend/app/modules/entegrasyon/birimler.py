@@ -17,6 +17,7 @@ OLAY_TURU_KATALOGU: dict[str, str] = {
     "anomali.tespit": "AI anomali tespiti",
     "kalite.uygunsuzluk": "Kalite uygunsuzluğu açıldı",
     "isg.kaza": "İş kazası kaydı oluştu",
+    "sla.asildi": "SLA hedef tarihi aşıldı",
 }
 
 # API anahtarı kapsam beyaz-listesi: dış veri uçlarının istediği okuma izinleri.

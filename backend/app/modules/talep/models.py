@@ -7,7 +7,9 @@ bağlar. Dış self-servis portal (S18) da bu kayda talep yazar. FK'ler şema ö
 
 from __future__ import annotations
 
-from sqlalchemy import BigInteger, ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
@@ -35,3 +37,5 @@ class Talep(KimlikMixin, ZamanDamgaliMixin, TenantBase):
         BigInteger, ForeignKey("kullanici.id", ondelete="SET NULL"), index=True, nullable=True
     )
     talep_eden_ad: Mapped[str] = mapped_column(String(200), default="", nullable=False)
+    # SLA hedefi (S-VB): boş = SLA takibi yok; aşımı sla-tara kenar-tetikli üretir.
+    hedef_tarih: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

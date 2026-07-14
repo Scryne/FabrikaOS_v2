@@ -1,19 +1,21 @@
 /**
  * Bakım planları listesi — sunucu-taraflı tablo (ad/makine/tip/periyot/sonraki bakım/durum) +
- * makine & durum filtresi + "yeni plan" (``bakim:yaz``). Tarihi geçmiş sonraki bakım
- * vurgulanır; yazma yetkisi olan plan durumunu satırdan aktif/pasif değiştirebilir.
+ * makine & durum filtresi + "yeni plan" (``bakim:yaz``) + takvim sekmesi (S-VB: bakım
+ * vadeleri ⊕ onaylı izinler tek zaman şeridinde). Tarihi geçmiş sonraki bakım vurgulanır.
  */
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   PlusOutlined,
   ToolOutlined,
+  UnorderedListOutlined,
   WarningOutlined,
 } from '@ant-design/icons';
-import { Button, Card, Select, Switch, Tag } from 'antd';
+import { Button, Card, Segmented, Select, Space, Switch, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
@@ -26,6 +28,7 @@ import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI } from '@/tema/modulKimlik';
 
 import { BakimPlaniFormu } from './BakimPlaniFormu';
+import { BakimTakvimi } from './BakimTakvimi';
 import { type BakimPlani, useBakimOzet, useBakimPlaniGuncelle, useBakimPlanlari } from './hooks';
 
 const HAT = BOLUM_RENGI['menu.bolum_uretim'];
@@ -44,6 +47,7 @@ export function BakimPlanListesi() {
   const { data: ozet, isPending: ozetYukleniyor } = useBakimOzet();
   const guncelle = useBakimPlaniGuncelle();
   const [formAcik, setFormAcik] = useState(false);
+  const [gorunum, setGorunum] = useState<'liste' | 'takvim'>('liste');
 
   const makineHarita = useMemo(() => new Map((makineler ?? []).map((m) => [m.id, m])), [makineler]);
 
@@ -160,53 +164,69 @@ export function BakimPlanListesi() {
         baslik={t('menu.bakim')}
         alt={t('bakim.alt')}
         sag={
-          yazabilir && (
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setFormAcik(true)}>
-              {t('bakim.yeni')}
-            </Button>
-          )
+          <Space>
+            <Segmented<'liste' | 'takvim'>
+              value={gorunum}
+              onChange={setGorunum}
+              options={[
+                { value: 'liste', icon: <UnorderedListOutlined />, label: t('gorunum.liste') },
+                { value: 'takvim', icon: <CalendarOutlined />, label: t('bakim.takvim') },
+              ]}
+            />
+            {yazabilir && (
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => setFormAcik(true)}>
+                {t('bakim.yeni')}
+              </Button>
+            )}
+          </Space>
         }
       />
       <OzetSerit renk={HAT} metrikler={metrikler} yukleniyor={ozetYukleniyor} />
       <div style={{ height: 20 }} />
-      <Card styles={{ body: { padding: 18 } }}>
-        <SunucuTablo<BakimPlani>
-          kolonlar={kolonlar}
-          veri={data?.veri ?? []}
-          meta={data?.meta}
-          yukleniyor={isPending}
-          param={param}
-          paramDegistir={paramDegistir}
-          rowKey="id"
-          aramaYer={t('bakim.ara')}
-          bosMetin={isError ? t('ortak.hata_baslik') : t('bakim.bos')}
-          araclar={
-            <>
-              <Select
-                allowClear
-                showSearch
-                optionFilterProp="label"
-                placeholder={t('bakim.makine')}
-                style={{ width: 200 }}
-                value={param.filtreler?.makine_id as number | undefined}
-                onChange={(v) => paramDegistir({ filtreler: { makine_id: v } })}
-                options={(makineler ?? []).map((m) => ({ value: m.id, label: m.kod }))}
-              />
-              <Select
-                allowClear
-                placeholder={t('bakim.durum')}
-                style={{ width: 140 }}
-                value={param.filtreler?.aktif as boolean | undefined}
-                onChange={(v) => paramDegistir({ filtreler: { aktif: v } })}
-                options={[
-                  { value: true, label: t('bakim.aktif') },
-                  { value: false, label: t('bakim.pasif') },
-                ]}
-              />
-            </>
-          }
-        />
-      </Card>
+      {gorunum === 'takvim' ? (
+        <Card styles={{ body: { padding: 18 } }}>
+          <BakimTakvimi planlar={data?.veri ?? []} />
+        </Card>
+      ) : (
+        <Card styles={{ body: { padding: 18 } }}>
+          <SunucuTablo<BakimPlani>
+            kolonlar={kolonlar}
+            veri={data?.veri ?? []}
+            meta={data?.meta}
+            yukleniyor={isPending}
+            param={param}
+            paramDegistir={paramDegistir}
+            rowKey="id"
+            aramaYer={t('bakim.ara')}
+            bosMetin={isError ? t('ortak.hata_baslik') : t('bakim.bos')}
+            araclar={
+              <>
+                <Select
+                  allowClear
+                  showSearch
+                  optionFilterProp="label"
+                  placeholder={t('bakim.makine')}
+                  style={{ width: 200 }}
+                  value={param.filtreler?.makine_id as number | undefined}
+                  onChange={(v) => paramDegistir({ filtreler: { makine_id: v } })}
+                  options={(makineler ?? []).map((m) => ({ value: m.id, label: m.kod }))}
+                />
+                <Select
+                  allowClear
+                  placeholder={t('bakim.durum')}
+                  style={{ width: 140 }}
+                  value={param.filtreler?.aktif as boolean | undefined}
+                  onChange={(v) => paramDegistir({ filtreler: { aktif: v } })}
+                  options={[
+                    { value: true, label: t('bakim.aktif') },
+                    { value: false, label: t('bakim.pasif') },
+                  ]}
+                />
+              </>
+            }
+          />
+        </Card>
+      )}
       <BakimPlaniFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

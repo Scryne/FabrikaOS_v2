@@ -1,8 +1,12 @@
-/** Talep oluşturma formu (modal). Tür + öncelik beyaz-listeden; firma opsiyonel. */
+/**
+ * Talep oluşturma formu (modal). Tür + öncelik beyaz-listeden; firma opsiyonel.
+ * ``hedef_tarih`` SLA hedefidir (S-VB): boş = SLA takibi yok.
+ */
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Input, InputNumber, Modal, Select } from 'antd';
+import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
+import type { Dayjs } from 'dayjs';
 
 import { useTalepOlustur } from './hooks';
 
@@ -20,7 +24,11 @@ export function TalepFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
 
   const gonder = async () => {
     const v = await form.validateFields();
-    await olustur.mutateAsync(v);
+    const hedef = v.hedef_tarih as Dayjs | undefined;
+    await olustur.mutateAsync({
+      ...v,
+      hedef_tarih: hedef ? hedef.toISOString() : null,
+    });
     form.resetFields();
     kapat();
   };
@@ -52,6 +60,9 @@ export function TalepFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
         </Form.Item>
         <Form.Item name="talep_eden_ad" label={t('talep.talep_eden_ad')}>
           <Input maxLength={200} />
+        </Form.Item>
+        <Form.Item name="hedef_tarih" label={t('talep.hedef_tarih')} extra={t('talep.hedef_ipucu')}>
+          <DatePicker showTime={{ format: 'HH:mm' }} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="aciklama" label={t('talep.aciklama')}>
           <Input.TextArea rows={3} maxLength={2000} />

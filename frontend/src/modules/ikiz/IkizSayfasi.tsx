@@ -1,7 +1,8 @@
 /**
- * Dijital ikiz — tesis şeması (SVG) üzerinde canlı makine durumu.
+ * Dijital ikiz — tesis şeması (SVG) + coğrafi harita (S-VB) üzerinde canlı makine durumu.
  *
  * Görünüm modu: düğüme tıkla → yan panelde detay (durum, pencere OEE'si, üretim, bölge).
+ * "Harita" sekmesi koordinatı olan makineleri OSM üzerinde durum LED renginde gösterir.
  * Düzenleme modu (`uretim:yaz`): düğümleri sürükle-taşı, paletten yerleştir, × ile kaldır,
  * Kaydet → `PUT /ikiz/yerlesim` (replace-all). Canlılık: WS olayları `['ikiz']` sorgusunu
  * geçersizleştirir (olayIsle), sürükleme matematiği saf `sunum.ts`'tedir.
@@ -11,8 +12,27 @@ import { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import type { PointerEvent as ReactPointerEvent } from 'react';
-import { ApartmentOutlined, CloseOutlined, DesktopOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Descriptions, Row, Space, Spin, Tag, Typography } from 'antd';
+import {
+  ApartmentOutlined,
+  CloseOutlined,
+  DesktopOutlined,
+  EditOutlined,
+  GlobalOutlined,
+} from '@ant-design/icons';
+import {
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Row,
+  Segmented,
+  Space,
+  Spin,
+  Tag,
+  Typography,
+} from 'antd';
+
+import { IkizHarita } from './IkizHarita';
 
 import { BosDurum } from '@/components/BosDurum';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -44,6 +64,7 @@ export function IkizSayfasi() {
   const [taslak, setTaslak] = useState<IkizDugumGiris[]>([]);
   const [suruklenen, setSuruklenen] = useState<number | null>(null);
   const [secili, setSecili] = useState<number | null>(null);
+  const [gorunum, setGorunum] = useState<'sema' | 'harita'>('sema');
   const svgRef = useRef<SVGSVGElement>(null);
 
   // Makine kimlik haritası (kod/ad/durum): düğümler + yerleşmemişler tek sözlükte.
@@ -108,10 +129,18 @@ export function IkizSayfasi() {
             </Space>
           ) : (
             <Space>
+              <Segmented<'sema' | 'harita'>
+                value={gorunum}
+                onChange={setGorunum}
+                options={[
+                  { value: 'sema', icon: <ApartmentOutlined />, label: t('ikiz.sekme_sema') },
+                  { value: 'harita', icon: <GlobalOutlined />, label: t('ikiz.sekme_harita') },
+                ]}
+              />
               <Button icon={<DesktopOutlined />} onClick={() => navigate('/kiosk')}>
                 {t('ikiz.kiosk_modu')}
               </Button>
-              {yazabilir && (
+              {yazabilir && gorunum === 'sema' && (
                 <Button icon={<EditOutlined />} onClick={duzenlemeBaslat} disabled={isPending}>
                   {t('ikiz.duzenle')}
                 </Button>
@@ -160,6 +189,11 @@ export function IkizSayfasi() {
               <div style={{ display: 'flex', justifyContent: 'center', padding: 60 }}>
                 <Spin />
               </div>
+            ) : !duzenleme && gorunum === 'harita' ? (
+              <IkizHarita
+                makineler={[...(data?.dugumler ?? []), ...(data?.yerlesmemis ?? [])]}
+                sec={setSecili}
+              />
             ) : !duzenleme && cizilecek.length === 0 ? (
               <BosDurum
                 ikon={<ApartmentOutlined />}

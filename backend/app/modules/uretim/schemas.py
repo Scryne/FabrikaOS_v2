@@ -11,6 +11,18 @@ class MakineOlusturDTO(BaseModel):
     kod: str = Field(min_length=1, max_length=50)
     ad: str = Field(min_length=1, max_length=200)
     oee_hedefi: float | None = Field(default=None, ge=0, le=1)
+    # Coğrafi site haritası (S-VB): opsiyonel; koordinatsız makine yalnız SVG şemada.
+    enlem: float | None = Field(default=None, ge=-90, le=90)
+    boylam: float | None = Field(default=None, ge=-180, le=180)
+
+
+class MakineGuncelleDTO(BaseModel):
+    """Kısmi güncelleme; ``enlem``/``boylam`` null gönderilerek koordinat silinebilir."""
+
+    ad: str | None = Field(default=None, min_length=1, max_length=200)
+    oee_hedefi: float | None = Field(default=None, ge=0, le=1)
+    enlem: float | None = Field(default=None, ge=-90, le=90)
+    boylam: float | None = Field(default=None, ge=-180, le=180)
 
 
 class MakineDurumDTO(BaseModel):
@@ -23,6 +35,8 @@ class MakineCevapDTO(BaseModel):
     ad: str
     durum: str
     oee_hedefi: float | None = None
+    enlem: float | None = None
+    boylam: float | None = None
 
 
 class UretimGirisDTO(BaseModel):

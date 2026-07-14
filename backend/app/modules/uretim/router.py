@@ -28,6 +28,7 @@ from app.modules.uretim.schemas import (
     DurumSayiDTO,
     MakineCevapDTO,
     MakineDurumDTO,
+    MakineGuncelleDTO,
     MakineOlusturDTO,
     OeeCevapDTO,
     OeeOzetSatirDTO,
@@ -41,7 +42,13 @@ router = APIRouter(tags=["Üretim"], dependencies=[Depends(modul_gerekli("uretim
 
 def _makine_cevap(m: Makine) -> dict[str, Any]:
     return MakineCevapDTO(
-        id=m.id, kod=m.kod, ad=m.ad, durum=m.durum, oee_hedefi=m.oee_hedefi
+        id=m.id,
+        kod=m.kod,
+        ad=m.ad,
+        durum=m.durum,
+        oee_hedefi=m.oee_hedefi,
+        enlem=m.enlem,
+        boylam=m.boylam,
     ).model_dump()
 
 
@@ -71,7 +78,14 @@ async def makine_olustur(
     if await repository.makine_kod_var_mi(db, govde.kod):
         raise CakismaHatasi("Bu kod ile makine zaten var")
     makine = await repository.makine_ekle(
-        db, Makine(kod=govde.kod, ad=govde.ad, oee_hedefi=govde.oee_hedefi)
+        db,
+        Makine(
+            kod=govde.kod,
+            ad=govde.ad,
+            oee_hedefi=govde.oee_hedefi,
+            enlem=govde.enlem,
+            boylam=govde.boylam,
+        ),
     )
     await denetim_yaz(
         db, eylem="olustur", kaynak="makine", kaynak_id=str(makine.id), kullanici=kullanici
@@ -108,6 +122,35 @@ async def makine_detay(
     if makine is None:
         raise KaynakBulunamadi("Makine bulunamadı")
     return basari(_makine_cevap(makine), mesaj="Makine detayı")
+
+
+@router.patch(
+    "/makineler/{makine_id}",
+    response_model=Zarf[MakineCevapDTO],
+    summary="Makine bilgilerini güncelle (ad/OEE hedefi/koordinat)",
+)
+async def makine_guncelle(
+    makine_id: int,
+    govde: MakineGuncelleDTO,
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    makine = await repository.makine_getir(db, makine_id)
+    if makine is None:
+        raise KaynakBulunamadi("Makine bulunamadı")
+    degisen = govde.model_dump(exclude_unset=True)
+    for alan, deger in degisen.items():
+        setattr(makine, alan, deger)
+    await db.flush()
+    await denetim_yaz(
+        db,
+        eylem="guncelle",
+        kaynak="makine",
+        kaynak_id=str(makine.id),
+        kullanici=kullanici,
+        detay={"alanlar": sorted(degisen)},
+    )
+    return basari(_makine_cevap(makine), mesaj="Makine güncellendi")
 
 
 @router.patch(
