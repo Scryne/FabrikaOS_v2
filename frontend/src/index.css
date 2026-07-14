@@ -725,6 +725,22 @@ body {
   }
 }
 
+/* Mozaik (masonry) — panoda farklı yükseklikteki paneller dengeli dikey sütunlara paketlenir.
+   Sütun sayısı JS'te görünür genişliğe göre belirlenir; her sütun bir flex yığınıdır (iç boşluk yok).
+   Sütunlar eşit genişlikte (flex:1 1 0) ve üstten hizalı (doğal farklı yükseklikte biterler). */
+.pano-mozaik {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.pano-mozaik-kolon {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 /* Kompakt istatistik bloğu (widget içi KPI sırası) — büyük mono değer + soluk etiket. */
 .pano-istat-sira {
   display: flex;
