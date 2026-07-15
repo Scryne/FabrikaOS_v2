@@ -20,6 +20,7 @@ from app.modules.bakim.router import router as bakim_router
 from app.modules.bildirim.router import router as bildirim_router
 from app.modules.crm.router import router as crm_router
 from app.modules.dis.router import router as dis_router
+from app.modules.durus.router import router as durus_router
 from app.modules.duyuru.router import router as duyuru_router
 from app.modules.dys.router import router as dys_router
 from app.modules.enerji.router import router as enerji_router
@@ -38,6 +39,8 @@ from app.modules.stok.router import router as stok_router
 from app.modules.talep.router import router as talep_router
 from app.modules.ticari.router import router as ticari_router
 from app.modules.uretim.router import router as uretim_router
+from app.modules.urun.router import router as urun_router
+from app.modules.vardiya.router import router as vardiya_router
 from app.platform.kimlik_router import router as platform_kimlik_router
 from app.platform.router import router as platform_router
 
@@ -49,6 +52,9 @@ api_router.include_router(kullanici_router)
 api_router.include_router(rol_router)
 api_router.include_router(abonelik_router)
 api_router.include_router(uretim_router)
+api_router.include_router(vardiya_router)
+api_router.include_router(durus_router)
+api_router.include_router(urun_router)
 api_router.include_router(ikiz_router)
 api_router.include_router(saha_router)
 api_router.include_router(isemri_router)

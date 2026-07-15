@@ -2,6 +2,12 @@
 
 Toplulaştırılmış girdiler (``OeeToplam``) saf ``oee_hesapla`` fonksiyonuna bağlanır:
 toplam ideal süreden "efektif çevrim süresi" türetilerek tek doğruluk kaynağı korunur.
+
+S24: kayıtlı duruşlar (``durus_kayitlari``) pencere içi kesişim dakikalarıyla
+``durus_sure_dk`` toplamına **eklenir** — üretim verisindeki manuel duruş alanına ek
+bağımsız kaynak (kullanılabilirlik gerçek duruşlardan düşer). Vardiya kırılımı
+``?vardiya=`` filtresiyle (kayıtlı duruşlar vardiyaya bağlanmaz; vardiya filtreli
+sorguda yalnız üretim verisi duruşu sayılır — belgelenmiş sınır).
 """
 
 from __future__ import annotations
@@ -13,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import GidenOlay, olay_yayinla
+from app.modules.durus import repository as durus_repository
 from app.modules.uretim import repository
 from app.modules.uretim.models import Makine
 from app.modules.uretim.oee import OeeSonuc, oee_hesapla
@@ -32,14 +39,36 @@ def oee_toplamdan(t: OeeToplam) -> OeeSonuc:
     )
 
 
+def _duruslu(t: OeeToplam, ek_durus_dk: float) -> OeeToplam:
+    """Toplama kayıtlı duruş dakikalarını ekler (saf; girdiyi değiştirmez)."""
+    if ek_durus_dk <= 0:
+        return t
+    return OeeToplam(
+        planlanan_sure_dk=t.planlanan_sure_dk,
+        durus_sure_dk=t.durus_sure_dk + ek_durus_dk,
+        toplam_adet=t.toplam_adet,
+        saglam_adet=t.saglam_adet,
+        ideal_sure_dk=t.ideal_sure_dk,
+        kayit_sayisi=t.kayit_sayisi,
+    )
+
+
 async def makine_oee(
     db: AsyncSession,
     makine_id: int,
     *,
     baslangic: datetime | None = None,
     bitis: datetime | None = None,
+    vardiya: str | None = None,
 ) -> tuple[OeeSonuc, int]:
-    toplam = await repository.oee_toplam(db, makine_id, baslangic=baslangic, bitis=bitis)
+    toplam = await repository.oee_toplam(
+        db, makine_id, baslangic=baslangic, bitis=bitis, vardiya=vardiya
+    )
+    if vardiya is None:
+        duruslar = await durus_repository.pencere_durus_dakikalari(
+            db, baslangic=baslangic, bitis=bitis, makine_id=makine_id
+        )
+        toplam = _duruslu(toplam, duruslar.get(makine_id, 0.0))
     return oee_toplamdan(toplam), toplam.kayit_sayisi
 
 
@@ -48,9 +77,18 @@ async def oee_ozet(
     *,
     baslangic: datetime | None = None,
     bitis: datetime | None = None,
+    vardiya: str | None = None,
 ) -> list[tuple[int, str, OeeSonuc, int]]:
-    satirlar = await repository.oee_ozet(db, baslangic=baslangic, bitis=bitis)
-    return [(mid, kod, oee_toplamdan(t), t.kayit_sayisi) for mid, kod, t in satirlar]
+    satirlar = await repository.oee_ozet(db, baslangic=baslangic, bitis=bitis, vardiya=vardiya)
+    duruslar: dict[int, float] = {}
+    if vardiya is None:
+        duruslar = await durus_repository.pencere_durus_dakikalari(
+            db, baslangic=baslangic, bitis=bitis
+        )
+    return [
+        (mid, kod, oee_toplamdan(_duruslu(t, duruslar.get(mid, 0.0))), t.kayit_sayisi)
+        for mid, kod, t in satirlar
+    ]
 
 
 async def _oee_dustu_bildirildi_mi(db: AsyncSession, makine_id: int, tarih: date) -> bool:

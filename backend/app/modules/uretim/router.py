@@ -10,6 +10,7 @@ from datetime import UTC, datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Query
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,7 +24,7 @@ from app.core.olaylar import olay_yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.uretim import repository, service
-from app.modules.uretim.models import MAKINE_DURUMLARI, Makine, UretimVerisi
+from app.modules.uretim.models import MAKINE_DURUMLARI, ArizaKaydi, Makine, UretimVerisi
 from app.modules.uretim.schemas import (
     DurumSayiDTO,
     MakineCevapDTO,
@@ -63,6 +64,7 @@ def _uretim_cevap(u: UretimVerisi) -> dict[str, Any]:
         toplam_adet=u.toplam_adet,
         saglam_adet=u.saglam_adet,
         ideal_cevrim_sn=u.ideal_cevrim_sn,
+        lot_no=u.lot_no,
     ).model_dump()
 
 
@@ -180,6 +182,9 @@ async def makine_durum_guncelle(
     # Kenar-tetikli `ariza.olustu` (S18): yalnız arızaya GEÇİŞTE bir kez — durum
     # değişikliğiyle aynı transaction'da outbox'a yazılır (webhook relay teslim eder).
     if govde.durum == "ariza" and onceki_durum != "ariza":
+        # Arıza kaydı otomasyonu (S24): geçişle birlikte açık ArizaKaydi açılır —
+        # MTBF/MTTR metriklerinin veri kaynağı.
+        db.add(ArizaKaydi(makine_id=makine.id, baslangic=datetime.now(UTC), tur="ariza"))
         await olay_yayinla(
             db,
             olay_turu="ariza.olustu",
@@ -190,6 +195,22 @@ async def makine_durum_guncelle(
                 "onceki_durum": onceki_durum,
             },
         )
+    if onceki_durum == "ariza" and govde.durum != "ariza":
+        # Arızadan çıkış: açık kayıt kapanır (onarım süresi = MTTR girdisi).
+        acik_kayitlar = (
+            (
+                await db.execute(
+                    select(ArizaKaydi).where(
+                        ArizaKaydi.makine_id == makine.id, ArizaKaydi.bitis.is_(None)
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        for kayit in acik_kayitlar:
+            kayit.bitis = datetime.now(UTC)
+            kayit.cozuldu = True
     await denetim_yaz(
         db,
         eylem="durum_guncelle",
@@ -212,11 +233,14 @@ async def makine_oee(
     db: Annotated[AsyncSession, Depends(get_session)],
     baslangic: Annotated[datetime | None, Query()] = None,
     bitis: Annotated[datetime | None, Query()] = None,
+    vardiya: Annotated[str | None, Query(max_length=20)] = None,
 ) -> dict[str, Any]:
     makine = await repository.makine_getir(db, makine_id)
     if makine is None:
         raise KaynakBulunamadi("Makine bulunamadı")
-    sonuc, sayi = await service.makine_oee(db, makine_id, baslangic=baslangic, bitis=bitis)
+    sonuc, sayi = await service.makine_oee(
+        db, makine_id, baslangic=baslangic, bitis=bitis, vardiya=vardiya
+    )
     veri = OeeCevapDTO(
         makine_id=makine_id,
         kullanilabilirlik=sonuc.kullanilabilirlik,
@@ -260,6 +284,7 @@ async def uretim_girisi(
             toplam_adet=govde.toplam_adet,
             saglam_adet=govde.saglam_adet,
             ideal_cevrim_sn=govde.ideal_cevrim_sn,
+            lot_no=govde.lot_no,
         ),
     )
     await denetim_yaz(
@@ -308,8 +333,9 @@ async def oee_ozet(
     db: Annotated[AsyncSession, Depends(get_session)],
     baslangic: Annotated[datetime | None, Query()] = None,
     bitis: Annotated[datetime | None, Query()] = None,
+    vardiya: Annotated[str | None, Query(max_length=20)] = None,
 ) -> dict[str, Any]:
-    satirlar = await service.oee_ozet(db, baslangic=baslangic, bitis=bitis)
+    satirlar = await service.oee_ozet(db, baslangic=baslangic, bitis=bitis, vardiya=vardiya)
     veri = [
         OeeOzetSatirDTO(
             makine_id=mid,
@@ -378,3 +404,137 @@ async def uretim_ozet(
         durum_dagilimi=[DurumSayiDTO(durum=d, adet=sayac[d]) for d in MAKINE_DURUMLARI],
     )
     return basari(ozet.model_dump(), mesaj="Üretim özeti")
+
+
+# --- İzlenebilirlik (S24) ---
+class IzlenebilirlikIsEmriDTO(BaseModel):
+    id: int
+    kod: str
+    durum: str
+    urun_id: int | None = None
+    miktar: float | None = None
+    kapanis_tarihi: datetime | None = None
+
+
+class IzlenebilirlikUretimDTO(BaseModel):
+    makine_id: int
+    makine_kod: str
+    kayit_sayisi: int
+    toplam_adet: int
+    saglam_adet: int
+    ilk_zaman: datetime | None = None
+    son_zaman: datetime | None = None
+
+
+class IzlenebilirlikTuketimDTO(BaseModel):
+    malzeme_id: int
+    malzeme_kod: str
+    malzeme_ad: str
+    miktar: float
+    is_emri_kod: str
+
+
+class IzlenebilirlikCevapDTO(BaseModel):
+    """Lot ileri/geri izleme zinciri: iş emirleri + üretim kayıtları + tüketilen malzemeler."""
+
+    lot_no: str
+    is_emirleri: list[IzlenebilirlikIsEmriDTO]
+    uretim: list[IzlenebilirlikUretimDTO]
+    tuketilen_malzemeler: list[IzlenebilirlikTuketimDTO]
+
+
+@router.get(
+    "/izlenebilirlik",
+    response_model=Zarf[IzlenebilirlikCevapDTO],
+    summary="Lot izlenebilirliği (ileri/geri zincir)",
+)
+async def izlenebilirlik(
+    lot: Annotated[str, Query(min_length=1, max_length=50)],
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("uretim:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    """Lot numarasından zinciri kurar: hangi iş emirleri üretti (→ ürün + BOM tüketimi
+    = **geri izleme**), hangi makineler ne zaman üretim kaydı yazdı (= **ileri izleme**)."""
+    from app.modules.isemri.models import IsEmri
+    from app.modules.stok.models import Malzeme, StokHareketi
+
+    is_emirleri = (
+        (await db.execute(select(IsEmri).where(IsEmri.lot_no == lot).order_by(IsEmri.id)))
+        .scalars()
+        .all()
+    )
+
+    uretim_satirlari = (
+        await db.execute(
+            select(
+                UretimVerisi.makine_id,
+                Makine.kod,
+                func.count(),
+                func.coalesce(func.sum(UretimVerisi.toplam_adet), 0),
+                func.coalesce(func.sum(UretimVerisi.saglam_adet), 0),
+                func.min(UretimVerisi.zaman),
+                func.max(UretimVerisi.zaman),
+            )
+            .join(Makine, Makine.id == UretimVerisi.makine_id)
+            .where(UretimVerisi.lot_no == lot)
+            .group_by(UretimVerisi.makine_id, Makine.kod)
+            .order_by(UretimVerisi.makine_id)
+        )
+    ).all()
+
+    # Geri izleme: lotu üreten iş emirlerinin BOM tüketim hareketleri.
+    tuketimler: list[IzlenebilirlikTuketimDTO] = []
+    if is_emirleri:
+        kaynaklar = {f"bom:{ie.id}": ie.kod for ie in is_emirleri}
+        hareketler = (
+            (
+                await db.execute(
+                    select(StokHareketi, Malzeme)
+                    .join(Malzeme, Malzeme.id == StokHareketi.malzeme_id)
+                    .where(StokHareketi.kaynak.in_(list(kaynaklar)))
+                    .order_by(StokHareketi.id)
+                )
+            )
+            .tuples()
+            .all()
+        )
+        tuketimler = [
+            IzlenebilirlikTuketimDTO(
+                malzeme_id=m.id,
+                malzeme_kod=m.kod,
+                malzeme_ad=m.ad,
+                miktar=float(h.miktar),
+                is_emri_kod=kaynaklar.get(h.kaynak or "", "?"),
+            )
+            for h, m in hareketler
+        ]
+
+    cevap = IzlenebilirlikCevapDTO(
+        lot_no=lot,
+        is_emirleri=[
+            IzlenebilirlikIsEmriDTO(
+                id=ie.id,
+                kod=ie.kod,
+                durum=ie.durum,
+                urun_id=ie.urun_id,
+                miktar=float(ie.miktar) if ie.miktar is not None else None,
+                kapanis_tarihi=ie.kapanis_tarihi,
+            )
+            for ie in is_emirleri
+        ],
+        uretim=[
+            IzlenebilirlikUretimDTO(
+                makine_id=int(mid),
+                makine_kod=str(kod),
+                kayit_sayisi=int(sayi),
+                toplam_adet=int(toplam),
+                saglam_adet=int(saglam),
+                ilk_zaman=ilk,
+                son_zaman=son,
+            )
+            for mid, kod, sayi, toplam, saglam, ilk, son in uretim_satirlari
+        ],
+        tuketilen_malzemeler=tuketimler,
+    )
+    return basari(cevap.model_dump(), mesaj="İzlenebilirlik zinciri")

@@ -18,9 +18,11 @@ from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
+from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
-from app.modules.bakim import repository
+from app.modules.bakim import repository, service
+from app.modules.bakim.metrik import mtbf_mttr_hesapla
 from app.modules.bakim.models import BAKIM_TIPLERI, BakimPlani
 from app.modules.bakim.schemas import (
     BakimOzetDTO,
@@ -28,8 +30,11 @@ from app.modules.bakim.schemas import (
     BakimPlaniGuncelleDTO,
     BakimPlaniOlusturDTO,
     BakimSayiDTO,
+    MtbfMttrCevapDTO,
+    VadeTaramaCevapDTO,
 )
 from app.modules.uretim import repository as uretim_repository
+from app.modules.uretim.models import ArizaKaydi
 
 router = APIRouter(tags=["Bakım"], dependencies=[Depends(modul_gerekli("bakim"))])
 
@@ -45,6 +50,7 @@ def _cevap(p: BakimPlani) -> dict[str, Any]:
         sonraki_bakim_tarihi=p.sonraki_bakim_tarihi,
         aktif=p.aktif,
         aciklama=p.aciklama,
+        yedek_parca_malzeme_id=p.yedek_parca_malzeme_id,
     ).model_dump()
 
 
@@ -78,6 +84,7 @@ async def bakim_olustur(
         son_bakim_tarihi=govde.son_bakim_tarihi,
         sonraki_bakim_tarihi=govde.sonraki_bakim_tarihi,
         aciklama=govde.aciklama,
+        yedek_parca_malzeme_id=govde.yedek_parca_malzeme_id,
     )
     await repository.ekle(db, plan)
     await denetim_yaz(
@@ -212,3 +219,74 @@ async def bakim_ozet(
         tip_dagilimi=tip_dagilimi,
     )
     return basari(ozet.model_dump(), mesaj="Bakım özeti")
+
+
+@router.post(
+    "/bakim-planlari/vade-tara",
+    response_model=Zarf[VadeTaramaCevapDTO],
+    summary="Vade taraması — vadesi gelen planlardan otomatik iş emri üret (bir-kez)",
+)
+async def bakim_vade_tara(
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("bakim:yaz"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    uretilen = await service.vade_tara(db, kullanici=kullanici)
+    await denetim_yaz(
+        db,
+        eylem="vade_tara",
+        kaynak="bakim_plani",
+        kaynak_id="-",
+        kullanici=kullanici,
+        detay={"uretilen_is_emri": uretilen},
+    )
+    if uretilen:
+        await yayinla(tenant.slug, {"tur": "isemri.olusturuldu"})
+    return basari(VadeTaramaCevapDTO(uretilen_is_emri=uretilen).model_dump(), mesaj="Vade taraması")
+
+
+@router.get(
+    "/bakim/metrikler",
+    response_model=Zarf[MtbfMttrCevapDTO],
+    summary="Makine güvenilirlik metrikleri (MTBF/MTTR)",
+)
+async def bakim_metrikleri(
+    makine_id: int,
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("bakim:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+    gun: int = 90,
+) -> dict[str, Any]:
+    gun = min(max(gun, 1), 365)
+    if await uretim_repository.makine_getir(db, makine_id) is None:
+        raise KaynakBulunamadi("Makine bulunamadı")
+    simdi = datetime.now(UTC)
+    baslangic = simdi - timedelta(days=gun)
+    kayitlar = (
+        (
+            await db.execute(
+                select(ArizaKaydi.baslangic, ArizaKaydi.bitis).where(
+                    ArizaKaydi.makine_id == makine_id,
+                    ArizaKaydi.baslangic <= simdi,
+                    (ArizaKaydi.bitis.is_(None)) | (ArizaKaydi.bitis >= baslangic),
+                )
+            )
+        )
+        .tuples()
+        .all()
+    )
+    sonuc = mtbf_mttr_hesapla(
+        [(b, e) for b, e in kayitlar], pencere_baslangic=baslangic, pencere_bitis=simdi
+    )
+    return basari(
+        MtbfMttrCevapDTO(
+            makine_id=makine_id,
+            gun=gun,
+            ariza_sayisi=sonuc.ariza_sayisi,
+            kapanan_ariza=sonuc.kapanan_ariza,
+            toplam_ariza_saat=sonuc.toplam_ariza_saat,
+            mtbf_saat=sonuc.mtbf_saat,
+            mttr_saat=sonuc.mttr_saat,
+        ).model_dump(),
+        mesaj="MTBF/MTTR",
+    )

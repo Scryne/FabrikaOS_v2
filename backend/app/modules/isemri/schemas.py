@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +17,13 @@ class IsEmriOlusturDTO(BaseModel):
     atanan_kullanici_id: int | None = None
     # SLA hedefi (S-VB): boş = SLA takibi yok.
     hedef_tarih: datetime | None = None
+    # Ürün/BOM bağı (S24): ikisi de doluysa kapanışta BOM patlatma stok tüketir.
+    urun_id: int | None = None
+    miktar: Decimal | None = Field(default=None, gt=0)
+    # İzlenebilirlik (S24): üretilecek lot/parti numarası.
+    lot_no: str | None = Field(default=None, max_length=50)
+    # Arıza bağlantısı (S24): iş emri bir arıza kaydına karşılık açılıyorsa.
+    ariza_kaydi_id: int | None = None
 
 
 class DurumGuncelleDTO(BaseModel):
@@ -39,6 +47,11 @@ class IsEmriCevapDTO(BaseModel):
     oncelik: str
     kapanis_tarihi: datetime | None = None
     hedef_tarih: datetime | None = None
+    urun_id: int | None = None
+    miktar: float | None = None
+    lot_no: str | None = None
+    bakim_plani_id: int | None = None
+    ariza_kaydi_id: int | None = None
     olusturma_tarihi: datetime
 
 

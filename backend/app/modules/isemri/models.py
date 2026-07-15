@@ -13,8 +13,9 @@ aktif ``search_path`` (tenant şeması) çözer (tenant-rbac-conventions).
 from __future__ import annotations
 
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
@@ -43,6 +44,21 @@ class IsEmri(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     kapanis_tarihi: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     # SLA hedefi (S-VB): boş = SLA takibi yok; aşımı sla-tara kenar-tetikli üretir.
     hedef_tarih: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Ürün/BOM bağı (S24): ürün + miktar doluysa kapanışta BOM patlatma stok tüketir.
+    urun_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("urunler.id", ondelete="SET NULL"), index=True, nullable=True
+    )
+    miktar: Mapped[Decimal | None] = mapped_column(Numeric(18, 3), nullable=True)
+    # İzlenebilirlik (S24): üretilen lot/parti numarası.
+    lot_no: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
+    # Otomatik bakım iş emri bağlantısı (S24): vade taraması bir-kez dedup'ının anahtarı.
+    bakim_plani_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("bakim_planlari.id", ondelete="SET NULL"), index=True, nullable=True
+    )
+    # Arıza ↔ bakım iş emri bağlantısı (S24).
+    ariza_kaydi_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("ariza_kayitlari.id", ondelete="SET NULL"), index=True, nullable=True
+    )
 
     yorumlar: Mapped[list[IsEmriYorum]] = relationship(
         back_populates="is_emri",

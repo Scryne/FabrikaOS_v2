@@ -48,6 +48,8 @@ class UretimGirisDTO(BaseModel):
     toplam_adet: int = Field(ge=0)
     saglam_adet: int = Field(ge=0)
     ideal_cevrim_sn: float = Field(ge=0)
+    # İzlenebilirlik (S24): üretilen lot/parti numarası.
+    lot_no: str | None = Field(default=None, max_length=50)
 
 
 class UretimVerisiCevapDTO(BaseModel):
@@ -60,6 +62,7 @@ class UretimVerisiCevapDTO(BaseModel):
     toplam_adet: int
     saglam_adet: int
     ideal_cevrim_sn: float
+    lot_no: str | None = None
 
 
 class OeeCevapDTO(BaseModel):

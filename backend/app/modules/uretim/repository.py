@@ -161,10 +161,13 @@ async def oee_toplam(
     *,
     baslangic: datetime | None = None,
     bitis: datetime | None = None,
+    vardiya: str | None = None,
 ) -> OeeToplam:
     sorgu = select(*_OEE_KOLONLARI).where(UretimVerisi.makine_id == makine_id)
     for filtre in _zaman_filtreleri(None, baslangic, bitis):
         sorgu = sorgu.where(filtre)
+    if vardiya is not None:
+        sorgu = sorgu.where(UretimVerisi.vardiya == vardiya)
     row = (await db.execute(sorgu)).one()
     return _topla(row)
 
@@ -174,6 +177,7 @@ async def oee_ozet(
     *,
     baslangic: datetime | None = None,
     bitis: datetime | None = None,
+    vardiya: str | None = None,
 ) -> list[tuple[int, str, OeeToplam]]:
     sorgu = (
         select(Makine.id, Makine.kod, *_OEE_KOLONLARI)
@@ -183,5 +187,7 @@ async def oee_ozet(
     )
     for filtre in _zaman_filtreleri(None, baslangic, bitis):
         sorgu = sorgu.where(filtre)
+    if vardiya is not None:
+        sorgu = sorgu.where(UretimVerisi.vardiya == vardiya)
     satirlar = (await db.execute(sorgu)).all()
     return [(r[0], r[1], _topla(r[2:])) for r in satirlar]

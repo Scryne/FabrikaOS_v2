@@ -1,7 +1,9 @@
 """Bakım modülü modelleri (tenant şeması).
 
-- ``BakimPlani`` — makineye n–1 bağlı bakım planı (önleyici/kestirimci/periyodik). Bu sprintte
-  yalnızca CRUD; plandan otomatik iş emri üretimi (zamanlayıcı) ileride ele alınacaktır.
+- ``BakimPlani`` — makineye n–1 bağlı bakım planı (önleyici/kestirimci/periyodik).
+  S24: vade taraması (``POST /bakim-planlari/vade-tara``) vadesi gelen plandan otomatik
+  iş emri üretir (``is_emirleri.bakim_plani_id`` bağlantısı bir-kez dedup'ıdır);
+  ``yedek_parca_malzeme_id`` yedek parça = malzeme ilişkisidir.
 """
 
 from __future__ import annotations
@@ -36,3 +38,7 @@ class BakimPlani(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     )
     aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     aciklama: Mapped[str] = mapped_column(String(1000), default="", nullable=False)
+    # Yedek parça = malzeme ilişkisi (S24): bakımda kullanılan ana yedek parça kartı.
+    yedek_parca_malzeme_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("malzemeler.id", ondelete="SET NULL"), nullable=True
+    )

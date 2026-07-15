@@ -69,6 +69,8 @@ class UretimVerisi(TenantBase):
     toplam_adet: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     saglam_adet: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     ideal_cevrim_sn: Mapped[float] = mapped_column(Float, default=0.0, nullable=False)
+    # İzlenebilirlik (S24): üretilen lot/parti numarası (ileri izleme anahtarı).
+    lot_no: Mapped[str | None] = mapped_column(String(50), index=True, nullable=True)
 
     makine: Mapped[Makine] = relationship(back_populates="uretim_verileri")
 

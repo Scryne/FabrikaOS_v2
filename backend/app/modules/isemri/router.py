@@ -57,6 +57,11 @@ def _cevap(e: IsEmri) -> dict[str, Any]:
         oncelik=e.oncelik,
         kapanis_tarihi=e.kapanis_tarihi,
         hedef_tarih=e.hedef_tarih,
+        urun_id=e.urun_id,
+        miktar=float(e.miktar) if e.miktar is not None else None,
+        lot_no=e.lot_no,
+        bakim_plani_id=e.bakim_plani_id,
+        ariza_kaydi_id=e.ariza_kaydi_id,
         olusturma_tarihi=e.olusturma_tarihi,
     ).model_dump()
 
@@ -73,6 +78,11 @@ def _detay_cevap(e: IsEmri) -> dict[str, Any]:
         oncelik=e.oncelik,
         kapanis_tarihi=e.kapanis_tarihi,
         hedef_tarih=e.hedef_tarih,
+        urun_id=e.urun_id,
+        miktar=float(e.miktar) if e.miktar is not None else None,
+        lot_no=e.lot_no,
+        bakim_plani_id=e.bakim_plani_id,
+        ariza_kaydi_id=e.ariza_kaydi_id,
         olusturma_tarihi=e.olusturma_tarihi,
         yorumlar=[
             IsEmriYorumCevapDTO(
@@ -110,6 +120,18 @@ async def is_emri_olustur(
         raise CakismaHatasi("Bu kod ile iş emri zaten var")
     if govde.atanan_kullanici_id is not None:
         await service.dogrula_atanan(db, govde.atanan_kullanici_id)
+    if govde.urun_id is not None:
+        from app.modules.urun.models import Urun
+
+        if await db.get(Urun, govde.urun_id) is None:
+            raise KaynakBulunamadi("Ürün bulunamadı")
+    ariza = None
+    if govde.ariza_kaydi_id is not None:
+        from app.modules.uretim.models import ArizaKaydi
+
+        ariza = await db.get(ArizaKaydi, govde.ariza_kaydi_id)
+        if ariza is None:
+            raise KaynakBulunamadi("Arıza kaydı bulunamadı")
 
     is_emri = IsEmri(
         kod=govde.kod or service.gecici_kod(),
@@ -120,6 +142,10 @@ async def is_emri_olustur(
         durum=ILK_DURUM,
         oncelik=govde.oncelik,
         hedef_tarih=govde.hedef_tarih,
+        urun_id=govde.urun_id,
+        miktar=govde.miktar,
+        lot_no=govde.lot_no,
+        ariza_kaydi_id=govde.ariza_kaydi_id,
     )
     await repository.ekle(db, is_emri)
     if govde.kod is None:
@@ -219,7 +245,11 @@ async def is_emri_durum(
     if is_emri is None:
         raise KaynakBulunamadi("İş emri bulunamadı")
     await service.durum_gecisi(
-        db, is_emri, hedef=govde.durum, atanan_kullanici_id=govde.atanan_kullanici_id
+        db,
+        is_emri,
+        hedef=govde.durum,
+        atanan_kullanici_id=govde.atanan_kullanici_id,
+        kullanici=kullanici,
     )
     await denetim_yaz(
         db,

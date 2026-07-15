@@ -15,6 +15,8 @@ class BakimPlaniOlusturDTO(BaseModel):
     son_bakim_tarihi: datetime | None = None
     sonraki_bakim_tarihi: datetime | None = None
     aciklama: str = Field(default="", max_length=1000)
+    # Yedek parça = malzeme ilişkisi (S24).
+    yedek_parca_malzeme_id: int | None = None
 
 
 class BakimPlaniGuncelleDTO(BaseModel):
@@ -25,6 +27,7 @@ class BakimPlaniGuncelleDTO(BaseModel):
     sonraki_bakim_tarihi: datetime | None = None
     aktif: bool | None = None
     aciklama: str | None = Field(default=None, max_length=1000)
+    yedek_parca_malzeme_id: int | None = None
 
 
 class BakimPlaniCevapDTO(BaseModel):
@@ -37,6 +40,7 @@ class BakimPlaniCevapDTO(BaseModel):
     sonraki_bakim_tarihi: datetime | None = None
     aktif: bool
     aciklama: str
+    yedek_parca_malzeme_id: int | None = None
 
 
 class BakimSayiDTO(BaseModel):
@@ -52,3 +56,21 @@ class BakimOzetDTO(BaseModel):
     gecikmis: int
     toplam_plan: int
     tip_dagilimi: list[BakimSayiDTO]
+
+
+class VadeTaramaCevapDTO(BaseModel):
+    """Vade taraması sonucu: üretilen otomatik bakım iş emri sayısı."""
+
+    uretilen_is_emri: int
+
+
+class MtbfMttrCevapDTO(BaseModel):
+    """Makine güvenilirlik metrikleri (S24) — arıza yoksa metrikler null."""
+
+    makine_id: int
+    gun: int
+    ariza_sayisi: int
+    kapanan_ariza: int
+    toplam_ariza_saat: float
+    mtbf_saat: float | None = None
+    mttr_saat: float | None = None

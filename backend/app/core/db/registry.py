@@ -17,6 +17,7 @@ import app.kimlik.models  # noqa: F401
 import app.modules.bakim.models  # noqa: F401
 import app.modules.bildirim.models  # noqa: F401
 import app.modules.crm.models  # noqa: F401  (kullanici.firma_id FK hedefi — S18)
+import app.modules.durus.models  # noqa: F401
 import app.modules.enerji.models  # noqa: F401
 import app.modules.entegrasyon.models  # noqa: F401
 import app.modules.ik.models  # noqa: F401
@@ -27,6 +28,8 @@ import app.modules.kalite.models  # noqa: F401
 import app.modules.saha.models  # noqa: F401
 import app.modules.stok.models  # noqa: F401
 import app.modules.uretim.models  # noqa: F401
+import app.modules.urun.models  # noqa: F401
+import app.modules.vardiya.models  # noqa: F401
 from app.core.db.base import PublicBase, TenantBase
 
 public_metadata = PublicBase.metadata

@@ -49,13 +49,16 @@ async def durum_gecisi(
     *,
     hedef: str,
     atanan_kullanici_id: int | None,
+    kullanici: object | None = None,
 ) -> IsEmri:
     """İş emrini ``hedef`` duruma geçirir; kuralları uygular ve gerekli olayı yayınlar.
 
     - Tanımsız hedef durum → 422.
     - Durum makinesine aykırı geçiş → 409.
     - ``atandi`` hedefi ``atanan_kullanici_id`` gerektirir (gövdede veya kayıtta) → 422.
-    - ``kapandi`` hedefinde ``kapanis_tarihi`` set edilir + ``is_emri.kapandi`` olayı yazılır.
+    - ``kapandi`` hedefinde ``kapanis_tarihi`` set edilir + ``is_emri.kapandi`` olayı yazılır;
+      ürün + miktar bağlıysa **BOM patlatma** aynı transaction'da stok tüketir (S24 —
+      yetersiz stok 422 ile kapanışı durdurur, her şey geri alınır).
     """
     if hedef not in DURUMLAR:
         raise DogrulamaHatasi(
@@ -78,6 +81,12 @@ async def durum_gecisi(
     is_emri.durum = hedef
     if hedef == "kapandi":
         is_emri.kapanis_tarihi = datetime.now(UTC)
+        # BOM patlatma (S24): ürün + miktar bağlıysa reçete kalemleri stok çıkışına döner.
+        # Döngüsel import kaçınması: urun.service isemri.models'i import eder.
+        if is_emri.urun_id is not None and kullanici is not None:
+            from app.modules.urun.service import bom_patlat
+
+            await bom_patlat(db, is_emri, kullanici=kullanici)  # type: ignore[arg-type]
         await olay_yayinla(
             db,
             olay_turu=OLAY_KAPANDI,
@@ -86,6 +95,8 @@ async def durum_gecisi(
                 "kod": is_emri.kod,
                 "makine_id": is_emri.makine_id,
                 "atanan_kullanici_id": is_emri.atanan_kullanici_id,
+                "urun_id": is_emri.urun_id,
+                "lot_no": is_emri.lot_no,
                 "kapanis_tarihi": is_emri.kapanis_tarihi.isoformat(),
             },
         )
