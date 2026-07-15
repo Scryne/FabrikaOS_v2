@@ -51,7 +51,7 @@ Sıradaki: **Faz 4B — Vitrin Bütünlüğü** (köprü sprinti; tasarım hazı
 | S29 → S32 | Faz 7 — Yeni satılabilir modüller (finans, planlama/APS, satış→MRP, ESG) | ⬜ planlı |
 | M0 → M5 | Faz 8 — **"FabrikaOS Saha"** mobil uygulaması ([`mobilplani.md`](mobilplani.md)) | ⬜ planlı |
 
-**Kalite kapısı:** **500+ backend** testi + **180+ frontend** testi (Vitest + RTL) +
+**Kalite kapısı:** **560+ backend** testi + **190+ frontend** testi (Vitest + RTL) +
 Playwright **E2E** (canlı güncelleme). `ruff` + `mypy` (backend) ve `tsc --strict` + ESLint
 (frontend) temiz. Korunan **7 kritik test ailesi**: tenant izolasyonu, provizyonlama, RBAC,
 OEE hesaplama, AI çıktısı, migrasyon fan-out, KVKK ihraç/silme.

@@ -39,7 +39,7 @@ Definition of Done (DoD).
 | | S21 | Tohumlama & Pilot | ⬜ |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ⬜ |
-| | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ⬜ |
+| | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ⬜ |
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
@@ -438,7 +438,7 @@ kim-ne-ne zaman filtrelenebilir ve kayıt değiştirilemez; kişi bazlı ihraç 
 modüllerdeki kişisel veriyi kapsar (test: bilinen veriyle bayt düzeyi kontrol); tüm yeni
 uçlar RBAC 403 + tenant izolasyonu testli. ADR-0022.
 
-#### ⬜ S24 — Üretim & Bakım Derinleşmesi (MES olgunluğu)
+#### ✅ S24 — Üretim & Bakım Derinleşmesi (MES olgunluğu) (karşılandı — ADR-0023)
 **Vardiya:** `Vardiya` tanımları (ad, saat aralığı, takvim) + üretim verisi/OEE'nin vardiya
 kırılımı (`/oee/ozet?vardiya=`). **Duruş yönetimi:** `DurusNedeni` kataloğu (planlı/plansız
 sınıfı) + `DurusKaydi` (makine, aralık, neden, açıklama) → OEE kullanılabilirliği gerçek

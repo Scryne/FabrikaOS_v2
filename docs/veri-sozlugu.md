@@ -218,3 +218,35 @@ sıralı, model artefaktsız.
 `PATCH /makineler/{id}` (ad/oee_hedefi/koordinat) eklendi; `/ikiz/durum` koordinat
 taşır; FE `/ikiz` "Harita" sekmesi (react-leaflet + OSM). Takvim: `/bakim-planlari`
 "Takvim" sekmesi (bakım vadeleri + onaylı izinler; FE-only).
+
+## MES derinleşmesi: vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR (S24 / ADR-0023)
+
+**Vardiya**: `vardiyalar` (ad UNIQUE, `baslangic_saat`/`bitis_saat`, `aktif`) — üretim
+verisindeki serbest metin `vardiya` kolonunun kataloğu. OEE kırılımı:
+`GET /makineler/{id}/oee?vardiya=` + `GET /oee/ozet?vardiya=`.
+
+**Duruş**: `durus_nedenleri` (ad UNIQUE, `sinif` = `planli`|`plansiz`) + `durus_kayitlari`
+(makine, `baslangic`/`bitis` — bitiş > başlangıç 422, açıklama). Kayıtlı duruşların
+pencere-içi kesişim dakikaları OEE kullanılabilirliğine **eklenir** (`oee_hesapla` saf
+çekirdeği değişmedi; `?vardiya=` filtreli sorguda kayıtlı duruş sayılmaz — belgelenmiş
+sınır). Pareto: `GET /durus/pareto?gun=` (yüzde + kümülatif; saf `pareto_hesapla`).
+
+**Ürün & Reçete (BOM)**: `urunler` (kod UNIQUE) + `receteler` (ürün başına TEK —
+UNIQUE `urun_id`) + `recete_kalemleri` (`UNIQUE(recete_id, malzeme_id)`, malzeme FK
+RESTRICT). `PUT /urunler/{id}/recete` **replace-all**. İş emrine `urun_id + miktar +
+lot_no` bağlanır; **kapanışta BOM patlatma** aynı transaction'da
+`recete.miktar × is_emri.miktar` stok çıkışı üretir (S9 çekirdeği; idempotency anahtarı
+`bom-{is_emri_id}-{malzeme_id}`; yetersiz stok 422 → kapanış geri alınır).
+
+**İzlenebilirlik**: `is_emirleri.lot_no` + `uretim_verileri.lot_no` (indeksli);
+`GET /izlenebilirlik?lot=` tek uçta ileri (üretim kayıtları) + geri (iş emirleri +
+`kaynak='bom:{id}'` tüketim hareketleri) zincir döner.
+
+**Bakım olgunluğu**: makine `ariza` geçişinde açık `ArizaKaydi` otomatik açılır/kapanır
+(MTBF/MTTR veri kaynağı). `GET /bakim/metrikler?makine_id=&gun=` — MTTR = kapanan
+arızaların ortalama onarım saati; MTBF = (pencere − arıza süresi) / arıza sayısı; arıza
+yoksa ikisi de `null`. `POST /bakim-planlari/vade-tara` vadesi gelen plandan otomatik iş
+emri üretir (bir-kez: plan başına açık otomatik iş emri dedup'ı `is_emirleri.bakim_plani_id`
++ vade periyot kadar ileri atılır). `bakim_planlari.yedek_parca_malzeme_id` +
+`is_emirleri.ariza_kaydi_id` nullable FK. Yeni izin YOK (uretim:*/bakim:*); entitlement
+kapısı `uretim`/`bakim` (katalog değişmedi). Migration `c4a7f3e9b528`.
