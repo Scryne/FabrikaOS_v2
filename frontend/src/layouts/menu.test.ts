@@ -15,6 +15,9 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
       'pano',
       'makineler',
       'uretim-verileri',
+      'urunler',
+      'vardiya-durus',
+      'izlenebilirlik',
       'ikiz',
       'bildirim-tercihleri',
     ]);

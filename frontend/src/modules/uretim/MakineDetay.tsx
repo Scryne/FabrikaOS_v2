@@ -16,7 +16,7 @@ import {
   PauseCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
-import { Button, Col, Result, Row, Select, Skeleton, Space, Statistic } from 'antd';
+import { Button, Col, Result, Row, Segmented, Select, Skeleton, Space, Statistic } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -35,6 +35,7 @@ import { PanelKart } from '@/components/PanelKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
+import { useBakimMetrikleri } from '@/modules/bakim/hooks';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { GRAFIK_PALETI, RENKLER } from '@/tema/tema';
 import { useAuthStore } from '@/store/authStore';
@@ -71,6 +72,11 @@ export function MakineDetay() {
   });
   const uretim = useUretimVerileri(param);
   const [formAcik, setFormAcik] = useState(false);
+
+  // Güvenilirlik metrikleri (S24) — bakim:oku olmayan kullanıcıda sorgu hiç atılmaz.
+  const bakimOku = useAuthStore((s) => s.izinVar('bakim:oku'));
+  const [metrikGun, setMetrikGun] = useState(90);
+  const metrikler = useBakimMetrikleri(id, metrikGun, bakimOku);
 
   const yuzde = (oee.data?.oee ?? 0) * 100;
   const gaugeSecenek = useMemo(() => gostergeSecenek(yuzde), [yuzde]);
@@ -381,6 +387,59 @@ export function MakineDetay() {
           </PanelKart>
         </Col>
       </Row>
+
+      {bakimOku && (
+        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+          <Col xs={24}>
+            <PanelKart
+              baslik={t('bakim.metrik_baslik')}
+              renk={HAT}
+              sag={
+                <Segmented<number>
+                  size="small"
+                  value={metrikGun}
+                  onChange={setMetrikGun}
+                  options={[
+                    { value: 30, label: t('bakim.gun_30') },
+                    { value: 90, label: t('bakim.gun_90') },
+                    { value: 365, label: t('bakim.gun_365') },
+                  ]}
+                />
+              }
+            >
+              {metrikler.isPending ? (
+                <Skeleton active paragraph={{ rows: 1 }} />
+              ) : (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px 48px' }}>
+                  <Statistic
+                    title={t('bakim.mtbf')}
+                    value={metrikler.data?.mtbf_saat ?? '—'}
+                    suffix={metrikler.data?.mtbf_saat != null ? t('bakim.saat') : ''}
+                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                  />
+                  <Statistic
+                    title={t('bakim.mttr')}
+                    value={metrikler.data?.mttr_saat ?? '—'}
+                    suffix={metrikler.data?.mttr_saat != null ? t('bakim.saat') : ''}
+                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                  />
+                  <Statistic
+                    title={t('bakim.ariza_sayisi')}
+                    value={metrikler.data?.ariza_sayisi ?? 0}
+                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                  />
+                  <Statistic
+                    title={t('bakim.toplam_ariza_saat')}
+                    value={metrikler.data?.toplam_ariza_saat ?? 0}
+                    suffix={t('bakim.saat')}
+                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                  />
+                </div>
+              )}
+            </PanelKart>
+          </Col>
+        </Row>
+      )}
 
       <UretimGirisFormu acik={formAcik} kapat={() => setFormAcik(false)} makineId={id} />
     </SayfaKapsayici>

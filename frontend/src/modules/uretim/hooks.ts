@@ -18,6 +18,7 @@ export type MakineOlustur = components['schemas']['MakineOlusturDTO'];
 export type UretimVerisi = components['schemas']['UretimVerisiCevapDTO'];
 export type UretimGiris = components['schemas']['UretimGirisDTO'];
 export type Oee = components['schemas']['OeeCevapDTO'];
+export type Izlenebilirlik = components['schemas']['IzlenebilirlikCevapDTO'];
 export type OeeOzetSatir = components['schemas']['OeeOzetSatirDTO'];
 export type UretimOzet = components['schemas']['UretimOzetDTO'];
 
@@ -80,10 +81,25 @@ export function useMakineUretimSerisi(id: number, adet = 24) {
   });
 }
 
-export function useOeeOzet() {
+export function useOeeOzet(vardiya?: string) {
   return useQuery({
-    queryKey: URETIM_ANAHTAR.oeeOzet,
-    queryFn: () => istek<OeeOzetSatir[]>('GET', `${PREFIX}/oee/ozet`),
+    // Önek URETIM_ANAHTAR.oeeOzet kalır — vardiyasız invalidasyon tüm kırılımları tazeler.
+    queryKey: [...URETIM_ANAHTAR.oeeOzet, vardiya ?? ''] as const,
+    queryFn: () =>
+      istek<OeeOzetSatir[]>(
+        'GET',
+        `${PREFIX}/oee/ozet${vardiya ? `?vardiya=${encodeURIComponent(vardiya)}` : ''}`,
+      ),
+  });
+}
+
+/** Lot izlenebilirliği (S24): ileri/geri zincir — boş lot sorgu atmaz. */
+export function useIzlenebilirlik(lot: string) {
+  return useQuery({
+    queryKey: ['izlenebilirlik', lot] as const,
+    queryFn: () =>
+      istek<Izlenebilirlik>('GET', `${PREFIX}/izlenebilirlik?lot=${encodeURIComponent(lot)}`),
+    enabled: lot.length > 0,
   });
 }
 

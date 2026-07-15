@@ -29,6 +29,7 @@ vi.mock('./hooks', () => ({
     isError: false,
   }),
   useBakimPlaniGuncelle: () => ({ mutate: vi.fn(), isPending: false, variables: undefined }),
+  useVadeTara: () => ({ mutate: vi.fn(), isPending: false }),
   useBakimOzet: () => ({
     data: { aktif_plan: 1, bu_hafta_vadesi: 0, gecikmis: 1, toplam_plan: 1, tip_dagilimi: [] },
     isPending: false,

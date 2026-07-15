@@ -26,6 +26,7 @@ import { DurumZamanCizelgesi } from '@/components/DetayOgeleri';
 import { MiniBar } from '@/components/MiniBar';
 import { useOperatorOner } from '@/modules/ai/hooks';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useUrunSecenekleri } from '@/modules/urun/hooks';
 import { useAuthStore } from '@/store/authStore';
 
 import { DurumGecis } from './DurumGecis';
@@ -47,6 +48,8 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
   const { data: isEmri, isPending } = useIsEmri(id ?? 0);
   const { data: makineler } = useMakineSecenekleri();
   const { data: kullanicilar } = useKullaniciSecenekleri(kullaniciOku);
+  const uretimOku = useAuthStore((s) => s.izinVar('uretim:oku'));
+  const { data: urunler } = useUrunSecenekleri(uretimOku && isEmri?.urun_id != null);
   const yorumEkle = useYorumEkle();
   const operatorOner = useOperatorOner();
   const [yorum, setYorum] = useState('');
@@ -78,6 +81,11 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
           <Space size={10} wrap>
             <span className="sayisal">{isEmri.kod}</span>
             <DurumEtiketi durum={isEmri.durum} />
+            {isEmri.bakim_plani_id != null && (
+              <Tag color="cyan" style={{ marginInlineEnd: 0 }}>
+                {t('isemri.otomatik_bakim')}
+              </Tag>
+            )}
           </Space>
         ) : (
           t('menu.is_emirleri')
@@ -108,6 +116,20 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
             <Descriptions.Item label={t('isemri.atanan')}>
               {atananAd(isEmri.atanan_kullanici_id)}
             </Descriptions.Item>
+            {isEmri.urun_id != null && (
+              <Descriptions.Item label={t('isemri.urun')}>
+                <span className="sayisal">
+                  {(urunler ?? []).find((u) => u.id === isEmri.urun_id)?.kod ??
+                    `#${isEmri.urun_id}`}
+                  {isEmri.miktar != null ? ` × ${isEmri.miktar}` : ''}
+                </span>
+              </Descriptions.Item>
+            )}
+            {isEmri.lot_no && (
+              <Descriptions.Item label={t('isemri.lot_no')}>
+                <span className="sayisal">{isEmri.lot_no}</span>
+              </Descriptions.Item>
+            )}
             <Descriptions.Item label={t('isemri.hedef_tarih')}>
               {isEmri.hedef_tarih ? (
                 <Space size={8}>

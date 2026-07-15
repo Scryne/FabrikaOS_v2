@@ -53,9 +53,12 @@ import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
 import { SatinalmaTalepListesi } from '@/modules/stok/SatinalmaTalepListesi';
 import { TalepListesi } from '@/modules/talep/TalepListesi';
 import { TicariPano } from '@/modules/ticari/TicariPano';
+import { DurusEkrani } from '@/modules/durus/DurusEkrani';
+import { IzlenebilirlikSayfasi } from '@/modules/uretim/IzlenebilirlikSayfasi';
 import { MakineDetay } from '@/modules/uretim/MakineDetay';
 import { MakineListesi } from '@/modules/uretim/MakineListesi';
 import { UretimVerileri } from '@/modules/uretim/UretimVerileri';
+import { UrunListesi } from '@/modules/urun/UrunListesi';
 import { AbonelikListesi as PlatformAbonelikListesi } from '@/platform/AbonelikListesi';
 import { PlatformGiris } from '@/platform/PlatformGiris';
 import { PlatformKabuk } from '@/platform/PlatformKabuk';
@@ -244,6 +247,39 @@ export function App() {
             element={
               <IzinKapisi izin="isemri:oku" modul="isemri">
                 <IsEmriEkrani />
+              </IzinKapisi>
+            }
+          />
+          {/* S24 — MES derinleşmesi: vardiya & duruş (tek çalışma alanı, iki rota), ürün/BOM, izlenebilirlik. */}
+          <Route
+            path="durus-kayitlari"
+            element={
+              <IzinKapisi izin="uretim:oku" modul="uretim">
+                <DurusEkrani />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="vardiyalar"
+            element={
+              <IzinKapisi izin="uretim:oku" modul="uretim">
+                <DurusEkrani baslangicGorunum="vardiyalar" />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="urunler"
+            element={
+              <IzinKapisi izin="uretim:oku" modul="uretim">
+                <UrunListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="izlenebilirlik"
+            element={
+              <IzinKapisi izin="uretim:oku" modul="uretim">
+                <IzlenebilirlikSayfasi />
               </IzinKapisi>
             }
           />

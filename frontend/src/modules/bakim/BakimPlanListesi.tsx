@@ -11,6 +11,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   PlusOutlined,
+  SyncOutlined,
   ToolOutlined,
   UnorderedListOutlined,
   WarningOutlined,
@@ -29,7 +30,13 @@ import { BOLUM_RENGI } from '@/tema/modulKimlik';
 
 import { BakimPlaniFormu } from './BakimPlaniFormu';
 import { BakimTakvimi } from './BakimTakvimi';
-import { type BakimPlani, useBakimOzet, useBakimPlaniGuncelle, useBakimPlanlari } from './hooks';
+import {
+  type BakimPlani,
+  useBakimOzet,
+  useBakimPlaniGuncelle,
+  useBakimPlanlari,
+  useVadeTara,
+} from './hooks';
 
 const HAT = BOLUM_RENGI['menu.bolum_uretim'];
 const TIP_RENK: Record<string, string> = {
@@ -46,6 +53,7 @@ export function BakimPlanListesi() {
   const { data: makineler } = useMakineSecenekleri();
   const { data: ozet, isPending: ozetYukleniyor } = useBakimOzet();
   const guncelle = useBakimPlaniGuncelle();
+  const vadeTara = useVadeTara();
   const [formAcik, setFormAcik] = useState(false);
   const [gorunum, setGorunum] = useState<'liste' | 'takvim'>('liste');
 
@@ -173,6 +181,15 @@ export function BakimPlanListesi() {
                 { value: 'takvim', icon: <CalendarOutlined />, label: t('bakim.takvim') },
               ]}
             />
+            {yazabilir && (
+              <Button
+                icon={<SyncOutlined />}
+                loading={vadeTara.isPending}
+                onClick={() => vadeTara.mutate()}
+              >
+                {t('bakim.vade_tara')}
+              </Button>
+            )}
             {yazabilir && (
               <Button type="primary" icon={<PlusOutlined />} onClick={() => setFormAcik(true)}>
                 {t('bakim.yeni')}

@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useMalzemeSecenekleri } from '@/modules/urun/hooks';
+import { useAuthStore } from '@/store/authStore';
 
 import { BAKIM_TIPLERI, useBakimPlaniOlustur } from './hooks';
 
@@ -15,6 +17,9 @@ export function BakimPlaniFormu({ acik, kapat }: { acik: boolean; kapat: () => v
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const { data: makineler } = useMakineSecenekleri();
+  // Yedek parça = malzeme ilişkisi (S24); malzeme listesi stok:oku ister.
+  const stokOku = useAuthStore((s) => s.izinVar('stok:oku'));
+  const { data: malzemeler } = useMalzemeSecenekleri(stokOku);
   const olustur = useBakimPlaniOlustur();
 
   useEffect(() => {
@@ -71,6 +76,24 @@ export function BakimPlaniFormu({ acik, kapat }: { acik: boolean; kapat: () => v
         <Form.Item name="sonraki_bakim_tarihi" label={t('bakim.sonraki_bakim')}>
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
+        {stokOku && (
+          <Form.Item
+            name="yedek_parca_malzeme_id"
+            label={t('bakim.yedek_parca')}
+            extra={t('bakim.yedek_parca_ipucu')}
+          >
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder={t('bakim.yedek_parca_sec')}
+              options={(malzemeler ?? []).map((m) => ({
+                value: m.id,
+                label: `${m.kod} · ${m.ad}`,
+              }))}
+            />
+          </Form.Item>
+        )}
         <Form.Item name="aciklama" label={t('bakim.aciklama')}>
           <Input.TextArea rows={3} maxLength={1000} />
         </Form.Item>

@@ -25,6 +25,7 @@ import { PanelKart } from '@/components/PanelKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
+import { useVardiyalar } from '@/modules/durus/hooks';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { RENKLER } from '@/tema/tema';
 import { useAuthStore } from '@/store/authStore';
@@ -51,7 +52,10 @@ export function UretimVerileri() {
   const { data, isPending, isError } = useUretimVerileri(param);
   const { data: makineler } = useMakineSecenekleri();
   const ozet = useUretimOzet();
-  const oeeOzet = useOeeOzet();
+  // OEE vardiya kırılımı (S24): filtre seçilince makine çubukları o vardiyaya daralır.
+  const [vardiyaFiltre, setVardiyaFiltre] = useState<string | undefined>();
+  const oeeOzet = useOeeOzet(vardiyaFiltre);
+  const { data: vardiyalar } = useVardiyalar();
   const [formAcik, setFormAcik] = useState(false);
 
   const makineHarita = useMemo(() => new Map((makineler ?? []).map((m) => [m.id, m])), [makineler]);
@@ -179,7 +183,23 @@ export function UretimVerileri() {
 
       {(makineVar || oeeOzet.isPending) && (
         <div style={{ marginBottom: 16 }}>
-          <PanelKart baslik={t('pano.makine_oee')} renk={HAT}>
+          <PanelKart
+            baslik={t('pano.makine_oee')}
+            renk={HAT}
+            sag={
+              (vardiyalar ?? []).length > 0 && (
+                <Select
+                  allowClear
+                  size="small"
+                  placeholder={t('uretim.vardiya')}
+                  style={{ width: 150 }}
+                  value={vardiyaFiltre}
+                  onChange={setVardiyaFiltre}
+                  options={(vardiyalar ?? []).map((v) => ({ value: v.ad, label: v.ad }))}
+                />
+              )
+            }
+          >
             {oeeOzet.isPending ? (
               <Skeleton active paragraph={{ rows: 4 }} />
             ) : (

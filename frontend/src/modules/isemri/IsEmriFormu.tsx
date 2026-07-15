@@ -4,10 +4,11 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { DatePicker, Form, Input, Modal, Select } from 'antd';
+import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 import type { Dayjs } from 'dayjs';
 
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useUrunSecenekleri } from '@/modules/urun/hooks';
 import { useAuthStore } from '@/store/authStore';
 
 import { ONCELIKLER } from './durum';
@@ -20,6 +21,9 @@ type Alanlar = {
   aciklama?: string;
   atanan_kullanici_id?: number;
   hedef_tarih?: Dayjs;
+  urun_id?: number;
+  miktar?: number;
+  lot_no?: string;
 };
 
 export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
@@ -29,6 +33,9 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
   const { data: makineler } = useMakineSecenekleri();
   const kullaniciOku = useAuthStore((s) => s.izinVar('kullanici:oku'));
   const { data: kullanicilar } = useKullaniciSecenekleri(kullaniciOku);
+  // Ürün/BOM bağı (S24): ürün + miktar doluysa kapanışta BOM patlatma stok tüketir.
+  const uretimOku = useAuthStore((s) => s.izinVar('uretim:oku'));
+  const { data: urunler } = useUrunSecenekleri(uretimOku);
 
   const gonder = async () => {
     const v = await form.validateFields();
@@ -39,6 +46,9 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
       aciklama: v.aciklama?.trim() ?? '',
       atanan_kullanici_id: v.atanan_kullanici_id ?? null,
       hedef_tarih: v.hedef_tarih ? v.hedef_tarih.toISOString() : null,
+      urun_id: v.urun_id ?? null,
+      miktar: v.miktar != null ? String(v.miktar) : null,
+      lot_no: v.lot_no?.trim() || null,
     });
     form.resetFields();
     kapat();
@@ -92,6 +102,36 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
           <Select
             options={ONCELIKLER.map((o) => ({ value: o, label: t(`isemri.oncelik_${o}`) }))}
           />
+        </Form.Item>
+
+        {uretimOku && (
+          <Form.Item name="urun_id" label={t('isemri.urun')} extra={t('isemri.urun_ipucu')}>
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder={t('isemri.urun_sec')}
+              options={(urunler ?? []).map((u) => ({ value: u.id, label: `${u.kod} · ${u.ad}` }))}
+            />
+          </Form.Item>
+        )}
+
+        <Form.Item noStyle shouldUpdate={(eski, yeni) => eski.urun_id !== yeni.urun_id}>
+          {({ getFieldValue }) =>
+            getFieldValue('urun_id') != null && (
+              <Form.Item
+                name="miktar"
+                label={t('isemri.miktar')}
+                rules={[{ required: true, message: t('isemri.miktar_gerekli') }]}
+              >
+                <InputNumber min={0.001} style={{ width: '100%' }} />
+              </Form.Item>
+            )
+          }
+        </Form.Item>
+
+        <Form.Item name="lot_no" label={t('isemri.lot_no')} extra={t('isemri.lot_ipucu')}>
+          <Input maxLength={50} placeholder={t('isemri.lot_yer_tutucu')} />
         </Form.Item>
 
         <Form.Item
