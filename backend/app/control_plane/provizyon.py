@@ -26,12 +26,12 @@ from sqlalchemy.pool import NullPool
 
 from app.control_plane.models import Abonelik, Plan, Tenant
 from app.control_plane.moduller import PLAN_KATALOGU
+from app.control_plane.uzlastirma import izin_rol_uzlastir
 from app.core.config import get_settings
 from app.core.db import fanout
-from app.core.db.tenancy import search_path_ayarla, sema_adi, slug_gecerli_mi, tenant_bul
+from app.core.db.tenancy import sema_adi, slug_gecerli_mi, tenant_bul
 from app.core.security.parola import parola_ozetle
-from app.kimlik.izinler import IZIN_KATALOGU, VARSAYILAN_ROLLER
-from app.kimlik.models import Izin, Kullanici, Rol
+from app.kimlik.models import Kullanici, Rol
 
 type _SM = async_sessionmaker[AsyncSession]
 
@@ -81,27 +81,10 @@ async def _sema_olustur(engine: AsyncEngine, slug: str) -> None:
 
 async def _tohumla(sm: _SM, slug: str, admin_eposta: str, admin_parola: str) -> None:
     async with sm() as s, s.begin():
-        await search_path_ayarla(s, slug)
-
-        # 1) izinler (eksikleri ekle)
-        izin_haritasi = {i.kod: i for i in (await s.execute(select(Izin))).scalars()}
-        for kod, aciklama in IZIN_KATALOGU.items():
-            if kod not in izin_haritasi:
-                izin = Izin(kod=kod, aciklama=aciklama)
-                s.add(izin)
-                izin_haritasi[kod] = izin
-        await s.flush()
-
-        # 2) roller (varsa al, izinlerini eşitle)
+        # 1+2) izin/rol kataloğu — provizyon ve uzlaştırma AYNI kodu kullanır (tek
+        # doğruluk kaynağı; ikisi ayrışırsa yeni tenant ile eskiler arasında fark oluşur).
+        await izin_rol_uzlastir(s, slug)
         rol_haritasi = {r.ad: r for r in (await s.execute(select(Rol))).scalars()}
-        for ad, kodlar in VARSAYILAN_ROLLER.items():
-            rol = rol_haritasi.get(ad)
-            if rol is None:
-                rol = Rol(ad=ad, aciklama=f"Varsayılan {ad} rolü")
-                s.add(rol)
-                rol_haritasi[ad] = rol
-            rol.izinler = [izin_haritasi[k] for k in kodlar]
-        await s.flush()
 
         # 3) admin kullanıcı (varsa atla) + admin rolü
         admin = (

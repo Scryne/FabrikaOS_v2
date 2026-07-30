@@ -12,6 +12,7 @@ Bu fonksiyonlar SENKRONDUR (Alembic ``command`` API senkrondur; env.py içinde k
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from alembic import command
@@ -52,6 +53,22 @@ def tenant_indir_tek(slug: str, rev: str = "base", *, db_url: str | None = None)
     command.downgrade(_cfg("tenant", db_url=db_url, schemas=[f"tenant_{slug}"]), rev)
 
 
-def tenant_yukselt_tum(rev: str = "head", *, db_url: str | None = None) -> None:
-    """Tüm aktif tenant şemalarına fan-out yükseltme (env.py public.tenant'tan okur)."""
+def tenant_yukselt_tum(
+    rev: str = "head", *, db_url: str | None = None, uzlastir: bool = True
+) -> None:
+    """Tüm aktif tenant şemalarına fan-out yükseltme (env.py public.tenant'tan okur).
+
+    ``uzlastir=True`` (varsayılan) iken yükseltmenin ardından **izin/rol kataloğu tüm
+    tenant'larla uzlaştırılır**: yeni sprintin eklediği izin kodları mevcut tenant'lara
+    da iner. Elle yeniden provizyonlama adımı unutulduğunda oluşan sessiz sürüklenmeyi
+    (yeni uçlarda 403) yapısal olarak engeller.
+
+    ``head`` dışına yükseltirken (ör. testlerin ara revizyona gitmesi) uzlaştırma
+    atlanmalıdır: hedef revizyonda kolonlar henüz olmayabilir.
+    """
     command.upgrade(_cfg("tenant", db_url=db_url, schemas=None), rev)
+    if uzlastir and rev == "head":
+        # Import burada: fanout çok erken yüklenir, modül döngüsü riskini almayalım.
+        from app.control_plane.uzlastirma import tum_tenantlari_uzlastir
+
+        asyncio.run(tum_tenantlari_uzlastir(db_url=db_url))
