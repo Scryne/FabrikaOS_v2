@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -56,6 +57,9 @@ class TenantDetayDTO(BaseModel):
     koltuk_kullanilan: int | None
     moduller: list[PlatformModulDurumDTO]
     ozellikler: list[PlatformOzellikDurumDTO]
+    # S23: parola politikası / zorunlu 2FA / IP listesi / OIDC. OIDC istemci sırrı
+    # MASKELİ döner (bkz. platform/guvenlik_ayar.py) — panel sırrı görüntülemez.
+    guvenlik_ayarlari: dict[str, Any] | None = None
     olusturma_tarihi: datetime
 
 
@@ -71,6 +75,16 @@ class TenantProvizyonDTO(BaseModel):
 class TenantGuncelleDTO(BaseModel):
     ad: str | None = Field(default=None, min_length=1, max_length=200)
     plan_kodu: str | None = Field(default=None, min_length=1, max_length=50)
+
+
+class PlatformGuvenlikAyarDTO(BaseModel):
+    """Tenant güvenlik ayarları yazma gövdesi (S23) — ``null`` = varsayılana dön.
+
+    Beklenen biçim: ``{"parola": {"min_uzunluk": 12, "buyuk_kucuk": true, "rakam": true,
+    "ozel_karakter": false}, "iki_asama_zorunlu": true, "ip_izin_listesi": ["10.0.0.0/8"]}``.
+    """
+
+    ayarlar: dict[str, Any] | None = None
 
 
 class TenantSilDTO(BaseModel):

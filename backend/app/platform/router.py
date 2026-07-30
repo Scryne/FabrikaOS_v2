@@ -18,8 +18,8 @@ from app.control_plane.models import Abonelik, Plan, PlatformYonetici, Tenant, T
 from app.core.db.session import get_session
 from app.core.exceptions import CakismaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
+from app.platform import guvenlik_ayar, service
 from app.platform import ihrac as ihrac_mod
-from app.platform import service
 from app.platform.denetim import platform_denetim_yaz
 from app.platform.deps import mevcut_platform_yonetici
 from app.platform.schemas import (
@@ -27,6 +27,7 @@ from app.platform.schemas import (
     HakAyarlaDTO,
     IhracCevapDTO,
     PlanSatirDTO,
+    PlatformGuvenlikAyarDTO,
     PlatformModulDurumDTO,
     PlatformOzellikDurumDTO,
     PlatformSaglikDTO,
@@ -136,6 +137,38 @@ async def tenant_detay(
     tenant = await service.tenant_getir(db, tenant_id)
     detay = await service.tenant_detayi(db, tenant)
     return basari(detay.model_dump(), mesaj="Tenant detayı")
+
+
+@router.put(
+    "/tenantlar/{tenant_id}/guvenlik-ayarlari",
+    response_model=Zarf[dict[str, Any] | None],
+    summary="Tenant güvenlik ayarlarını yaz (S23: parola politikası + 2FA + IP listesi)",
+)
+async def tenant_guvenlik_ayarla(
+    tenant_id: int,
+    govde: PlatformGuvenlikAyarDTO,
+    yonetici: Annotated[PlatformYonetici, Depends(mevcut_platform_yonetici)],
+    db: Annotated[AsyncSession, Depends(get_session)],
+) -> dict[str, Any]:
+    tenant = await service.tenant_getir(db, tenant_id)
+    # Panel sırrı maskeli geri gönderdiyse mevcut sır korunur (bkz. guvenlik_ayar).
+    tenant.guvenlik_ayarlari = guvenlik_ayar.sirri_koru(
+        govde.ayarlar, tenant.guvenlik_ayarlari
+    )  # null = varsayılana dön
+    await db.flush()
+    await platform_denetim_yaz(
+        db,
+        yonetici=yonetici,
+        eylem="guvenlik_ayarla",
+        kaynak="tenant",
+        kaynak_id=str(tenant_id),
+        # Denetim izine sır YAZILMAZ: maskeli kopya saklanır.
+        detay={"ayarlar": guvenlik_ayar.ayarlari_maskele(tenant.guvenlik_ayarlari)},
+    )
+    return basari(
+        guvenlik_ayar.ayarlari_maskele(tenant.guvenlik_ayarlari),
+        mesaj="Güvenlik ayarları güncellendi",
+    )
 
 
 @router.put(

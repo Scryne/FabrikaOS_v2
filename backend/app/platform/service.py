@@ -23,6 +23,7 @@ from app.core.db.tenancy import sema_adi, slug_gecerli_mi, tenant_bul
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.security.redis_istemci import get_redis
 from app.modules.dys.depolama import nesne_depo_al
+from app.platform import guvenlik_ayar
 from app.platform.denetim import platform_denetim_yaz
 from app.platform.schemas import (
     PlatformModulDurumDTO,
@@ -164,6 +165,7 @@ async def tenant_detayi(db: AsyncSession, tenant: Tenant) -> TenantDetayDTO:
         koltuk_kullanilan=await koltuk_kullanilan_say(db, tenant.slug),
         moduller=await _modul_durumlari(db, tenant),
         ozellikler=await _ozellik_durumlari(db, tenant),
+        guvenlik_ayarlari=guvenlik_ayar.ayarlari_maskele(tenant.guvenlik_ayarlari),
         olusturma_tarihi=tenant.olusturma_tarihi,
     )
 
