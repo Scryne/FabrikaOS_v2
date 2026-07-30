@@ -6,6 +6,7 @@ Aynı tenant'ı iki kez provizyonlamak veriyi bozmaz/çoğaltmaz.
 from __future__ import annotations
 
 import asyncio
+import logging
 
 import asyncpg
 
@@ -49,3 +50,29 @@ def test_provizyon_idempotent(test_db: str) -> None:
     assert s["kullanici"] == 1
     assert s["izin"] == len(IZIN_KATALOGU)  # izinler çoğalmadı
     assert s["rol"] == len(VARSAYILAN_ROLLER)
+
+
+def test_provizyon_uygulama_loglarini_susturmaz(test_db: str) -> None:
+    """Süreç içi migration (fan-out) uygulama logger'larını devre dışı BIRAKMAMALI.
+
+    Alembic ``env.py`` ``fileConfig``'i varsayılan ``disable_existing_loggers=True`` ile
+    çağırırsa, alembic.ini'de adı geçmeyen tüm ``app.*`` logger'ları kalıcı olarak susar:
+    platform panelinden tenant provizyonlandıktan sonra API'nin kendi logları (denetim,
+    SSO debug, hata izi) sessizce kaybolurdu. Bu test o regresyonu yakalar.
+    """
+    logger = logging.getLogger("app.oidc")
+    logger.disabled = False
+
+    asyncio.run(
+        tenant_provizyonla(
+            slug="logdeneme",
+            ad="Log Deneme",
+            admin_eposta="admin@logdeneme.test",
+            admin_parola="Log12345!",
+            db_url=test_db,
+        )
+    )
+
+    assert logger.disabled is False
+    assert logging.getLogger("app").disabled is False
+    assert logger.isEnabledFor(logging.WARNING) is True

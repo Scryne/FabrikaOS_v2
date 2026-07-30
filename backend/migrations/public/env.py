@@ -18,7 +18,11 @@ from app.core.db.registry import public_metadata
 
 config = context.config
 if config.config_file_name:
-    fileConfig(config.config_file_name)
+    # disable_existing_loggers=False ŞART: migration SÜREÇ İÇİNDE de koşuyor (S17 senkron
+    # tenant provizyonu, testlerdeki fan-out). Varsayılan True olsaydı fileConfig, alembic.ini'de
+    # adı geçmeyen TÜM uygulama logger'larını (``app.*``) kalıcı olarak susturur ve provizyondan
+    # sonra API sessize düşerdi.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 target_metadata = public_metadata
 
