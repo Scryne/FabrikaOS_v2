@@ -34,6 +34,26 @@ Her girdi şu dört başlığı doldurur:
 
 ## Girdiler
 
+### 2. `duzeltme` stok hareketi MUTLAK değer yazıyor (sayımı sessizce bozabilir)
+
+*Tespit: S25 tasarımı sırasında, 2026-07-31. Mevcut uçta davranış değişikliği = kırıcı.*
+
+- **Mevcut tasarım.** `stok/service.py::_yeni_bakiye` içinde `duzeltme` türü
+  `return miktar  # duzeltme: mutlak sayım sonucu` ile bakiyeyi **mutlak** olarak yazar.
+  `POST /stok-hareketleri` ile `tur="duzeltme"` gönderen herkes bakiyeyi doğrudan ezer.
+- **Neden yanlış.** Mutlak yazım, hareketin hazırlanmasıyla uygulanması arasında geçen
+  sürede yapılan **tüm hareketleri sessizce siler**. Sayım/düzeltme akışlarında bu veri
+  kaybıdır: 100 bakiye, 95 sayılır, arada 50 giriş olur, düzeltme "95" yazar → 50 birim
+  buharlaşır. Hata mesajı da uyarı da yoktur.
+- **Önerilen değişiklik.** `duzeltme` türü delta semantiğine geçmeli (`beklenen_bakiye`
+  alanı + iyimser kilit: gönderen gördüğü bakiyeyi bildirir, farklıysa 409). Alternatif:
+  türü kullanımdan kaldırıp yerine S25'in `sayim_duzeltme` (delta) türünü koymak.
+- **Etki alanı.** `POST /stok-hareketleri` (davranış değişir — mevcut istemciler mutlak
+  bekliyor olabilir), `stok/service.py`, FE stok hareketi formu, S24 BOM patlatma
+  (yalnız `cikis` kullanıyor — etkilenmez), demo/seed betikleri.
+- **Ne zaman.** S25 bu türü KULLANMAZ (yeni delta türü eklenir), yani acil değil; Sprint 9
+  profesyonelleştirme turunda kırıcı değişiklik partisiyle birlikte ele alınmalı.
+
 ### 1. KVKK anonimleştirmesi ile yasal saklama yükümlülüğü çakışması (S29 sonrası ele alınmalı)
 
 *Kaydeden: kullanıcı yönlendirmesi, 2026-07-30 (S23 kapanışı). İleriye dönük not.*
