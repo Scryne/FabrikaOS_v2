@@ -32,6 +32,8 @@ class TokenIcerigi:
     jti: str
     exp: int
     eposta: str | None = None
+    # 2FA geçici token'ı kurulum amaçlı mı (zorunlu-2FA ilk girişi; S23).
+    kurulum: bool = False
 
 
 def _kodla(claims: dict[str, Any], omur: timedelta) -> tuple[str, str]:
@@ -68,6 +70,26 @@ def refresh_uret(kullanici_id: int, tenant_slug: str) -> tuple[str, str]:
     return _kodla(
         {"sub": str(kullanici_id), "tenant_slug": tenant_slug, "tip": "refresh"},
         timedelta(days=ayar.refresh_token_gun),
+    )
+
+
+def iki_asama_uret(
+    kullanici_id: int, tenant_slug: str, *, kurulum: bool = False
+) -> tuple[str, str]:
+    """2FA ara token'ı üretir (S23) → (token, jti). Kısa ömürlü (5 dk).
+
+    Parola doğrulandı ama ikinci aşama tamamlanmadı: bu token yalnız
+    ``/kimlik/2fa-dogrula`` (ve ``kurulum=True`` iken 2FA kurulum uçlarında) geçerlidir —
+    ayrı ``tip`` değeri onu access olarak kullanılamaz kılar (yapısal ayrım).
+    """
+    return _kodla(
+        {
+            "sub": str(kullanici_id),
+            "tenant_slug": tenant_slug,
+            "tip": "2fa",
+            "kurulum": kurulum,
+        },
+        timedelta(minutes=5),
     )
 
 
@@ -118,6 +140,7 @@ def coz(token: str, beklenen_tip: str) -> TokenIcerigi:
             jti=str(govde["jti"]),
             exp=int(govde["exp"]),
             eposta=govde.get("eposta"),
+            kurulum=bool(govde.get("kurulum", False)),
         )
     except (KeyError, ValueError) as exc:
         raise TokenGecersiz(f"Eksik/bozuk claim: {exc}") from exc

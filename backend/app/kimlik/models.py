@@ -79,6 +79,10 @@ class Kullanici(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     firma_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("firmalar.id", ondelete="SET NULL"), index=True, nullable=True
     )
+    # TOTP 2FA (S23): sır base32 saklanır (tenant-izole DB; şifreleme ADR-0022
+    # ertelenmiş-iş). ``iki_asama_aktif`` yalnız doğrulanmış kurulumla True olur.
+    totp_sirri: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    iki_asama_aktif: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     roller: Mapped[list[Rol]] = relationship(
         secondary=kullanici_rol, back_populates="kullanicilar", lazy="selectin"
@@ -94,3 +98,35 @@ class Kullanici(KimlikMixin, ZamanDamgaliMixin, TenantBase):
 
     def izin_var(self, kod: str) -> bool:
         return kod in self.izin_kodlari
+
+
+class KurtarmaKodu(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """2FA kurtarma kodu (S23) — yalnız SHA-256 özeti saklanır, bir kez kullanılır."""
+
+    __tablename__ = "kurtarma_kodlari"
+
+    kullanici_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("kullanici.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    kod_ozet: Mapped[str] = mapped_column(String(64), nullable=False)
+    kullanildi: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+
+class Oturum(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """Aktif oturum kaydı (S23) — refresh ``jti`` başına bir satır (cihaz yönetimi).
+
+    Giriş ve her rotasyonda yazılır; çıkış/uzaktan sonlandırma ``iptal=True`` işaretler
+    (Redis iptal listesiyle birlikte — DB liste/adli iz, Redis anlık zorlamadır).
+    """
+
+    __tablename__ = "oturumlar"
+
+    kullanici_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("kullanici.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    jti: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
+    ip_adresi: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    istemci: Mapped[str] = mapped_column(String(300), default="", nullable=False)  # user-agent
+    son_kullanim: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    bitis: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)  # refresh exp
+    iptal: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

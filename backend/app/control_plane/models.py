@@ -37,6 +37,11 @@ class Tenant(KimlikMixin, ZamanDamgaliMixin, PublicBase):
     slug: Mapped[str] = mapped_column(String(63), unique=True, index=True, nullable=False)
     ad: Mapped[str] = mapped_column(String(200), nullable=False)
     aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    # Güvenlik ayarları (S23 / ADR-0022): {"parola": {"min_uzunluk": 12,
+    # "buyuk_kucuk": true, "rakam": true}, "iki_asama_zorunlu": true,
+    # "ip_izin_listesi": ["10.0.0.0/8"]}. NULL = varsayılan (politika yok,
+    # 2FA opsiyonel, IP kısıtı kapalı). Platform PATCH ucuyla yönetilir.
+    guvenlik_ayarlari: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
     abonelikler: Mapped[list[Abonelik]] = relationship(
         back_populates="tenant",

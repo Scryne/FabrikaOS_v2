@@ -29,6 +29,7 @@ import app.modules.saha.models  # noqa: F401
 import app.modules.stok.models  # noqa: F401
 import app.modules.uretim.models  # noqa: F401
 import app.modules.urun.models  # noqa: F401
+import app.modules.uyum.models  # noqa: F401
 import app.modules.vardiya.models  # noqa: F401
 from app.core.db.base import PublicBase, TenantBase
 

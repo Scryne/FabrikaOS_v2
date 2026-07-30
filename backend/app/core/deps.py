@@ -25,6 +25,7 @@ from app.core.db.session import get_session
 from app.core.db.tenancy import search_path_ayarla, slug_gecerli_mi, tenant_bul
 from app.core.exceptions import KaynakBulunamadi, KimlikHatasi, YetkiHatasi
 from app.core.security import jwt as jwtmod
+from app.core.security.politika import guvenlik_ayari, ip_izinli_mi
 from app.kimlik.models import Kullanici
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -57,6 +58,12 @@ async def tenant_cozumle(
     if tenant is None or not tenant.aktif or not tenant.abonelik_gecerli:
         # Görünmez kalsın: var olmayan ve erişilemeyen tenant aynı yanıtı verir.
         raise KaynakBulunamadi("Tenant bulunamadı veya erişilemez")
+    # Tenant IP izin listesi (S23): liste doluysa istemci IP'si listede olmalı.
+    izin_listesi = guvenlik_ayari(tenant.guvenlik_ayarlari, "ip_izin_listesi")
+    if izin_listesi:
+        istemci_ip = request.client.host if request.client else None
+        if not ip_izinli_mi(istemci_ip, izin_listesi):
+            raise YetkiHatasi("Bu ağdan erişime izin verilmiyor", hata_kodu="IP_KISITLI")
     await search_path_ayarla(db, slug)
     request.state.tenant_slug = slug
     return tenant

@@ -40,6 +40,7 @@ from app.modules.talep.router import router as talep_router
 from app.modules.ticari.router import router as ticari_router
 from app.modules.uretim.router import router as uretim_router
 from app.modules.urun.router import router as urun_router
+from app.modules.uyum.router import router as uyum_router
 from app.modules.vardiya.router import router as vardiya_router
 from app.platform.kimlik_router import router as platform_kimlik_router
 from app.platform.router import router as platform_router
@@ -71,6 +72,7 @@ api_router.include_router(dys_router)
 api_router.include_router(duyuru_router)
 api_router.include_router(bildirim_router)
 api_router.include_router(ticari_router)
+api_router.include_router(uyum_router)
 api_router.include_router(entegrasyon_router)
 api_router.include_router(api_anahtar_router)
 api_router.include_router(disveri_router)

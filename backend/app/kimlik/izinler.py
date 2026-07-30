@@ -56,10 +56,15 @@ IZIN_KATALOGU: dict[str, str] = {
     "entegrasyon:oku": "Webhook aboneliklerini ve API anahtarlarını görüntüleme",
     "entegrasyon:yaz": "Webhook aboneliği ve API anahtarı yönetimi",
     "dis:erisim": "Dış self-servis portal erişimi (firma-kapsamlı)",
+    # S23 (ADR-0022) — güvenlik & uyum çekirdek yüzeyi (modül kapısı YOK: satılabilir
+    # yetenek değil, her tenant'ın hakkı; yalnız izinle korunur).
+    "denetim:oku": "Denetim kayıtlarını (audit trail) görüntüleme",
+    "kvkk:yonet": "KVKK ihracı ve anonimleştirme yönetimi",
 }
 
-# Salt-okunur (izleyici) rolü için *:oku izinleri.
-_OKU_IZINLERI = frozenset(k for k in IZIN_KATALOGU if k.endswith(":oku"))
+# Salt-okunur (izleyici) rolü için *:oku izinleri. Denetim kaydı hariç: adli iz
+# hassas kişisel veri içerir, geniş izleyici rolüne otomatik verilmez (S23).
+_OKU_IZINLERI = frozenset(k for k in IZIN_KATALOGU if k.endswith(":oku")) - {"denetim:oku"}
 
 # Varsayılan roller: ad -> izin kodları kümesi. "admin" tüm kataloğa sahiptir.
 VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
@@ -108,4 +113,6 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     # Dış portal (müşteri/tedarikçi) kullanıcısı: YALNIZ /dis/* yüzeyi — iç modül
     # izinleriyle karışmaz (tenant-rbac-conventions); firma bağlantısı zorunlu.
     "dis-panel": frozenset({"dis:erisim"}),
+    # Uyum sorumlusu (S23): denetim izi + KVKK ihraç/anonimleştirme yönetir.
+    "uyum": frozenset({"denetim:oku", "kvkk:yonet"}),
 }

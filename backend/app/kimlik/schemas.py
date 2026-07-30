@@ -8,9 +8,73 @@ from pydantic import BaseModel, Field
 
 
 class TokenCevapDTO(BaseModel):
-    access_token: str
-    refresh_token: str
+    """Giriş cevabı — 2FA aktifse token'lar boş, ``gecici_token`` ile ikinci adım gerekir.
+
+    ``iki_asama_kurulum_gerekli``: tenant 2FA'yı zorunlu kılmış ama kullanıcı kurulmamış —
+    ``gecici_token`` yalnız 2FA kurulum uçlarında geçer (S23 / ADR-0022).
+    """
+
+    access_token: str = ""
+    refresh_token: str = ""
     token_tipi: str = "bearer"
+    iki_asama_gerekli: bool = False
+    iki_asama_kurulum_gerekli: bool = False
+    gecici_token: str = ""
+
+
+class IkiAsamaDogrulaDTO(BaseModel):
+    gecici_token: str = Field(min_length=1)
+    kod: str = Field(min_length=6, max_length=12)  # TOTP (6) veya kurtarma kodu (XXXX-XXXX)
+
+
+class IkiAsamaKurCevapDTO(BaseModel):
+    """Kurulum başlangıcı — sır + QR URI'si (FE antd QRCode ile çizer)."""
+
+    sir: str
+    otpauth_uri: str
+
+
+class IkiAsamaEtkinlestirDTO(BaseModel):
+    kod: str = Field(min_length=6, max_length=8)
+
+
+class IkiAsamaKurtarmaCevapDTO(BaseModel):
+    """Kurtarma kodları — YALNIZ bu yanıtta görünür, sonra yalnız özet saklanır."""
+
+    kurtarma_kodlari: list[str]
+
+
+class IkiAsamaKapatDTO(BaseModel):
+    parola: str = Field(min_length=1)
+    kod: str = Field(min_length=6, max_length=12)
+
+
+class SsoDurumCevapDTO(BaseModel):
+    """Giriş ekranı SSO düğmesini göstersin mi (kimlik gerektirmez, sır sızdırmaz)."""
+
+    aktif: bool
+
+
+class SsoBaslatCevapDTO(BaseModel):
+    """Tarayıcının yönlendirileceği IdP yetkilendirme URL'i (state + PKCE gömülü)."""
+
+    yetkilendirme_url: str
+
+
+class SsoTamamlaDTO(BaseModel):
+    kod: str = Field(min_length=1, max_length=4096)
+    state: str = Field(min_length=1, max_length=512)
+
+
+class OturumCevapDTO(BaseModel):
+    """Aktif oturum/cihaz satırı (S23) — jti sızdırılmaz, yalnız id ile yönetilir."""
+
+    id: int
+    ip_adresi: str | None = None
+    istemci: str
+    olusturma_tarihi: datetime
+    son_kullanim: datetime | None = None
+    bitis: datetime
 
 
 class YenileGirdiDTO(BaseModel):
@@ -33,6 +97,7 @@ class BenCevapDTO(BaseModel):
     roller: list[str]
     izinler: list[str]
     son_giris_tarihi: datetime | None = None
+    iki_asama_aktif: bool = False
 
 
 class KullaniciOlusturDTO(BaseModel):
