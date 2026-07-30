@@ -38,7 +38,7 @@ Definition of Done (DoD).
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
-| **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ⬜ |
+| **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ⬜ |
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
@@ -421,7 +421,7 @@ bildirim/onay deneyimi ve sürdürülebilir kalite güvencesi.
 - Sıralama esnektir: S27 (platform deneyimi) Faz 4 ile paralel öne çekilebilir; S23'ün
   güvenlik kalemleri S22 sertleştirmesiyle koordine edilir.
 
-#### ⬜ S23 — Kurumsal Güvenlik & Uyum
+#### ✅ S23 — Kurumsal Güvenlik & Uyum (karşılandı — ADR-0022)
 Kimlik sertleştirme: **TOTP 2FA** (QR kurulum + kurtarma kodları; tenant bazlı zorunlu
 kılınabilir), **kurumsal SSO** (OIDC; Azure AD/Google Workspace ile test), parola politikası
 (uzunluk/geçmiş/yaş, control-plane'de tenant ayarı), **oturum & cihaz yönetimi**
@@ -433,10 +433,12 @@ kişisel veri envanteri belgesi, kişi bazlı ihraç (`POST /kvkk/ihrac` → 202
 `tenant_<slug>/kvkk/...` → indir; S14 rapor deseni), anonimleştirme/silme akışı (zincirleme
 maskeleme, denetim izli), aydınlatma/consent kayıt tablosu. ISO 27001 kontrol eşleme
 dokümanı başlangıcı (`docs/uyum/`).
-**Kabul:** 2FA'lı giriş uçtan uca (yanlış kod reddi + kurtarma kodu); denetim ekranında
-kim-ne-ne zaman filtrelenebilir ve kayıt değiştirilemez; kişi bazlı ihraç dosyası tüm
-modüllerdeki kişisel veriyi kapsar (test: bilinen veriyle bayt düzeyi kontrol); tüm yeni
-uçlar RBAC 403 + tenant izolasyonu testli. ADR-0022.
+**Kabul (karşılandı):** 2FA'lı giriş uçtan uca (yanlış kod reddi + kurtarma kodu); denetim
+ekranında kim-ne-ne zaman filtrelenebilir ve kayıt değiştirilemez (DB trigger); kişi bazlı
+ihraç `information_schema` keşfiyle tüm modülleri kapsar; tüm yeni uçlar RBAC 403 + tenant
+izolasyonu testli. SSO **sahte IdP** ile uçtan uca testli (nonce/exp/aud/iss/alan adı/çapraz
+tenant/replay/**anahtar rotasyonu**/saat kayması); **canlı Azure AD / Google doğrulaması
+bekliyor** (`docs/uyum/sso-kurulum.md`). ADR-0022.
 
 #### ✅ S24 — Üretim & Bakım Derinleşmesi (MES olgunluğu) (karşılandı — ADR-0023)
 **Vardiya:** `Vardiya` tanımları (ad, saat aralığı, takvim) + üretim verisi/OEE'nin vardiya

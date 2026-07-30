@@ -250,3 +250,58 @@ emri üretir (bir-kez: plan başına açık otomatik iş emri dedup'ı `is_emirl
 + vade periyot kadar ileri atılır). `bakim_planlari.yedek_parca_malzeme_id` +
 `is_emirleri.ariza_kaydi_id` nullable FK. Yeni izin YOK (uretim:*/bakim:*); entitlement
 kapısı `uretim`/`bakim` (katalog değişmedi). Migration `c4a7f3e9b528`.
+
+## Kurumsal güvenlik & uyum: 2FA, SSO, oturum, denetim, KVKK (S23 / ADR-0022)
+
+**Tenant güvenlik ayarları** (`public.tenant.guvenlik_ayarlari`, JSONB, nullable —
+NULL = kural yok): `parola` (`min_uzunluk`, `buyuk_kucuk`, `rakam`, `ozel_karakter`),
+`iki_asama_zorunlu` (bool), `ip_izin_listesi` (CIDR/IP dizisi; satır bazında fail-open),
+`oidc` (aşağıda). Platform ucu: `PUT /platform/tenantlar/{id}/guvenlik-ayarlari`
+(`null` = varsayılana dön). **OIDC istemci sırrı yanıtlarda MASKELİ** (`••••••••`);
+maske geri gönderilirse mevcut sır korunur (`platform/guvenlik_ayar.py`, saf + testli).
+
+**2FA**: `kullanici.totp_sirri` (base32) + `kullanici.iki_asama_aktif`;
+`kurtarma_kodlari` (`kod_ozet` SHA-256, `kullanildi` — bir kez). Uçlar:
+`POST /kimlik/2fa-kur` (sır + otpauth URI) → `POST /kimlik/2fa-etkinlestir` (kod doğrula,
+kurtarma kodlarını **bir kez** döner) → `POST /kimlik/2fa-kapat` (parola + kod).
+Giriş: `POST /kimlik/token` 2FA açıksa tam token yerine `tip="2fa"` **geçici token**
+(5 dk, tek kullanım) döner → `POST /kimlik/2fa-dogrula` (TOTP **veya** kurtarma kodu).
+Tenant `iki_asama_zorunlu` ise kurulmamış kullanıcı `kurulum=true` işaretli geçici token
+alır (yalnız kurulum uçları).
+
+**Kurumsal SSO (OIDC)**: `guvenlik_ayarlari.oidc` = `aktif`, `issuer`, `istemci_id`,
+`istemci_sirri`, `donus_url`, `kapsam`, `claim_eslemesi` (`eposta`/`konu`/`ad`/`gruplar`;
+iç içe yol nokta ile: `realm_access.roles`), `izinli_alan_adlari`, `jit_provizyon`,
+`varsayilan_roller`, `grup_rol_eslemesi`, `saat_kaymasi_sn` (vars. 120),
+`debug_claim_log`. Uçlar: `GET /kimlik/sso/durum` (kimliksiz; yalnız açık/kapalı),
+`POST /kimlik/sso/baslat` (state+nonce+PKCE Redis'te, 10 dk), `POST /kimlik/sso/tamamla`
+(kod+state → oturum). `redirect_uri` **istemciden alınmaz** (açık yönlendirme koruması);
+state **tek kullanımlık** ve tenant taşır (çapraz-tenant 403). JWKS TTL'li önbellekte,
+bilinmeyen `kid`'de bir kez zorla tazelenir (anahtar rotasyonu). JIT provizyon koltuk
+limitine tabidir; JIT hesaba kullanılamaz parola özeti yazılır. Kurulum kılavuzu:
+`docs/uyum/sso-kurulum.md`.
+
+**Oturum/cihaz**: `oturumlar` (`jti` UNIQUE, `ip_adresi`, `istemci` = user-agent,
+`son_kullanim`, `bitis`, `iptal`). Rotasyonda satır yeni `jti`'yi devralır.
+`GET /kimlik/oturumlar` + `DELETE /kimlik/oturumlar/{id}` (Redis iptali + `iptal=True`;
+başkasının oturumu 404). `jti` istemciye sızdırılmaz.
+
+**Denetim görünürlüğü**: `GET /denetim-kayitlari` (`denetim:oku`; filtre
+`kullanici_eposta`/`kaynak`/`eylem`/`baslangic`/`bitis`, sayfalı) +
+`GET /denetim-kayitlari/kaynaklar`. `denetim_izi` **append-only**: migration
+`d8f3a6c1e592` UPDATE/DELETE'i engelleyen trigger kurar. `denetim:oku` `izleyici` rolüne
+**otomatik verilmez**.
+
+**KVKK**: `kvkk_ihraclari` (`kod` `KV-{yıl}-{id:06d}`, `kisi_turu` =
+`kullanici`|`personel`, `kisi_id`, `durum` = kuyrukta→hazirlaniyor→hazir|basarisiz,
+`nesne_anahtari`, `boyut`, `kayit_sayisi`). `POST /kvkk/ihrac` → **202** + süreç-içi görev
+→ ZIP → MinIO `tenant_<slug>/kvkk/<id>/…` → `GET /kvkk/ihraclar/{id}/indir` (hazır
+değilse 409). Kapsam **statik değil**: `information_schema`'da `%kullanici_id` /
+`%personel_id` desenli tüm kolonlar keşfedilir. `POST /kvkk/anonimlestir`
+(`onay="ANONIM"` şartı, tek transaction, denetim izli). `consent_kayitlari` (`tur` =
+`aydinlatma`|`acik_riza`, `metin_surumu`, `kabul`, `ip_adresi`) append-only — geri çekme
+yeni satırdır; `GET/POST /consent` oturum yeterli (kişisel yüzey).
+
+**Yeni izinler**: `denetim:oku`, `kvkk:yonet`. **Yeni rol**: `uyum`.
+**Entitlement kapısı YOK** (güvenlik/uyum çekirdek haktır, satılabilir modül değil).
+Migration: `d8f3a6c1e592` (tenant) + `a9d2e6f4c318` (public).
