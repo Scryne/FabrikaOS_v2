@@ -40,6 +40,8 @@ class SahteIdp:
         self.istemci_id = istemci_id
         self.json_cagri_sayisi = 0
         self.jwks_cagri_sayisi = 0
+        self.pkce_reddi = 0
+        self.son_token_istegi: dict[str, str] = {}
         self._kodlar: dict[str, dict[str, str]] = {}
         # Sonraki id_token'a enjekte edilecek claim override'ları (test senaryoları).
         self.ek_claimler: dict[str, Any] = {}
@@ -93,15 +95,21 @@ class SahteIdp:
 
     async def token_degis(self, token_ucu: str, veri: dict[str, str]) -> dict[str, Any]:
         assert token_ucu == self.discovery["token_endpoint"]
+        self.son_token_istegi = dict(veri)  # testler gönderilen alanları denetleyebilsin
         kayit = self._kodlar.pop(veri.get("code", ""), None)
         if kayit is None:
-            return {"error": "invalid_grant"}
-        # PKCE doğrulaması (S256) — gerçek IdP davranışı.
+            return {"error": "invalid_grant", "error_description": "bilinmeyen kod"}
+
+        # PKCE doğrulaması (S256) — gerçek IdP davranışı: uyuşmazlıkta OAuth hata
+        # gövdesi döner (istisna fırlatmaz), böylece istemcinin hatayı nasıl ele
+        # aldığı da sınanabilir.
         dogrulayici = veri.get("code_verifier", "")
         ozet = hashlib.sha256(dogrulayici.encode("ascii")).digest()
         meydan = base64.urlsafe_b64encode(ozet).decode("ascii").rstrip("=")
         if meydan != kayit["challenge"]:
-            raise AssertionError("PKCE doğrulaması başarısız (code_verifier eşleşmedi)")
+            self.pkce_reddi += 1
+            return {"error": "invalid_grant", "error_description": "PKCE dogrulamasi basarisiz"}
+
         return {
             "access_token": "sahte-access",
             "token_type": "Bearer",

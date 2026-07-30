@@ -152,9 +152,10 @@ async def tenant_guvenlik_ayarla(
 ) -> dict[str, Any]:
     tenant = await service.tenant_getir(db, tenant_id)
     # Panel sırrı maskeli geri gönderdiyse mevcut sır korunur (bkz. guvenlik_ayar).
-    tenant.guvenlik_ayarlari = guvenlik_ayar.sirri_koru(
-        govde.ayarlar, tenant.guvenlik_ayarlari
-    )  # null = varsayılana dön
+    korunmus = guvenlik_ayar.sirri_koru(govde.ayarlar, tenant.guvenlik_ayarlari)
+    # Ham claim logu açıldıysa kendiliğinden sönmesi için bitiş damgası basılır.
+    damgali, debug_gecisi = guvenlik_ayar.debug_suresini_damgala(korunmus, tenant.guvenlik_ayarlari)
+    tenant.guvenlik_ayarlari = damgali  # null = varsayılana dön
     await db.flush()
     await platform_denetim_yaz(
         db,
@@ -165,6 +166,21 @@ async def tenant_guvenlik_ayarla(
         # Denetim izine sır YAZILMAZ: maskeli kopya saklanır.
         detay={"ayarlar": guvenlik_ayar.ayarlari_maskele(tenant.guvenlik_ayarlari)},
     )
+    # PII log akışının açılıp kapanması AYRI bir denetim olayıdır: "kim, ne zaman, ne
+    # kadar süreyle ham kişisel veri loglanmasını açtı" sorusu tek satırda cevaplanabilsin.
+    if debug_gecisi.acildi or debug_gecisi.kapandi:
+        await platform_denetim_yaz(
+            db,
+            yonetici=yonetici,
+            eylem="sso_debug_ac" if debug_gecisi.acildi else "sso_debug_kapat",
+            kaynak="tenant",
+            kaynak_id=str(tenant_id),
+            detay={
+                "slug": tenant.slug,
+                "bitis": debug_gecisi.bitis.isoformat() if debug_gecisi.bitis else None,
+                "omur_dk": guvenlik_ayar.DEBUG_OMRU_DK if debug_gecisi.acildi else None,
+            },
+        )
     return basari(
         guvenlik_ayar.ayarlari_maskele(tenant.guvenlik_ayarlari),
         mesaj="Güvenlik ayarları güncellendi",

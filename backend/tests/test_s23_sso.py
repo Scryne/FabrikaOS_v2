@@ -18,6 +18,7 @@ import logging
 import time
 import uuid
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
@@ -302,6 +303,75 @@ async def test_sso_state_replay_ikinci_kullanimda_reddedilir(
     assert ikinci.status_code == 401
 
 
+async def test_sso_pkce_dogrulayicisi_gonderilir_ve_meydan_okumayla_eslesir(
+    test_db: str, kurulu_istemci: AsyncClient, idp: SahteIdp, test_engine: AsyncEngine
+) -> None:
+    """PKCE zinciri uçtan uca tutarlı: URL'deki challenge = sha256(gönderilen verifier).
+
+    Saf birim testi yalnız ``pkce_uret``in matematiğini doğrular; burada **akışın**
+    ürettiği challenge ile token değişiminde **gerçekten gönderilen** ``code_verifier``
+    eşleştiriliyor — ikisi ayrı yerlerde üretilip Redis üzerinden taşındığı için
+    kopabilecek bir zincir.
+    """
+    await _guvenlik_ayarla(test_engine, "alfa", _oidc_ayari(idp))
+    idp.ek_claimler = {"email": f"sso-{uuid.uuid4().hex[:8]}@firma.test"}
+
+    url = await _sso_baslat(kurulu_istemci, "alfa")
+    sorgu = parse_qs(urlparse(url).query)
+    meydan = sorgu["code_challenge"][0]
+    assert sorgu["code_challenge_method"] == ["S256"]
+
+    kod, state = idp.yetkilendir(url)
+    cevap = await _sso_tamamla(kurulu_istemci, kod, state)
+    assert cevap.status_code == 200, cevap.text
+
+    gonderilen = idp.son_token_istegi.get("code_verifier", "")
+    assert gonderilen, "token degisiminde code_verifier GONDERILMEDI"
+    beklenen = (
+        base64.urlsafe_b64encode(hashlib.sha256(gonderilen.encode("ascii")).digest())
+        .decode("ascii")
+        .rstrip("=")
+    )
+    assert beklenen == meydan, "gonderilen verifier, URL'deki challenge ile eslesmiyor"
+    # İstemci sırrı da token ucuna gider (confidential client), kodun kendisi de.
+    assert idp.son_token_istegi.get("client_secret") == "gizli-sir"
+    assert idp.son_token_istegi.get("grant_type") == "authorization_code"
+
+
+async def test_sso_yanlis_code_verifier_reddedilir(
+    test_db: str, kurulu_istemci: AsyncClient, idp: SahteIdp, test_engine: AsyncEngine
+) -> None:
+    """Çalınan authorization code, doğru verifier olmadan oturuma çevrilemez (PKCE amacı).
+
+    Redis'teki akış durumundaki ``verifier`` bozularak "saldırgan kodu ele geçirdi ama
+    doğrulayıcıyı bilmiyor" senaryosu kurulur: IdP ``invalid_grant`` döner, uygulama
+    temiz bir 4xx üretir (500 DEĞİL) ve oturum AÇILMAZ.
+    """
+    await _guvenlik_ayarla(test_engine, "alfa", _oidc_ayari(idp))
+    eposta = f"sso-pkce-{uuid.uuid4().hex[:8]}@firma.test"
+    idp.ek_claimler = {"email": eposta}
+
+    url = await _sso_baslat(kurulu_istemci, "alfa")
+    kod, state = idp.yetkilendir(url)
+
+    # Akış durumundaki doğrulayıcıyı boz (challenge sabit kaldı).
+    from app.core.security.redis_istemci import get_redis
+
+    await get_redis().hset(f"sso:durum:{state}", "verifier", "saldirganin-uydurdugu-verifier")
+
+    cevap = await _sso_tamamla(kurulu_istemci, kod, state)
+    assert cevap.status_code == 400, cevap.text
+    assert idp.pkce_reddi == 1, "sahte IdP PKCE reddi kaydetmedi"
+
+    # Oturum açılmamış olmalı: kullanıcı JIT ile bile oluşturulmadı.
+    sm = async_sessionmaker(test_engine, expire_on_commit=False)
+    async with sm() as db:
+        sayi = await db.scalar(
+            text("SELECT count(*) FROM tenant_alfa.kullanici WHERE eposta = :e"), {"e": eposta}
+        )
+    assert sayi == 0, "PKCE basarisiz olmasina ragmen kullanici olusturuldu"
+
+
 async def test_sso_yanlis_nonce_reddedilir(
     test_db: str, kurulu_istemci: AsyncClient, idp: SahteIdp, test_engine: AsyncEngine
 ) -> None:
@@ -474,9 +544,18 @@ async def test_sso_debug_claim_logu_ham_claimleri_yazar(
     test_engine: AsyncEngine,
     caplog: pytest.LogCaptureFixture,
 ) -> None:
-    """Canlı IdP teşhisi: ayar açıkken ham claim'ler loglanır (kod değişikliği gerekmeden)."""
+    """Canlı IdP teşhisi: pencere AÇIKKEN ham claim'ler loglanır (kod değişikliği gerekmeden).
+
+    Not: bayrak tek başına yetmez; ``debug_claim_log_bitis`` damgası da gerekir (PII log
+    penceresi süreli — bkz. test_s23_sertlestirme).
+    """
     eposta = f"sso-{uuid.uuid4().hex[:8]}@firma.test"
-    await _guvenlik_ayarla(test_engine, "alfa", _oidc_ayari(idp, debug_claim_log=True))
+    bitis = (datetime.now(UTC) + timedelta(minutes=30)).isoformat()
+    await _guvenlik_ayarla(
+        test_engine,
+        "alfa",
+        _oidc_ayari(idp, debug_claim_log=True, debug_claim_log_bitis=bitis),
+    )
     idp.ek_claimler = {"email": eposta}
 
     # create_app() kök logger handler'larını temizlediği için caplog'a güvenilmez;

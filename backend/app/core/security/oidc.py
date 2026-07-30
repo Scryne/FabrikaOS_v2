@@ -17,9 +17,11 @@ Tasarım ilkeleri:
   rotasyonu kesinti üretmez), tazeleme sonrası da yoksa reddedilir.
 - **Saat kayması toleransı.** ``exp``/``iat``/``nbf`` doğrulaması ``saat_kaymasi_sn``
   kadar esnetilir (varsayılan 120 sn) — IdP ile sunucu saati birebir tutmaz.
-- **Debug modu.** ``debug_claim_log: true`` iken ham ID token claim'leri WARNING
-  seviyesinde loglanır; ilk canlı Azure AD / Google Workspace denemesi kod değişikliği
-  gerektirmeden teşhis edilebilsin diye vardır (ADR-0022 madde 4).
+- **Debug modu (süreli).** ``debug_claim_log: true`` iken ham ID token claim'leri
+  WARNING seviyesinde loglanır; ilk canlı Azure AD / Google Workspace denemesi kod
+  değişikliği gerektirmeden teşhis edilebilsin diye vardır. Ham claim'ler **kişisel veri**
+  (e-posta, ad, grup üyeliği) taşıdığı için mod **kendiliğinden söner**:
+  ``debug_claim_log_bitis`` damgası geçince bayrak açık olsa da log yazılmaz.
 """
 
 from __future__ import annotations
@@ -30,6 +32,7 @@ import logging
 import secrets
 import time
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any, Protocol
 from urllib.parse import urlencode
 
@@ -91,6 +94,8 @@ class OidcAyari:
     grup_rol_eslemesi: dict[str, str] = field(default_factory=dict)
     saat_kaymasi_sn: int = VARSAYILAN_SAAT_KAYMASI_SN
     debug_claim_log: bool = False
+    # Debug logu kendiliğinden söner: bu an geçtiyse bayrak açık olsa da log yazılmaz.
+    debug_claim_log_bitis: datetime | None = None
 
 
 def ayar_coz(guvenlik_ayarlari: dict[str, Any] | None) -> OidcAyari | None:
@@ -140,7 +145,30 @@ def ayar_coz(guvenlik_ayarlari: dict[str, Any] | None) -> OidcAyari | None:
         ),
         saat_kaymasi_sn=int(ham.get("saat_kaymasi_sn") or VARSAYILAN_SAAT_KAYMASI_SN),
         debug_claim_log=bool(ham.get("debug_claim_log", False)),
+        debug_claim_log_bitis=_zaman_coz(ham.get("debug_claim_log_bitis")),
     )
+
+
+def _zaman_coz(deger: Any) -> datetime | None:
+    """ISO-8601 metnini UTC ``datetime``e çevirir; bozuk/eksik değer ``None``."""
+    if not deger:
+        return None
+    try:
+        an = datetime.fromisoformat(str(deger))
+    except ValueError:
+        return None
+    return an if an.tzinfo else an.replace(tzinfo=UTC)
+
+
+def debug_aktif_mi(ayar: OidcAyari, *, simdi: datetime | None = None) -> bool:
+    """Ham claim logu şu an yazılmalı mı (bayrak AÇIK **ve** süre dolmamış)?
+
+    Süre damgası yoksa bayrak tek başına yetmez: bu, elle JSONB düzenleyip
+    ``debug_claim_log: true`` bırakarak kalıcı PII loglaması açılmasını engeller.
+    """
+    if not ayar.debug_claim_log or ayar.debug_claim_log_bitis is None:
+        return False
+    return (simdi or datetime.now(UTC)) < ayar.debug_claim_log_bitis
 
 
 # --------------------------------------------------------------------------------------
@@ -407,8 +435,9 @@ async def id_token_dogrula(id_token: str, ayar: OidcAyari, *, nonce: str) -> dic
     except jwt.PyJWTError as exc:
         raise KimlikHatasi(f"ID token doğrulanamadı: {exc}") from exc
 
-    if ayar.debug_claim_log:
+    if debug_aktif_mi(ayar):
         # Canlı IdP teşhisi için kasıtlı: kod değişikliği olmadan claim'leri görebilmek.
+        # Süre dolduğunda kendiliğinden susar (PII log akışına sızmasın).
         logger.warning("OIDC ham claim'ler (debug_claim_log açık): %s", claims)
 
     if nonce and claims.get("nonce") != nonce:
