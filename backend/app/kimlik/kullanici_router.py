@@ -14,7 +14,6 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.control_plane import entitlement_service
 from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
@@ -22,6 +21,7 @@ from app.core.deps import izin_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari, sayfali
 from app.core.security.parola import parola_ozetle
+from app.kimlik import service
 from app.kimlik.models import Kullanici, Rol
 from app.kimlik.schemas import (
     KullaniciCevapDTO,
@@ -91,27 +91,6 @@ async def kullanici_ozet(
     return basari(ozet.model_dump(), mesaj="Kullanıcı özeti")
 
 
-async def _koltuk_kontrol(db: AsyncSession, tenant: Tenant) -> None:
-    """Koltuk (seat) limiti — S16/ADR-0018: eşzamanlı yazmalar public.tenant satırı
-    kilidiyle serileştirilir; aktif kullanıcı sayısı limiti aşamaz (pasifler sayılmaz)."""
-    await db.execute(select(Tenant.id).where(Tenant.id == tenant.id).with_for_update())
-    koltuk = await entitlement_service.koltuk_limiti_getir(db, tenant)
-    if koltuk is None:
-        return
-    aktif_sayi = (
-        await db.scalar(
-            select(func.count()).select_from(Kullanici).where(Kullanici.aktif.is_(True))
-        )
-        or 0
-    )
-    if aktif_sayi >= koltuk:
-        raise CakismaHatasi(
-            f"Koltuk limiti doldu ({aktif_sayi}/{koltuk}) — plan yükseltin veya "
-            "bir kullanıcıyı pasifleştirin",
-            hata_kodu="KOLTUK_LIMITI",
-        )
-
-
 async def _roller_dogrula(db: AsyncSession, roller: list[str]) -> list[Rol]:
     """Rol adlarını tenant kataloğunda doğrular; tanımsız ad 422."""
     if not roller:
@@ -149,7 +128,9 @@ async def olustur(
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
     db: Annotated[AsyncSession, Depends(get_session)],
 ) -> dict[str, Any]:
-    await _koltuk_kontrol(db, tenant)
+    await service.koltuk_kontrol(db, tenant)
+    # Tenant parola politikası (S23): yeni kullanıcı parolası da kurala tabidir.
+    service.parola_politikasi_uygula(tenant, govde.parola)
 
     var = await db.scalar(select(Kullanici).where(Kullanici.eposta == govde.eposta))
     if var is not None:
@@ -208,7 +189,7 @@ async def guncelle(
 
     if degisenler.get("aktif") is True and not hedef.aktif:
         # Pasif → aktif: koltuk açılıyor olabilir; limit oluşturmadaki gibi zorlanır.
-        await _koltuk_kontrol(db, tenant)
+        await service.koltuk_kontrol(db, tenant)
     if "roller" in degisenler:
         hedef.roller = await _roller_dogrula(db, govde.roller or [])
     if "firma_id" in degisenler and govde.firma_id is not None:
