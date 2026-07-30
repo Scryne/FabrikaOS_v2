@@ -6,6 +6,7 @@ satınalma uçları sonraki task'larda eklenir.
 
 from __future__ import annotations
 
+import logging
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
@@ -17,7 +18,12 @@ from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.exceptions import (
+    CakismaHatasi,
+    DogrulamaHatasi,
+    KaynakBulunamadi,
+    YetkiHatasi,
+)
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
@@ -46,6 +52,8 @@ from app.modules.stok.schemas import (
     StokHareketiOlusturDTO,
     StokOzetDTO,
 )
+
+logger = logging.getLogger("app.modules.stok")
 
 router = APIRouter(tags=["Stok & Satınalma"], dependencies=[Depends(modul_gerekli("stok"))])
 
@@ -217,7 +225,15 @@ def _hareket_cevap(h: StokHareketi) -> dict[str, Any]:
     "/stok-hareketleri",
     response_model=Zarf[StokHareketiCevapDTO],
     status_code=201,
-    summary="Stok hareketi ekle (giriş/çıkış/düzeltme)",
+    summary="Stok hareketi ekle (giriş/çıkış)",
+    description=(
+        "**`tur='duzeltme'` KULLANIMDAN KALDIRILDI (deprecated).** Bu tür bakiyeyi "
+        "*mutlak* olarak yazar: hazırlanma ile uygulanma arasında yapılan tüm hareketleri "
+        "sessizce siler (veri kaybı). Ayrıca artık `stok:duzeltme` izni ister ve her "
+        "kullanımı denetim izine + uyarı loguna yazılır.\n\n"
+        "Sayım farkı düzeltmesi için **delta** semantikli sayım akışını kullanın "
+        "(`/sayimlar/{id}/onayla`, S25/ADR-0024)."
+    ),
 )
 async def stok_hareketi_olustur(
     govde: StokHareketiOlusturDTO,
@@ -232,6 +248,24 @@ async def stok_hareketi_olustur(
             detaylar=[
                 {"alan": "tur", "mesaj": f"Geçerli: {', '.join(sorted(STOK_HAREKET_TURLERI))}"}
             ],
+        )
+    # Eski `duzeltme` türü MUTLAK yazar → canlı veri kaybı yolu (ADR-0024, backlog #2).
+    # Davranışı sessizce değiştirmek kırıcı olurdu; bunun yerine erişim daraltıldı ve
+    # her kullanım iz bırakır. Yeni sayım akışı bu türü kullanmaz (delta uygular).
+    if govde.tur == service.ESKI_MUTLAK_TUR:
+        if not kullanici.izin_var("stok:duzeltme"):
+            raise YetkiHatasi(
+                "Mutlak düzeltme hareketi 'stok:duzeltme' izni gerektirir "
+                "(kullanımdan kaldırıldı — sayım akışını kullanın)",
+                hata_kodu="YETKISIZ",
+            )
+        logger.warning(
+            "KULLANIMDAN KALDIRILMIS mutlak duzeltme hareketi: tenant=%s kullanici=%s "
+            "malzeme=%s miktar=%s — bakiye MUTLAK olarak ezildi",
+            tenant.slug,
+            kullanici.eposta,
+            govde.malzeme_id,
+            govde.miktar,
         )
     if idempotency_key is not None:
         mevcut = await repository.hareket_idempotent_getir(db, idempotency_key)
@@ -254,11 +288,23 @@ async def stok_hareketi_olustur(
     )
     await denetim_yaz(
         db,
-        eylem="hareket",
+        # Mutlak düzeltme AYRI bir denetim eylemidir: "hareket" gürültüsü içinde
+        # kaybolmasın, filtrelenebilsin (kim, hangi bakiyeyi ezdi).
+        eylem=("stok_mutlak_duzeltme" if govde.tur == service.ESKI_MUTLAK_TUR else "hareket"),
         kaynak="stok_hareketi",
         kaynak_id=str(hareket.id),
         kullanici=kullanici,
-        detay={"tur": govde.tur, "malzeme_id": malzeme.id},
+        detay={
+            "tur": govde.tur,
+            "malzeme_id": malzeme.id,
+            "miktar": str(govde.miktar),
+            "bakiye_sonrasi": str(hareket.bakiye_sonrasi),
+            **(
+                {"uyari": "kullanimdan_kaldirildi_mutlak_yazim"}
+                if govde.tur == service.ESKI_MUTLAK_TUR
+                else {}
+            ),
+        },
     )
     await yayinla(tenant.slug, {"tur": "stok.hareket", "malzeme_id": malzeme.id})
     if kritige_dustu:

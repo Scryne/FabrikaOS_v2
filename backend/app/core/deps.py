@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane import entitlement_service
 from app.control_plane.models import Tenant
 from app.core.config import get_settings
+from app.core.context import cozulmus_tenant_ctx
 from app.core.db.session import get_session
 from app.core.db.tenancy import search_path_ayarla, slug_gecerli_mi, tenant_bul
 from app.core.exceptions import KaynakBulunamadi, KimlikHatasi, YetkiHatasi
@@ -66,6 +67,9 @@ async def tenant_cozumle(
             raise YetkiHatasi("Bu ağdan erişime izin verilmiyor", hata_kodu="IP_KISITLI")
     await search_path_ayarla(db, slug)
     request.state.tenant_slug = slug
+    # Doğrulanmış slug: commit sonrası search_path'i geri kuran yapısal koruma bunu
+    # okur (bkz. core/db/tenancy.py::_search_path_otomatik_kur).
+    cozulmus_tenant_ctx.set(slug)
     return tenant
 
 

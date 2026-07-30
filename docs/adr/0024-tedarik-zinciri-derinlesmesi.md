@@ -121,11 +121,54 @@ karşılığıdır. Lot takibi açıldığında **hiçbir yapı değişmez**, ya
 `Malzeme.lot_takipli` (bool, varsayılan `False`) bayrağı da şimdi eklenir: açıksa giriş
 hareketleri lot numarası ister (422), kapalıysa `''` kullanılır.
 
+**S25 zorunluluğu (API düzeyi).** Teslim alma ucu `lot_no` alanını **ilk günden kabul
+eder ve saklar** — arayüz alanı henüz olmasa bile. EN 10204 3.1 sertifikası malzemeyle
+**fiziksel olarak teslim anında** gelir; S25 ile S26 arasında kaydedilen teslimatların
+lotunu taşıyamaması, o dönemin sertifikalarını kalıcı olarak ilişkilendirilemez yapardı
+(geriye dönük kurtarılamaz veri kaybı). Alan boş bırakılabilir, ama var olmalıdır.
+
 **Roadmap yerleşimi (işlevsel katman).** Lot **genealojisi** (stok lotu ↔ üretim lotu
 zinciri, ileri/geri izleme birleşimi) ve **sertifika yönetimi** (EN 10204 3.1 belgesi
 yükleme, lota bağlama, müşteriye sevk belgesiyle verme) **S26'ya (Kalite/QMS)** önerilir:
 sertifika saklama S26'daki `OlcumCihazi`/kalibrasyon sertifikası ve DYS `Belge` desenleriyle
 aynı yapıdadır; kalite modülünün doğal parçasıdır. S25 yalnız **veri boyutunu** açar.
+
+---
+
+## 4b. Fiziksel giriş ile kayıt arasındaki boşluk (geriye dönük kayıt)
+
+**Gerçek saha durumu.** Malzeme fiziksel olarak sabah gelir, irsaliye/PO eşleştirmesi
+öğleden sonra girilir. Arada üretim o malzemeyi tüketir. Katı negatif-stok engeli bu
+tüketimi reddeder → operatör ya üretimi bekletir ya da **sahte kayıt** girer (uydurma
+giriş, yanlış malzeme, "sonra düzeltirim" düzeltmesi). Sahte kayıt, negatif bakiyeden
+daha kötüdür: izlenebilirliği ve maliyeti kalıcı olarak bozar.
+
+**Karar — üç parçalı, negatif engeli KORUNARAK:**
+
+1. **Hızlı mal kabul (PO'suz giriş) meşru yoldur.** Depo görevlisi `stok:yaz` iznyle
+   `POST /stok-hareketleri` (`tur="giris"`) ile malı 30 saniyede sisteme alır; irsaliye
+   numarası `kaynak` alanına yazılır. Bu yol **zaten vardır**, S25'te *desteklenen
+   prosedür* olarak belgelenir ve FE'de "Hızlı mal kabul" olarak görünür kılınır.
+2. **Resmî teslim alma bunu ÇİFT SAYMAZ.** PO teslim alma, aynı malzeme + aynı irsaliye
+   numarasına sahip **eşleşmemiş** hızlı girişi arar; bulursa yeni stok hareketi
+   **üretmez**, mevcut hareketi teslim alma kalemine bağlar
+   (`teslim_alma_kalemleri.eslesen_hareket_id`) ve PO'nun teslim alınan miktarını günceller.
+   Bulamazsa normal giriş hareketini kendisi yazar. Böylece hızlı yol çift kayda yol açmaz.
+3. **Geriye dönük tarih (`fiili_tarih`).** Teslim alma kaydı fiziksel geliş anını taşır;
+   bakiye hesabı **toplamsal** olduğu için hareketlerin giriliş sırası bakiyeyi
+   değiştirmez, yalnız raporlardaki tarih doğru olur. `fiili_tarih` gelecekte olamaz ve
+   PO tarihinden önce olamaz (422).
+
+**Neden "beklenen/yolda" (in-transit) sanal bakiyesi değil?** Yolda-stok, MRP ve rezervasyon
+mantığıyla birlikte anlam kazanır (S31); tek başına eklenmesi "gerçek stok" ile "beklenen
+stok"u karıştırma riski taşır ve üretim yanlışlıkla henüz gelmemiş malzemeye güvenebilir.
+Hızlı mal kabul, malın **fiziksel olarak var olduğu** gerçeğini kaydeder — doğru olan budur.
+Yolda-stok kavramı S31 (MRP) ile birlikte ele alınacaktır.
+
+**Operasyonel prosedür (dokümana girer):** mal fiziksel gelir → depo hızlı mal kabul girer
+(irsaliye no zorunlu) → üretim tüketebilir → satınalma sonradan PO eşleştirmesini yapar →
+sistem hızlı girişi resmî teslim almaya bağlar. Eşleşmemiş hızlı girişler
+`GET /teslim-almalar/eslesmemis` ekranında birikir ve takip edilir.
 
 ---
 
@@ -152,8 +195,22 @@ gerçekten isterse ayrı bir ADR ile ele alınmalıdır.
   katmanı (ör. yalnız teslim almada) bakiyeyi sessizce bozar; ya her yol dönüştürür ya da
   hiçbiri.
 - Dönüşüm gerektiğinde tasarım hazır: `MalzemeBirimDonusum(malzeme_id, birim, carpan)` +
-  girişte temel birime normalize etme. Ertelenmiş iş olarak kaydedildi; satınalma birimi
-  (koli) ile stok birimi (adet) ayrışması gerçek bir ihtiyaç olduğunda ele alınacak.
+  girişte temel birime normalize etme.
+
+**⚠️ Bu erteleme "belki" değil "ne zaman" sorusudur.** Metal ve ağır sanayide satınalma
+birimi ile stok biriminin ayrışması (çubuk/levha/boy ↔ kg, ton ↔ kg) neredeyse kesindir:
+tedarikçi adetle satar, üretim kg tüketir. S25 kodu bu yüzden **tek birim varsayımını
+geri alınması zor biçimde gömmemelidir**:
+
+- Miktar alanları hiçbir yerde "malzemenin birimi" varsayımıyla yorumlanmaz; birim her
+  zaman malzemeden okunur (hareket satırına birim yazılmaz — dönüşüm gelince satırdaki
+  birim ile temel birim ayrışması gerekecek, o yüzden **satırda birim tutmak** ileride
+  eklenecek doğru yerdir ve şimdi yanlış değer yazılmamalıdır).
+- PO kalemi ile stok hareketi arasındaki miktar aktarımı **tek noktadan** geçer
+  (`teslim_alma_kalemine_gore_miktar`), böylece dönüşüm eklendiğinde tek fonksiyon
+  değişir; çağrı yerleri değişmez.
+- S25 boyunca herhangi bir akış "1 PO birimi = 1 stok birimi" varsayımını kod içine
+  yayarsa, o nokta ADR'ye ve backlog'a **anında** işlenecektir.
 
 ---
 

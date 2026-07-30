@@ -14,8 +14,9 @@ from __future__ import annotations
 
 import re
 
-from sqlalchemy import select, text
+from sqlalchemy import Connection, event, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from app.control_plane.models import Tenant
 
@@ -47,6 +48,50 @@ async def search_path_ayarla(session: AsyncSession, slug: str) -> None:
 async def search_path_sifirla(session: AsyncSession) -> None:
     """``search_path``'i yalnızca ``public`` yapar (işlem-yerel) — control-plane sorguları için."""
     await session.execute(text("SELECT set_config('search_path', 'public', true)"))
+
+
+# --------------------------------------------------------------------------------------
+# Yapısal koruma: commit sonrası search_path'i kendiliğinden geri kur
+# --------------------------------------------------------------------------------------
+# ``set_config(..., is_local=true)`` **işlem kapsamlıdır**: commit/rollback ile düşer.
+# Bu, bağlantı havuza dönerken sızıntıyı engellediği için bilinçli bir tercihtir (ADR-0003)
+# — ama istek ORTASINDA commit eden bir uç (async görev tetikleme, KVKK imhası, rapor
+# kuyruğa alma...) sonraki sorgularını **şemasız** çalıştırır. O sorgular ya hata verir ya
+# da ``public``e düşerek YANLIŞ VERİYE dokunur; bu bir tenant izolasyonu riskidir (R3).
+#
+# Her `commit`ten sonra elle yeniden kurmayı hatırlamak güvenilir değildir. Bunun yerine:
+# SQLAlchemy **her yeni işlem başladığında** (``after_begin``) aktif istekteki tenant
+# bilinir durumdaysa ``search_path`` otomatik yeniden kurulur. Commit sonrası ilk sorgu
+# yeni bir işlem açacağı için koruma orada devreye girer.
+def _istek_tenant_slug() -> str | None:
+    """Bu istekte DOĞRULANMIŞ tenant slug'ı (yoksa ``None``).
+
+    Ham ``X-Tenant`` başlığı DEĞİL, ``tenant_cozumle``nin doğrulamadan geçirip set ettiği
+    değer okunur: aksi hâlde istemci başlıkla istediği şemayı seçtirebilirdi.
+    """
+    from app.core.context import cozulmus_tenant_ctx
+
+    slug = cozulmus_tenant_ctx.get()
+    if not slug or not slug_gecerli_mi(slug):
+        return None
+    return slug
+
+
+@event.listens_for(Session, "after_begin")
+def _search_path_otomatik_kur(
+    session: Session, transaction: object, connection: Connection
+) -> None:
+    """Yeni işlem açıldığında istek tenant'ının ``search_path``'ini yeniden kurar.
+
+    Yalnız tenant bağlamı olan isteklerde çalışır: platform (control-plane) istekleri
+    ``tenant_slug_ctx`` set etmediği için ``public`` kapsamında kalır — düzlem ayrımı
+    korunur. Arka plan görevleri contextvar'ı devraldığında da doğru şemayı görür;
+    o sorgular zaten şema-nitelikli olduğundan zararsızdır.
+    """
+    slug = _istek_tenant_slug()
+    if slug is None:
+        return
+    connection.exec_driver_sql(f"SET LOCAL search_path TO {sema_adi(slug)}, public")
 
 
 async def tenant_bul(session: AsyncSession, slug: str) -> Tenant | None:

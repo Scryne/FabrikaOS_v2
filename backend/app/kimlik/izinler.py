@@ -26,6 +26,10 @@ IZIN_KATALOGU: dict[str, str] = {
     "bakim:yaz": "Bakım planı oluşturma/güncelleme",
     "stok:oku": "Stok görüntüleme",
     "stok:yaz": "Stok hareketi girişi",
+    # S25/ADR-0024: sayım farkı onayı + kullanımdan kaldırılmış MUTLAK düzeltme hareketi.
+    # Görev ayrımı: sayımı giren (`stok:yaz`) ile farkı onaylayan aynı kişi olmamalı;
+    # bu yüzden `depo` rolüne VERİLMEZ (yalnız admin ve ayrıca tanımlanacak roller).
+    "stok:duzeltme": "Stok sayım farkı onayı ve düzeltme hareketi",
     "satinalma:oku": "Satınalma taleplerini görüntüleme",
     "satinalma:yaz": "Satınalma talebi oluşturma",
     "satinalma:onay": "Satınalma talebini onaylama",

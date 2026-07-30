@@ -22,6 +22,13 @@ from app.modules.stok.models import Malzeme, SatinalmaTalebi, StokHareketi
 
 OLAY_KRITIK = "stok.kritik"
 
+# ⚠️ KULLANIMDAN KALDIRILDI (ADR-0024 / backlog #2): bakiyeyi MUTLAK yazar, yani
+# hareketin hazırlanmasıyla uygulanması arasında olan her şeyi sessizce siler.
+# Yayındaki bir uç olduğu için davranışı değiştirilmedi; erişimi ``stok:duzeltme``
+# iznine daraltıldı ve her kullanımı uyarı logu + ayrı denetim eylemi bırakıyor.
+# S25 sayım akışı bu türü KULLANMAZ (delta uygular).
+ESKI_MUTLAK_TUR = "duzeltme"
+
 
 def _yeni_bakiye(eski: Decimal, *, tur: str, miktar: Decimal) -> Decimal:
     if tur == "giris":
@@ -34,7 +41,8 @@ def _yeni_bakiye(eski: Decimal, *, tur: str, miktar: Decimal) -> Decimal:
                 detaylar=[{"alan": "miktar", "mesaj": f"Mevcut bakiye {eski}, çıkış {miktar}"}],
             )
         return yeni
-    # duzeltme: mutlak sayım sonucu (miktar = yeni bakiye).
+    # ⚠️ duzeltme: MUTLAK yazım (miktar = yeni bakiye) — bkz. ESKI_MUTLAK_TUR notu.
+    # Aradaki hareketleri ezer; yeni akışlar delta kullanmalıdır.
     return miktar
 
 

@@ -16,7 +16,12 @@ import uuid
 from collections.abc import Awaitable, Callable, MutableMapping
 from typing import Any
 
-from app.core.context import istemci_ip_ctx, request_id_ctx, tenant_slug_ctx
+from app.core.context import (
+    cozulmus_tenant_ctx,
+    istemci_ip_ctx,
+    request_id_ctx,
+    tenant_slug_ctx,
+)
 
 Scope = MutableMapping[str, Any]
 Message = MutableMapping[str, Any]
@@ -53,6 +58,8 @@ class RequestContextMiddleware:
 
         request_id_ctx.set(request_id)
         tenant_slug_ctx.set(_tenant_slug(headers))
+        # Doğrulanmış tenant her istekte sıfırdan kurulur (tenant_cozumle set eder).
+        cozulmus_tenant_ctx.set(None)
         # ASGI ``client`` = (host, port) | None. Proxy başlığı çözümlemesi ASGI sunucusuna
         # (uvicorn --proxy-headers) bırakılır; burada doğrudan eş IP'si yakalanır.
         istemci = scope.get("client")
