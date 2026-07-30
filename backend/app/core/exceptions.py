@@ -60,6 +60,17 @@ class CakismaHatasi(AppError):
     hata_kodu = "CAKISMA"
 
 
+class SureDoldu(AppError):
+    """Kaynak vardı ama saklama süresi dolduğu için kalıcı olarak kaldırıldı (410 Gone).
+
+    404'ten ayrılır: istemciye "böyle bir kayıt hiç yoktu" değil, "vardı, süresi doldu,
+    yeniden talep et" bilgisi verilir (KVKK ihraç artefaktları — S23/ADR-0022).
+    """
+
+    durum_kodu = 410
+    hata_kodu = "SURE_DOLDU"
+
+
 class DogrulamaHatasi(AppError):
     durum_kodu = 422
     hata_kodu = "DOGRULAMA"

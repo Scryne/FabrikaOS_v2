@@ -2653,10 +2653,39 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Hazır KVKK ihracını indir (ZIP) */
+        /**
+         * Hazır KVKK ihracını indir (ZIP)
+         * @description Hazır ihracı indirir. İçerik **kimlik doğrulamalı bu uçtan** akar: nesne deposuna
+         *     önceden imzalı (presigned) URL üretilmez — tam kişisel veri dökümü için paylaşılabilir
+         *     bir bağlantı en büyük sızıntı yüzeyidir. Her indirme denetim izine yazılır.
+         */
         get: operations["ihrac_indir_api_v1_kvkk_ihraclar__ihrac_id__indir_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kvkk/ihraclar/temizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Saklama süresi dolan ihraç artefaktlarını sil (kenar-tetikli tarama)
+         * @description Süresi dolan ZIP'leri nesne deposundan siler; kayıt satırları denetim için kalır.
+         *
+         *     İdempotenttir (``suresi_doldu`` olanlar atlanır) — zamanlanmış görevden ya da elle
+         *     çağrılabilir. İndirme ucu da süresi dolmuş artefaktı kendiliğinden temizler; bu uç
+         *     hiç indirilmemiş artefaktların birikmesini engeller.
+         */
+        post: operations["ihraclari_temizle_api_v1_kvkk_ihraclar_temizle_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -15867,6 +15896,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ihraclari_temizle_api_v1_kvkk_ihraclar_temizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_dict_str__int__"];
                 };
             };
         };

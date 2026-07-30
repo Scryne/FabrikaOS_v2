@@ -19,7 +19,7 @@ import json
 import logging
 import secrets
 import zipfile
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from sqlalchemy import select, text
@@ -33,7 +33,7 @@ from app.core.security.parola import parola_ozetle
 from app.kimlik.models import Kullanici, Oturum
 from app.modules.dys.depolama import nesne_depo_al
 from app.modules.ik.models import Personel
-from app.modules.uyum.models import KISI_TURLERI, KvkkIhraci
+from app.modules.uyum.models import IHRAC_SAKLAMA_GUN, KISI_TURLERI, KvkkIhraci
 
 logger = logging.getLogger("app.modules.uyum")
 
@@ -195,7 +195,8 @@ async def _uret_dene(ihrac_id: int, slug: str) -> None:
         await db.execute(
             text(
                 f'UPDATE "{sema}"."kvkk_ihraclari" SET durum = :d, nesne_anahtari = :a, '
-                f"dosya_adi = :ad, boyut = :b, kayit_sayisi = :k WHERE id = :i"
+                f"dosya_adi = :ad, boyut = :b, kayit_sayisi = :k, gecerlilik_bitisi = :g "
+                f"WHERE id = :i"
             ),
             {
                 "d": "hazir",
@@ -203,6 +204,9 @@ async def _uret_dene(ihrac_id: int, slug: str) -> None:
                 "ad": f"{kod.lower()}.zip",
                 "b": len(veri),
                 "k": kayit_sayisi,
+                # Saklama süresi üretim anından işler (talep anından değil): kuyrukta
+                # uzun bekleyen bir ihraç, indirilebilir ömrünü kaybetmiş olmasın.
+                "g": datetime.now(UTC) + timedelta(days=IHRAC_SAKLAMA_GUN),
                 "i": ihrac_id,
             },
         )
@@ -227,6 +231,61 @@ async def ihrac_icerik_indir(kayit: KvkkIhraci) -> bytes:
     """Hazır ihracın ZIP baytlarını nesne deposundan okur."""
     depo = nesne_depo_al()
     return await asyncio.to_thread(depo.indir, kayit.nesne_anahtari)
+
+
+def suresi_doldu_mu(kayit: KvkkIhraci, *, simdi: datetime | None = None) -> bool:
+    """Artefaktın saklama süresi doldu mu (damga yoksa dolmamış sayılır)?"""
+    if kayit.gecerlilik_bitisi is None:
+        return False
+    return (simdi or datetime.now(UTC)) >= kayit.gecerlilik_bitisi
+
+
+async def artefakti_sil(db: AsyncSession, kayit: KvkkIhraci) -> bool:
+    """Süresi dolan artefaktı nesne deposundan siler ve kaydı ``suresi_doldu`` yapar.
+
+    Kayıt satırı SİLİNMEZ: "kim, kimin verisini, ne zaman ihraç etti" sorusu denetim
+    için cevaplanabilir kalmalı — silinen yalnızca kişisel veri dökümünün kendisidir.
+    Nesne zaten yoksa (elle temizlenmiş) sessizce geçilir: işlem idempotenttir.
+    """
+    if kayit.durum == "suresi_doldu":
+        return False
+    if kayit.nesne_anahtari:
+        depo = nesne_depo_al()
+        try:
+            await asyncio.to_thread(depo.sil, kayit.nesne_anahtari)
+        except Exception as exc:  # noqa: BLE001 — depo hatası kaydı kilitlememeli
+            logger.warning("kvkk artefaktı silinemedi (%s): %s", kayit.nesne_anahtari, exc)
+    kayit.durum = "suresi_doldu"
+    kayit.nesne_anahtari = ""
+    kayit.boyut = 0
+    await db.flush()
+    return True
+
+
+async def suresi_dolanlari_temizle(db: AsyncSession) -> int:
+    """Saklama süresi dolan tüm hazır artefaktları siler; temizlenen sayısını döner.
+
+    Kenar-tetikli tarama deseni (S12 ``yaklasanlari-tara``): tekrar çalıştırmak yeni
+    yan etki üretmez, çünkü ``suresi_doldu`` durumundakiler atlanır.
+    """
+    kayitlar = (
+        (
+            await db.execute(
+                select(KvkkIhraci).where(
+                    KvkkIhraci.durum == "hazir",
+                    KvkkIhraci.gecerlilik_bitisi.is_not(None),
+                    KvkkIhraci.gecerlilik_bitisi <= datetime.now(UTC),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    sayi = 0
+    for kayit in kayitlar:
+        if await artefakti_sil(db, kayit):
+            sayi += 1
+    return sayi
 
 
 # --- Anonimleştirme (zincirleme maskeleme, denetim izli) ---

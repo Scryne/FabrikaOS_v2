@@ -107,3 +107,17 @@ export function useConsentEkle() {
     onError: hataGoster,
   });
 }
+
+/**
+ * Saklama süresi dolan ihraç artefaktlarını siler (kenar-tetikli tarama).
+ * İdempotenttir: ikinci çağrı 0 döner.
+ */
+export function useIhraclariTemizle() {
+  const qc = useQueryClient();
+  const hataGoster = useHataGoster();
+  return useMutation({
+    mutationFn: () => istek<{ silinen: number }>('POST', `${PREFIX}/kvkk/ihraclar/temizle`),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: UYUM_ANAHTAR.ihraclar }),
+    onError: hataGoster,
+  });
+}

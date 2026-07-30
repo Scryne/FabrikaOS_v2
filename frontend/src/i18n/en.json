@@ -1633,6 +1633,11 @@
     "geri_cekildi": "Withdrawn",
     "aydinlatma_kabul": "I have read the privacy notice",
     "riza_ver": "Give explicit consent",
-    "riza_geri_cek": "Withdraw consent"
+    "riza_geri_cek": "Withdraw consent",
+    "ihrac_durum_suresi_doldu": "Expired",
+    "saklama_notu": "Ready exports are deleted automatically after 7 days (data minimisation); an expired record stays listed for audit but cannot be downloaded.",
+    "temizle": "Purge expired",
+    "temizlendi": "Expired artifacts purged",
+    "ihrac_suresi_doldu": "This export's retention period has ended; create a new request."
   }
 }

@@ -10,7 +10,12 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DownloadOutlined, ExportOutlined, UserDeleteOutlined } from '@ant-design/icons';
+import {
+  ClearOutlined,
+  DownloadOutlined,
+  ExportOutlined,
+  UserDeleteOutlined,
+} from '@ant-design/icons';
 import { App, Button, Form, Input, InputNumber, Select, Space, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -30,6 +35,7 @@ import {
   useConsentEkle,
   useConsentKayitlari,
   useIhracBaslat,
+  useIhraclariTemizle,
   useKvkkIhraclar,
 } from './hooks';
 
@@ -38,6 +44,8 @@ const DURUM_RENK: Record<string, string> = {
   hazirlaniyor: 'blue',
   hazir: 'green',
   basarisiz: 'red',
+  // Saklama süresi dolmuş: artefakt silindi, kayıt denetim için duruyor (indirilemez).
+  suresi_doldu: 'default',
 };
 
 const KISI_TURLERI = ['kullanici', 'personel'];
@@ -52,6 +60,7 @@ export function KvkkSayfasi() {
   const anonimlestir = useAnonimlestir();
   const consentler = useConsentKayitlari();
   const consentEkle = useConsentEkle();
+  const temizle = useIhraclariTemizle();
 
   const [ihracForm] = Form.useForm<{ kisi_turu: string; kisi_id: number }>();
   const [anonimForm] = Form.useForm<{ kisi_turu: string; kisi_id: number; onay: string }>();
@@ -164,6 +173,11 @@ export function KvkkSayfasi() {
             <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
               {t('uyum.ihrac_aciklama')}
             </Typography.Paragraph>
+            {/* Saklama süresi kullanıcıya AÇIKÇA söylenir: indirilmeyen dosya kaybolduğunda
+                "sistem bozuk" izlenimi oluşmasın (beklenti yönetimi). */}
+            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+              {t('uyum.saklama_notu')}
+            </Typography.Text>
             <Form
               form={ihracForm}
               layout="inline"
@@ -212,6 +226,20 @@ export function KvkkSayfasi() {
           rowKey="id"
           baslik={t('uyum.ihrac_listesi')}
           bosMetin={t('uyum.ihrac_bos')}
+          araclar={
+            <Button
+              icon={<ClearOutlined />}
+              loading={temizle.isPending}
+              onClick={() =>
+                temizle.mutate(undefined, {
+                  onSuccess: (sonuc) =>
+                    message.success(`${t('uyum.temizlendi')} (${sonuc.silinen})`),
+                })
+              }
+            >
+              {t('uyum.temizle')}
+            </Button>
+          }
         />
 
         <PanelKart

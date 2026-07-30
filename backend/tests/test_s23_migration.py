@@ -18,6 +18,9 @@ _TABLOLAR = ("kurtarma_kodlari", "oturumlar", "kvkk_ihraclari", "consent_kayitla
 _KOLONLAR = (
     ("kullanici", "totp_sirri"),
     ("kullanici", "iki_asama_aktif"),
+    # e5b1c7d4a238 — KVKK artefakt saklama süresi (sertleştirme turu).
+    ("kvkk_ihraclari", "gecerlilik_bitisi"),
+    ("kvkk_ihraclari", "indirme_sayisi"),
 )
 
 

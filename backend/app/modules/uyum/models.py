@@ -8,12 +8,19 @@
 
 from __future__ import annotations
 
-from sqlalchemy import BigInteger, Boolean, ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
 
-IHRAC_DURUMLARI = {"kuyrukta", "hazirlaniyor", "hazir", "basarisiz"}
+# ``suresi_doldu``: artefakt saklama süresi dolduğu için nesne deposundan silindi;
+# kayıt (kim, kimin için, ne zaman ihraç aldı) denetim amacıyla DURUR.
+IHRAC_DURUMLARI = {"kuyrukta", "hazirlaniyor", "hazir", "basarisiz", "suresi_doldu"}
+# Hazır bir ihraç artefaktının azami ömrü (gün). Tam kişisel veri dökümü olduğu için
+# süresiz saklanmaz: veri minimizasyonu + sızıntı yüzeyinin küçültülmesi.
+IHRAC_SAKLAMA_GUN = 7
 KISI_TURLERI = {"kullanici", "personel"}
 CONSENT_TURLERI = {"aydinlatma", "acik_riza"}
 
@@ -36,6 +43,12 @@ class KvkkIhraci(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     olusturan_kullanici_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("kullanici.id", ondelete="SET NULL"), index=True, nullable=True
     )
+    # Artefakt bu andan sonra indirilemez ve nesne deposundan silinir (410 Gone).
+    # Üretim tamamlandığında damgalanır; ``suresi_doldu`` taraması bunu okur.
+    gecerlilik_bitisi: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), index=True, nullable=True
+    )
+    indirme_sayisi: Mapped[int] = mapped_column(BigInteger, default=0, nullable=False)
 
 
 class ConsentKaydi(KimlikMixin, ZamanDamgaliMixin, TenantBase):

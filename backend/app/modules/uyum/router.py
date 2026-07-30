@@ -22,10 +22,15 @@ from app.control_plane.models import Tenant
 from app.core.audit import DenetimIzi, denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, mevcut_kullanici, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.exceptions import (
+    CakismaHatasi,
+    DogrulamaHatasi,
+    KaynakBulunamadi,
+    SureDoldu,
+)
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
-from app.modules.uyum import service
+from app.modules.uyum import models, service
 from app.modules.uyum.models import CONSENT_TURLERI, ConsentKaydi, KvkkIhraci
 
 router = APIRouter(tags=["Uyum"])
@@ -274,22 +279,79 @@ async def ihrac_baslat(
 )
 async def ihrac_indir(
     ihrac_id: int,
-    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("kvkk:yonet"))],
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("kvkk:yonet"))],
     db: Annotated[AsyncSession, Depends(get_session)],
     _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> Response:
+    """Hazır ihracı indirir. İçerik **kimlik doğrulamalı bu uçtan** akar: nesne deposuna
+    önceden imzalı (presigned) URL üretilmez — tam kişisel veri dökümü için paylaşılabilir
+    bir bağlantı en büyük sızıntı yüzeyidir. Her indirme denetim izine yazılır."""
     kayit = await db.get(KvkkIhraci, ihrac_id)
     if kayit is None:
         raise KaynakBulunamadi("İhraç kaydı bulunamadı")
+    if service.suresi_doldu_mu(kayit) or kayit.durum == "suresi_doldu":
+        # Süresi dolmuşsa artefaktı burada da temizle (tarama beklenmeden).
+        await service.artefakti_sil(db, kayit)
+        # AÇIK COMMIT ŞART: aşağıdaki istisna isteği rollback'e sürükler; nesne deposundan
+        # silme ise transactional DEĞİL. Commit edilmezse dosya gider ama kayıt "hazir"
+        # kalır — depo ile DB kalıcı olarak tutarsızlaşır.
+        await db.commit()
+        raise SureDoldu(
+            f"İhraç artefaktının saklama süresi doldu ({models.IHRAC_SAKLAMA_GUN} gün); "
+            "yeni bir ihraç talebi oluşturun"
+        )
     if kayit.durum != "hazir":
         raise CakismaHatasi(f"İhraç henüz hazır değil (durum: {kayit.durum})")
     icerik = await service.ihrac_icerik_indir(kayit)
+    kayit.indirme_sayisi += 1
+    await denetim_yaz(
+        db,
+        eylem="kvkk_ihrac_indir",
+        kaynak="uyum",
+        kaynak_id=kayit.kod,
+        kullanici=kullanici,
+        # Kim (denetim izinin kendisi) + kimin verisi (aşağıdaki alanlar) + kaçıncı indirme.
+        detay={
+            "kisi_turu": kayit.kisi_turu,
+            "kisi_id": kayit.kisi_id,
+            "boyut": kayit.boyut,
+            "indirme_sayisi": kayit.indirme_sayisi,
+        },
+    )
     guvenli_ad = re.sub(r"[^A-Za-z0-9._-]", "_", kayit.dosya_adi or f"{kayit.kod}.zip")
     return Response(
         content=icerik,
         media_type="application/zip",
         headers={"Content-Disposition": f'attachment; filename="{guvenli_ad}"'},
     )
+
+
+@router.post(
+    "/kvkk/ihraclar/temizle",
+    response_model=Zarf[dict[str, int]],
+    summary="Saklama süresi dolan ihraç artefaktlarını sil (kenar-tetikli tarama)",
+)
+async def ihraclari_temizle(
+    kullanici: Annotated[Kullanici, Depends(izin_gerekli("kvkk:yonet"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    """Süresi dolan ZIP'leri nesne deposundan siler; kayıt satırları denetim için kalır.
+
+    İdempotenttir (``suresi_doldu`` olanlar atlanır) — zamanlanmış görevden ya da elle
+    çağrılabilir. İndirme ucu da süresi dolmuş artefaktı kendiliğinden temizler; bu uç
+    hiç indirilmemiş artefaktların birikmesini engeller.
+    """
+    sayi = await service.suresi_dolanlari_temizle(db)
+    if sayi:
+        await denetim_yaz(
+            db,
+            eylem="kvkk_artefakt_temizle",
+            kaynak="uyum",
+            kullanici=kullanici,
+            detay={"silinen": sayi, "saklama_gun": models.IHRAC_SAKLAMA_GUN},
+        )
+    return basari({"silinen": sayi}, mesaj=f"{sayi} artefakt temizlendi")
 
 
 # --- KVKK: anonimleştirme ---

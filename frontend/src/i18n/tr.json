@@ -1633,6 +1633,11 @@
     "geri_cekildi": "Geri çekildi",
     "aydinlatma_kabul": "Aydınlatma metnini okudum",
     "riza_ver": "Açık rıza ver",
-    "riza_geri_cek": "Rızayı geri çek"
+    "riza_geri_cek": "Rızayı geri çek",
+    "ihrac_durum_suresi_doldu": "Süresi doldu",
+    "saklama_notu": "Hazır ihraçlar 7 gün sonra otomatik silinir (veri minimizasyonu); süresi dolan kayıt denetim için listede kalır ama indirilemez.",
+    "temizle": "Süresi dolanları temizle",
+    "temizlendi": "Süresi dolan artefaktlar temizlendi",
+    "ihrac_suresi_doldu": "Bu ihracın saklama süresi doldu; yeni bir talep oluşturun."
   }
 }
