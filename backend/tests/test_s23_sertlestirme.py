@@ -267,6 +267,50 @@ async def test_temizleme_taramasi_idempotent(
     assert ikinci.json()["data"]["silinen"] == 0, "tarama idempotent degil"
 
 
+async def test_isaretle_sonrasi_cokme_yetim_nesne_birakmaz(
+    test_db: str, kurulu_istemci: AsyncClient, test_engine: AsyncEngine
+) -> None:
+    """İmha sırası: önce DB işareti + commit, SONRA nesne silme.
+
+    Araya çökme düşerse kayıt ``suresi_doldu`` ama nesne hâlâ deposundadır (yetim).
+    Bu senaryo, işaretlemeyi elle yapıp nesneyi silmeyerek kurulur; ardından temizleme
+    taramasının yetimi topladığı doğrulanır. Ters sırada (önce nesne) aynı çökme
+    dosyayı yok eder ve kaydı "hazir" bırakırdı — geri dönüşü olmayan tutarsızlık.
+    """
+    service.es_zamanli_ayarla(True)
+    service.oturum_fabrikasi_ayarla(async_sessionmaker(test_engine, expire_on_commit=False))
+    try:
+        h = await _giris(
+            kurulu_istemci, {"slug": "alfa", "eposta": "admin@alfa.test", "parola": "Alfa12345!"}
+        )
+        ihrac_id = await _ihrac_uret(kurulu_istemci, h)
+    finally:
+        service.es_zamanli_ayarla(False)
+        service.oturum_fabrikasi_ayarla(None)
+
+    sm = async_sessionmaker(test_engine, expire_on_commit=False)
+    async with sm() as db:
+        await db.execute(text("SET search_path TO tenant_alfa, public"))
+        kayit = (await db.execute(select(KvkkIhraci).where(KvkkIhraci.id == ihrac_id))).scalar_one()
+        anahtar = kayit.nesne_anahtari
+        # "Çökme": işaret commit edildi, nesne silinmedi, anahtar kayıtta duruyor.
+        await db.execute(
+            text("UPDATE kvkk_ihraclari SET durum = 'suresi_doldu' WHERE id = :i"),
+            {"i": ihrac_id},
+        )
+        await db.commit()
+    assert nesne_depo_al().var_mi(anahtar), "senaryo kurulumu hatalı: nesne zaten yok"
+
+    temiz = await kurulu_istemci.post(f"{UYUM}/kvkk/ihraclar/temizle", headers=h)
+    assert temiz.status_code == 200, temiz.text
+
+    assert not nesne_depo_al().var_mi(anahtar), "yetim nesne toplanmadı"
+    async with sm() as db:
+        await db.execute(text("SET search_path TO tenant_alfa, public"))
+        kalan = (await db.execute(select(KvkkIhraci).where(KvkkIhraci.id == ihrac_id))).scalar_one()
+        assert kalan.nesne_anahtari == "", "silme sonrası anahtar temizlenmedi"
+
+
 async def test_ihrac_indirme_denetim_izine_yazilir(
     test_db: str, kurulu_istemci: AsyncClient, test_engine: AsyncEngine
 ) -> None:

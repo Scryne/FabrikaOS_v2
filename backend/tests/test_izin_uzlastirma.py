@@ -66,6 +66,14 @@ async def test_uzlastirma_eksik_izni_geri_getirir(test_db: str, test_engine: Asy
     assert kurban in sonuc.eklenen_izin
     assert kurban in await _tenant_izinleri(test_engine, "alfa")
 
+    # İzin SATIRI silinmişse rol bağları da onarılır: izin hiç yokken "rolden bilinçli
+    # kaldırılmış" olamaz — bu şema sürüklenmesidir, köken defteri devreye girmez.
+    sm2 = async_sessionmaker(test_engine, expire_on_commit=False)
+    async with sm2() as s:
+        await search_path_ayarla(s, "alfa")
+        rol = (await s.execute(select(Rol).where(Rol.ad == "uyum"))).scalar_one()
+        assert kurban in {i.kod for i in rol.izinler}, "izin satırı onarıldı ama rol bağı kurulmadı"
+
 
 async def test_uzlastirma_idempotent(test_db: str, test_engine: AsyncEngine) -> None:
     """İkinci koşu hiçbir şey değiştirmemeli (idempotentlik)."""
@@ -107,20 +115,111 @@ async def test_uzlastirma_katalog_disi_izni_ve_ozel_rolu_SILMEZ(
         await s.execute(text("DELETE FROM izin WHERE kod = 'ozel:kod'"))
 
 
-async def test_varsayilan_rollerin_izin_kumesi_katalogla_esitlenir(
+async def test_tenantin_BILINCLI_kaldirdigi_izin_GERI_VERILMEZ(
     test_db: str, test_engine: AsyncEngine
 ) -> None:
-    """Rolden izin düşerse uzlaştırma geri ekler (rol matrisi katalogla aynı kalır)."""
+    """EN KRİTİK SÖZLEŞME: uzlaştırma yetki restorasyonu yapmaz.
+
+    Yönetici bir rolden izni kaldırdıysa (köken defterinde kayıtlı = katalogdan gelmişti),
+    sonraki dağıtım onu sessizce geri açmamalı. Aksi hâlde denetlenemeyen bir yetki
+    yükseltmesi oluşur: "kaldırdım ama geri geldi".
+    """
     sm = async_sessionmaker(test_engine, expire_on_commit=False)
     async with sm() as s, s.begin():
         await search_path_ayarla(s, "alfa")
+        # Köken defterinde kayıtlı olduğundan emin ol (backfill migration'ı yapmış olmalı).
+        kayitli = await s.scalar(
+            text("SELECT count(*) FROM rol_izin_tohumu WHERE rol_ad = 'uyum' AND izin_kod = :k"),
+            {"k": "kvkk:yonet"},
+        )
+        assert kayitli == 1, "backfill köken defterini doldurmamış"
+        # Yönetici bilinçli olarak kaldırıyor.
         await s.execute(
-            text("DELETE FROM rol_izin WHERE rol_id IN (SELECT id FROM rol WHERE ad = 'uyum')")
+            text(
+                "DELETE FROM rol_izin WHERE rol_id = (SELECT id FROM rol WHERE ad = 'uyum') "
+                "AND izin_id = (SELECT id FROM izin WHERE kod = 'kvkk:yonet')"
+            )
+        )
+
+    async with sm() as s, s.begin():
+        sonuc = await izin_rol_uzlastir(s, "alfa")
+
+    assert "uyum:kvkk:yonet" in sonuc.korunan_kaldirma, "kaldırma raporlanmadı"
+    assert "uyum" not in sonuc.guncellenen_rol, "rol sessizce değiştirildi"
+
+    async with sm() as s:
+        await search_path_ayarla(s, "alfa")
+        rol = (await s.execute(select(Rol).where(Rol.ad == "uyum"))).scalar_one()
+        assert "kvkk:yonet" not in {i.kod for i in rol.izinler}, "kaldırılan yetki GERİ VERİLDİ"
+
+    # Temizlik: bağı geri kur (diğer testler tam rol bekliyor).
+    async with sm() as s, s.begin():
+        await search_path_ayarla(s, "alfa")
+        await s.execute(
+            text(
+                "INSERT INTO rol_izin (rol_id, izin_id) SELECT "
+                "(SELECT id FROM rol WHERE ad = 'uyum'), "
+                "(SELECT id FROM izin WHERE kod = 'kvkk:yonet')"
+            )
+        )
+
+
+async def test_YENI_katalog_izni_mevcut_role_eklenir(
+    test_db: str, test_engine: AsyncEngine
+) -> None:
+    """Köken defterinde OLMAYAN katalog izni = yeni sprint izni → role eklenir.
+
+    Bu, modülün varlık sebebidir: "hiç tohumlanmamış" ile "kaldırılmış" ayrımı doğru
+    çalışmazsa ya sürüklenme sürer ya da restorasyon yapılır.
+    """
+    sm = async_sessionmaker(test_engine, expire_on_commit=False)
+    async with sm() as s, s.begin():
+        await search_path_ayarla(s, "alfa")
+        # Yeni bir sprintin izni gibi davran: bağı da köken kaydını da kaldır.
+        await s.execute(
+            text(
+                "DELETE FROM rol_izin WHERE rol_id = (SELECT id FROM rol WHERE ad = 'uyum') "
+                "AND izin_id = (SELECT id FROM izin WHERE kod = 'denetim:oku')"
+            )
+        )
+        await s.execute(
+            text("DELETE FROM rol_izin_tohumu WHERE rol_ad = 'uyum' AND izin_kod = 'denetim:oku'")
         )
 
     async with sm() as s, s.begin():
         sonuc = await izin_rol_uzlastir(s, "alfa")
     assert "uyum" in sonuc.guncellenen_rol
+
+    async with sm() as s:
+        await search_path_ayarla(s, "alfa")
+        rol = (await s.execute(select(Rol).where(Rol.ad == "uyum"))).scalar_one()
+        assert "denetim:oku" in {i.kod for i in rol.izinler}
+        # Artık tohumlanmış sayılır: bundan sonra kaldırılırsa geri verilmez.
+        kayitli = await s.scalar(
+            text(
+                "SELECT count(*) FROM rol_izin_tohumu WHERE rol_ad = 'uyum' "
+                "AND izin_kod = 'denetim:oku'"
+            )
+        )
+        assert kayitli == 1
+
+
+async def test_yeni_rol_katalog_izinlerinin_TAMAMINI_alir(
+    test_db: str, test_engine: AsyncEngine
+) -> None:
+    """Hiç var olmayan rol oluşturulurken kısıtlama yok: katalog kümesinin tamamı verilir."""
+    sm = async_sessionmaker(test_engine, expire_on_commit=False)
+    async with sm() as s, s.begin():
+        await search_path_ayarla(s, "alfa")
+        await s.execute(
+            text("DELETE FROM rol_izin WHERE rol_id = (SELECT id FROM rol WHERE ad = 'uyum')")
+        )
+        await s.execute(text("DELETE FROM rol WHERE ad = 'uyum'"))
+        await s.execute(text("DELETE FROM rol_izin_tohumu WHERE rol_ad = 'uyum'"))
+
+    async with sm() as s, s.begin():
+        sonuc = await izin_rol_uzlastir(s, "alfa")
+    assert "uyum" in sonuc.eklenen_rol
 
     async with sm() as s:
         await search_path_ayarla(s, "alfa")

@@ -21,6 +21,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.control_plane.models import Tenant
 from app.core.audit import DenetimIzi, denetim_yaz
 from app.core.db.session import get_session
+from app.core.db.tenancy import search_path_ayarla
 from app.core.deps import izin_gerekli, mevcut_kullanici, tenant_cozumle
 from app.core.exceptions import (
     CakismaHatasi,
@@ -281,7 +282,7 @@ async def ihrac_indir(
     ihrac_id: int,
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("kvkk:yonet"))],
     db: Annotated[AsyncSession, Depends(get_session)],
-    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> Response:
     """Hazır ihracı indirir. İçerik **kimlik doğrulamalı bu uçtan** akar: nesne deposuna
     önceden imzalı (presigned) URL üretilmez — tam kişisel veri dökümü için paylaşılabilir
@@ -290,12 +291,18 @@ async def ihrac_indir(
     if kayit is None:
         raise KaynakBulunamadi("İhraç kaydı bulunamadı")
     if service.suresi_doldu_mu(kayit) or kayit.durum == "suresi_doldu":
-        # Süresi dolmuşsa artefaktı burada da temizle (tarama beklenmeden).
-        await service.artefakti_sil(db, kayit)
-        # AÇIK COMMIT ŞART: aşağıdaki istisna isteği rollback'e sürükler; nesne deposundan
-        # silme ise transactional DEĞİL. Commit edilmezse dosya gider ama kayıt "hazir"
-        # kalır — depo ile DB kalıcı olarak tutarsızlaşır.
+        # Süresi dolmuşsa artefaktı burada da imha et (tarama beklenmeden). SIRA:
+        # 1) DB'de işaretle + COMMIT (istisna rollback'e sürükleyeceği için açık commit
+        #    şart), 2) nesneyi sil. Ters sırada araya düşen bir çökme dosyayı yok eder
+        #    ama kaydı "hazir" bırakırdı. Bu sırada çökme olursa anahtar kayıtta durur
+        #    ve yetim nesneyi temizleme taraması toplar.
+        anahtar = service.artefakti_isaretle(kayit)
         await db.commit()
+        # commit SET LOCAL search_path'i düşürdü — sonraki yazma için yeniden kur.
+        await search_path_ayarla(db, tenant.slug)
+        if anahtar and await service.nesneyi_sil(anahtar):
+            kayit.nesne_anahtari = ""
+            await db.commit()
         raise SureDoldu(
             f"İhraç artefaktının saklama süresi doldu ({models.IHRAC_SAKLAMA_GUN} gün); "
             "yeni bir ihraç talebi oluşturun"
@@ -334,7 +341,7 @@ async def ihrac_indir(
 async def ihraclari_temizle(
     kullanici: Annotated[Kullanici, Depends(izin_gerekli("kvkk:yonet"))],
     db: Annotated[AsyncSession, Depends(get_session)],
-    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+    tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
     """Süresi dolan ZIP'leri nesne deposundan siler; kayıt satırları denetim için kalır.
 
@@ -342,7 +349,7 @@ async def ihraclari_temizle(
     çağrılabilir. İndirme ucu da süresi dolmuş artefaktı kendiliğinden temizler; bu uç
     hiç indirilmemiş artefaktların birikmesini engeller.
     """
-    sayi = await service.suresi_dolanlari_temizle(db)
+    sayi = await service.suresi_dolanlari_temizle(db, slug=tenant.slug)
     if sayi:
         await denetim_yaz(
             db,

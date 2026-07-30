@@ -12,12 +12,20 @@ kaçınılmaz olarak unutulur ve sessiz sürüklenme (drift) üretir.
 
 - Katalogda olup şemada olmayan izinler eklenir. Şemada olup katalogda olmayan izin
   **silinmez** (elle tanımlanmış/eski kodlar korunur; silme ayrı ve bilinçli bir karar).
-- `VARSAYILAN_ROLLER`'daki roller yoksa oluşturulur, izin kümesi katalogla eşitlenir.
-  Katalog dışı **özel roller hiç ellenmez**.
+- `VARSAYILAN_ROLLER`'daki roller yoksa oluşturulur. Var olan rollere yalnız **daha önce
+  hiç tohumlanmamış** katalog izinleri eklenir. Katalog dışı **özel roller hiç ellenmez**.
 
-Rol izin kümesinin eşitlenmesi (replace) provizyondaki davranışın aynısıdır: roller
-bugün API'den düzenlenemez (`/roller` yalnız GET), dolayısıyla üzerine yazılacak
-kullanıcı emeği yoktur. Roller düzenlenebilir hale gelirse bu karar yeniden ele alınmalıdır.
+**Yetki restorasyonu yasağı (kritik).** Uzlaştırma, rol izin kümesini katalogla
+*eşitlemez*. "Katalogda var ama rolde yok" iki farklı şey demek olabilir:
+
+1. **Yeni sprintin eklediği izin** — role eklenmeli (bu modülün varlık sebebi).
+2. **Tenant'ın bilinçli olarak kaldırdığı izin** — asla geri verilmemeli; aksi hâlde
+   yönetici bir yetkiyi kaldırır, bir sonraki dağıtım onu sessizce geri açar. Bu
+   denetlenemeyen bir yetki yükseltmesidir.
+
+İkisi `rol_izin_tohumu` köken defteriyle ayrılır: katalogdan eklenen her bağ oraya
+yazılır. Defterde kayıtlı ama rolde bulunmayan bir izin = bilinçli kaldırma → korunur
+ve sonuçta ``korunan_kaldirma`` olarak raporlanır (sessiz kalmaz).
 """
 
 from __future__ import annotations
@@ -33,19 +41,22 @@ from app.control_plane.models import Tenant
 from app.core.config import get_settings
 from app.core.db.tenancy import search_path_ayarla
 from app.kimlik.izinler import IZIN_KATALOGU, VARSAYILAN_ROLLER
-from app.kimlik.models import Izin, Rol
+from app.kimlik.models import Izin, Rol, RolIzinTohumu
 
 logger = logging.getLogger("app.uzlastirma")
 
 
 @dataclass(frozen=True, slots=True)
 class UzlastirmaSonucu:
-    """Bir tenant için uzlaştırma çıktısı (idempotent koşuda hepsi 0 olur)."""
+    """Bir tenant için uzlaştırma çıktısı (idempotent koşuda değişiklik alanları boş olur)."""
 
     slug: str
     eklenen_izin: tuple[str, ...] = ()
     eklenen_rol: tuple[str, ...] = ()
     guncellenen_rol: tuple[str, ...] = ()
+    # Katalogda olan ama tenant'ın kaldırdığı için GERİ VERİLMEYEN bağlar ("rol:izin").
+    # Değişiklik değildir — görünürlük içindir (sessiz atlama olmasın).
+    korunan_kaldirma: tuple[str, ...] = ()
 
     @property
     def degisti(self) -> bool:
@@ -71,29 +82,63 @@ async def izin_rol_uzlastir(s: AsyncSession, slug: str) -> UzlastirmaSonucu:
             eklenen_izin.append(kod)
     await s.flush()
 
-    # 2) Varsayılan roller — yoksa oluştur, izin kümesini katalogla eşitle.
+    # 2) Varsayılan roller — yoksa oluştur; VAR OLANLARA yalnız hiç tohumlanmamış
+    #    katalog izinlerini ekle (tenant'ın kaldırdıklarını geri verme).
     rol_haritasi = {r.ad: r for r in (await s.execute(select(Rol))).scalars()}
+    tohumlu: dict[str, set[str]] = {}
+    for t in (await s.execute(select(RolIzinTohumu))).scalars():
+        tohumlu.setdefault(t.rol_ad, set()).add(t.izin_kod)
+
     eklenen_rol: list[str] = []
     guncellenen_rol: list[str] = []
+    korunan_kaldirma: list[str] = []
+
     for ad, kodlar in VARSAYILAN_ROLLER.items():
         rol = rol_haritasi.get(ad)
+        yeni_rol = rol is None
         if rol is None:
             rol = Rol(ad=ad, aciklama=f"Varsayılan {ad} rolü")
             s.add(rol)
             rol_haritasi[ad] = rol
             eklenen_rol.append(ad)
-        hedef = [izin_haritasi[k] for k in kodlar]
-        if {i.kod for i in rol.izinler} != set(kodlar):
-            rol.izinler = hedef
-            if ad not in eklenen_rol:
+
+        mevcut_kodlar = set() if yeni_rol else {i.kod for i in rol.izinler}
+        defterdeki = tohumlu.get(ad, set())
+        # İZİN SATIRI bu koşuda yeniden oluşturulduysa, o izne ait rol bağının yokluğu
+        # "bilinçli kaldırma" olamaz: izin hiç yokken rolden kaldırılmış olamazdı. Bu bir
+        # şema sürüklenmesidir (izin satırı silinmiş) → köken defteri es geçilir, bağ onarılır.
+        engelleyen = defterdeki - set(eklenen_izin)
+
+        # Yeni rolde her şey eklenir; var olan rolde YALNIZ hiç tohumlanmamış olanlar.
+        eklenecek = {k for k in kodlar if k not in mevcut_kodlar and k not in engelleyen}
+        # Defterde var, rolde yok, izin satırı da duruyor → bilinçli kaldırma; dokunma.
+        korunan = {k for k in kodlar if k not in mevcut_kodlar and k in engelleyen}
+        korunan_kaldirma.extend(f"{ad}:{k}" for k in sorted(korunan))
+
+        if eklenecek:
+            rol.izinler = list(rol.izinler) + [izin_haritasi[k] for k in sorted(eklenecek)]
+            if not yeni_rol:
                 guncellenen_rol.append(ad)
+
+        # Köken defterine yaz — YALNIZ gerçekten kayıtlı olmayanlar (onarılan bağlar
+        # zaten defterde; yeniden eklemek UNIQUE kısıtını ihlal ederdi).
+        for kod in sorted(eklenecek - defterdeki):
+            s.add(RolIzinTohumu(rol_ad=ad, izin_kod=kod))
     await s.flush()
+
+    if korunan_kaldirma:
+        logger.info(
+            "izin uzlastirma: tenant=%s bilincli kaldirmalar korundu: %s",
+            slug,
+            korunan_kaldirma,
+        )
 
     return UzlastirmaSonucu(
         slug=slug,
         eklenen_izin=tuple(eklenen_izin),
         eklenen_rol=tuple(eklenen_rol),
         guncellenen_rol=tuple(guncellenen_rol),
+        korunan_kaldirma=tuple(korunan_kaldirma),
     )
 
 

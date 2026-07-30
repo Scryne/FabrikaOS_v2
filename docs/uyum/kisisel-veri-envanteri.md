@@ -54,6 +54,34 @@ en yüksek riskli çıktıdır. Kontroller:
   indirme denemesi **410** döner. Kayıt satırı denetim için kalır (`suresi_doldu`).
 - **Her indirme** denetim izine yazılır: kim indirdi + kimin verisi + kaçıncı indirme.
 
+#### Neden 7 gün? (bilinçli seçim)
+
+KVKK, veri sorumlusuna ilgili kişi başvurusunu **en geç 30 gün** içinde sonuçlandırma
+yükümlülüğü getirir (KVKK m.13/2). Buradaki 7 gün **başvuruya cevap süresi değildir**;
+üretilmiş **dosyanın diskte kalma** süresidir. İkisi karıştırılmamalıdır:
+
+| | Süre | Neyi bağlar |
+|---|---|---|
+| KVKK cevap süresi | 30 gün | Başvurunun sonuçlandırılması (talebi karşılama) |
+| Artefakt saklama | **7 gün** | Üretilmiş ZIP'in nesne deposunda kalması |
+
+Gerekçe:
+
+- **İhraç yeniden üretilebilir.** Dosya silinse de veri kaybı olmaz: yeni bir talep
+  saniyeler içinde güncel bir ihraç üretir. Saklamanın sağladığı tek fayda "tekrar
+  indirebilme kolaylığı"dır; maliyeti ise tam bir kişisel veri dökümünün diskte
+  beklemesidir. Denge açıkça kısa süreden yana.
+- **30 günlük cevap süresi karşılanmaya devam eder.** Talep sahibine dosya teslim
+  edilmesi için 7 gün fazlasıyla yeterlidir; gecikme olursa yeniden üretilir.
+- **Veri minimizasyonu ve saklama sınırlılığı** ilkeleri (KVKK m.4/2-d): veri, işlendiği
+  amaç için gerekli olan süreden uzun tutulmamalıdır. Amaç "talebi karşılamak"tır ve
+  teslimden sonra dosyanın yaşaması bu amaca hizmet etmez.
+- **Sızıntı yüzeyi zamanla doğru orantılıdır**: yedeklere giren, unutulan artefakt sayısı
+  saklama süresiyle büyür.
+
+Süre `IHRAC_SAKLAMA_GUN` sabitindedir. Müşteri sözleşmesi daha uzun bir süre gerektirirse
+tenant bazlı ayara çıkarılması gerekir (bugün ürün genelinde sabittir).
+
 ## 2. Ürünün sağladığı KVKK yetenekleri
 
 | Hak / yükümlülük | Karşılığı | Uç |

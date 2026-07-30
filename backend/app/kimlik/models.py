@@ -9,7 +9,16 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, Column, DateTime, ForeignKey, String, Table
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    String,
+    Table,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
@@ -33,6 +42,27 @@ rol_izin = Table(
     Column("rol_id", BigInteger, ForeignKey("rol.id", ondelete="CASCADE"), primary_key=True),
     Column("izin_id", BigInteger, ForeignKey("izin.id", ondelete="CASCADE"), primary_key=True),
 )
+
+
+class RolIzinTohumu(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """Katalogdan **tohumlanmış** rol–izin bağlarının kaydı (köken/provenance defteri).
+
+    Uzlaştırma (``control_plane/uzlastirma.py``) "katalogda var ama rolde yok" durumunu
+    iki farklı sebebe ayırabilmek için buna ihtiyaç duyar:
+
+    - **Hiç tohumlanmamış** → yeni sprintin eklediği izin; role eklenir.
+    - **Tohumlanmış ama artık yok** → tenant bilinçli olarak kaldırmış; **DOKUNULMAZ**.
+
+    Bu defter olmadan uzlaştırma, yöneticinin kasten kaldırdığı bir yetkiyi sessizce geri
+    verirdi (denetlenemeyen yetki restorasyonu). Kayıtlar rol/izin **adıyla** tutulur:
+    rol veya izin silinip yeniden oluşturulsa bile köken bilgisi korunur.
+    """
+
+    __tablename__ = "rol_izin_tohumu"
+    __table_args__ = (UniqueConstraint("rol_ad", "izin_kod", name="uq_rol_izin_tohumu"),)
+
+    rol_ad: Mapped[str] = mapped_column(String(80), index=True, nullable=False)
+    izin_kod: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class Izin(KimlikMixin, TenantBase):

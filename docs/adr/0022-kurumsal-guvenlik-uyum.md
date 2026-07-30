@@ -160,6 +160,25 @@ S23 kapanış incelemesinde dört madde eklendi:
 Migration `e5b1c7d4a238` (tenant): `kvkk_ihraclari.gecerlilik_bitisi` + `indirme_sayisi`;
 mevcut "hazir" kayıtlara oluşturma anından itibaren saklama penceresi **backfill** edilir.
 
+### İnceleme düzeltmeleri (aynı gün)
+
+- **Yetki restorasyonu yasağı.** İlk uzlaştırma sürümü rol izin kümesini katalogla
+  *eşitliyordu*: yöneticinin bilinçli olarak kaldırdığı bir izni sessizce geri verirdi
+  (denetlenemeyen yetki yükseltmesi). `rol_izin_tohumu` köken defteri eklendi
+  (migration `f4c8a2e6b791`, mevcut bağlardan backfill'li): katalogdan eklenen her bağ
+  kaydedilir; "defterde var ama rolde yok" = bilinçli kaldırma → **dokunulmaz**,
+  `korunan_kaldirma` olarak raporlanır. "Defterde yok" = yeni sprint izni → eklenir.
+- **İmha sırası tersine çevrildi.** Önce nesne silinip sonra commit ediliyordu; araya
+  düşen bir çökme dosyayı yok edip kaydı `hazir` bırakırdı. Yeni sıra: DB'de işaretle →
+  **commit** → nesneyi sil → anahtarı temizle. Çökme olursa anahtar kayıtta kaldığı için
+  yetim nesne bulunabilir kalır ve temizleme taraması onu toplar (tarama artık kendi
+  kendini onarır). **Yan bulgu:** istek içi açık `commit`, `SET LOCAL search_path`'i
+  düşürüyor — commit sonrası tenant şeması yeniden kurulmalı (bu yola özgü değil, genel
+  bir kural; kodda notlandı).
+- **Saklama süresi gerekçelendirildi.** 7 gün, KVKK'nın 30 günlük **cevap** süresiyle
+  karıştırılmamalı: ihraç yeniden üretilebilir olduğundan dosyanın diskte beklemesi
+  yalnız sızıntı yüzeyi büyütür (`docs/uyum/kisisel-veri-envanteri.md`).
+
 ## Ertelenen işler
 
 - TOTP sırrının uygulama düzeyinde şifrelenmesi (bugün tenant-izole DB'de düz base32).

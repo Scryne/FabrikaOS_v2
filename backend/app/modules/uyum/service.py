@@ -27,7 +27,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.audit import DenetimIzi, denetim_yaz
 from app.core.db.session import get_sessionmaker
-from app.core.db.tenancy import sema_adi
+from app.core.db.tenancy import search_path_ayarla, sema_adi
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.security.parola import parola_ozetle
 from app.kimlik.models import Kullanici, Oturum
@@ -240,41 +240,57 @@ def suresi_doldu_mu(kayit: KvkkIhraci, *, simdi: datetime | None = None) -> bool
     return (simdi or datetime.now(UTC)) >= kayit.gecerlilik_bitisi
 
 
-async def artefakti_sil(db: AsyncSession, kayit: KvkkIhraci) -> bool:
-    """Süresi dolan artefaktı nesne deposundan siler ve kaydı ``suresi_doldu`` yapar.
+def artefakti_isaretle(kayit: KvkkIhraci) -> str | None:
+    """Kaydı ``suresi_doldu`` işaretler; silinecek nesne anahtarını döner (I/O YOK).
 
-    Kayıt satırı SİLİNMEZ: "kim, kimin verisini, ne zaman ihraç etti" sorusu denetim
-    için cevaplanabilir kalmalı — silinen yalnızca kişisel veri dökümünün kendisidir.
-    Nesne zaten yoksa (elle temizlenmiş) sessizce geçilir: işlem idempotenttir.
+    **Sıra kritiktir:** önce DB işaretlenip COMMIT edilir, nesne SONRA silinir. Ters sıra
+    (önce nesne, sonra commit) araya düşen bir çökmede dosyayı yok eder ama kaydı ``hazir``
+    bırakır — depo ile DB kalıcı olarak tutarsızlaşır.
+
+    Bu yüzden ``nesne_anahtari`` burada TEMİZLENMEZ: commit ile silme arasında çökme
+    olursa anahtar kayıtta durduğu için yetim nesne bulunabilir kalır ve
+    ``suresi_dolanlari_temizle`` onu bir sonraki koşuda toplar.
     """
-    if kayit.durum == "suresi_doldu":
-        return False
-    if kayit.nesne_anahtari:
-        depo = nesne_depo_al()
-        try:
-            await asyncio.to_thread(depo.sil, kayit.nesne_anahtari)
-        except Exception as exc:  # noqa: BLE001 — depo hatası kaydı kilitlememeli
-            logger.warning("kvkk artefaktı silinemedi (%s): %s", kayit.nesne_anahtari, exc)
+    if kayit.durum == "suresi_doldu" and not kayit.nesne_anahtari:
+        return None
     kayit.durum = "suresi_doldu"
-    kayit.nesne_anahtari = ""
     kayit.boyut = 0
-    await db.flush()
-    return True
+    return kayit.nesne_anahtari or None
 
 
-async def suresi_dolanlari_temizle(db: AsyncSession) -> int:
-    """Saklama süresi dolan tüm hazır artefaktları siler; temizlenen sayısını döner.
+async def nesneyi_sil(anahtar: str) -> bool:
+    """Nesneyi depodan siler (best-effort). Başarısızlık kaydı kilitlemez."""
+    try:
+        await asyncio.to_thread(nesne_depo_al().sil, anahtar)
+        return True
+    except Exception as exc:  # noqa: BLE001 — yetim nesneyi sonraki tarama toplar
+        logger.warning("kvkk artefaktı silinemedi (%s): %s", anahtar, exc)
+        return False
 
-    Kenar-tetikli tarama deseni (S12 ``yaklasanlari-tara``): tekrar çalıştırmak yeni
-    yan etki üretmez, çünkü ``suresi_doldu`` durumundakiler atlanır.
+
+async def suresi_dolanlari_temizle(db: AsyncSession, *, slug: str) -> int:
+    """Süresi dolan artefaktları imha eder + önceki koşulardan kalan yetimleri toplar.
+
+    İki aşamalı, çökmeye dayanıklı sıra:
+    1. Süresi dolan ``hazir`` kayıtlar ``suresi_doldu`` işaretlenir ve **commit edilir**.
+    2. Nesneler depodan silinir; silme başarılıysa ``nesne_anahtari`` temizlenir.
+
+    Ayrıca ``suresi_doldu`` olup anahtarı hâlâ dolu olan kayıtlar (1. ile 2. arasında
+    çökülmüş) bu koşuda toplanır — bu yüzden tarama idempotent VE kendi kendini onarır.
+
+    ``slug`` şart: ``search_path`` ``SET LOCAL`` ile kurulur, yani **transaction
+    kapsamlıdır**. Aradaki commit onu düşürür; sonraki sorgular tenant şemasını
+    göremez. Commit sonrası yeniden kurulur.
     """
-    kayitlar = (
+    simdi = datetime.now(UTC)
+    # (1) Süresi dolanları işaretle.
+    dolanlar = (
         (
             await db.execute(
                 select(KvkkIhraci).where(
                     KvkkIhraci.durum == "hazir",
                     KvkkIhraci.gecerlilik_bitisi.is_not(None),
-                    KvkkIhraci.gecerlilik_bitisi <= datetime.now(UTC),
+                    KvkkIhraci.gecerlilik_bitisi <= simdi,
                 )
             )
         )
@@ -282,9 +298,30 @@ async def suresi_dolanlari_temizle(db: AsyncSession) -> int:
         .all()
     )
     sayi = 0
-    for kayit in kayitlar:
-        if await artefakti_sil(db, kayit):
+    for kayit in dolanlar:
+        if artefakti_isaretle(kayit) is not None or kayit.durum == "suresi_doldu":
             sayi += 1
+    await db.flush()
+    await db.commit()  # ÖNCE kalıcı işaret, SONRA nesne imhası
+    await search_path_ayarla(db, slug)  # commit SET LOCAL'i düşürdü — yeniden kur
+
+    # (2) İşaretli ama nesnesi hâlâ duran kayıtları (bu koşudakiler + eski yetimler) temizle.
+    yetimler = (
+        (
+            await db.execute(
+                select(KvkkIhraci).where(
+                    KvkkIhraci.durum == "suresi_doldu",
+                    KvkkIhraci.nesne_anahtari != "",
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    for kayit in yetimler:
+        if await nesneyi_sil(kayit.nesne_anahtari):
+            kayit.nesne_anahtari = ""
+    await db.flush()
     return sayi
 
 
