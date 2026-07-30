@@ -13,6 +13,7 @@ const KULLANICI: Kullanici = {
   ad_soyad: 'Yönetici',
   roller: ['admin'],
   izinler: ['uretim:oku'],
+  iki_asama_aktif: false,
 };
 
 function jsonCevap(durum: number, govde: unknown): Response {

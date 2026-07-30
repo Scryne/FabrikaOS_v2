@@ -74,6 +74,7 @@ function oturum(izinler: string[]) {
     ad_soyad: 'Yönetici',
     roller: ['admin'],
     izinler,
+    iki_asama_aktif: false,
   });
 }
 

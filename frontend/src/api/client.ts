@@ -55,13 +55,17 @@ async function hamIstek(
   yol: string,
   govde?: unknown,
   kimlikli = true,
+  jeton?: string,
 ): Promise<Response> {
   const headers: Record<string, string> = { Accept: 'application/json' };
 
   const tenant = cozumleTenant();
   if (tenant) headers['X-Tenant'] = tenant;
 
-  if (kimlikli) {
+  if (jeton) {
+    // Açık jeton (S23 2FA kurulum ara token'ı): store'daki access'in yerine geçer.
+    headers['Authorization'] = `Bearer ${jeton}`;
+  } else if (kimlikli) {
     const access = useAuthStore.getState().access;
     if (access) headers['Authorization'] = `Bearer ${access}`;
   }
@@ -160,6 +164,22 @@ export async function istek<T>(
   kimlikli = true,
 ): Promise<T> {
   const cevap = await istekCevap(yontem, yol, govde, kimlikli);
+  const zarf = await zarfOku<T>(cevap);
+  return zarf.data as T;
+}
+
+/**
+ * Açık jetonla tek seferlik istek (S23): zorunlu-2FA kurulumunda kullanıcının henüz tam
+ * oturumu yoktur; ``kurulum`` işaretli geçici token'la kurulum uçlarına gidilir. Geçici
+ * token yenilenemez → 401'de refresh denenmez, hata olduğu gibi yükselir.
+ */
+export async function istekJetonlu<T>(
+  yontem: Yontem,
+  yol: string,
+  govde: unknown,
+  jeton: string,
+): Promise<T> {
+  const cevap = await hamIstek(yontem, yol, govde, false, jeton);
   const zarf = await zarfOku<T>(cevap);
   return zarf.data as T;
 }

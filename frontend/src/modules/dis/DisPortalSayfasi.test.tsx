@@ -55,6 +55,7 @@ describe('DisPortalSayfasi', () => {
       ad_soyad: 'Portal Kullanıcısı',
       roller: ['dis-panel'],
       izinler: ['dis:erisim'],
+      iki_asama_aktif: false,
     });
   });
 

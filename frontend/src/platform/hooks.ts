@@ -172,3 +172,23 @@ export function useIhracBaslat(tenantId: number) {
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['platform', 'ihraclar', tenantId] }),
   });
 }
+
+/**
+ * Tenant güvenlik ayarlarını yazar (S23): parola politikası, zorunlu 2FA, IP izin
+ * listesi, OIDC/SSO. ``null`` gövde varsayılana döner (tüm kısıtlar kalkar).
+ *
+ * OIDC istemci sırrı sunucudan MASKELİ gelir; maske aynen geri gönderilirse sunucu
+ * mevcut sırrı korur (bkz. backend platform/guvenlik_ayar.py).
+ */
+export function useGuvenlikAyarla(id: number) {
+  const invalidate = useTenantInvalidate();
+  return useMutation({
+    mutationFn: (ayarlar: Record<string, unknown> | null) =>
+      platformIstek<Record<string, unknown> | null>(
+        'PUT',
+        `${PLATFORM_PREFIX}/tenantlar/${id}/guvenlik-ayarlari`,
+        { ayarlar },
+      ),
+    onSuccess: () => invalidate(id),
+  });
+}

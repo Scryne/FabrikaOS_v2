@@ -37,7 +37,11 @@ import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
 import { IkizSayfasi } from '@/modules/ikiz/IkizSayfasi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
+import { GuvenlikSayfasi } from '@/modules/kimlik/GuvenlikSayfasi';
 import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
+import { SsoDonusSayfasi } from '@/modules/kimlik/SsoDonusSayfasi';
+import { DenetimKayitlari } from '@/modules/uyum/DenetimKayitlari';
+import { KvkkSayfasi } from '@/modules/uyum/KvkkSayfasi';
 import { KioskSayfasi } from '@/modules/kiosk/KioskSayfasi';
 import { PrimitifVitrini } from '@/modules/onizleme/PrimitifVitrini';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
@@ -123,6 +127,7 @@ function OnizlemeOturum() {
         'rol:oku',
         'abonelik:oku',
       ],
+      iki_asama_aktif: false,
     });
   }, [ayarlaOturum]);
   return <Outlet />;
@@ -180,6 +185,8 @@ export function App() {
       {/* Kök `/` = kurumsal tanıtım (public landing) — doğrudan açılır, oturum gerektirmez. */}
       <Route path="/" element={<TanitimSayfasi />} />
       <Route path="/giris" element={<GirisSayfasi />} />
+      {/* SSO dönüş adresi — IdP'de kayıtlı redirect_uri ile birebir aynı olmalı (S23). */}
+      <Route path="/sso/donus" element={<SsoDonusSayfasi />} />
 
       {/* Platform (control-plane) düzlemi — tenant kabuğundan ayrık (S17/ADR-0019). */}
       <Route path="/platform/giris" element={<PlatformGiris />} />
@@ -218,6 +225,25 @@ export function App() {
           <Route path="pano" element={<PanoRota />} />
           {/* Kişisel ayar — izin/modül kapısı yok (oturum yeterli; S-VB). */}
           <Route path="bildirim-tercihleri" element={<BildirimTercihleri />} />
+          {/* Kişisel güvenlik: 2FA + oturum/cihaz yönetimi (oturum yeterli; S23). */}
+          <Route path="guvenlik" element={<GuvenlikSayfasi />} />
+          {/* Uyum yüzeyi — modül kapısı YOK (çekirdek hak); yalnız izinle korunur. */}
+          <Route
+            path="denetim-kayitlari"
+            element={
+              <IzinKapisi izin="denetim:oku">
+                <DenetimKayitlari />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="kvkk"
+            element={
+              <IzinKapisi izin="kvkk:yonet">
+                <KvkkSayfasi />
+              </IzinKapisi>
+            }
+          />
           <Route
             path="makineler"
             element={

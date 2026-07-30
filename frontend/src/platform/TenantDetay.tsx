@@ -21,6 +21,8 @@ import {
   Tag,
 } from 'antd';
 
+import type { GuvenlikAyarlari } from './guvenlikAyarBicim';
+import { GuvenlikAyarPaneli } from './GuvenlikAyarPaneli';
 import { platformIstekIndir, PLATFORM_PREFIX } from './api';
 import {
   useIhracBaslat,
@@ -303,6 +305,12 @@ export function TenantDetay() {
           ))}
         </div>
       </Card>
+
+      {/* S23: parola politikası · zorunlu 2FA · IP izin listesi · kurumsal SSO (OIDC). */}
+      <GuvenlikAyarPaneli
+        tenantId={data.id}
+        ayarlar={data.guvenlik_ayarlari as GuvenlikAyarlari | null | undefined}
+      />
 
       <Card
         size="small"

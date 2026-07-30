@@ -3,18 +3,27 @@
  * sağda form. Subdomain yoksa "Firma kodu" alanı gösterilir (tenant fallback). Başarıda panoya gider.
  */
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { Alert, Button, Form, Input } from 'antd';
+import { Alert, Button, Divider, Form, Input, Space, Typography } from 'antd';
 
-import { girisYap } from '@/api/kimlik';
+import { ApiHata } from '@/api/client';
+import { girisYap, ikiAsamaDogrula, ssoAcikMi, ssoBaslat } from '@/api/kimlik';
 import { subdomainSlug } from '@/api/tenant';
 import { Marka } from '@/components/Marka';
+
+import { IkiAsamaKurulum } from './IkiAsamaKurulum';
 
 import './giris.css';
 
 type Alanlar = { firmaKodu?: string; eposta: string; parola: string };
+
+/** Giriş ekranının aşaması: parola → (2FA kodu | zorunlu 2FA kurulumu). */
+type Asama =
+  | { tur: 'parola' }
+  | { tur: '2fa'; geciciToken: string }
+  | { tur: '2fa-kurulum'; geciciToken: string };
 
 /** Soyut üretim hattı şeması — düğümler (makineler) + akış hattı (animasyonlu sinyal). */
 function HatSemasi() {
@@ -97,25 +106,85 @@ export function GirisSayfasi() {
   const navigate = useNavigate();
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState(false);
+  const [asama, setAsama] = useState<Asama>({ tur: 'parola' });
+  const [kod, setKod] = useState('');
+  const [kodHatasi, setKodHatasi] = useState<string | null>(null);
+  const [firmaKodu, setFirmaKodu] = useState('');
+  const [ssoVar, setSsoVar] = useState(false);
+  const [ssoHatasi, setSsoHatasi] = useState<string | null>(null);
 
   // Subdomain tenant'ı belirliyse firma kodu sorulmaz.
   const subdomainVar = subdomainSlug(window.location.hostname) !== null;
+
+  // Subdomain varsa tenant baştan bellidir → SSO düğmesi hemen sorgulanabilir. Firma kodu
+  // ile giriliyorsa kullanıcı kodu yazana kadar beklenir (tenant çözülemeden sorulamaz).
+  useEffect(() => {
+    if (!subdomainVar && firmaKodu.trim().length < 2) {
+      setSsoVar(false);
+      return;
+    }
+    let iptal = false;
+    void ssoAcikMi(subdomainVar ? null : firmaKodu).then((acik) => {
+      if (!iptal) setSsoVar(acik);
+    });
+    return () => {
+      iptal = true;
+    };
+  }, [subdomainVar, firmaKodu]);
 
   async function gonder(degerler: Alanlar) {
     setHata(false);
     setYukleniyor(true);
     try {
-      await girisYap(
+      const sonuc = await girisYap(
         subdomainVar ? null : (degerler.firmaKodu ?? null),
         degerler.eposta,
         degerler.parola,
       );
-      navigate('/pano', { replace: true });
+      if (sonuc.durum === 'tamam') {
+        navigate('/pano', { replace: true });
+      } else if (sonuc.durum === '2fa') {
+        setAsama({ tur: '2fa', geciciToken: sonuc.geciciToken });
+      } else {
+        setAsama({ tur: '2fa-kurulum', geciciToken: sonuc.geciciToken });
+      }
     } catch {
       setHata(true);
     } finally {
       setYukleniyor(false);
     }
+  }
+
+  async function koduDogrula() {
+    if (asama.tur !== '2fa') return;
+    setKodHatasi(null);
+    setYukleniyor(true);
+    try {
+      const sonuc = await ikiAsamaDogrula(asama.geciciToken, kod.trim());
+      if (sonuc.durum === 'tamam') navigate('/pano', { replace: true });
+    } catch (e) {
+      setKodHatasi(e instanceof ApiHata ? e.message : t('kimlik.kod_hatali'));
+    } finally {
+      setYukleniyor(false);
+    }
+  }
+
+  async function ssoyaGit() {
+    setSsoHatasi(null);
+    setYukleniyor(true);
+    try {
+      const url = await ssoBaslat(subdomainVar ? null : firmaKodu);
+      window.location.assign(url);
+    } catch (e) {
+      setSsoHatasi(e instanceof ApiHata ? e.message : t('kimlik.sso_hatasi'));
+      setYukleniyor(false);
+    }
+  }
+
+  /** Zorunlu-2FA kurulumu bitti: kullanıcı artık parolayla normal giriş yapabilir. */
+  function kurulumTamamlandi() {
+    setAsama({ tur: 'parola' });
+    setKod('');
   }
 
   return (
@@ -149,54 +218,129 @@ export function GirisSayfasi() {
             </Link>
           </div>
 
-          <h2 className="giris-form-baslik">{t('kimlik.form_baslik')}</h2>
+          <h2 className="giris-form-baslik">
+            {asama.tur === 'parola' ? t('kimlik.form_baslik') : t('kimlik.iki_asama_baslik')}
+          </h2>
 
-          {hata && (
-            <Alert
-              type="error"
-              showIcon
-              message={t('kimlik.hatali_giris')}
-              style={{ marginBottom: 16 }}
-            />
+          {asama.tur === 'parola' && (
+            <>
+              {hata && (
+                <Alert
+                  type="error"
+                  showIcon
+                  message={t('kimlik.hatali_giris')}
+                  style={{ marginBottom: 16 }}
+                />
+              )}
+              {ssoHatasi && (
+                <Alert type="error" showIcon message={ssoHatasi} style={{ marginBottom: 16 }} />
+              )}
+
+              <Form<Alanlar>
+                layout="vertical"
+                onFinish={gonder}
+                requiredMark={false}
+                disabled={yukleniyor}
+              >
+                {!subdomainVar && (
+                  <Form.Item
+                    name="firmaKodu"
+                    label={t('kimlik.firma_kodu')}
+                    extra={t('kimlik.firma_kodu_ipucu')}
+                    rules={[{ required: true, message: t('kimlik.firma_kodu_gerekli') }]}
+                  >
+                    <Input
+                      autoComplete="organization"
+                      placeholder="alfa"
+                      onChange={(e) => setFirmaKodu(e.target.value)}
+                    />
+                  </Form.Item>
+                )}
+
+                <Form.Item
+                  name="eposta"
+                  label={t('kimlik.eposta')}
+                  rules={[{ required: true, message: t('kimlik.eposta_gerekli') }]}
+                >
+                  <Input type="email" autoComplete="username" />
+                </Form.Item>
+
+                <Form.Item
+                  name="parola"
+                  label={t('kimlik.parola')}
+                  rules={[{ required: true, message: t('kimlik.parola_gerekli') }]}
+                >
+                  <Input.Password autoComplete="current-password" />
+                </Form.Item>
+
+                <Button type="primary" htmlType="submit" block size="large" loading={yukleniyor}>
+                  {t('kimlik.giris_yap')}
+                </Button>
+              </Form>
+
+              {ssoVar && (
+                <>
+                  <Divider plain style={{ color: 'var(--metin-soluk)', fontSize: 12 }}>
+                    {t('kimlik.veya')}
+                  </Divider>
+                  <Button block size="large" loading={yukleniyor} onClick={() => void ssoyaGit()}>
+                    {t('kimlik.sso_ile_giris')}
+                  </Button>
+                </>
+              )}
+            </>
           )}
 
-          <Form<Alanlar>
-            layout="vertical"
-            onFinish={gonder}
-            requiredMark={false}
-            disabled={yukleniyor}
-          >
-            {!subdomainVar && (
-              <Form.Item
-                name="firmaKodu"
-                label={t('kimlik.firma_kodu')}
-                extra={t('kimlik.firma_kodu_ipucu')}
-                rules={[{ required: true, message: t('kimlik.firma_kodu_gerekli') }]}
+          {asama.tur === '2fa' && (
+            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+              <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
+                {t('kimlik.iki_asama_aciklama')}
+              </Typography.Paragraph>
+              {kodHatasi && <Alert type="error" showIcon message={kodHatasi} />}
+              <Input
+                value={kod}
+                onChange={(e) => setKod(e.target.value)}
+                onPressEnter={() => void koduDogrula()}
+                placeholder="123456"
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                maxLength={12}
+                size="large"
+                autoFocus
+                className="sayisal"
+                aria-label={t('kimlik.dogrulama_kodu')}
+              />
+              <Button
+                type="primary"
+                block
+                size="large"
+                loading={yukleniyor}
+                disabled={kod.trim().length < 6}
+                onClick={() => void koduDogrula()}
               >
-                <Input autoComplete="organization" placeholder="alfa" />
-              </Form.Item>
-            )}
+                {t('kimlik.dogrula')}
+              </Button>
+              <Button type="link" block onClick={() => setAsama({ tur: 'parola' })}>
+                {t('ortak.geri')}
+              </Button>
+            </Space>
+          )}
 
-            <Form.Item
-              name="eposta"
-              label={t('kimlik.eposta')}
-              rules={[{ required: true, message: t('kimlik.eposta_gerekli') }]}
-            >
-              <Input type="email" autoComplete="username" />
-            </Form.Item>
-
-            <Form.Item
-              name="parola"
-              label={t('kimlik.parola')}
-              rules={[{ required: true, message: t('kimlik.parola_gerekli') }]}
-            >
-              <Input.Password autoComplete="current-password" />
-            </Form.Item>
-
-            <Button type="primary" htmlType="submit" block size="large" loading={yukleniyor}>
-              {t('kimlik.giris_yap')}
-            </Button>
-          </Form>
+          {asama.tur === '2fa-kurulum' && (
+            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+              <Alert
+                type="info"
+                showIcon
+                message={t('kimlik.zorunlu_2fa_baslik')}
+                description={t('kimlik.zorunlu_2fa_aciklama')}
+              />
+              <IkiAsamaKurulum
+                geciciToken={asama.geciciToken}
+                onTamamlandi={kurulumTamamlandi}
+                onIptal={() => setAsama({ tur: 'parola' })}
+              />
+            </Space>
+          )}
         </div>
       </main>
     </div>

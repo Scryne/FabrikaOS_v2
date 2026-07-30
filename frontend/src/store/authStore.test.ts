@@ -9,6 +9,7 @@ const KULLANICI: Kullanici = {
   ad_soyad: 'Yönetici',
   roller: ['admin'],
   izinler: ['uretim:oku', 'uretim:yaz', 'isemri:oku'],
+  iki_asama_aktif: false,
 };
 
 describe('authStore', () => {

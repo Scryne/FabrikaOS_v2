@@ -14,6 +14,7 @@ const KULLANICI: Kullanici = {
   ad_soyad: 'A',
   roller: ['admin'],
   izinler: ['uretim:oku'],
+  iki_asama_aktif: false,
 };
 
 function ekrana(baslangic: string) {

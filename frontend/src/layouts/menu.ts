@@ -266,6 +266,28 @@ export const MENU: MenuOgesi[] = [
     yol: '/bildirim-tercihleri',
   },
   {
+    // Kişisel güvenlik (2FA + oturumlar) — izin kapısı yok (oturum yeterli; S23).
+    anahtar: 'guvenlik',
+    etiketAnahtari: 'menu.guvenlik',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/guvenlik',
+  },
+  {
+    // S23 uyum yüzeyi: modül kapısı YOK (güvenlik/uyum satılabilir yetenek değil, haktır).
+    anahtar: 'denetim-kayitlari',
+    etiketAnahtari: 'menu.denetim_kayitlari',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/denetim-kayitlari',
+    izin: 'denetim:oku',
+  },
+  {
+    anahtar: 'kvkk',
+    etiketAnahtari: 'menu.kvkk',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/kvkk',
+    izin: 'kvkk:yonet',
+  },
+  {
     anahtar: 'webhooklar',
     etiketAnahtari: 'menu.webhooklar',
     bolum: 'menu.bolum_yonetim',

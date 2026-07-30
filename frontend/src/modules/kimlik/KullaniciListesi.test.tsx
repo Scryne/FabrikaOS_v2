@@ -75,6 +75,7 @@ describe('KullaniciListesi', () => {
       ad_soyad: 'Yönetici',
       roller: ['admin'],
       izinler: ['kullanici:yaz'],
+      iki_asama_aktif: false,
     });
     ekrana();
     fireEvent.click(screen.getByText('izleyici@alfa.test'));

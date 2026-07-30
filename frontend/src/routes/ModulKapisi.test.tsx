@@ -11,7 +11,14 @@ import { useAuthStore } from '@/store/authStore';
 import { ModulKapisi } from './ModulKapisi';
 
 function kullanici(izinler: string[]): Kullanici {
-  return { id: 1, eposta: 'a@alfa.test', ad_soyad: 'A', roller: ['admin'], izinler };
+  return {
+    id: 1,
+    eposta: 'a@alfa.test',
+    ad_soyad: 'A',
+    roller: ['admin'],
+    izinler,
+    iki_asama_aktif: false,
+  };
 }
 
 const VERI: ModullerCevap = {
