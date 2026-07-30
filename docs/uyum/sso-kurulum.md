@@ -54,13 +54,20 @@ Yapılandırma **tenant başınadır** ve platform panelinden girilir:
 
 Claim adları beklenenden farklıysa **kod değişikliği gerekmez**:
 
-1. Panelde **Claim ayıklama logu**'nu (`debug_claim_log`) açın.
+1. Panelde **Claim ayıklama logu**'nu (`debug_claim_log`) açın. Sunucu bu anda **60 dakikalık**
+   bir pencere damgalar ve açılışı `platform_denetim_izi`'ne yazar (`sso_debug_ac`).
 2. Bir kez SSO ile giriş deneyin.
 3. Sunucu logunda `app.oidc` logger'ı `WARNING` seviyesinde **ham ID token claim'lerini**
    yazar (JSON formatlı log satırı).
 4. Gördüğünüz claim adlarını panelde *E-posta claim'i* / *Grup claim'i* alanlarına yazın.
-5. **Teşhis bitince `debug_claim_log`'u kapatın** — açık kalırsa kişisel veri (e-posta, ad,
-   grup üyelikleri) log dosyalarına yazılmaya devam eder.
+5. Teşhis bitince kapatın. Kapatmayı unutursanız **pencere kendiliğinden sönüyor**: 60 dakika
+   dolduğunda bayrak açık görünse de log yazılmaz. Yine de bilinçli kapatma tercih edilir
+   (denetim izinde `sso_debug_kapat` olarak görünür).
+
+> Ham claim'ler kişisel veridir (e-posta, ad, grup üyeliği). Pencere kısa tutulur ve
+> `docs/uyum/kisisel-veri-envanteri.md`'de log akışı bu nedenle envantere dahildir.
+> Süre penceresi ilgisiz ayar düzenlemeleriyle **uzamaz** — yalnız kapalıyken yeniden
+> açmak yeni bir 60 dakika verir.
 
 ## 4. Sık karşılaşılan hatalar
 

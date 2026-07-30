@@ -129,6 +129,37 @@ geniş salt-okunur role dağıtılmaz (`_OKU_IZINLERI` kümesinden çıkarıldı
   `app.*` logger'ları kalıcı olarak susuyordu. İki `env.py`'de `disable_existing_loggers=False`
   yapıldı; regresyon testi `test_s2_provizyon.py`'de.
 
+## Sertleştirme eki (2026-07-30, inceleme sonrası)
+
+S23 kapanış incelemesinde dört madde eklendi:
+
+1. **İzin sürüklenmesi sistemik olarak kapatıldı.** Yeni izin kodlarının mevcut tenant'lara
+   elle taşınması (S16 ve S23'te yapıldı) unutulmaya açıktı. `control_plane/uzlastirma.py`
+   katalog ↔ şema uzlaştırmasını yapar ve **migration fan-out'unun ardından otomatik koşar**
+   (`tenant_yukselt_tum(uzlastir=True)`); provizyon da aynı fonksiyonu kullanır (tek doğruluk
+   kaynağı). Yalnız eklemelidir: katalog dışı izin/rol silinmez. CI'da kalıcı sözleşme testi:
+   *hiçbir tenant'ta katalog izni eksik olamaz*.
+2. **Ham claim logu süreli.** `debug_claim_log` artık `debug_claim_log_bitis` damgası olmadan
+   çalışmaz (elle JSONB düzenlemesiyle kalıcı PII loglaması açılamaz); pencere 60 dk sonra
+   kendiliğinden söner, ilgisiz ayar düzenlemesi pencereyi uzatmaz, açma/kapama
+   `sso_debug_ac`/`sso_debug_kapat` olarak platform denetim izine yazılır.
+3. **İhraç artefaktı sertleştirildi.** İçerik zaten **presigned URL ile değil**, kimlik
+   doğrulamalı uçtan akıyordu (bu bilinçli bir karar; sözleşme testiyle korunuyor: nesne
+   deposunda imzalı URL yüzeyi belirirse test kırılır). Eklenenler: **7 günlük saklama
+   süresi** + süresi dolunca artefaktın silinmesi ve **410** dönmesi (kayıt satırı denetim
+   için kalır), kenar-tetikli `POST /kvkk/ihraclar/temizle` taraması ve **her indirmenin**
+   denetim izine yazılması (kim + kimin verisi + kaçıncı indirme). Not: indirme "tek
+   kullanımlık" YAPILMADI — yetkili kullanıcının aynı dosyayı tekrar indirmesi meşru bir
+   ihtiyaç; kontrol tek-kullanım değil, **süre + denetim + yetki**dir.
+4. **PKCE açıkça test edildi.** Önceden PKCE yalnız saf birim düzeyinde ve sahte IdP'nin
+   mutlu-yol zorlamasıyla kapsanıyordu. Eklenen iki test: akışın ürettiği `code_challenge`
+   ile token değişiminde **gerçekten gönderilen** `code_verifier`in eşleştiği; ve
+   doğrulayıcı bozulduğunda (çalınmış kod senaryosu) IdP'nin `invalid_grant` dönmesi
+   üzerine uygulamanın temiz 4xx verip **oturum açmadığı/kullanıcı yaratmadığı**.
+
+Migration `e5b1c7d4a238` (tenant): `kvkk_ihraclari.gecerlilik_bitisi` + `indirme_sayisi`;
+mevcut "hazir" kayıtlara oluşturma anından itibaren saklama penceresi **backfill** edilir.
+
 ## Ertelenen işler
 
 - TOTP sırrının uygulama düzeyinde şifrelenmesi (bugün tenant-izole DB'de düz base32).

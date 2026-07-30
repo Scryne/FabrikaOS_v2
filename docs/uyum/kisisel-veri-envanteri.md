@@ -23,6 +23,36 @@ tenant'lar arasında paylaşılmaz. Dosya/artefaktlar nesne deposunda `tenant_<s
 | Rıza kayıtları | `consent_kayitlari` | rıza türü, metin sürümü, kabul/geri çekme, IP | İspat yükü | Hayır |
 | Dış portal kullanıcıları | `kullanici.firma_id` | müşteri temsilcisi hesabı | Self-servis portal | Hayır |
 | CRM kontak | `ortaklar` | ad, e-posta, telefon, ünvan | Ticari iletişim | Hayır |
+| **Sunucu log akışı** | (dosya/stdout, DB değil) | istek logları: `request_id`, `tenant`, IP; **SSO teşhis penceresi açıkken** ham ID token claim'leri (e-posta, ad, grup üyeliği) | Hata ayıklama, güvenlik izleme | Duruma göre — aşağıya bakın |
+| **KVKK ihraç artefaktı** | `kvkk_ihraclari` + nesne deposu | Kişinin TÜM modüllerdeki verisinin ZIP dökümü | Erişim/taşınabilirlik hakkı | **Evet** (birleşik döküm) |
+
+### Log akışı hakkında (önemli)
+
+Normal işletimde loglar kişisel veri taşımaz (korelasyon kimlikleri + IP). **Tek istisna**
+SSO teşhis modudur (`debug_claim_log`): açıkken IdP'den gelen ham ID token claim'leri
+`app.oidc` logger'ına WARNING seviyesinde yazılır — bunlar e-posta, ad ve grup üyeliği
+içerir. Riski sınırlayan kontroller:
+
+- Mod **tenant başınadır** ve yalnız platform yöneticisi açabilir.
+- **60 dakika sonra kendiliğinden söner** (`debug_claim_log_bitis` damgası); süre dolunca
+  bayrak açık kalsa bile log yazılmaz.
+- Damgasız bayrak **hiç çalışmaz**: JSONB elle düzenlenerek kalıcı PII loglaması açılamaz.
+- Açma ve kapama `platform_denetim_izi`'ne ayrı olay olarak yazılır
+  (`sso_debug_ac` / `sso_debug_kapat`) — kim, ne zaman, ne kadar süreyle açtı sorusu
+  cevaplanabilir.
+- Log saklama/rotasyon süresi **müşterinin altyapı sorumluluğundadır**; teşhis sonrası
+  ilgili log satırlarının imhası operasyonel prosedüre bağlıdır.
+
+### İhraç artefaktı hakkında
+
+Hazır ihraç, kişinin tüm modüllerdeki verisinin tek dosyada birleşmiş hâlidir; bu yüzden
+en yüksek riskli çıktıdır. Kontroller:
+
+- İçerik **yalnız kimlik doğrulamalı uçtan** (`kvkk:yonet`) akar; nesne deposuna
+  paylaşılabilir **önceden imzalı (presigned) URL üretilmez**.
+- **7 gün** sonra artefakt nesne deposundan silinir (`gecerlilik_bitisi`); süresi dolan
+  indirme denemesi **410** döner. Kayıt satırı denetim için kalır (`suresi_doldu`).
+- **Her indirme** denetim izine yazılır: kim indirdi + kimin verisi + kaçıncı indirme.
 
 ## 2. Ürünün sağladığı KVKK yetenekleri
 
@@ -42,10 +72,15 @@ keşfederek toplar. Yeni modüller (ör. S25 sayım, S29 fatura) ek kod gerektir
 
 ## 3. Bilinen sınırlar (ertelenmiş işler)
 
-- **Saklama/imha politikası otomasyonu yok:** denetim izi ve rıza kayıtları süresiz birikir;
+- **Denetim izi ve rıza kayıtları için imha otomasyonu yok:** bunlar süresiz birikir;
   periyodik imha müşterinin operasyonel sorumluluğundadır (ADR-0022 ertelenmiş işler).
+  (İhraç artefaktlarının imhası **otomatiktir** — 7 gün.)
 - **TOTP sırrı** uygulama düzeyinde şifrelenmez (tenant-izole DB'de base32 durur).
 - **Anonimleştirme** kimlik alanlarını maskeler; nesne deposundaki (DYS) belgelerin
   içeriğinde geçen kişisel veri **taranmaz**.
-- `debug_claim_log` açıkken SSO claim'leri (e-posta, ad, grup) sunucu loguna yazılır —
-  yalnız kurulum teşhisi için açılmalı, sonra kapatılmalıdır.
+- **Anonimleştirme ile yasal saklama çakışması:** `finans` modülü (S29) geldiğinde fatura
+  ve ticari defter kayıtları için VUK/TTK saklama süreleri devreye girecek; bugünkü
+  "her şeyi maskele" davranışı o veriyi bozabilir. Politika S29 sonrası revize edilecek
+  (`REFACTOR-BACKLOG.md` girdi 1).
+- **Sunucu log akışı** teşhis penceresi açıkken kişisel veri taşır (yukarıdaki bölüm);
+  log dosyalarının saklama süresi ürün tarafından yönetilmez.

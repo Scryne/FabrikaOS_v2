@@ -305,3 +305,25 @@ yeni satırdır; `GET/POST /consent` oturum yeterli (kişisel yüzey).
 **Yeni izinler**: `denetim:oku`, `kvkk:yonet`. **Yeni rol**: `uyum`.
 **Entitlement kapısı YOK** (güvenlik/uyum çekirdek haktır, satılabilir modül değil).
 Migration: `d8f3a6c1e592` (tenant) + `a9d2e6f4c318` (public).
+
+### S23 sertleştirme eki (2026-07-30)
+
+**İzin uzlaştırması**: `control_plane/uzlastirma.py` — `IZIN_KATALOGU`/`VARSAYILAN_ROLLER`
+her tenant şemasıyla uzlaştırılır (yalnız eklemeli; katalog dışı izin/rol korunur).
+`tenant_yukselt_tum` migration fan-out'undan sonra **otomatik** koşar; elle onarım için
+`backend/scripts/izin_uzlastir.py [--kuru]`. Sözleşme testi: hiçbir tenant'ta katalog
+izni eksik olamaz.
+
+**Ham claim log penceresi**: `guvenlik_ayarlari.oidc.debug_claim_log_bitis` (ISO-8601).
+Bayrak tek başına yetmez — damga yoksa/geçtiyse log YAZILMAZ. Platform PUT'u açılışta
+60 dk damgalar (`DEBUG_OMRU_DK`), ilgisiz düzenleme pencereyi uzatmaz; açma/kapama
+`platform_denetim_izi`'ne `sso_debug_ac`/`sso_debug_kapat` olarak yazılır.
+
+**KVKK artefakt saklama**: `kvkk_ihraclari.gecerlilik_bitisi` (üretimden +7 gün,
+`IHRAC_SAKLAMA_GUN`) + `indirme_sayisi`. Süre dolunca indirme **410 `SURE_DOLDU`** döner,
+artefakt nesne deposundan silinir, durum `suresi_doldu` olur (kayıt satırı denetim için
+DURUR). `POST /kvkk/ihraclar/temizle` idempotent tarama (hiç indirilmemiş artefaktlar
+birikmesin). Her indirme denetim izine `kvkk_ihrac_indir` olarak yazılır (kim + kimin
+verisi + kaçıncı indirme). İçerik yalnız kimlik doğrulamalı uçtan akar; **presigned URL
+üretilmez** (sözleşme testiyle korunur). Yeni HTTP durumu: **410** (`SureDoldu`).
+Migration `e5b1c7d4a238` (backfill'li).
