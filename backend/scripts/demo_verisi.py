@@ -10,8 +10,9 @@ Kullanım (repo kökünden; DB+Redis+MinIO ve API ayakta olmalı):
     ./.venv/Scripts/python.exe -m uvicorn app.main:app --port 8000   # ayrı terminal
     ./.venv/Scripts/python.exe backend/scripts/demo_verisi.py --tenant demo
 
-Aynı tenant'a ikinci kez çalıştırma kayıtları çoğaltır; betik bunu fark edip durur
-(``--force`` ile yine de devam eder). Temiz demo için yeni slug verin.
+Var olan tenant'ta ikinci çalıştırma kayıtları çoğaltmaz: yalnız eksik modülleri doldurur,
+üretim/enerji zaman serisini bugüne getirir ve AI modellerini yeniden eğitir (demo zamanla
+"yaşlanmasın"). ``--force`` tam seed'i yine de baştan girer (kayıtları çoğaltır).
 """
 
 from __future__ import annotations
@@ -165,31 +166,38 @@ def ikiz_yerlesim(c: Istemci, makineler: list[dict]) -> None:
     print(f"  dijital ikiz yerleşimi: {len(dugumler)} düğüm")
 
 
+VARDIYA_SAATLERI = [("Gündüz", 8), ("Gece", 20)]
+
+
+def _uretim_kaydi(c: Istemci, m: dict, cevrim: int, zaman: str, vardiya: str) -> None:
+    d_lo, d_hi, p_lo, p_hi, k_lo, k_hi = PROFIL_PARAM[m["profil"]]
+    planlanan = 480
+    durus = rng.randint(d_lo, d_hi)
+    calisma_dk = planlanan - durus
+    toplam = int(calisma_dk * 60 / cevrim * rng.uniform(p_lo, p_hi))
+    saglam = int(toplam * rng.uniform(k_lo, k_hi))
+    c.post(
+        "/api/v1/uretim-verileri",
+        {
+            "makine_id": m["id"],
+            "zaman": zaman,
+            "vardiya": vardiya,
+            "planlanan_sure_dk": planlanan,
+            "durus_sure_dk": durus,
+            "toplam_adet": toplam,
+            "saglam_adet": saglam,
+            "ideal_cevrim_sn": cevrim,
+        },
+    )
+
+
 def uretim_verileri(c: Istemci, makineler: list[dict], gun_sayisi: int = 14) -> None:
     n = 0
     for m in makineler:
         cevrim = rng.choice([24, 36, 45, 60, 75])
-        d_lo, d_hi, p_lo, p_hi, k_lo, k_hi = PROFIL_PARAM[m["profil"]]
         for gun in range(gun_sayisi, 0, -1):
-            for vardiya, saat in [("Gündüz", 8), ("Gece", 20)]:
-                planlanan = 480
-                durus = rng.randint(d_lo, d_hi)
-                calisma_dk = planlanan - durus
-                toplam = int(calisma_dk * 60 / cevrim * rng.uniform(p_lo, p_hi))
-                saglam = int(toplam * rng.uniform(k_lo, k_hi))
-                c.post(
-                    "/api/v1/uretim-verileri",
-                    {
-                        "makine_id": m["id"],
-                        "zaman": _gun(gun, saat),
-                        "vardiya": vardiya,
-                        "planlanan_sure_dk": planlanan,
-                        "durus_sure_dk": durus,
-                        "toplam_adet": toplam,
-                        "saglam_adet": saglam,
-                        "ideal_cevrim_sn": cevrim,
-                    },
-                )
+            for vardiya, saat in VARDIYA_SAATLERI:
+                _uretim_kaydi(c, m, cevrim, _gun(gun, saat), vardiya)
                 n += 1
     print(f"  üretim verileri: {n} ({gun_sayisi} gün × 2 vardiya × {len(makineler)} makine)")
 
@@ -793,6 +801,317 @@ def duyurular(c: Istemci) -> None:
 # ---------------------------------------------------------------- ana akış
 
 
+# ------------------------------------------------ S24 / Zekâ / demo tazeliği (2026-09-26)
+#
+# Seed ilk yazıldığında vardiya/duruş, ürün/reçete, izlenebilirlik ve rapor modülleri yoktu;
+# bu ekranlar demo tenant'ta boş açılıyordu. Ayrıca zaman serisi seed anına sabitti: birkaç gün
+# sonra kiosk ve "son 24 saat" göstergeleri sıfıra düşüyordu. Aşağıdaki adımlar hem tam seed'de
+# hem de var olan tenant'ta (``tamamla``) çalışır; her biri kendi modülü boşsa veri girer.
+
+
+def _liste(c: Istemci, yol: str) -> list[dict]:
+    return list(c.get(yol) or [])
+
+
+def _makineler_profilli(c: Istemci) -> list[dict]:
+    profil = {t[0]: t[3] for t in MAKINE_TANIMLARI}
+    kayitlar = _liste(c, "/api/v1/makineler?sayfa=1&adet=100")
+    for m in kayitlar:
+        m["profil"] = profil.get(m["kod"], "orta")
+    return kayitlar
+
+
+DURUS_NEDENLERI = [
+    # (ad, sınıf, ağırlık) — ağırlık Pareto gerçekçi görünsün diye (birkaç neden baskın)
+    ("Malzeme bekleme", "plansiz", 9),
+    ("Mekanik arıza", "plansiz", 7),
+    ("Kalıp / set-up değişimi", "planli", 6),
+    ("Elektrik arızası", "plansiz", 3),
+    ("Kalite kontrol beklemesi", "plansiz", 3),
+    ("Planlı bakım", "planli", 2),
+    ("Operatör yok", "plansiz", 1),
+]
+
+
+def vardiya_durus(c: Istemci, makineler: list[dict]) -> None:
+    if not _liste(c, "/api/v1/vardiyalar"):
+        for ad, bas, bit in [("Gündüz", "08:00", "20:00"), ("Gece", "20:00", "08:00")]:
+            c.post("/api/v1/vardiyalar", {"ad": ad, "baslangic_saat": bas, "bitis_saat": bit})
+        print("  vardiyalar: 2")
+    if _liste(c, "/api/v1/durus-kayitlari?sayfa=1&adet=1"):
+        return
+    nedenler = [
+        (c.post("/api/v1/durus-nedenleri", {"ad": ad, "sinif": sinif}), agirlik)
+        for ad, sinif, agirlik in DURUS_NEDENLERI
+    ]
+    havuz = [n for n, agirlik in nedenler for _ in range(agirlik)]
+    # Düşük OEE profilli makineler daha sık durur.
+    agirlik_profil = {"dusuk": 4, "orta": 2}
+    makine_havuzu = [m for m in makineler for _ in range(agirlik_profil.get(m["profil"], 1))]
+    simdi = datetime.now(UTC)
+    n = 0
+    for _ in range(34):
+        neden = rng.choice(havuz)
+        m = rng.choice(makine_havuzu)
+        bas = simdi - timedelta(days=rng.uniform(0.3, 14), minutes=rng.randint(0, 59))
+        sure = rng.randint(12, 95) if neden["sinif"] == "plansiz" else rng.randint(20, 60)
+        c.post(
+            "/api/v1/durus-kayitlari",
+            {
+                "makine_id": m["id"],
+                "neden_id": neden["id"],
+                "baslangic": bas.isoformat(),
+                "bitis": (bas + timedelta(minutes=sure)).isoformat(),
+                "aciklama": f"{m['kod']} — {neden['ad'].lower()}",
+            },
+        )
+        n += 1
+    print(f"  duruş: {len(nedenler)} neden + {n} kayıt")
+
+
+# (kod, ad, birim, açıklama, [(malzeme_kod, miktar)], makine_kod, iş emri miktarı, hedef durum)
+URUNLER = [
+    (
+        "BRK-120",
+        "Beyaz eşya montaj braketi",
+        "adet",
+        "Buzdolabı arka panel braketi — 2 mm DKP, toz boyalı.",
+        [("SAC-2MM", 0.42), ("CIVATA-M8", 2), ("BOYA-RAL7016", 0.03)],
+        "ABKANT-1",
+        150,
+        "kapandi",
+    ),
+    (
+        "KBN-608",
+        "Elektrik pano kabini 600×800",
+        "adet",
+        "Duvar tipi pano gövdesi — 3 mm DKP, profil iskelet, kolili sevk.",
+        [
+            ("SAC-3MM", 14),
+            ("PROFIL-40", 3.2),
+            ("CIVATA-M8", 16),
+            ("BOYA-RAL7016", 0.9),
+            ("AMBALAJ-KOLI", 1),
+        ],
+        "MONTAJ-1",
+        4,
+        "kapandi",
+    ),
+    (
+        "SAS-40",
+        "Kaynaklı taşıyıcı şase",
+        "adet",
+        "40×40 kutu profil şase — robot kaynak, argon koruma gazı.",
+        [("PROFIL-40", 6.5), ("ELEKTROT-308", 0.25), ("GAZ-ARGON", 0.05), ("BOYA-RAL7016", 0.6)],
+        "KAYNAK-1",
+        3,
+        "devam_ediyor",
+    ),
+]
+
+
+def urun_recete_uretim(c: Istemci, makineler: list[dict], admin_id: int) -> None:
+    """Ürün + reçete + lotlu üretim iş emri. Kapanan iş emri reçeteyi stoktan düşer (BOM
+    patlatma); lot, izlenebilirlik ekranında iş emri → makine → malzeme zinciri olur."""
+    if _liste(c, "/api/v1/urunler?sayfa=1&adet=1"):
+        return
+    malzeme = {m["kod"]: m for m in _liste(c, "/api/v1/malzemeler?sayfa=1&adet=100")}
+    makine = {m["kod"]: m for m in makineler}
+    yol = {
+        "devam_ediyor": ["atandi", "devam_ediyor"],
+        "kapandi": ["atandi", "devam_ediyor", "kapandi"],
+    }
+    for i, (kod, ad, birim, aciklama, kalemler, mkod, miktar, durum) in enumerate(URUNLER):
+        urun = c.post(
+            "/api/v1/urunler", {"kod": kod, "ad": ad, "birim": birim, "aciklama": aciklama}
+        )
+        c.put(
+            f"/api/v1/urunler/{urun['id']}/recete",
+            {
+                "ad": f"{kod} standart reçete",
+                "kalemler": [
+                    {"malzeme_id": malzeme[mk]["id"], "miktar": mkt} for mk, mkt in kalemler
+                ],
+            },
+        )
+        lot = f"LOT-{datetime.now(UTC):%y%m}-{kod}"
+        ie = c.post(
+            "/api/v1/is-emirleri",
+            {
+                "baslik": f"Üretim: {ad} × {miktar}",
+                "makine_id": makine[mkod]["id"],
+                "oncelik": "orta",
+                "aciklama": f"Müşteri siparişi — lot {lot}.",
+                "urun_id": urun["id"],
+                "miktar": miktar,
+                "lot_no": lot,
+                "hedef_tarih": _gun(-(i + 2), 17),
+            },
+        )
+        for hedef in yol[durum]:
+            govde: dict[str, Any] = {"durum": hedef}
+            if hedef == "atandi":
+                govde["atanan_kullanici_id"] = admin_id
+            c.patch(f"/api/v1/is-emirleri/{ie['id']}/durum", govde)
+    print(f"  ürün + reçete + lotlu üretim emri: {len(URUNLER)}")
+
+
+# Demo fabrikanın iki tesisi (coğrafi site haritası, S-VB): kesim/büküm/talaşlı imalat
+# Bursa'da, kaynak/pres/montaj/boya Gebze'de. Aynı tesisteki makineler küçük ofsetle dağılır.
+TESISLER = {
+    "Bursa": (40.2466, 28.9480, {"Kesim", "Büküm", "Talaşlı İmalat"}),
+    "Gebze": (40.8120, 29.4380, {"Kaynak", "Pres", "Montaj", "Boya"}),
+}
+
+
+def makine_konumlari(c: Istemci, makineler: list[dict]) -> None:
+    if any(m.get("enlem") is not None for m in makineler):
+        return
+    bolge = {t[0]: t[6] for t in MAKINE_TANIMLARI}
+    n = 0
+    for i, m in enumerate(makineler):
+        for enlem, boylam, bolgeler in TESISLER.values():
+            if bolge.get(m["kod"]) in bolgeler:
+                c.patch(
+                    f"/api/v1/makineler/{m['id']}",
+                    {
+                        "enlem": round(enlem + (i % 4) * 0.0009, 5),
+                        "boylam": round(boylam + (i // 4) * 0.0011, 5),
+                    },
+                )
+                n += 1
+                break
+    print(f"  makine konumları: {n} (Bursa + Gebze tesisleri)")
+
+
+def lot_uretim_kayitlari(c: Istemci, makineler: list[dict]) -> None:
+    """Lotlu iş emrinin üretimini o lotla kaydeder: izlenebilirlik zinciri iş emri →
+    tüketilen malzeme → **üretim kaydı** olarak tamamlanır (yoksa son halka boş kalıyordu)."""
+    makine = {m["id"]: m for m in makineler}
+    emirler = [
+        e
+        for e in _liste(c, "/api/v1/is-emirleri?sayfa=1&adet=100")
+        if e.get("lot_no") and e.get("durum") in ("devam_ediyor", "kapandi")
+    ]
+    n = 0
+    for e in emirler:
+        zincir = c.get(f"/api/v1/izlenebilirlik?lot={e['lot_no']}") or {}
+        if zincir.get("uretim"):
+            continue
+        m = makine.get(e["makine_id"])
+        hedef = float(e.get("miktar") or 0)
+        if m is None or hedef <= 0:
+            continue
+        # Kapanan emir hedefin tamamını, devam eden yarısını üretmiş olsun (%1-2 fire).
+        uretilen = hedef if e["durum"] == "kapandi" else max(1.0, round(hedef / 2))
+        toplam = int(round(uretilen * 1.015)) if uretilen >= 50 else int(uretilen)
+        c.post(
+            "/api/v1/uretim-verileri",
+            {
+                "makine_id": m["id"],
+                "zaman": _gun(1, 14),
+                "vardiya": "Gündüz",
+                "planlanan_sure_dk": 480,
+                "durus_sure_dk": rng.randint(15, 40),
+                "toplam_adet": toplam,
+                "saglam_adet": int(uretilen),
+                "ideal_cevrim_sn": 60,
+                "lot_no": e["lot_no"],
+            },
+        )
+        n += 1
+    if n:
+        print(f"  lot üretim kayıtları: {n}")
+
+
+def raporlar(c: Istemci) -> None:
+    if _liste(c, "/api/v1/raporlar?sayfa=1&adet=1"):
+        return
+    for tur, bicim, gun in [("uretim", "pdf", 14), ("stok", "xlsx", 30), ("kalite", "pdf", 30)]:
+        c.post("/api/v1/raporlar", {"tur": tur, "bicim": bicim, "gun": gun})
+    print("  raporlar: 3 (arka planda üretilir, MinIO)")
+
+
+def ai_egit(c: Istemci) -> None:
+    """Modelleri güncel veriyle yeniden eğitir (tahmin ekranı taze veriye dayansın)."""
+    egitilen = []
+    for tur in ["kestirimci_bakim", "anomali", "oee", "stok"]:
+        try:
+            c.post("/api/v1/tahmin/egit", {"tur": tur})
+            egitilen.append(tur)
+        except RuntimeError as exc:  # yetersiz veri: model "başarısız" kalır, seed durmaz
+            print(f"  ! {tur} eğitilemedi: {exc}")
+    print(f"  AI modelleri eğitildi: {', '.join(egitilen) or '-'}")
+
+
+def yonetici_adi(c: Istemci, ben: dict) -> None:
+    """Provizyon yöneticiyi "Tenant Yöneticisi" adıyla açar; pano "Tekrar hoş geldiniz,
+    Tenant Yöneticisi" diyordu. Demo yöneticisine bir kişi adı verilir."""
+    if ben.get("ad_soyad") in (None, "", "Tenant Yöneticisi"):
+        c.patch(f"/api/v1/kullanicilar/{ben['id']}", {"ad_soyad": "Kerem Aydın"})
+        print("  yönetici adı: Kerem Aydın")
+
+
+def _son_zaman(c: Istemci, yol: str) -> datetime | None:
+    kayit = _liste(c, f"{yol}?sayfa=1&adet=1&siralama=zaman&yon=desc")
+    return datetime.fromisoformat(kayit[0]["zaman"]) if kayit else None
+
+
+def tazele(c: Istemci, makineler: list[dict]) -> None:
+    """Zaman serisini son kayıttan bugüne kadar uzatır (üretim vardiyaları + enerji).
+
+    Başlamış her vardiya dilimi yazılır; böylece "son 24 saat" göstergeleri ve kiosk,
+    seed'in ne zaman çalıştığından bağımsız olarak dolu kalır.
+    """
+    simdi = datetime.now(UTC)
+    son = _son_zaman(c, "/api/v1/uretim-verileri")
+    if son is not None:
+        son_kayitlar = _liste(c, "/api/v1/uretim-verileri?sayfa=1&adet=100&siralama=zaman&yon=desc")
+        cevrim = {k["makine_id"]: k["ideal_cevrim_sn"] for k in reversed(son_kayitlar)}
+        n = 0
+        gun = son.replace(hour=0, minute=0, second=0, microsecond=0)
+        while gun <= simdi:
+            for vardiya, saat in VARDIYA_SAATLERI:
+                t = gun.replace(hour=saat)
+                if son < t <= simdi:
+                    for m in makineler:
+                        _uretim_kaydi(c, m, int(cevrim.get(m["id"], 45)), t.isoformat(), vardiya)
+                        n += 1
+            gun += timedelta(days=1)
+        print(f"  üretim verisi tazelendi: +{n}")
+    son_e = _son_zaman(c, "/api/v1/enerji-tuketimleri")
+    if son_e is not None:
+        n = 0
+        t = son_e + timedelta(hours=2)
+        while t <= simdi:
+            taban = 42 if 7 <= t.hour <= 19 else 18
+            c.post(
+                "/api/v1/enerji-tuketimleri",
+                {
+                    "enerji_turu": "elektrik",
+                    "tuketim": round(taban * rng.uniform(0.85, 1.2), 1),
+                    "birim": "kWh",
+                    "zaman": t.isoformat(),
+                },
+            )
+            n += 1
+            t += timedelta(hours=2)
+        print(f"  enerji tazelendi: +{n}")
+
+
+def tamamla(c: Istemci, ben: dict) -> None:
+    """Var olan tenant: eksik modülleri doldur, zaman serisini bugüne getir, modelleri eğit."""
+    m = _makineler_profilli(c)
+    yonetici_adi(c, ben)
+    tazele(c, m)
+    vardiya_durus(c, m)
+    urun_recete_uretim(c, m, ben["id"])
+    lot_uretim_kayitlari(c, m)
+    makine_konumlari(c, m)
+    raporlar(c)
+    ai_egit(c)
+
+
 async def provizyonla(slug: str, ad: str, eposta: str, parola: str) -> None:
     from app.control_plane.provizyon import tenant_provizyonla
 
@@ -818,8 +1137,12 @@ def main() -> int:
 
     mevcut = c.get("/api/v1/makineler?sayfa=1&adet=1")
     if mevcut and not args.force:
-        print("Bu tenant'ta zaten veri var; --force ile yine de çalıştırabilirsiniz.")
-        return 1
+        print("Bu tenant'ta veri var: eksik modüller tamamlanıyor, veri bugüne getiriliyor…")
+        tamamla(c, ben)
+        print(
+            f"\nTamam. Giriş: {args.admin_eposta} / {args.admin_parola}  (X-Tenant: {args.tenant})"
+        )
+        return 0
 
     print("demo verisi giriliyor…")
     kullanicilar(c)
@@ -838,6 +1161,13 @@ def main() -> int:
     crm(c, ben["id"])
     dys(c)
     duyurular(c)
+    yonetici_adi(c, ben)
+    vardiya_durus(c, _makineler_profilli(c))
+    urun_recete_uretim(c, m, ben["id"])
+    lot_uretim_kayitlari(c, m)
+    makine_konumlari(c, _makineler_profilli(c))
+    raporlar(c)
+    ai_egit(c)
     print(f"\nTamam. Giriş: {args.admin_eposta} / {args.admin_parola}  (X-Tenant: {args.tenant})")
     return 0
 

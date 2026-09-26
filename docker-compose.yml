@@ -11,6 +11,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
       REDIS_URL: redis://redis:6379/0
+      MINIO_ENDPOINT: minio:9000
     ports:
       - "8000:8000"          # doğrudan erişim (birincil): http://localhost:8000/saglik
     depends_on:
@@ -44,6 +45,39 @@ services:
         condition: service_healthy
       mqtt:
         condition: service_started
+    networks: [fabrikaos]
+
+  # S-VB: outbox → kişi-hedefli bildirim (uygulama içi zil + e-posta). Bu süreç olmadan
+  # bildirim merkezi hiç dolmaz; API yalnız olayı outbox'a yazar (ADR-0021).
+  bildirim:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
+      REDIS_URL: redis://redis:6379/0
+    command: ["python", "backend/scripts/bildirim_uretici.py"]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks: [fabrikaos]
+
+  # S18: outbox → imzalı webhook teslimatı (retry/backoff). API'den ayrı süreç (ADR-0020).
+  webhook-relay:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
+      REDIS_URL: redis://redis:6379/0
+    command: ["python", "backend/scripts/webhook_relay.py"]
+    depends_on:
+      db:
+        condition: service_healthy
     networks: [fabrikaos]
 
   db:

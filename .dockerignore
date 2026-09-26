@@ -18,6 +18,8 @@ node_modules/
 docs/
 *.pdf
 *.md
+# Dockerfile hatchling meta icin README.md kopyaliyor
+!README.md
 
 # Yerel veriler
 .docker-data/
