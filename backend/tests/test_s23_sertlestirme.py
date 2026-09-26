@@ -9,15 +9,22 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
+import pytest
 from httpx import AsyncClient
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
 from app.core.security import oidc
-from app.modules.dys.depolama import nesne_depo_al
+from app.modules.dys.depolama import (
+    BellekNesneDepo,
+    MinioNesneDepo,
+    nesne_depo_al,
+    nesne_depo_ayarla,
+)
 from app.modules.uyum import service
 from app.modules.uyum.models import IHRAC_SAKLAMA_GUN, KvkkIhraci
 from app.platform.guvenlik_ayar import (
@@ -33,6 +40,18 @@ from tests.test_s17_platform_kimlik import (  # noqa: F401 (fixture zinciri)
 
 PLATFORM = "/api/v1/platform"
 UYUM = "/api/v1"
+
+
+@pytest.fixture(autouse=True)
+def _bellek_depo() -> Iterator[BellekNesneDepo]:
+    """KVKK ihraç testleri gerçek MinIO'ya çıkmasın: CI'da MinIO yok, yerelde olsa bile
+    test sonucu dış servisin ayakta olmasına bağlanmamalı (diğer depo testleriyle aynı desen)."""
+    depo = BellekNesneDepo()
+    nesne_depo_ayarla(depo)
+    try:
+        yield depo
+    finally:
+        nesne_depo_ayarla(None)
 
 
 def _oidc(debug: bool = False, bitis: str | None = None) -> dict[str, Any]:
@@ -347,7 +366,11 @@ def test_nesne_depo_imzali_url_uretmiyor() -> None:
     KVKK artefaktı yalnız kimlik doğrulamalı uçtan akar. Depoya imzalı URL yeteneği
     eklenirse bu test kırılır ve KVKK yolunun gözden geçirilmesi gerektiğini hatırlatır.
     """
-    depo = nesne_depo_al()
+    # Üretimdeki depo sınıfı incelenir: ``nesne_depo_al()`` burada bellek deposunu döndürür
+    # (fikstür) ve eskiden gerçek MinIO istemcisini kurup sonraki testlere global bırakıyordu.
     yasak = {"presigned_url", "imzali_url", "get_presigned_url", "paylas"}
-    mevcut = {ad for ad in dir(depo) if not ad.startswith("_")}
-    assert not (yasak & mevcut), f"nesne deposunda imzali URL yuzeyi belirdi: {yasak & mevcut}"
+    for sinif in (MinioNesneDepo, type(nesne_depo_al())):
+        mevcut = {ad for ad in dir(sinif) if not ad.startswith("_")}
+        assert not (yasak & mevcut), (
+            f"{sinif.__name__} icinde imzali URL yuzeyi belirdi: {yasak & mevcut}"
+        )
