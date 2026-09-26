@@ -35,9 +35,9 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
@@ -57,17 +57,23 @@ jobs:
       - name: pytest (birim + entegrasyon)
         run: pytest
 
+      - name: Bağımlılık güvenliği (pip-audit)
+        run: |
+          pip install pip-audit
+          pip freeze --exclude-editable > /tmp/gereksinimler.txt
+          pip-audit -r /tmp/gereksinimler.txt --no-deps --disable-pip
+
   frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
@@ -89,5 +95,8 @@ jobs:
       - name: Vite build
         run: npm run build
 
-  # NOT: Güvenlik (pip-audit/bandit), Playwright E2E (S7), build ve deploy adımları
-  # sonraki sprintlerde eklenecek.
+      - name: Bağımlılık güvenliği (npm audit, yüksek/kritik)
+        run: npm audit --audit-level=high
+
+  # NOT: Playwright E2E (çalışan yığın + seed'li tenant ister) ve deploy adımları CI'da yok;
+  # E2E yerelde `npm run test:e2e` ile koşar.
