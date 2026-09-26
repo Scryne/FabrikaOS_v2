@@ -216,6 +216,27 @@ body {
  * Üst bar — bağlam + araç düğmeleri + canlı durum.
  * ------------------------------------------------------------------------- */
 
+/* Bildirim zili satırı — S-VB'de eklendi ama sınıf tanımlanmamıştı; satırlar tarayıcının
+   varsayılan (açık gri, ortalı) buton görünümüyle çıkıyordu. */
+.bildirim-satir {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 8px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--gecis);
+}
+.bildirim-satir:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .bar-dugme {
   display: inline-flex;
   align-items: center;
@@ -249,6 +270,89 @@ body {
   font-size: 12px;
   color: var(--metin-soluk);
   white-space: nowrap;
+}
+
+/* Sayfa başlığının sağ aksiyon grubu: modüller aksiyonları AntD Space ile sarıyor; Space
+   varsayılan olarak kırılmaz ve dar ekranda sayfayı yatay kaydırıyordu. */
+.sayfa-baslik-sag .ant-space {
+  flex-wrap: wrap;
+  row-gap: 8px;
+  max-width: 100%;
+}
+.sayfa-baslik-sag .ant-space-item {
+  max-width: 100%;
+  min-width: 0;
+}
+.sayfa-baslik-sag .ant-segmented {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Üst bar + içerik alanı. Boşluklar sınıfta (satır içi stil medya sorgusunu ezerdi). */
+.ust-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--kenarlik);
+}
+.icerik-alani {
+  padding: 28px 32px;
+  min-width: 0;
+}
+
+/* Dar ekran (telefon, dar tablet): bar yalnız işlev taşır — saat, ayraç, kullanıcı adı ve
+   kısayol ipucu gizlenir, arama ikona iner. Aksi halde bar ~630 px'e zorlanıp tüm sayfayı
+   yatay kaydırıyordu (390 px'de +241 px taşma, 2026-09-26 ölçümü). */
+/* Sider `breakpoint="lg"` altında kapanır. Tetik başlığın içine alınır (yoksa içeriğin
+   üstünde yüzüyordu), açılan menü içeriği itmek yerine üstüne katman olarak açılır. */
+@media (max-width: 991.98px) {
+  .ust-bar {
+    padding-left: 60px;
+  }
+  .ant-layout-sider.ant-layout-sider-zero-width {
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1000;
+  }
+  .ant-layout-sider:not(.ant-layout-sider-zero-width) {
+    position: fixed !important;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1000;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.55);
+  }
+  .ant-layout-sider-zero-width-trigger {
+    top: 12px !important;
+    border-radius: 0 10px 10px 0 !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ust-bar {
+    gap: 8px;
+    padding-right: 12px;
+  }
+  .icerik-alani {
+    padding: 20px 16px;
+  }
+  .bar-saat,
+  .bar-ayrac,
+  .kullanici-cip-metin,
+  .kullanici-cip-ok,
+  .komut-tetik .tetik-metin,
+  .komut-tetik .komut-kisayol {
+    display: none;
+  }
+  .komut-tetik {
+    width: 38px;
+    justify-content: center;
+    padding: 0;
+  }
+  .kullanici-cip {
+    padding: 0 4px;
+  }
 }
 
 .bar-ayrac {

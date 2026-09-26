@@ -98,7 +98,9 @@ export function cubukSecenek(veri: { ad: string; oee: number }[]): EChartsOption
     xAxis: {
       type: 'category',
       data: veri.map((v) => v.ad),
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: GOVDE, fontSize: 11, interval: 0 },
+      // `interval: 0` 390 px'de 12 makine adını üst üste basıyordu; otomatik aralık geniş
+      // ekranda hepsini, dar ekranda sığanları gösterir (tam ad ipucunda).
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: GOVDE, fontSize: 11, hideOverlap: true },
       axisLine: { lineStyle: { color: RENKLER.kenarlik } },
       axisTick: { show: false },
     },
@@ -376,7 +378,9 @@ export function paretoSecenek(veri: { ad: string; deger: number }[]): EChartsOpt
     xAxis: {
       type: 'category',
       data: sirali.map((v) => v.ad),
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: GOVDE, fontSize: 11, interval: 0 },
+      // `interval: 0` 390 px'de 12 makine adını üst üste basıyordu; otomatik aralık geniş
+      // ekranda hepsini, dar ekranda sığanları gösterir (tam ad ipucunda).
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: GOVDE, fontSize: 11, hideOverlap: true },
       axisLine: { lineStyle: { color: RENKLER.kenarlik } },
       axisTick: { show: false },
     },

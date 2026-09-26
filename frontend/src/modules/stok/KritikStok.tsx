@@ -120,6 +120,7 @@ export function KritikStok() {
           rowKey="id"
           loading={isPending}
           dataSource={kritikler}
+          scroll={{ x: 'max-content' }}
           locale={{
             emptyText: (
               <BosDurum

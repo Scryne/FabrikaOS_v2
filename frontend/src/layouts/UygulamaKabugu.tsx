@@ -59,7 +59,7 @@ function BarSaat() {
   }).format(simdi);
   return (
     <span
-      className="sayisal"
+      className="sayisal bar-saat"
       style={{ color: 'var(--metin-soluk)', fontSize: 12.5, whiteSpace: 'nowrap' }}
     >
       {tarih} · {saat}
@@ -246,16 +246,13 @@ export function UygulamaKabugu() {
       </Layout.Sider>
 
       <Layout>
-        <Layout.Header
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            padding: '0 24px',
-            borderBottom: '1px solid var(--kenarlik)',
-          }}
-        >
-          <button type="button" className="komut-tetik" onClick={() => setPaletAcik(true)}>
+        <Layout.Header className="ust-bar">
+          <button
+            type="button"
+            className="komut-tetik"
+            aria-label={t('ortak.ara')}
+            onClick={() => setPaletAcik(true)}
+          >
             <SearchOutlined style={{ color: 'var(--metin-soluk)' }} />
             <span className="tetik-metin">{t('ortak.ara')}</span>
             <kbd className="komut-kisayol">{kisayolEtiket}</kbd>
@@ -304,7 +301,7 @@ export function UygulamaKabugu() {
               >
                 {kullanici ? basharfler(kullanici.ad_soyad || kullanici.eposta) : null}
               </Avatar>
-              <span style={{ lineHeight: 1.25, textAlign: 'left' }}>
+              <span className="kullanici-cip-metin" style={{ lineHeight: 1.25, textAlign: 'left' }}>
                 <span
                   style={{
                     display: 'block',
@@ -328,12 +325,15 @@ export function UygulamaKabugu() {
                   </span>
                 )}
               </span>
-              <DownOutlined style={{ fontSize: 10, color: 'var(--metin-soluk)' }} />
+              <DownOutlined
+                className="kullanici-cip-ok"
+                style={{ fontSize: 10, color: 'var(--metin-soluk)' }}
+              />
             </button>
           </Dropdown>
         </Layout.Header>
 
-        <Layout.Content style={{ padding: '28px 32px' }}>
+        <Layout.Content className="icerik-alani">
           <div className="icerik-acilis">
             <Outlet />
           </div>

@@ -58,7 +58,22 @@ function BaslikGovde({
           )}
         </div>
       </div>
-      {sag && <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>{sag}</div>}
+      {/* Dar ekranda görünüm geçişi + aksiyonlar alt satıra kırılır (kırılmazsa sayfayı
+          yatay kaydırıyordu: vardiya/duruş 390 px'de +160 px). */}
+      {sag && (
+        <div
+          className="sayfa-baslik-sag"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 12,
+            maxWidth: '100%',
+          }}
+        >
+          {sag}
+        </div>
+      )}
     </div>
   );
 }

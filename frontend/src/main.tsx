@@ -8,7 +8,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as AntdApp, ConfigProvider } from 'antd';
-import trTR from 'antd/locale/tr_TR';
+// ESM yolu: `antd/locale/tr_TR` CommonJS'tir; Vite 8 (rolldown) onu `default` altında
+// sarıyordu ve locale sessizce İngilizceye düşüyordu ("20 / page", 2026-09-26).
+import trTR from 'antd/es/locale/tr_TR';
 
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';

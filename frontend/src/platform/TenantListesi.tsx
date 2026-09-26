@@ -83,6 +83,7 @@ export function TenantListesi() {
       </div>
 
       <Table<TenantOzet>
+        scroll={{ x: 'max-content' }}
         rowKey="id"
         size="middle"
         loading={isLoading}

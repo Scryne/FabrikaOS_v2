@@ -47,6 +47,7 @@ export function AbonelikListesi() {
     <div>
       <h2 style={{ margin: '0 0 16px', fontSize: 17 }}>{t('platform.abonelikler')}</h2>
       <Table<AbonelikSatir>
+        scroll={{ x: 'max-content' }}
         rowKey="id"
         size="middle"
         loading={isLoading}
