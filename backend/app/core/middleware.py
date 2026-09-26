@@ -12,6 +12,8 @@ güvenilir biçimde aktarılır (BaseHTTPMiddleware'in task-sınırı tuzağı y
 
 from __future__ import annotations
 
+import json
+import logging
 import uuid
 from collections.abc import Awaitable, Callable, MutableMapping
 from typing import Any
@@ -73,3 +75,55 @@ class RequestContextMiddleware:
             await send(message)
 
         await self.app(scope, receive, send_wrapper)
+
+
+_hata_logger = logging.getLogger("app.exceptions")
+
+_SUNUCU_HATASI = json.dumps(
+    {"success": False, "message": "Sunucu hatası", "hata_kodu": "SUNUCU", "detaylar": []}
+).encode()
+
+
+class BeklenmeyenHataMiddleware:
+    """Yakalanmamış istisnayı zincirin İÇİNDE standart 500 zarfına çevirir (saf ASGI).
+
+    Starlette ``Exception`` yakalayıcısını en dıştaki ``ServerErrorMiddleware``'de koşturur:
+    yanıt CORS ve istek-bağlamı katmanlarının DIŞINDA üretilir. Tarayıcı bu yüzden gerçek
+    500 yerine "CORS engelledi" görür, yanıtta ``x-request-id`` de olmaz, istisna ayrıca
+    yeniden fırlatılıp ikinci kez loglanır. Bu middleware en içe eklenir; ürettiği yanıt
+    dıştaki CORS ve ``RequestContextMiddleware``'den geçer.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        basladi = False
+
+        async def send_wrapper(message: Message) -> None:
+            nonlocal basladi
+            if message["type"] == "http.response.start":
+                basladi = True
+            await send(message)
+
+        try:
+            await self.app(scope, receive, send_wrapper)
+        except Exception as exc:
+            if basladi:
+                raise  # yanıt yarıda kesildi; düzgün bir 500 artık gönderilemez
+            _hata_logger.exception("Beklenmeyen hata: %s", exc)
+            await send(
+                {
+                    "type": "http.response.start",
+                    "status": 500,
+                    "headers": [
+                        (b"content-type", b"application/json"),
+                        (b"content-length", str(len(_SUNUCU_HATASI)).encode()),
+                    ],
+                }
+            )
+            await send({"type": "http.response.body", "body": _SUNUCU_HATASI})

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import sys
 from datetime import UTC, datetime
 from typing import Any
@@ -24,13 +25,25 @@ class ContextFilter(logging.Filter):
         return True
 
 
+# WebSocket tarayıcıda başlık gönderemediği için access token ``/ws/olaylar?token=...`` ile
+# gelir; uvicorn erişim/hata logları URL'yi olduğu gibi yazıyordu → geçerli JWT log akışına
+# düz metin düşüyordu. Sorgu parametresindeki gizli değerler loga yazılmadan maskelenir.
+_GIZLI_PARAM = re.compile(
+    r"""([?&](?:token|access_token|refresh_token)=)[^&\s"']+""", re.IGNORECASE
+)
+
+
+def gizli_maskele(metin: str) -> str:
+    return _GIZLI_PARAM.sub(r"\1[gizli]", metin)
+
+
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload: dict[str, Any] = {
             "zaman": datetime.now(UTC).isoformat(),
             "seviye": record.levelname,
             "logger": record.name,
-            "mesaj": record.getMessage(),
+            "mesaj": gizli_maskele(record.getMessage()),
             "request_id": getattr(record, "request_id", "-"),
             "tenant": getattr(record, "tenant_slug", "-"),
         }

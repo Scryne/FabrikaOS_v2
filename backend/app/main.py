@@ -15,7 +15,7 @@ from app.api.saglik import router as saglik_router
 from app.core.config import get_settings
 from app.core.exceptions import hata_handlerlari_kaydet
 from app.core.logging import yapilandir_loglama
-from app.core.middleware import RequestContextMiddleware
+from app.core.middleware import BeklenmeyenHataMiddleware, RequestContextMiddleware
 
 logger = logging.getLogger("app")
 
@@ -41,7 +41,9 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # En dışta CORS, içte istek bağlamı (Starlette son eklenen middleware'i en dışta uygular).
+    # Dıştan içe: CORS → istek bağlamı → beklenmeyen hata. (Starlette son eklenen middleware'i
+    # en dışta uygular.) Hata katmanı en içte ki 500 yanıtı da CORS + x-request-id taşısın.
+    app.add_middleware(BeklenmeyenHataMiddleware)
     app.add_middleware(RequestContextMiddleware)
     if ayar.cors_origins:
         app.add_middleware(
