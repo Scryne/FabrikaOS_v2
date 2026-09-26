@@ -3,6 +3,7 @@
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![FastAPI](https://img.shields.io/badge/FastAPI-async-009688?logo=fastapi&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16%20%2B%20TimescaleDB-336791?logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-pub%2Fsub-DC382D?logo=redis&logoColor=white)
@@ -22,39 +23,46 @@ dağınık tablolar yerine tek panodan tesisi yönetir.
 
 ## Durum
 
-**Faz 0 (Temel) ✅ · Faz 1 (MVP) ✅ · Faz 2 (Saha & Modüller) ✅ · Faz 3 (Zekâ) ✅ ·
-Faz 4 (Lisanslama & Dış Entegrasyon) ✅ → 🚦 Faz 4 kapısı GEÇİLDİ.**
-Sıradaki: **Faz 4B — Vitrin Bütünlüğü** (köprü sprinti; tasarım hazır:
-[`docs/superpowers/specs/2026-07-11-svb-vitrin-butunlugu-design.md`](docs/superpowers/specs/2026-07-11-svb-vitrin-butunlugu-design.md)).
+**Faz 0–4 ✅ · Faz 4B (Vitrin Bütünlüğü) ✅ · Faz 6'dan S23 (kurumsal güvenlik & uyum) ve S24
+(MES derinleşmesi) ✅.** S25 (tedarik zinciri) tasarımı hazır ([ADR-0024](docs/adr/0024-tedarik-zinciri-derinlesmesi.md)),
+kodlanmadı. Faz 5'in operasyon sprintleri (gözlemlenebilirlik, DR, UAT, GA `v1.0.0`) bilinçli
+olarak açık: ürün bir portföy/ürün geliştirme çalışması, canlı müşterisi yok.
 
 | Sprint | Konu | Durum |
 |---|---|---|
 | S1–S2 | Çekirdek + çok kiracılılık + kimlik/RBAC | ✅ |
-| S3–S4 | Üretim/OEE + İş emri/Bakım (backend) | ✅ |
-| S5 | SPA iskeleti + Auth (frontend) | ✅ |
-| S6 | Üretim/İş emri ekranları + ECharts pano + sunucu-taraflı tablo | ✅ |
-| S7 | Gerçek zaman (WebSocket + Redis pub/sub) + uçtan uca + izolasyon | ✅ |
+| S3–S7 | Üretim/OEE, iş emri/bakım, SPA, ekranlar, gerçek zaman (WebSocket + Redis pub/sub) | ✅ |
 | S8 | Edge & Ingestion (MQTT + store-and-forward + cihaz yönetimi) | ✅ |
-| S9 | Stok & Satınalma (malzeme + hareket + kritik eşik + çok-kalemli talep/onay) | ✅ |
-| S10 | Kalite & Enerji (denetim + Tam CAPA + enerji hypertable + continuous aggregate trend) | ✅ |
-| S11 | İSG & İK (iş kazası + risk matrisi + personel/KVKK + izin onay akışı + zimmet/sertifika) | ✅ |
-| S12 | CRM/Sözleşme/Talep + DYS (sürümlü belge, MinIO) + Duyuru + Ticari pano | ✅ |
-| S13 | AI/ML çekirdeği (kestirimci bakım + anomali + OEE + stok tahmini, sürümlü model artefaktları) | ✅ |
-| S14 | Analitik & Raporlama (modüller-arası KPI panosu + async PDF/Excel rapor, MinIO) | ✅ |
-| S15 | Dijital ikiz (SVG tesis şeması, canlı durum + sürükle-yerleştir) + Kiosk (salt-okunur büyük ekran) | ✅ |
-| S16 | Abonelik, Entitlement & Feature Flag (plan katalogu + modül hakları + koltuk limiti + `/abonelik` ekranı) | ✅ |
-| S17 | Platform Admin Paneli (control-plane kimlik düzlemi + tenant yaşam döngüsü + entitlement yazma + KVKK ihracı) | ✅ |
-| S18 | Dış Portal (firma-kapsamlı self-servis) + Webhook (imzalı/retry'lı relay) + API anahtarı (`/entegrasyon`) | ✅ |
-| **S-VB** | **Vitrin Bütünlüğü + Bildirim Merkezi çekirdeği** (SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim) | ⬜ ▶ sıradaki |
-| S19 → S22 | Operasyon, Gözlemlenebilirlik, DR, UAT, **GA `v1.0.0`** | ⬜ planlı |
-| S23 → S28 | Faz 6 — Kurumsal derinleşme (2FA/SSO, MES/WMS/QMS olgunluğu, bildirim/onay, güvence) | ⬜ planlı |
-| S29 → S32 | Faz 7 — Yeni satılabilir modüller (finans, planlama/APS, satış→MRP, ESG) | ⬜ planlı |
-| M0 → M5 | Faz 8 — **"FabrikaOS Saha"** mobil uygulaması ([`mobilplani.md`](mobilplani.md)) | ⬜ planlı |
+| S9–S12 | Stok/satınalma, kalite (tam CAPA)/enerji, İSG/İK (KVKK), CRM/sözleşme/talep, DYS (MinIO) | ✅ |
+| S13–S15 | AI/ML çekirdeği, analitik + async PDF/Excel rapor, dijital ikiz + kiosk | ✅ |
+| S16–S18 | Abonelik/entitlement, platform admin paneli, dış portal + imzalı webhook + API anahtarı | ✅ |
+| S-VB | Bildirim merkezi, SLA, operatör eşleştirme, tedarikçi skoru, coğrafi harita, takvim | ✅ |
+| S23 | 2FA, OIDC SSO (PKCE), oturum yönetimi, denetim kaydı, KVKK self-servis ihraç/anonimleştirme | ✅ |
+| S24 | Vardiya, duruş + Pareto, ürün/reçete (BOM), lot izlenebilirliği, MTBF/MTTR | ✅ |
+| S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi) | 📐 tasarım |
+| S19–S22 | Gözlemlenebilirlik, DR, UAT, GA `v1.0.0` | ⬜ |
+| S26–S32, M0–M5 | QMS/İK tamamlama, finans, APS, ESG, "FabrikaOS Saha" mobil | ⬜ planlı |
 
-**Kalite kapısı:** **560+ backend** testi + **190+ frontend** testi (Vitest + RTL) +
-Playwright **E2E** (canlı güncelleme). `ruff` + `mypy` (backend) ve `tsc --strict` + ESLint
-(frontend) temiz. Korunan **7 kritik test ailesi**: tenant izolasyonu, provizyonlama, RBAC,
-OEE hesaplama, AI çıktısı, migrasyon fan-out, KVKK ihraç/silme.
+**Kalite kapısı (2026-09-26, CI'da):** **667 backend** testi (birim + gerçek PostgreSQL/
+TimescaleDB entegrasyon) + **214 frontend** testi (Vitest + RTL) · `ruff` + `mypy` · `tsc --strict`
++ ESLint + Prettier · `pip-audit` ve `npm audit` (yüksek/kritik açık = kırmızı). Playwright E2E
+(canlı güncelleme) yerelde, çalışan yığın ister. Korunan **7 kritik test ailesi**: tenant
+izolasyonu, provizyonlama, RBAC, OEE hesaplama, AI çıktısı, migrasyon fan-out, KVKK ihraç/silme.
+
+---
+
+## Ekranlar
+
+| | |
+|---|---|
+| ![Yönetim panosu](docs/ekranlar/02-yonetim-panosu.webp) | ![Lot izlenebilirliği](docs/ekranlar/03-lot-izlenebilirligi.webp) |
+| **Yönetim panosu** — canlı OEE, stok, satınalma, kalite, İSG tek ekranda | **Lot izlenebilirliği** — iş emri → BOM tüketimi → üretim kaydı |
+| ![Duruş Pareto](docs/ekranlar/04-durus-pareto.webp) | ![Kiosk](docs/ekranlar/05-kiosk.webp) |
+| **Duruş Pareto'su** — kayıp dakikaların %80'ini hangi nedenler yapıyor | **Kiosk** — saha büyük ekranı, kabuksuz, canlı |
+| ![Dijital ikiz](docs/ekranlar/08-dijital-ikiz.webp) | ![Platform yönetimi](docs/ekranlar/11-platform-tenant.webp) |
+| **Dijital ikiz** — tesis şeması üzerinde canlı makine durumu | **Platform paneli** — tenant yaşam döngüsü, modül hakları, KVKK ihracı |
+| ![Landing](docs/ekranlar/01-landing.webp) | ![Mobil](docs/ekranlar/13-mobil-pano.webp) |
+| **Tanıtım sayfası** | **Mobil** — 390 px'de taşmasız kabuk |
 
 ---
 
@@ -108,10 +116,10 @@ UI sözleşmesi: [`uiplani.md`](uiplani.md) (UI/UX Master Planı v2).
 - **Gerçek zaman:** FastAPI WebSocket + Redis pub/sub, tenant-kapsamlı kanallar (`tenant:<slug>:olaylar`)
 - **Saha:** MQTT + Edge Gateway (simülatör + OPC-UA/Modbus iskeleti) + store-and-forward
 - **Entegrasyon:** transactional outbox (`giden_olaylar`) → imzalı webhook relay (ayrı süreç) + API anahtarı
-- **Frontend:** React 18 + TypeScript (strict) + Vite + Ant Design v5 (özel koyu tema) + ECharts + TanStack Query
+- **Frontend:** React 18 + TypeScript (strict) + Vite 8 + Ant Design v5 (özel koyu tema) + ECharts 6 + TanStack Query
 - **Kimlik:** OAuth2/JWT + RBAC, argon2id, rotasyonlu refresh (Redis iptal listesi); ayrık platform kimlik düzlemi
 
-Mimari kararların gerekçeleri: [`docs/adr/`](docs/adr/) (**ADR-0001 … ADR-0020**).
+Mimari kararların gerekçeleri: [`docs/adr/`](docs/adr/) (**ADR-0001 … ADR-0024**).
 
 ## Dizin yapısı
 
@@ -129,22 +137,22 @@ backend/app/
                     #   enerji, isg, ik, crm, sozlesme, talep, ticari, dys, duyuru,
                     #   ai, analitik, rapor, abonelik, entegrasyon, dis
 backend/migrations/ # Alembic iki ağaç: public/ + tenant/ (fan-out)
-backend/scripts/    # provizyon, seed (demo_verisi), entitlement, webhook_relay, platform yönetici
+backend/scripts/    # provizyon, seed (demo_verisi), entitlement, webhook_relay, bildirim_uretici, platform yönetici
 backend/tests/      # birim + entegrasyon testleri (7 kritik test ailesi)
 edge/               # Edge Gateway Agent (bağımsız paket: sürücü + store-and-forward + MQTT)
 frontend/src/       # api, components, layouts, modules, store, i18n, tema, routes
 frontend/e2e/       # Playwright E2E (gerçek-zaman canlı güncelleme)
-docs/adr/           # mimari karar kayıtları (0001–0020)
+docs/adr/           # mimari karar kayıtları (0001–0024)
 docs/superpowers/   # sprint-başına detaylı tasarım (specs/) + TDD uygulama planları (plans/)
 docs/yol-haritasi.md, uiplani.md, mobilplani.md, docs/veri-sozlugu.md
-docker-compose.yml  # api, db (timescale), redis, minio, mqtt, traefik
+docker-compose.yml  # api, ingestion, bildirim, webhook-relay, db (timescale), redis, minio, mqtt, traefik
 ```
 
 ## Geliştirme ortamı
 
 ### Gereksinimler
 - **Docker Desktop** (backend yığını için zorunlu)
-- **Node.js 20+** (frontend için)
+- **Node.js 22+** (frontend için)
 - (Opsiyonel) Python 3.12 — yerel hızlı test/lint için
 
 ### Backend (Docker)
@@ -152,6 +160,11 @@ docker-compose.yml  # api, db (timescale), redis, minio, mqtt, traefik
 cp .env.example .env
 docker compose up --build
 ```
+Yığın API'nin yanında üç arka plan süreci kaldırır: **ingestion** (MQTT → tenant şeması),
+**bildirim** (outbox → bildirim merkezi + e-posta) ve **webhook-relay** (outbox → imzalı
+teslimat). API olayları yalnızca outbox'a yazar; bu süreçler kapalıysa bildirim ve webhook
+akmaz.
+
 - API: http://localhost:8000
 - Sağlık: http://localhost:8000/saglik
 - Swagger/OpenAPI: http://localhost:8000/docs
@@ -172,6 +185,11 @@ npm run dev                 # http://localhost:5173
 ```bash
 docker compose run --rm api python -m backend.scripts.demo_verisi   # tekrar-çalıştırılabilir seed
 ```
+İlk çalıştırma tüm modülleri doldurur. Sonraki çalıştırmalar kayıt çoğaltmaz: eksik modülleri
+tamamlar, üretim/enerji zaman serisini bugüne getirir ve AI modellerini yeniden eğitir — demo
+zamanla "yaşlanmaz" (kiosk ve son-24-saat göstergeleri dolu kalır). Stok tahmin modeli malzeme
+başına en az üç günlük gerçek tüketim geçmişi ister; yeni kurulan tenant'ta bu süre dolana
+kadar "yetersiz veri" gösterir (stok hareketleri geriye tarihlenemez).
 - Tenant: **`demo`** (tüm modüller gerçekçi veriyle dolu) · giriş ekranında **Firma kodu = `demo`**
   (veya `demo.fabrikaos.localhost` subdomain); API isteklerinde `X-Tenant: demo` başlığı.
 
@@ -276,7 +294,7 @@ olmadan güncellenir. REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcuml
 - **RBAC:** Türkçe `kaynak:eylem` izin sözlüğü; her uçta `Depends(izin_gerekli("..."))`;
   entitlement kapısı `Depends(modul_gerekli("..."))`
 - **Commit:** Conventional Commits · **Dallanma:** trunk-based · **Sürüm:** SemVer
-- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (**0001–0020**)
+- **Mimari kararlar:** [`docs/adr/NNNN-*.md`](docs/adr/) (**0001–0024**)
 
 ## Dokümantasyon
 
@@ -287,7 +305,7 @@ olmadan güncellenir. REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcuml
 | [`DESIGN.md`](DESIGN.md) | Görsel sistem — token'lar, hat rengi kimliği, bileşen desenleri |
 | [`uiplani.md`](uiplani.md) | UI/UX Master Planı v2 — tam site haritası + modül-modül ekran spec'leri |
 | [`mobilplani.md`](mobilplani.md) | "FabrikaOS Saha" mobil master planı (Faz 8 / M0–M5) |
-| [`docs/adr/`](docs/adr/) | Mimari karar kayıtları (0001–0020) |
+| [`docs/adr/`](docs/adr/) | Mimari karar kayıtları (0001–0024) |
 | [`docs/superpowers/specs/`](docs/superpowers/specs/) | Sprint-başına kodlanmaya hazır tasarım belgeleri |
 | [`docs/veri-sozlugu.md`](docs/veri-sozlugu.md) | Veri sözlüğü — kavram ↔ identifier ↔ tablo/kolon |
 
@@ -299,6 +317,37 @@ olmadan güncellenir. REST/CSV ile de gönderilebilir: `POST /api/v1/saha/olcuml
 **Faz 7** Yeni Satılabilir Modüller → **Faz 8** Mobil Saha.
 
 Sprint-sprint kapsam, kabul kriterleri, DoD ve geçiş kapıları: **[`docs/yol-haritasi.md`](docs/yol-haritasi.md)**.
+
+## Nasıl geliştirildi
+
+FabrikaOS baştan sona yapay zekâ ile, ama disiplinle kuruldu: 173 commit'in 172'si Claude ortak
+yazarlı. Hız modelden, doğruluk süreçten geldi:
+
+- **Şartname → ADR → spec → plan → TDD.** Her sprint bir tasarım belgesiyle
+  ([`docs/superpowers/specs/`](docs/superpowers/specs/)) ve adım adım uygulama planıyla
+  ([`plans/`](docs/superpowers/plans/)) başladı ve TDD ile uygulandı; mimari kararlar 24 ADR'de
+  gerekçesiyle kayıtlı.
+- **Riskli kurallar testle kilitlendi.** Tenant izolasyonu, `search_path` sızıntısı, RBAC görev
+  ayrımı, KVKK imha sırası gibi "yanlış olursa veri sızar" kuralları için ayrı test aileleri var;
+  bir sözleşme testi, KVKK artefaktına paylaşılabilir (presigned) URL yüzeyi eklenirse kırılır.
+- **Model çıktısı denetlendi.** Her sprint sonu inceleme turu yapıldı; bulunan hatalar
+  (webhook URL'sinde SSRF önek hilesi, yetki restorasyonu, imha sırası) ayrı commit'lerle
+  kapatıldı.
+- **2026-09 denetimi** ürünü yeniden ölçtü ve şunları kapattı: CI 07-30'dan beri kırmızıydı
+  (KVKK testleri gerçek MinIO'ya çıkıyordu → hermetik); beklenmeyen 500'ler CORS başlığı olmadan
+  dönüp tarayıcıda "CORS hatası" görünüyordu; WebSocket token'ı erişim loguna düz metin
+  düşüyordu; mobilde her sayfa 241 px yatay taşıyordu; bildirim ve webhook süreçleri
+  compose'da yoktu; demo verisi yeni modülleri doldurmuyor ve birkaç günde "yaşlanıyordu";
+  geliştirme bağımlılıklarında 10 yüksek/kritik açık vardı (Vite 8, Vitest 5, ECharts 6); anomali
+  ekranının her açılışı tüm yetkililere yeni bir bildirim gönderiyordu.
+
+## Güvenlik notları
+
+- Kalan bilinen açık: `react-router` 6 için iki orta seviye uyarı (backslash ile açık yönlendirme,
+  SSR hidrasyonu). Uygulama SPA'dır (SSR yok) ve tüm yönlendirmeler sabit iç yollara gider
+  (`/pano`, `/giris`); kullanıcı kontrollü hedef yoktur. Düzeltme v7'ye geçiş ister, planlıdır.
+- WebSocket kimliği tarayıcı kısıtı gereği sorgu parametresinde taşınır; log akışında
+  `token=` değerleri maskelenir.
 
 ## Lisans
 

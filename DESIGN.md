@@ -1,126 +1,154 @@
-# Design
+---
+version: alpha
+name: FabrikaOS
+description: Çok kiracılı MES+ERP için koyu kontrol odası arayüzü — nötr antrasit zemin, mavi yalnızca vurgu, modül kimliği hat renkleriyle.
+colors:
+  zemin: "#0e0e0f"
+  yuzey: "#161617"
+  yuzey-2: "#0b0b0c"
+  yuzey-ust: "#1d1d1f"
+  kenarlik: "#262628"
+  kenarlik-parlak: "#34343a"
+  metin: "#f4f4f6"
+  metin-soluk: "#8c8c92"
+  mavi: "#3b6ef6"
+  mavi-koyu: "#315fd6"
+  cyan: "#38bdf8"
+  basari: "#22c55e"
+  uyari: "#f59e0b"
+  hata: "#ef4444"
+  mor: "#8b5cf6"
+  hat-genel: "#3b6ef6"
+  hat-uretim: "#38bdf8"
+  hat-stok: "#2dd4bf"
+  hat-kalite: "#8b5cf6"
+  hat-isg-ik: "#f59e0b"
+  hat-ticari: "#34d399"
+  hat-dokuman: "#f472b6"
+  hat-zeka: "#d946ef"
+  hat-yonetim: "#94a3b8"
+typography:
+  govde:
+    fontFamily: Inter Variable
+    fontSize: 14px
+  sayisal:
+    fontFamily: JetBrains Mono Variable
+    letterSpacing: 0.01em
+  kpi-deger:
+    fontFamily: JetBrains Mono Variable
+    fontSize: 28px
+    fontWeight: 700
+    lineHeight: 1.1
+    letterSpacing: -0.02em
+rounded:
+  borderRadius: 10px
+  borderRadiusLG: 16px
+components:
+  kart:
+    backgroundColor: "{colors.yuzey}"
+    rounded: "{rounded.borderRadiusLG}"
+    padding: 20px
+  girdi:
+    backgroundColor: "{colors.yuzey-ust}"
+    rounded: "{rounded.borderRadius}"
+    height: 38px
+  buton:
+    rounded: "{rounded.borderRadius}"
+    height: 40px
+  buton-birincil:
+    backgroundColor: "{colors.mavi}"
+    rounded: "{rounded.borderRadius}"
+    height: 40px
+  ust-bar:
+    backgroundColor: "{colors.zemin}"
+    height: 64px
+  kenar-cubugu:
+    backgroundColor: "{colors.yuzey-2}"
+  menu-ogesi:
+    textColor: "{colors.metin-soluk}"
+    rounded: "{rounded.borderRadius}"
+    height: 40px
+---
 
-Görsel sistem: **premium dark SaaS** — **nötr antrasit** zemin (R=G=B, lacivert değil), **mavi
-YALNIZCA vurgu** (aksiyon/aktif/seçim), yumuşak büyük yuvarlak kartlar, ince düşük-kontrast
-kenarlık, Inter tipografi, sayısal değerlerde JetBrains Mono. Zemin rampası referansı: koyu
-kontrol-odası panoları (#101010/#181818 ailesi, mükemmel nötr gri). Ant Design v5 motor; bu
-token'lar onun üstüne giydirilen "deri"dir. Tek doğruluk kaynağı: `frontend/src/tema/tema.ts`
-(AntD token'ları) + `frontend/src/index.css` (CSS değişkenleri).
+## Overview
 
-## Theme
-- **Mod:** yalnızca koyu. Senaryo: fabrika/kontrol odası + masabaşı yönetim; koyu zemin canlı
-  veriyi öne çıkarır, uzun bakışta yormaz.
-- **Color strategy:** Restrained — sakin koyu nötr yüzeyler + tek mavi vurgu (yüzeyin <%10'u)
-  yalnızca aksiyon/aktif/seçim için. Renk = sinyal, dekorasyon değil. Grafiklerde kategorik
-  çok-renk (mavi/yeşil/amber/mor) yalnızca veri serilerini ayırmak için.
+FabrikaOS, KOBİ üreticiler için çok kiracılı bir MES+ERP platformudur: saha operatörü bir
+olayı saniyeler içinde görüp aksiyona dönüştürür, yönetici dağınık tablolar yerine tek
+panodan tesisi yönetir. Görsel yön bir **kontrol odası panosu**: sakin, nötr koyu zemin;
+renk ve hareket yalnızca durum ve aksiyon taşır, dekorasyon değildir. Kişilik: kontrollü,
+kesin, uyanık. Yalnız koyu tema vardır — fabrika zemini ve uzun bakış için.
 
-## Color
-Nötr antrasit rampa (R=G=B; lacivert/mavi kayması YOK) + mavi vurgu + semantik durumlar
-(AntD hex bekler; CSS değişkeni olarak da açılır).
+## Colors
 
-| Rol | Token | Değer |
-|---|---|---|
-| Zemin | `--zemin` | `#0e0e0f` |
-| Yüzey (kart) | `--yuzey` | `#161617` |
-| Yüzey-2 (sidebar) | `--yuzey-2` | `#0b0b0c` |
-| Yüzey-üst (input/elevated) | `--yuzey-ust` | `#1d1d1f` |
-| Kenarlık | `--kenarlik` | `#262628` (düşük kontrast, yumuşak) |
-| Metin | `--metin` | `#f4f4f6` (≥4.5:1) |
-| Metin-soluk | `--metin-soluk` | `#8c8c92` (~5.6:1) |
-| Birincil (mavi) | `colorPrimary` | `#3b6ef6` — aksiyon/aktif/seçim |
-| Info (cyan) | `colorInfo` | `#38bdf8` |
-| Başarı | `colorSuccess` | `#22c55e` |
-| Uyarı | `colorWarning` | `#f59e0b` |
-| Hata | `colorError` | `#ef4444` |
-| Ek (mor, data-viz) | `--mor` | `#8b5cf6` |
-
-Durum-zengin semantik (default/hover/focus/active/disabled/selected/loading/error).
-Mavi buton üzerinde beyaz metin AA geçer (~4.8:1). Durum göstergeleri renk + nokta/etiket
-(renk körlüğü için renk tek başına anlam taşımaz).
-
-### Hat renkleri (modül kimliği)
-Endüstriyel hat/boru renk kodlaması metaforu: her menü bölümü bir **hat rengi** taşır.
-Kullanım yüzeyi bilinçli olarak küçüktür (~%2-3): sayfa başlığı ikon plakası, sidebar grup
-noktası, KPI ikon plakası. Restrained strateji bozulmaz — renk kimlik sinyalidir, dekor değil.
-Tek doğruluk kaynağı: `frontend/src/tema/modulKimlik.tsx` (+ `--hat-*` CSS değişkenleri).
-
-| Bölüm | Token | Değer |
-|---|---|---|
-| Genel | `--hat-genel` | `#3b6ef6` |
-| Üretim | `--hat-uretim` | `#38bdf8` |
-| Stok & Satınalma | `--hat-stok` | `#2dd4bf` |
-| Kalite & Enerji | `--hat-kalite` | `#8b5cf6` |
-| İSG & İK | `--hat-isg-ik` | `#f59e0b` |
-| Ticari | `--hat-ticari` | `#34d399` |
-| Doküman & Duyuru | `--hat-dokuman` | `#f472b6` |
-| Zekâ | `--hat-zeka` | `#d946ef` |
-| Yönetim | `--hat-yonetim` | `#94a3b8` |
+- Zemin rampası **nötr antrasittir** (R=G=B); maviye/laciverte kaydırılmaz.
+- `mavi` yalnızca aksiyon, aktif ve seçim içindir; yüzeyin küçük bir kısmını kaplar.
+  Birincil buton, aktif menü ve odak halkası mavidir; başlık, kart veya zemin değildir.
+- Semantik renkler (`basari`, `uyari`, `hata`, `cyan`) yalnız durum bildirir. Durum hiçbir
+  zaman yalnız renkle anlatılmaz: nokta + etiket birlikte (`DurumPim`), renk körlüğü için.
+- **Hat renkleri** endüstriyel hat/boru renk kodlaması metaforudur: her menü bölümünün bir
+  hattı vardır. Kullanım yüzeyi bilinçli olarak küçüktür — sayfa başlığı ikon plakası, kenar
+  çubuğu grup noktası, KPI ikon plakası, modül hat şeridi ve komut paletindeki satır noktası.
+  Hat rengi kimlik sinyalidir; zemin veya büyük yüzey boyamak için kullanılmaz.
+- Grafiklerde kategorik çok renk (mavi/yeşil/amber/mor/cyan) yalnızca veri serilerini ayırmak
+  içindir.
+- Kontrast hedefi WCAG 2.1 AA: gövde metni ve `metin-soluk` koyu zemin üzerinde AA geçer;
+  birincil butonda metin beyazdır.
 
 ## Typography
-- **Gövde/UI:** `Inter Variable` (system-ui fallback). Tek aile; ürün UI'ı display/body
-  eşleşmesine ihtiyaç duymaz.
-- **Sayısal/veri:** `JetBrains Mono Variable` (`.sayisal` sınıfı, `tabular-nums`) — KPI,
-  OEE, sayaç, kod, zaman hizalı okunur.
-- **Ölçek:** sabit rem (akışkan değil), gövde 14px. Başlık `-0.02em` letter-spacing.
 
-## Components (AntD token'ları)
-`borderRadius` 10, kart `borderRadiusLG` 16, `wireframe:false`. Kabuk: bölümlü sol sidebar
-(hat noktalı grup başlıkları + tüm modüllerde ikon + **mavi aktif pill** `itemSelectedBg`
-rgba(59,110,246,0.14) + alt tenant/çalışma alanı kartı) + üst bar (arama + saat + **canlı
-rozet** (gerçek-zaman WS durumu) + dil + bildirim + kullanıcı/rol çipi). Açılır katmanlar
-(dropdown/modal/tooltip) karartı + 1px ışık halkası gölgesi taşır (`boxShadowSecondary`).
-
-Ekran desenleri (tek kelime hazinesi, ekran-ekran aynı):
-- **SayfaBaslik** — rotadan otomatik modül kimliği: hat renkli ikon plakası (`.ikon-plaka`) +
-  bölüm kırıntısı (hat noktası + bölüm adı) + başlık + alt metin + sağ aksiyon.
-- **SunucuTablo** — araç çubuğu (kayıt sayacı çipi `.kayit-sayaci` + arama + filtre) + tablo;
-  boş durumlar **BosDurum** (ikon + başlık + açıklama + opsiyonel CTA) ile öğretir.
-- **KpiKart** — büyük mono sayı (`.kpi-deger` 28px) + hat renkli küçük ikon plakası + delta.
-- **Kanban kartı** (`.kanban-kart`) — hover'da hafif kalkış (transform+gölge); kolon başlığında
-  durum noktası + sayaç.
-- **Giriş ekranı imzası** — sol marka panelinde animasyonlu üretim hattı şeması (`.giris-hat`,
-  akan cyan sinyal; reduced-motion'da statik soluk çizgi).
-Her interaktif bileşen default→error tüm durumlarda.
-
-## Motion
-- 150–250 ms; hareket durum taşır (içerik açılışı, sütun büyümesi `transform: scaleY` ile —
-  layout animasyonu değil). Easing ease-out; bounce yok. `prefers-reduced-motion` zorunlu.
+- Tek UI ailesi `govde` (Inter); ürün arayüzü display/body eşleşmesine ihtiyaç duymaz.
+- Her sayısal değer — KPI, OEE, sayaç, kod, zaman — `sayisal` ölçeğiyle ve tabular rakamla
+  yazılır ki sütunlarda hizalı okunsun. Büyük göstergeler `kpi-deger` ölçeğini kullanır.
+- Ölçek sabittir (akışkan tipografi yok); tek istisna kiosk büyük ekranının KPI değeridir.
 
 ## Layout
-- Responsive yapısaldır: `lg` breakpoint'te sidebar çekmeceye çöker; KPI/grafik/tablo
-  AntD Row/Col grid ile yeniden dizilir. Akışkan tipografi yok.
 
-## Kontrol Odası (Evrim) — modül çalışma alanı deseni
+- Kabuk: bölümlü sol kenar çubuğu (hat noktalı grup başlıkları, aktif öğe mavi hap, altta
+  tenant/çalışma alanı kartı) + üst bar (komut paleti tetiği, saat, canlı bağlantı rozeti, dil,
+  bildirim, kullanıcı/rol çipi) + içerik.
+- `lg` altında kenar çubuğu çekmeceye çöker ve içeriğin üstüne katman olarak açılır; tetiği
+  üst barın içindedir. Dar ekranda üst bar yalnız işlev taşır (saat, ayraç, kullanıcı adı ve
+  kısayol ipucu gizlenir); sayfa hiçbir genişlikte yatay kaymaz.
+- Her modül ekranı aynı iskeleti izler: `SayfaKapsayici` (üstte modül hat şeridi) →
+  `SayfaBaslik` (hat renkli ikon plakası + bölüm kırıntısı + başlık + alt metin + sağ aksiyon)
+  → `OzetSerit` (3-4 KPI, modülün `/ozet` ucundan) → `GorunumGecis` (Liste / Pano / Analiz;
+  pano yalnız durum odaklı modüllerde) → içerik.
+- KPI, grafik ve tablo AntD Row/Col ızgarasıyla yeniden dizilir; pano mozaiği görünür
+  genişliğe göre sütun sayısı seçer.
 
-Her liste ekranı tek-tabloluktan çıkıp tutarlı bir "çalışma alanına" evrilir. Desen tek kez
-tanımlanır (`frontend/src/components/`), ~22 ekrana uygulanır. Renk hâlâ sinyal (~%2-3 yüzey);
-zenginlik **düzen + veri-görselleştirme + hat rengi kimlikten** gelir.
+## Elevation & Depth
 
-**Ekran iskeleti:** `SayfaKapsayici` (maxWidth + üstte modül **hat şeridi** `.hat-serit`) → `SayfaBaslik`
-→ `OzetSerit` (3-4 KPI; `use<Modul>Ozet()` → küçük `/<kaynak>/ozet` ucundan) → `GorunumGecis`
-(Liste / Pano / Analiz — board yalnız durum-odaklı modüllerde) → içerik.
+- Koyu zeminde derinlik gölgeyle değil ışık kenarıyla kurulur: kartlar ince düşük kontrastlı
+  `kenarlik` taşır, `PanelKart` üstte iç ışık çizgisi taşır.
+- Yalnızca açılır katmanlar (dropdown, popover, modal, tooltip) karartı gölgesi + 1px ışık
+  halkası alır.
 
-**Paylaşılan primitifler (tek kelime hazinesi):**
-- **OzetSerit** — modül üstü KPI şeridi (`.ozet-serit` responsive ızgara); her metrik `KpiKart`,
-  ikon plakası hat renginde; opsiyonel `seri?` → satır-içi `MiniTrend` (sparkline).
-- **PanelKart** — enstrüman-panel kartı (`.panel-kart`: üst iç ışık çizgisi + başlıkta hat aksanı).
-- **DurumPim** (`.durum-pim`) — birleşik nokta+etiket; AntD `Tag` yerine tutarlı durum dili
-  (renk körlüğü güvenli). `pimUret(renkHaritasi, i18nÖnek)` ile modül pimi üretilir. İkiz/kiosk
-  LED'leri aynı sözlüğü konuşur.
-- **MiniBar** (`.mini-bar`) — satır-içi oran barı (OEE/stok/risk skoru; semantik renk, `scaleX`).
-- **KanbanPano** + **VeriKart** (`.board-serit`/`.board-kolon`/`.kanban-kart`) — genelleştirilmiş
-  board (durum kolonları + kart); iş emri/satınalma/CAPA/talep/izin/sözleşme board'ları paylaşır.
-- **RiskMatrisi** — 5×5 olasılık×şiddet ısı görseli (hücre sayaç + tıkla→filtre).
-- **UyariKarti** (`.uyari-karti`) — önem-renkli hafif tint + eş-renk yumuşak kenar + renkli ikon
-  (AntD Alert token deseni; **yan-şerit değil**).
-- **AktiviteAkisi** — zaman çizelgesi (renkli nokta + başlık + zaman).
-- **KomutPaleti** (⌘K, `.komut-*`) — üst bar araması global gezinme paletine dönüşür; menüden
-  beslenir + RBAC süzgeçli; satır başında modül hat rengi noktası.
-- **varlık hücresi** (`.varlik-hucre`) — ikon/avatar + ad + alt metin (kod/birim/pozisyon).
+## Shapes
 
-**Grafik üreticileri** (`grafikSecenek.ts`, saf + birim testli): `alanSecenek` (degrade dolgulu
-trend; kesikli=tahmin), `yiginCubukSecenek`, `isiHaritaSecenek`, `sparklineSecenek`, `paretoSecenek`
-— mevcut `gostergeSecenek/cubukSecenek/donutSecenek/cizgiSecenek` yanında.
+- Kontroller `borderRadius`, kartlar ve paneller daha yumuşak `borderRadiusLG` kullanır.
 
-**Backend `/<kaynak>/ozet`:** her modül için küçük, salt-okunur toplulaştırma ucu (tenant-izole +
-`<modul>:oku` RBAC + standart zarf; şema değişmez → migration yok). OzetSerit'i besler.
+## Components
+
+- **Tek kelime hazinesi, ekran-ekran aynı.** Yeni ekran önce paylaşılan primitiflerden kurulur:
+  `OzetSerit`/`KpiKart`, `PanelKart`, `DurumPim`, `MiniBar`, `KanbanPano`/`VeriKart`,
+  `RiskMatrisi`, `UyariKarti`, `AktiviteAkisi`, `KomutPaleti`, varlık hücresi, `BosDurum`.
+  Modül-yerel alternatif yazılmaz.
+- Durum gösterimi AntD `Tag` yerine `DurumPim` ile yapılır; dijital ikiz ve kiosk LED'leri aynı
+  durum sözlüğünü kullanır.
+- Uyarılar önem renginde hafif tint + eş renk yumuşak kenar + renkli ikon taşır (yan şerit değil).
+- Tablolar `SunucuTablo` üzerinden gelir: kayıt sayacı çipi + arama + filtre araç çubuğu; boş
+  durum `BosDurum` ile ne yapılacağını öğretir (ikon + başlık + açıklama + isteğe bağlı CTA).
+- Grafikler `grafikSecenek` üreticilerinden gelir (tema renkleri, koyu ipucu, kategori ekseninde
+  sığmayan etiketler otomatik seyreltilir; tam ad ipucundadır).
+- Giriş ekranının imzası sol marka panelindeki animasyonlu üretim hattı şemasıdır.
+- Her etkileşimli bileşen varsayılandan hataya tüm durumları taşır; odak halkası her zaman
+  görünürdür.
+
+## Do's and Don'ts
+
+- Do: hareketi yalnız durum için kullan (içerik açılışı, sütun büyümesi); `transform` ile anime
+  et, layout özelliğini anime etme. Easing ease-out; sıçrama yok.
+- Do: her geçişin `prefers-reduced-motion` altında sakin bir karşılığı olsun.
+- Don't: genel "SaaS-cream/aydınlık pastel" panel görünümü, temasız varsayılan Ant Design,
+  tüketici uygulaması neşesi, dekoratif gradyan veya animasyon.
+- Don't: veriyi gömen düşük kontrast; kontrol odasında okunaksızlık kabul edilemez.
