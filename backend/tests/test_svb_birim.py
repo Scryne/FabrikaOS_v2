@@ -65,6 +65,21 @@ def test_bildirim_metni_her_olay_icin_dolu() -> None:
         assert govde, olay_turu
 
 
+@pytest.mark.parametrize(
+    ("govde", "beklenen"),
+    [
+        ({"makine_kodlari": ["PRES-1", "FREZE-1"], "anomali_sayisi": 2}, "PRES-1, FREZE-1"),
+        ({"makine_kodlari": ["A", "B", "C", "D", "E"], "anomali_sayisi": 5}, "A, B, C +2"),
+        ({"anomali_sayisi": 4, "makineler": [1, 2]}, "4 bulgu"),  # eski olay gövdesi
+        ({}, "yeni bulgu"),
+    ],
+)
+def test_anomali_basligi_bos_kalmaz(govde: dict[str, object], beklenen: str) -> None:
+    """Anomali olayında ``kod`` yok; başlık eskiden "AI anomali tespiti: " diye bitiyordu."""
+    baslik, _ = bildirim_metni("anomali.tespit", govde)
+    assert baslik == f"AI anomali tespiti: {beklenen}"
+
+
 def test_bildirim_verisi_derin_baglanti() -> None:
     veri = bildirim_verisi("stok.kritik", {"kaynak_id": 7})
     assert veri == {"kaynak_tur": "malzeme", "kaynak_id": 7}

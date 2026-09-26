@@ -155,3 +155,38 @@ async def test_anomali_tespiti_outbox_olayi_uretir(
     assert govde["anomali_sayisi"] == len(cikarim.sonuclar)
     assert makine_id in govde["makineler"]
     assert govde["tahmin_id"] == cikarim.tahmin.id
+
+
+async def test_ayni_anomali_tekrar_goruntulemede_yeniden_bildirilmez(
+    ai_ortam: async_sessionmaker[AsyncSession], test_db: str
+) -> None:
+    """GET /tahmin/anomali her açılışta çıkarım yapar; aynı bulgu için ikinci olay yazılmaz."""
+    await egitim_yardimci._alfa_seed(ai_ortam)
+    async with ai_ortam() as db:
+        await search_path_ayarla(db, "alfa")
+        makine = (await db.execute(select(Makine).where(Makine.kod == "AI-MAK-2"))).scalar_one()
+        db.add(
+            UretimVerisi(
+                zaman=datetime.now(UTC) - timedelta(days=1, hours=2),
+                makine_id=makine.id,
+                planlanan_sure_dk=480.0,
+                durus_sure_dk=460.0,
+                toplam_adet=40,
+                saglam_adet=15,
+                ideal_cevrim_sn=60.0,
+            )
+        )
+        await db.commit()
+    await _egitilmis(ai_ortam, "alfa", "anomali")
+    ilk = await _tahmin(ai_ortam, "alfa", "anomali")
+    ikinci = await _tahmin(ai_ortam, "alfa", "anomali")
+    assert ilk.sonuclar and ikinci.sonuclar
+    assert ikinci.tahmin.id != ilk.tahmin.id  # tahmin geçmişi yine yazılır
+    async with ai_ortam() as db:
+        await search_path_ayarla(db, "alfa")
+        olaylar = (
+            (await db.execute(select(GidenOlay).where(GidenOlay.olay_turu == "anomali.tespit")))
+            .scalars()
+            .all()
+        )
+    assert len(olaylar) == 1

@@ -75,6 +75,20 @@ def _kod(govde: dict[str, Any]) -> str:
     return f"#{kaynak_id}" if kaynak_id is not None else ""
 
 
+def _anomali_ozeti(govde: dict[str, Any]) -> str:
+    """Anomali olayında ``kod`` yok; makine kodları (yoksa bulgu sayısı) özetlenir.
+
+    Eski olaylar yalnız ``anomali_sayisi`` taşır — başlık "AI anomali tespiti: " diye boş
+    bitiyordu.
+    """
+    kodlar = [str(k) for k in govde.get("makine_kodlari") or []]
+    if kodlar:
+        ek = f" +{len(kodlar) - 3}" if len(kodlar) > 3 else ""
+        return ", ".join(kodlar[:3]) + ek
+    sayi = govde.get("anomali_sayisi")
+    return f"{sayi} bulgu" if sayi else "yeni bulgu"
+
+
 def bildirim_metni(olay_turu: str, govde: dict[str, Any]) -> tuple[str, str]:
     """Olay için (başlık, gövde) TR referans metnini üretir — deterministik."""
     kod = _kod(govde)
@@ -88,7 +102,7 @@ def bildirim_metni(olay_turu: str, govde: dict[str, Any]) -> tuple[str, str]:
             "Sözleşmenin bitiş tarihine 30 günden az kaldı.",
         ),
         "anomali.tespit": (
-            f"AI anomali tespiti: {kod}",
+            f"AI anomali tespiti: {_anomali_ozeti(govde)}",
             "Makine verisinde anormal örüntü tespit edildi.",
         ),
         "rapor.hazir": (

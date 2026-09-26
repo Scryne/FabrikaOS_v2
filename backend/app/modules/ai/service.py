@@ -22,16 +22,18 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pandas as pd
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.db.session import get_sessionmaker
 from app.core.db.tenancy import search_path_ayarla
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
-from app.core.olaylar import olay_yayinla
+from app.core.olaylar import GidenOlay, olay_yayinla
 from app.modules.ai import artefakt, modeller, ozellikler, repository
 from app.modules.ai.birimler import MODEL_TURLERI
 from app.modules.ai.models import ModelKaydi, Tahmin
@@ -222,7 +224,8 @@ async def tahmin_calistir(
         olusturan_kullanici_id=kullanici_id,
     )
     await repository.tahmin_ekle(db, tahmin)
-    if tur == "anomali" and sonuclar:
+    makineler = sorted({int(s["makine_id"]) for s in sonuclar}) if tur == "anomali" else []
+    if tur == "anomali" and sonuclar and not await _anomali_yakin_zamanda_bildirildi(db, makineler):
         await olay_yayinla(
             db,
             olay_turu="anomali.tespit",
@@ -230,11 +233,37 @@ async def tahmin_calistir(
                 "tahmin_id": tahmin.id,
                 "model_surum": kayit.surum,
                 "anomali_sayisi": len(sonuclar),
-                "makineler": sorted({int(s["makine_id"]) for s in sonuclar}),
+                "makineler": makineler,
+                # İnsan-okur özet: bildirim başlığı ve webhook alıcısı için (id listesi yetmiyor).
+                "makine_kodlari": sorted(
+                    {s["makine_kod"] for s in sonuclar if s.get("makine_kod")}
+                ),
             },
         )
         await yayinla(slug, {"tur": "anomali.tespit", "id": tahmin.id})
     return CikarimSonucu(kayit=kayit, tahmin=tahmin, sonuclar=sonuclar)
+
+
+# Anomali ekranı GET ile çıkarım yapar; her görüntüleme (ve odakta yeniden çekme) yeni bir
+# outbox olayı → yetkili HER kullanıcıya bildirim üretiyordu (09-23'te bir saatte 49 olay).
+# Aynı makine kümesi bu pencere içinde zaten bildirildiyse olay tekrar yazılmaz; tahmin
+# kaydı (geçmiş ekranı) yine yazılır.
+ANOMALI_TEKRAR_PENCERESI = timedelta(hours=24)
+
+
+async def _anomali_yakin_zamanda_bildirildi(db: AsyncSession, makineler: list[int]) -> bool:
+    son = (
+        await db.execute(
+            select(GidenOlay)
+            .where(
+                GidenOlay.olay_turu == "anomali.tespit",
+                GidenOlay.olusturma_tarihi >= datetime.now(UTC) - ANOMALI_TEKRAR_PENCERESI,
+            )
+            .order_by(GidenOlay.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    return son is not None and sorted(son.govde.get("makineler") or []) == makineler
 
 
 async def _cikarim_veri_hazirla(db: AsyncSession, tur: str) -> dict[str, pd.DataFrame]:
