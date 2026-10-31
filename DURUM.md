@@ -22,7 +22,20 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
-## 2026-11-01 — S19 gözlemlenebilirlik (ADR-0040)
+## 2026-10-31 — S20 yedekleme/DR + staging (ADR-0041)
+
+- Tenant yedeği/geri yüklemesi (`app/operasyon/yedek.py`, `scripts/yedek.py`): yapı göçten, veri
+  ikili COPY; geçici şemada doğrulanıp atomik yer değiştirir. Şema dökümü hypertable'ları boş
+  yedeklerdi (chunk'lar `_timescaledb_internal`'da) — bu yüzden bu yol.
+- İlk denemede gerçek şemada FK döngüsü çıktı (sıralı yükleme imkânsız) → FK'ler yüklemede
+  kaldırılıp yeniden ekleniyor (bütünlük ikinci kez doğrulanıyor).
+- Staging anonimleştirme (`anonim.py`), göç dağıtımı (`goc_dagit.py`), prod compose katmanı
+  (`docker-compose.prod.yml`: Traefik joker TLS, WAL arşivi, yedek servisleri).
+- Kanıt: 9 test (yedek 7 + dağıtım 2), 8/8 mutasyon; demo tatbikatı 67 tablo/1.927 satır
+  1,9 sn; PITR tatbikatı hedef ana doğru döndü (arşiv gecikmesi = `archive_timeout`); demo staging
+  kopyasında PII taraması 0 (prod 855). Prod compose Docker'da koşturulmadı.
+
+## 2026-10-31 — S19 gözlemlenebilirlik (ADR-0040)
 
 - `/metrics` (rota şablonu etiketli istek/süre + işçi sayaçları), Sentry (tenant/request_id
   etiketli; gövde/çerez/`Authorization`/yığın yerelleri gönderilmez), OpenTelemetry (FastAPI +
@@ -35,7 +48,7 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
   üretiyordu. Testte bulunan: Sentry yığın yerelleri `Authorization` başlığını taşıyordu.
 - Loki + Alloy yalnız yapılandırma (Docker'da doğrulanmadı). `docs/operasyon/`.
 
-## 2026-11-01 — S25-B satınalma siparişi → teslim → iade
+## 2026-10-31 — S25-B satınalma siparişi → teslim → iade
 
 - Backend 674 test geçti (yalnız Docker isteyen MQTT turu kırmızı), ruff/mypy temiz; frontend 214,
   tsc/ESLint/Prettier temiz. Sipariş listesi/detayı, teslim ve iade pencereleri 1440 ve 390 px'te
@@ -82,7 +95,7 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 ## Ne yarım / bilinçli açık
 
 - S25 tamam (ADR-0024 "Uygulama durumu"); fatura eşlemesi ve birim dönüşümü bilinçli olarak
-  sonraya. S19 tamam (ADR-0040); S20–S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
+  sonraya. S19 (ADR-0040) ve S20 (ADR-0041) tamam; S21–S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
   saklama politikası yok (S3 notu) — yük testiyle (S22) birlikte ele alınacak.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).

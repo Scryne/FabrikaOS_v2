@@ -79,7 +79,7 @@ files = ["backend/app", "edge"]
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["aiomqtt.*", "minio.*", "pandas.*", "sklearn.*", "joblib.*", "reportlab.*", "openpyxl.*"]
+module = ["aiomqtt.*", "asyncpg.*", "minio.*", "pandas.*", "sklearn.*", "joblib.*", "reportlab.*", "openpyxl.*"]
 ignore_missing_imports = true
 
 # --- pytest ---

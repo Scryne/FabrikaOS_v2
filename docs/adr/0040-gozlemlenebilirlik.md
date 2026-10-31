@@ -1,7 +1,7 @@
 # ADR-0040 — Gözlemlenebilirlik: Metrik, Hata İzleme, Dağıtık İz, SLO Alarmları (S19)
 
 - **Durum:** Kabul edildi (S19, Faz 5)
-- **Tarih:** 2026-11-01
+- **Tarih:** 2026-10-31
 - **İlgili:** NFR-01 (p95 < 300 ms), NFR-03 (uptime ≥ %99,5), NFR-09 (yapısal log + Sentry +
   Prometheus/Grafana), şartname §6.4; ADR-0021 (bildirim işçisi), ADR-0020 (webhook relay)
 - **Numara notu:** 0025–0031 yol haritasında S26–S32'ye, 0032–0039 mobil plana ayrılmıştır;

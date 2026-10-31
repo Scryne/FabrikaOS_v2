@@ -1,0 +1,151 @@
+# FabrikaOS — üretim/staging katmanı (S20, ADR-0041). Override dosyası OKUNMAZ:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml [--profile gozlem] up -d
+# Gerekli ortam (.env): FABRIKAOS_ALAN_ADI (ör. fabrikaos.com.tr), ACME_EPOSTA, ACME_DNS_SAGLAYICI
+# (Traefik/lego sağlayıcı adı, ör. cloudflare) + sağlayıcının kendi anahtar değişkenleri
+# (ör. CF_DNS_API_TOKEN), APP_ENV (prod | staging), SECRET_KEY, POSTGRES_PAROLA.
+# Joker sertifika (*.alan-adi) yalnız DNS-01 doğrulamasıyla alınır; HTTP-01 joker vermez.
+
+services:
+  api:
+    environment:
+      APP_ENV: ${APP_ENV:-prod}
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
+    # Traefik arkasında gerçek istemci IP'si (denetim izi, rate limit) X-Forwarded-For'dan gelir.
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000",
+              "--proxy-headers", "--forwarded-allow-ips", "*"]
+    ports: !reset []
+    labels: !override
+      - "traefik.enable=true"
+      # Tenant = alt alan adı (fabrika-a.fabrikaos.com.tr); kök alan da API'ye gider.
+      - "traefik.http.routers.fabrikaos-api.rule=HostRegexp(`^([a-z0-9-]+\\.)?${FABRIKAOS_ALAN_ADI}$`)"
+      - "traefik.http.routers.fabrikaos-api.entrypoints=websecure"
+      - "traefik.http.routers.fabrikaos-api.tls.certresolver=le"
+      - "traefik.http.routers.fabrikaos-api.tls.domains[0].main=${FABRIKAOS_ALAN_ADI}"
+      - "traefik.http.routers.fabrikaos-api.tls.domains[0].sans=*.${FABRIKAOS_ALAN_ADI}"
+      - "traefik.http.services.fabrikaos-api.loadbalancer.server.port=8000"
+      # /metrics dışarıdan kazınmaz (Prometheus iç ağdan kazır).
+      - "traefik.http.routers.fabrikaos-metrik.rule=PathPrefix(`/metrics`)"
+      - "traefik.http.routers.fabrikaos-metrik.entrypoints=websecure"
+      - "traefik.http.routers.fabrikaos-metrik.priority=1000"
+      - "traefik.http.routers.fabrikaos-metrik.middlewares=fabrikaos-engel"
+      - "traefik.http.routers.fabrikaos-metrik.service=noop@internal"
+      - "traefik.http.routers.fabrikaos-metrik.tls=true"
+      - "traefik.http.middlewares.fabrikaos-engel.ipallowlist.sourcerange=127.0.0.1/32"
+    restart: unless-stopped
+
+  ingestion:
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
+    restart: unless-stopped
+  bildirim:
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
+    restart: unless-stopped
+  webhook-relay:
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
+    restart: unless-stopped
+
+  db:
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PAROLA}
+    # Sürekli WAL arşivi → zamana göre geri dönüş (PITR). archive_timeout=300: en kötü veri
+    # kaybı ~5 dk (RPO hedefi ≤ 15 dk; 2026-10-31 ölçümü: arşiv gecikmesi archive_timeout'a eşit).
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "archive_mode=on"
+      - "-c"
+      - "archive_timeout=300"
+      - "-c"
+      - "archive_command=test ! -f /wal-arsiv/%f && cp %p /wal-arsiv/%f"
+      - "-c"
+      - "shared_preload_libraries=timescaledb"
+    volumes:
+      - wal-arsiv:/wal-arsiv
+    ports: !reset []
+    restart: unless-stopped
+
+  redis:
+    restart: unless-stopped
+  minio:
+    ports: !reset []
+    restart: unless-stopped
+  mqtt:
+    restart: unless-stopped
+
+  traefik:
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.le.acme.email=${ACME_EPOSTA}"
+      - "--certificatesresolvers.le.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.le.acme.dnschallenge.provider=${ACME_DNS_SAGLAYICI}"
+      - "--api.dashboard=false"
+    # Yalnız DNS sağlayıcısının anahtarı (CF_DNS_API_TOKEN vb.); uygulama sırları Traefik'e girmez.
+    env_file:
+      - path: .env.traefik
+        required: true
+    ports: !override
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    restart: unless-stopped
+
+  # Günlük tenant-farkında mantıksal yedek (tek tenant geri yükleme), 14 gün saklanır.
+  yedek:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        while true; do
+        python backend/scripts/yedek.py tumu --dizin /yedek/tenant;
+        find /yedek/tenant -name '*.zip' -mtime +14 -delete;
+        sleep 86400; done
+    volumes:
+      - yedek:/yedek
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [fabrikaos]
+    restart: unless-stopped
+
+  # Haftalık küme temel yedeği (PITR'ın başlangıç noktası) + 35 günden eski WAL/temel temizliği.
+  taban-yedek:
+    image: timescale/timescaledb:latest-pg16
+    environment:
+      PGPASSWORD: ${POSTGRES_PAROLA}
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        while true; do
+        pg_basebackup -h db -U fabrikaos -D /yedek/taban/$$(date +%Y%m%dT%H%M%S) -Ft -z -X none -c fast &&
+        find /yedek/taban -mindepth 1 -maxdepth 1 -mtime +35 -exec rm -rf {} + &&
+        find /wal-arsiv -type f -mtime +35 -delete;
+        sleep 604800; done
+    volumes:
+      - yedek:/yedek
+      - wal-arsiv:/wal-arsiv
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [fabrikaos]
+    restart: unless-stopped
+
+volumes:
+  wal-arsiv:
+  yedek:
+  letsencrypt:

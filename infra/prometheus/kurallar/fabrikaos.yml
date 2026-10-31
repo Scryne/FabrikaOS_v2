@@ -7,7 +7,7 @@
 #   Hata bütçesi = 0,05. 0,3 s bir histogram kova sınırıdır; oran tahminsiz okunur.
 # Yoklama uçları (/saglik, /saglik/hazir) SLI dışıdır: kullanıcı trafiği değiller ve hazırlık
 #   yoklaması bağımlılık düştüğünde 2 sn zaman aşımıyla 503 döner — SLI'ya girerse p95'i ve
-#   hata oranını kullanıcı deneyiminden bağımsız bozar (canlı denemede görüldü, 2026-11-01).
+#   hata oranını kullanıcı deneyiminden bağımsız bozar (canlı denemede görüldü, 2026-10-31).
 groups:
   - name: fabrikaos-sli
     rules:

@@ -2,7 +2,7 @@
 
 Revision ID: b8d4f0e36a29
 Revises: a7c3e9d25f18
-Create Date: 2026-11-01 01:00:00.000000
+Create Date: 2026-10-31 01:00:00.000000
 
 Tenant şemasında; fan-out döngüsünde her aktif tenant şemasında çalışır.
 

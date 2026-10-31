@@ -69,7 +69,7 @@ def izleme_kur(
     FastAPIInstrumentor.instrument_app(app, tracer_provider=saglayici, excluded_urls=_HARIC_URL)
     if engine is not None:
         # Enstrümantasyon paketi "sqlalchemy < 2.1" bildiriyor; kurulu 2.1 ile bağımlılık
-        # denetimi sessizce hiçbir şey yapmıyordu (canlı denemede yakalandı, 2026-11-01).
+        # denetimi sessizce hiçbir şey yapmıyordu (canlı denemede yakalandı, 2026-10-31).
         # Kullandığı motor olay kancaları 2.1'de değişmedi; SQL span'leri test ve canlı
         # Jaeger turuyla doğrulandı.
         SQLAlchemyInstrumentor().instrument(

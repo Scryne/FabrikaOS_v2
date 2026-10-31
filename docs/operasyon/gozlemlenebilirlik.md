@@ -76,7 +76,7 @@ Yeni alarm = test dosyasına hem tetiklenen hem tetiklenmeyen bir durum. CI (`go
 işi) aynı üç komutu koşar. Pano `infra/grafana/panolar/fabrikaos-sli.json`'dan provizyonlanır;
 Grafana arayüzünde yapılan değişiklik kalıcı değildir (dosyaya geri yazılmalı).
 
-## Doğrulama kaydı (2026-11-01, yerel, Docker'sız)
+## Doğrulama kaydı (2026-10-31, yerel, Docker'sız)
 
 Prometheus 3.15.1, Alertmanager 0.34.2, Grafana 13.3.0 ve Jaeger 2.22.0 Windows ikilileriyle:
 - Gerçek trafik (%12,5 5xx: Redis'e ulaşamayan hazırlık yoklaması) → `FabrikaOSHataButcesiHizliYaniyor`

@@ -8,7 +8,7 @@ Kişisel veri gönderilmez (``send_default_pii=False``); ayrıca istek başlıkl
 bilgisi ve sorgu dizesindeki token'lar olay gönderilmeden temizlenir (KVKK, NFR-06). Yığın
 çerçevelerinin yerel değişkenleri de gönderilmez: ASGI ``scope`` ham ``Authorization``
 başlığını taşır, servis katmanındaki yereller parola/kişisel veri taşıyabilir (testle
-yakalandı, 2026-11-01).
+yakalandı, 2026-10-31).
 DSN boşsa hiçbir şey kurulmaz ve ``hata_bildir`` sessizce no-op olur.
 """
 

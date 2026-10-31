@@ -238,7 +238,7 @@ malzemede girişte lot zorunlu), §5 negatif bakiye `CHECK miktar >= 0` + servis
 Testler: `backend/tests/test_s25_depo_sayim.py`. Ekranlar: `/depolar`, `/sayimlar`,
 `/sayimlar/:id`.
 
-**S25-B (2026-11-01, uygulandı):** göç `b8d4f0e36a29` (satinalma_siparisleri, kalemleri,
+**S25-B (2026-10-31, uygulandı):** göç `b8d4f0e36a29` (satinalma_siparisleri, kalemleri,
 teslim_almalar, teslim_alma_kalemleri; `stok_hareketleri.hizli_kabul`). Sipariş yalnız onaylı
 talepten açılır; talep başına tek aktif sipariş (kısmi UNIQUE indeks). §3: aynı siparişte aynı
 irsaliye ikinci kez stok yazmaz (sipariş satır kilidi + `(siparis_id, irsaliye_no, tur)` UNIQUE;

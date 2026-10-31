@@ -1057,7 +1057,7 @@ def _son_zaman(c: Istemci, yol: str) -> datetime | None:
     return datetime.fromisoformat(kayit[0]["zaman"]) if kayit else None
 
 
-# ------------------------------------------------ S25 tedarik zinciri (2026-11-01)
+# ------------------------------------------------ S25 tedarik zinciri (2026-10-31)
 #
 # Depo/lokasyon, transfer, sayım ve satınalma siparişi → teslim alma ekranları demo tenant'ta
 # boş açılıyordu. Var olan tenant'ta da çalışır; sipariş varsa hiçbir şey yazmaz.

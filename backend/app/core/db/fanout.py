@@ -48,6 +48,11 @@ def tenant_yukselt_tek(slug: str, rev: str = "head", *, db_url: str | None = Non
     command.upgrade(_cfg("tenant", db_url=db_url, schemas=[f"tenant_{slug}"]), rev)
 
 
+def sema_yukselt(sema: str, rev: str = "head", *, db_url: str | None = None) -> None:
+    """Adı verilen şemayı tenant ağacıyla yükseltir (S20: geri yüklemenin geçici şeması)."""
+    command.upgrade(_cfg("tenant", db_url=db_url, schemas=[sema]), rev)
+
+
 def tenant_indir_tek(slug: str, rev: str = "base", *, db_url: str | None = None) -> None:
     """Tek bir ``tenant_<slug>`` şemasını geri alır."""
     command.downgrade(_cfg("tenant", db_url=db_url, schemas=[f"tenant_{slug}"]), rev)

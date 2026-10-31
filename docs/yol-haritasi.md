@@ -35,7 +35,7 @@ Definition of Done (DoD).
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ✅ ADR-0020 |
 | **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ✅ ADR-0021 |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ✅ ADR-0040 |
-| | S20 | Yedekleme/DR + Staging | ⬜ |
+| | S20 | Yedekleme/DR + Staging | ✅ ADR-0041 |
 | | S21 | Tohumlama & Pilot | ⬜ |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
@@ -381,7 +381,7 @@ tenant izolasyon testli; migration eklenirse `public`+≥2 tenant fan-out up/dow
 Yapılandırılmış log (`tenant_id`+`request_id`) + merkezi toplama; Sentry; Prometheus+Grafana;
 OpenTelemetry; alerting kuralları.
 **Kabul:** Hata Sentry'de tenant/istek bağlamıyla görünür; SLI/SLO panoları yayında; alarm tetiklenir.
-> **Uygulandı (2026-11-01, ADR-0040):** `/metrics` (rota şablonu etiketli istek sayısı/süre,
+> **Uygulandı (2026-10-31, ADR-0040):** `/metrics` (rota şablonu etiketli istek sayısı/süre,
 > işçi sayaçları), Sentry (tenant/request_id etiketi; gövde, çerez, `Authorization`, yığın
 > yerelleri gönderilmez), OTel (FastAPI + SQLAlchemy 2.1, log satırında `trace_id`), gerçek
 > hazırlık yoklaması (DB + Redis, 503). SLO-1/SLO-2 çok pencereli yanma hızı alarmları
@@ -389,11 +389,19 @@ OpenTelemetry; alerting kuralları.
 > Alloy, Jaeger). Canlı tur: gerçek 503 trafiği → alarm → Alertmanager → webhook; pano ve izler
 > gerçek veriyle. Loki/Alloy Docker'da doğrulanmadı (staging'de). `docs/operasyon/`.
 
-#### ⬜ S20 — Yedekleme/DR + Staging
+#### ✅ S20 — Yedekleme/DR + Staging
 **Tenant-aware yedekleme** (şema bazlı) + geri yükleme; RPO/RTO; restore **tatbikatı** (≥çeyreklik);
 staging (anonim veri); prod hazırlık (Traefik wildcard TLS, Let's Encrypt).
 **Kabul:** Tek tenant şeması bağımsız geri yüklenir (kanıtlı drill); staging prod'a denk;
 migration fan-out deploy çalışır. DR runbook `docs/operasyon/`.
+> **Uygulandı (2026-10-31, ADR-0041):** tenant yedeği `pg_dump --schema` değil (hypertable chunk'ları
+> başka şemada, boş yedeklerdi): yapı göçten, veri tek anlık görüntüde ikili COPY; geri yükleme
+> geçici şema → FK kaldır/yükle/yeniden ekle → satır + içerik parmak izi → atomik yer değiştirme.
+> Staging: aynı yedek + yerinde anonimleştirme (envanter alanları, webhook/outbox kapalı). Göç
+> dağıtımı tenant başına yalıtılmış + göç öncesi yedek. Prod katmanı: Traefik DNS-01 joker TLS,
+> WAL arşivi (`archive_timeout=300`), günlük tenant + haftalık temel yedek. Kanıt: 9 test (8
+> mutasyonun 8'i yakalandı), demo tatbikatı 1,9 sn, PITR tatbikatı hedef ana doğru döndü,
+> staging'de PII taraması 0. Prod compose Docker'da koşturulmadı. Runbook `docs/operasyon/dr.md`.
 
 #### ⬜ S21 — Tohumlama & Pilot
 Tohumlama: sistem (global referans, `public`), tenant (rol/izin), demo; onboarding CSV içe aktarma;
