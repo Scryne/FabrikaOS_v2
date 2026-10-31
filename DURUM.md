@@ -22,6 +22,14 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-10-31 — Docker'sız test tabanı + S25-A
+
+- Testler Docker'sız yerel PostgreSQL 16 + TimescaleDB + Redis'te koşuyor (`TEST_DATABASE_URL`,
+  `REDIS_URL`). conftest test DB adını URL'den türetiyor: iki koşu aynı sunucuda birbirinin
+  veritabanını düşürmüyor. Backend 662 geçti; tek kırmızı MQTT testi (testcontainers, Docker ister).
+- S25-A: depo/lokasyon, lokasyon×lot bakiyesi, iki bacaklı transfer, sayım (delta onay, görev
+  ayrımı) + üç ekran; 390 px'te taşmasız, konsol hatasız. Frontend 214 test, tsc/ESLint/Prettier temiz.
+
 ## 2026-09-26 denetiminde kapatılanlar
 
 1. CI kırmızısı: 5 KVKK testi gerçek MinIO'ya çıkıyordu → bellek içi depo fikstürü; sözleşme
@@ -49,7 +57,8 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 
 ## Ne yarım / bilinçli açık
 
-- S25 (tedarik zinciri) yalnız tasarım (ADR-0024). Faz 5 operasyon sprintleri (S19–S22) açık.
+- S25-B (PO → teslim alma, barkod/etiket PDF, tedarikçi teslim skoru) açık; S25-A uygulandı
+  (ADR-0024 "Uygulama durumu"). Faz 5 operasyon sprintleri (S19–S22) açık.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).
 - Uzak dallar: `feat/persona-pano-landing-derinlestirme`, `feat/s18-dis-portal-webhook`,

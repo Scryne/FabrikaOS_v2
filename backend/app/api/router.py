@@ -35,6 +35,7 @@ from app.modules.kalite.router import router as kalite_router
 from app.modules.rapor.router import router as rapor_router
 from app.modules.saha.router import router as saha_router
 from app.modules.sozlesme.router import router as sozlesme_router
+from app.modules.stok.depo_router import router as depo_router
 from app.modules.stok.router import router as stok_router
 from app.modules.talep.router import router as talep_router
 from app.modules.ticari.router import router as ticari_router
@@ -61,6 +62,7 @@ api_router.include_router(saha_router)
 api_router.include_router(isemri_router)
 api_router.include_router(bakim_router)
 api_router.include_router(stok_router)
+api_router.include_router(depo_router)
 api_router.include_router(kalite_router)
 api_router.include_router(enerji_router)
 api_router.include_router(isg_router)

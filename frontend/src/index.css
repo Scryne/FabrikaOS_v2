@@ -983,3 +983,13 @@ body {
   transform-origin: left;
   transition: transform 480ms cubic-bezier(0.23, 1, 0.32, 1);
 }
+
+/* S25 depo bakiyesi: dar ekranda lokasyon/lot sütunları gizlenir, malzeme hücresinin altında görünür. */
+.depo-lok-alt {
+  display: block;
+}
+@media (min-width: 768px) {
+  .depo-lok-alt {
+    display: none;
+  }
+}

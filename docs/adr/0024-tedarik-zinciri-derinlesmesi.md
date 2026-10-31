@@ -225,3 +225,17 @@ geri alınması zor biçimde gömmemelidir**:
   (geriye uyumluluk — mevcut ekranlar, kritik stok olayı ve MRP bu alanı okur).
 - Migration fan-out up/down testli; mevcut stok verisi **varsayılan depo/lokasyona**
   backfill edilir (veri kaybı yok, boş DB'de geçen migration kabul edilmez).
+
+## Uygulama durumu
+
+**S25-A (2026-10-31, uygulandı):** göç `a7c3e9d25f18` (depolar, lokasyonlar, stok_bakiyeleri,
+sayim_oturumlari, sayim_satirlari; `malzemeler.lot_takipli`; hareketlere lokasyon/lot/transfer
+grubu). Mevcut bakiyeler `ANA/GENEL` lokasyonuna backfill edilir; downgrade hareket türü
+kısıtını daraltmaz (yeni türlerde kayıt varken geri dönüş kırılmasın diye). §1 delta onayı
+(`depo_service.sayim_onayla`, idempotency anahtarı `sayim-{satir.id}`), §2 sabit kilit sırası
+(`transfer_uygula`; eşzamanlı ters transferler testli), §4 lot alanı yapısal (lot takipli
+malzemede girişte lot zorunlu), §5 negatif bakiye `CHECK miktar >= 0` + servis kontrolü.
+Testler: `backend/tests/test_s25_depo_sayim.py`. Ekranlar: `/depolar`, `/sayimlar`,
+`/sayimlar/:id`.
+
+**S25-B (açık):** §3 PO → kısmi teslim alma, barkod/etiket PDF, tedarikçi zamanında-teslim skoru.

@@ -109,6 +109,22 @@ export const MENU: MenuOgesi[] = [
     modul: 'stok',
   },
   {
+    anahtar: 'depolar',
+    etiketAnahtari: 'menu.depolar',
+    bolum: 'menu.bolum_stok',
+    yol: '/depolar',
+    izin: 'stok:oku',
+    modul: 'stok',
+  },
+  {
+    anahtar: 'sayimlar',
+    etiketAnahtari: 'menu.sayimlar',
+    bolum: 'menu.bolum_stok',
+    yol: '/sayimlar',
+    izin: 'stok:oku',
+    modul: 'stok',
+  },
+  {
     anahtar: 'satinalma',
     etiketAnahtari: 'menu.satinalma',
     bolum: 'menu.bolum_stok',

@@ -57,6 +57,9 @@ class StokHareketiOlusturDTO(BaseModel):
     miktar: Decimal = Field(gt=0)
     aciklama: str = Field(default="", max_length=500)
     kaynak: str | None = Field(default=None, max_length=50)
+    # S25: boşsa varsayılan ANA/GENEL lokasyonu; lot takipli malzemede girişte zorunlu.
+    lokasyon_id: int | None = None
+    lot_no: str = Field(default="", max_length=60)
 
 
 class StokHareketiCevapDTO(BaseModel):
@@ -69,6 +72,9 @@ class StokHareketiCevapDTO(BaseModel):
     kaynak: str | None = None
     olusturan_kullanici_id: int | None = None
     olusturma_tarihi: datetime
+    lokasyon_id: int | None = None
+    lot_no: str = ""
+    transfer_grubu: str | None = None
 
 
 class SatinalmaKalemDTO(BaseModel):

@@ -51,7 +51,10 @@ import { PanoSayfasi } from '@/modules/pano/PanoSayfasi';
 import { CihazListesi } from '@/modules/saha/CihazListesi';
 import { SozlesmeListesi } from '@/modules/sozlesme/SozlesmeListesi';
 import { TanitimSayfasi } from '@/modules/tanitim/TanitimSayfasi';
+import { DepoBakiye } from '@/modules/stok/DepoBakiye';
 import { KritikStok } from '@/modules/stok/KritikStok';
+import { SayimDetay } from '@/modules/stok/SayimDetay';
+import { SayimListesi } from '@/modules/stok/SayimListesi';
 import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
 import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
 import { SatinalmaTalepListesi } from '@/modules/stok/SatinalmaTalepListesi';
@@ -346,6 +349,30 @@ export function App() {
             element={
               <IzinKapisi izin="stok:oku" modul="stok">
                 <KritikStok />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="depolar"
+            element={
+              <IzinKapisi izin="stok:oku" modul="stok">
+                <DepoBakiye />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="sayimlar"
+            element={
+              <IzinKapisi izin="stok:oku" modul="stok">
+                <SayimListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="sayimlar/:id"
+            element={
+              <IzinKapisi izin="stok:oku" modul="stok">
+                <SayimDetay />
               </IzinKapisi>
             }
           />

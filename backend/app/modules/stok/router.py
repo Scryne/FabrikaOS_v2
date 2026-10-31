@@ -218,6 +218,9 @@ def _hareket_cevap(h: StokHareketi) -> dict[str, Any]:
         kaynak=h.kaynak,
         olusturan_kullanici_id=h.olusturan_kullanici_id,
         olusturma_tarihi=h.olusturma_tarihi,
+        lokasyon_id=h.lokasyon_id,
+        lot_no=h.lot_no,
+        transfer_grubu=h.transfer_grubu,
     ).model_dump()
 
 
@@ -285,6 +288,8 @@ async def stok_hareketi_olustur(
         kaynak=govde.kaynak,
         kullanici=kullanici,
         idempotency_anahtari=idempotency_key,
+        lokasyon_id=govde.lokasyon_id,
+        lot_no=govde.lot_no,
     )
     await denetim_yaz(
         db,

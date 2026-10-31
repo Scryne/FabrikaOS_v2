@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.core.olaylar import olay_yayinla
 from app.kimlik.models import Kullanici
-from app.modules.stok import talep_durum
+from app.modules.stok import depo_service, talep_durum
 from app.modules.stok.models import Malzeme, SatinalmaTalebi, StokHareketi
 
 OLAY_KRITIK = "stok.kritik"
@@ -56,10 +56,24 @@ async def stok_hareketi_uygula(
     kaynak: str | None = None,
     kullanici: Kullanici,
     idempotency_anahtari: str | None = None,
+    lokasyon_id: int | None = None,
+    lot_no: str = "",
 ) -> tuple[StokHareketi, bool]:
-    """Bakiyeyi günceller, hareketi yazar, gerekirse kenar-tetikli ``stok.kritik`` yayınlar."""
+    """Bakiyeyi günceller, hareketi yazar, gerekirse kenar-tetikli ``stok.kritik`` yayınlar.
+
+    S25: değişim lokasyon bakiyesine de yansır (``lokasyon_id`` yoksa varsayılan ANA/GENEL);
+    lokasyonda yetersiz stok 422'dir. Lot takipli malzemede giriş lot numarası ister.
+    """
+    if malzeme.lot_takipli and tur == "giris" and not lot_no:
+        raise DogrulamaHatasi(
+            "Lot numarası gerekli",
+            detaylar=[{"alan": "lot_no", "mesaj": "Bu malzeme lot takipli"}],
+        )
     eski = malzeme.mevcut_miktar
     yeni = _yeni_bakiye(eski, tur=tur, miktar=miktar)
+    hareket_lokasyonu = await depo_service.lokasyon_bakiyesine_uygula(
+        db, malzeme, lokasyon_id=lokasyon_id, lot_no=lot_no, delta=yeni - eski
+    )
 
     kritik = malzeme.kritik_stok
     ustteydi = kritik > 0 and eski > kritik
@@ -76,6 +90,8 @@ async def stok_hareketi_uygula(
         kaynak=kaynak,
         olusturan_kullanici_id=kullanici.id,
         idempotency_anahtari=idempotency_anahtari,
+        lokasyon_id=hareket_lokasyonu,
+        lot_no=lot_no,
     )
     db.add(hareket)
 
