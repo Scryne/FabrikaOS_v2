@@ -41,6 +41,11 @@ BILDIRIM_OLAYLARI: dict[str, HedefKurali] = {
     "oee.dustu": HedefKurali(onem="uyari", izin_kodu="uretim:oku"),
     "sla.asildi": HedefKurali(onem="uyari", kisi_alanlari=("sorumlu_kullanici_id",)),
     "duyuru.yeni": HedefKurali(onem="bilgi", herkese=True),
+    # S26: SPC kural ihlali ve yaklaşan kalibrasyon (kalite ekibine; cihaz sorumlusuna ayrıca).
+    "kalite.spc_ihlal": HedefKurali(onem="uyari", izin_kodu="kalite:oku"),
+    "kalibrasyon.yaklasiyor": HedefKurali(
+        onem="uyari", izin_kodu="kalite:oku", kisi_alanlari=("sorumlu_kullanici_id",)
+    ),
 }
 
 # ``sla.asildi`` kaynak türü -> ilgili modülün okuma izni (sorumluya ek hedef kümesi).
@@ -125,6 +130,14 @@ def bildirim_metni(olay_turu: str, govde: dict[str, Any]) -> tuple[str, str]:
             str(govde.get("baslik") or "Yeni duyuru"),
             "Yeni bir kurumsal duyuru yayınlandı.",
         ),
+        "kalite.spc_ihlal": (
+            f"SPC kural ihlali: {kod}",
+            "Proses kontrol kartında Western Electric kuralı ihlal edildi; nedeni araştırın.",
+        ),
+        "kalibrasyon.yaklasiyor": (
+            f"Kalibrasyon yaklaşıyor: {kod}",
+            "Ölçüm cihazının kalibrasyon geçerliliği bitmek üzere ya da bitti.",
+        ),
     }
     return metinler.get(olay_turu, (olay_turu, ""))
 
@@ -139,6 +152,8 @@ def bildirim_verisi(olay_turu: str, govde: dict[str, Any]) -> dict[str, Any]:
         "ariza.olustu": "ariza",
         "oee.dustu": "makine",
         "duyuru.yeni": "duyuru",
+        "kalite.spc_ihlal": "karakteristik",
+        "kalibrasyon.yaklasiyor": "olcum_cihazi",
     }
     kaynak_tur = str(govde.get("kaynak_tur") or varsayilan_kaynak.get(olay_turu, ""))
     kaynak_id = govde.get("kaynak_id") or govde.get("id")

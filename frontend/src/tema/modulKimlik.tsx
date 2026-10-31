@@ -92,6 +92,8 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   abonelik: <CreditCardOutlined />,
   'bildirim-tercihleri': <NotificationOutlined />,
   'ice-aktarma': <ImportOutlined />,
+  'kontrol-planlari': <LineChartOutlined />,
+  'olcum-cihazlari': <DashboardOutlined />,
 };
 
 /**
@@ -137,7 +139,12 @@ const VARSAYILAN: ModulKimlik = {
 };
 
 /** Rota yolundan modül kimliğini çözer (en uzun önek eşleşmesi; detay yolları da eşleşir). */
-export function yolKimlik(pathname: string): ModulKimlik {
+/** Menüde kendi girdisi olmayan derin rotalar → ait oldukları menü yolu. */
+const YOL_TAKMA_ADI: [string, string][] = [['/karakteristikler', '/kontrol-planlari']];
+
+export function yolKimlik(yol: string): ModulKimlik {
+  const takma = YOL_TAKMA_ADI.find(([on]) => yol.startsWith(on));
+  const pathname = takma ? takma[1] : yol;
   const oge = MENU.filter(
     (o) => pathname === o.yol || (o.yol !== '/' && pathname.startsWith(o.yol)),
   ).sort((a, b) => b.yol.length - a.yol.length)[0];

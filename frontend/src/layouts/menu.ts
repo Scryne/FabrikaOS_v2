@@ -153,6 +153,22 @@ export const MENU: MenuOgesi[] = [
     modul: 'kalite',
   },
   {
+    anahtar: 'kontrol-planlari',
+    etiketAnahtari: 'menu.kontrol_planlari',
+    bolum: 'menu.bolum_kalite',
+    yol: '/kontrol-planlari',
+    izin: 'kalite:oku',
+    modul: 'kalite',
+  },
+  {
+    anahtar: 'olcum-cihazlari',
+    etiketAnahtari: 'menu.olcum_cihazlari',
+    bolum: 'menu.bolum_kalite',
+    yol: '/olcum-cihazlari',
+    izin: 'kalite:oku',
+    modul: 'kalite',
+  },
+  {
     anahtar: 'uygunsuzluklar',
     etiketAnahtari: 'menu.uygunsuzluklar',
     bolum: 'menu.bolum_kalite',

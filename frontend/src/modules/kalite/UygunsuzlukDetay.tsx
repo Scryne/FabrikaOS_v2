@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Button, Descriptions, Drawer, Form, Input, List, Modal, Select, Space, Tag } from 'antd';
 
 import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
@@ -116,10 +117,17 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
             ]}
           />
 
-          {(u.aciklama || u.kok_neden || u.dogrulama_notu) && (
+          {(u.aciklama || u.kok_neden || u.dogrulama_notu || u.tedarikci_firma_id) && (
             <>
               <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
               <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
+                {u.tedarikci_firma_id && (
+                  <Descriptions.Item label={t('kalite.tedarikci')}>
+                    <Link to={`/firmalar?firma=${u.tedarikci_firma_id}`}>
+                      {t('kalite.tedarikci_kaydi')}
+                    </Link>
+                  </Descriptions.Item>
+                )}
                 {u.aciklama && (
                   <Descriptions.Item label={t('kalite.aciklama')}>{u.aciklama}</Descriptions.Item>
                 )}

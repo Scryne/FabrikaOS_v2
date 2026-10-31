@@ -52,6 +52,7 @@ class UygunsuzlukOlusturDTO(BaseModel):
     onem: str = Field(default="orta", max_length=20)
     kaynak_kontrol_id: int | None = None
     makine_id: int | None = None
+    tedarikci_firma_id: int | None = None
     sorumlu_kullanici_id: int | None = None
 
 
@@ -99,6 +100,7 @@ class UygunsuzlukCevapDTO(BaseModel):
     aciklama: str
     kaynak_kontrol_id: int | None = None
     makine_id: int | None = None
+    tedarikci_firma_id: int | None = None
     onem: str
     durum: str
     kok_neden: str

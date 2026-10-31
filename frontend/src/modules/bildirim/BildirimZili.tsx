@@ -25,6 +25,8 @@ const KAYNAK_ROTASI: Record<string, (id: number | null) => string> = {
   duyuru: () => '/duyurular',
   is_emri: () => '/is-emirleri',
   talep: () => '/talepler',
+  karakteristik: (id) => (id != null ? `/karakteristikler/${id}/spc` : '/kontrol-planlari'),
+  olcum_cihazi: (id) => (id != null ? `/olcum-cihazlari/${id}` : '/olcum-cihazlari'),
 };
 
 const ONEM_RENGI: Record<string, string> = {

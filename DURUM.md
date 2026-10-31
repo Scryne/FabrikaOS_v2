@@ -22,6 +22,20 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S26-A kalite olgunluğu: SPC + kalibrasyon (ADR-0025)
+
+- Backend 726 test yeşil (MQTT gidiş-dönüşü hariç, Docker gerekiyor); S26-A'nın 18'i: SPC saf
+  fonksiyonları 10, uç testleri 8. Mutasyonlar (ihlal tamamlayan nokta, kalibrasyon kapısı,
+  tedarikçi tipi) yakalandı. Ön yüz: SPC kartı bileşen testi 2/2, tsc/ESLint/Prettier temiz.
+- Canlı (demo tenant): kalibrasyonsuz cihazla ölçüm 422 `KALIBRASYON_GECERSIZ`; 25 alt grubun son
+  dördünde kayma → 4 ihlalli ölçüm, 8 kural ihlali; 180 günlük cihaz 11 gün kala "yaklaşıyor".
+- Ekran turu 1440/390: kontrol planları, plan detayı, iki SPC kartı, cihaz listesi, iki cihaz
+  detayı, plan formu, uygunsuzluk formu → taşma 0, konsol hatası 0.
+- Bulunan eski boşluk: sözleşme bitişi ve SLA taramaları hiç zamanlanmamıştı (yalnız elle tetiklenen
+  uç). Üçü bildirim işçisinde 15 dk aralıkla koşuyor.
+- Bilinen: tam vitest koşusunda `KvkkSayfasi` testi yük altında bir kez zaman aşımına düştü, tek
+  başına 7/7 geçiyor (S26-A'dan bağımsız, izleniyor).
+
 ## 2026-11-01 — S22 sertleştirme ve kapasite (ADR-0043)
 
 - Bandit: yüksek 0, orta 22 (hepsi B608, tek tek incelendi: beyaz liste / doğrulanmış şema adı /

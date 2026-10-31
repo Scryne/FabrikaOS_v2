@@ -1203,3 +1203,46 @@ a.varlik-ad:hover {
 .aktarim-hatalar code {
   font-size: 12px;
 }
+
+/* S26-A SPC: kartlar solda, ölçüm girişi + ihlal listesi sağda (dar ekranda alt alta). */
+.spc-duzen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (min-width: 1200px) {
+  .spc-duzen {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+}
+.spc-kartlar,
+.spc-yan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-content: start;
+}
+.spc-olcum-girdileri {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 12px;
+}
+.spc-karakteristik-listesi {
+  display: grid;
+  gap: 12px;
+}
+.spc-karakteristik-satir {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: 12px;
+  align-items: end;
+  padding: 12px;
+  border: 1px solid var(--kenarlik);
+  border-radius: 10px;
+}
+@media (min-width: 576px) {
+  .spc-karakteristik-satir {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

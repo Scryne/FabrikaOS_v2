@@ -418,3 +418,90 @@ export function paretoSecenek(veri: { ad: string; deger: number }[]): EChartsOpt
     ],
   };
 }
+
+/**
+ * SPC kontrol kartı (S26): noktalar + merkez çizgi + üst/alt kontrol limitleri (kesikli).
+ * İhlal eden noktalar kırmızı ve büyük; ipucunda alt grup sırası ve değer görünür. Tolerans
+ * çizgileri (ölçüm spesifikasyonu) yalnız X̄ kartında ve ayrı bir renkte: kontrol limiti ile
+ * spesifikasyon limiti karıştırılmasın (kalite eğitiminin en sık hatası).
+ */
+export function kontrolKartiSecenek(girdi: {
+  siralar: number[];
+  degerler: number[];
+  cl: number;
+  ucl: number;
+  lcl: number;
+  ihlalIndeksleri: Set<number>;
+  ondalik?: number;
+  tolerans?: { alt: number | null; ust: number | null };
+  etiketler: { cl: string; ucl: string; lcl: string; alt?: string; ust?: string };
+}): EChartsOption {
+  const { siralar, degerler, cl, ucl, lcl, ihlalIndeksleri, tolerans, etiketler } = girdi;
+  const ondalik = girdi.ondalik ?? 3;
+  const yatay = (y: number, ad: string, renk: string, kesikli: boolean) => ({
+    yAxis: y,
+    name: ad,
+    lineStyle: { color: renk, type: kesikli ? ('dashed' as const) : ('solid' as const), width: 1 },
+    label: {
+      formatter: `${ad} ${y.toFixed(ondalik)}`,
+      color: renk,
+      fontFamily: MONO,
+      fontSize: 10,
+      position: 'insideEndTop' as const,
+    },
+  });
+  const cizgiler = [
+    yatay(cl, etiketler.cl, RENKLER.metinSoluk, false),
+    yatay(ucl, etiketler.ucl, RENKLER.uyari, true),
+    yatay(lcl, etiketler.lcl, RENKLER.uyari, true),
+  ];
+  if (tolerans?.alt != null)
+    cizgiler.push(yatay(tolerans.alt, etiketler.alt ?? 'ASL', RENKLER.mor, true));
+  if (tolerans?.ust != null)
+    cizgiler.push(yatay(tolerans.ust, etiketler.ust ?? 'ÜSL', RENKLER.mor, true));
+  const tumY = [
+    ...degerler,
+    ucl,
+    lcl,
+    ...(tolerans?.alt != null ? [tolerans.alt] : []),
+    ...(tolerans?.ust != null ? [tolerans.ust] : []),
+  ];
+  const enKucuk = Math.min(...tumY);
+  const enBuyuk = Math.max(...tumY);
+  const pay = (enBuyuk - enKucuk) * 0.08 || 1;
+  return {
+    animation: false,
+    grid: { left: 6, right: 16, top: 16, bottom: 4, containLabel: true },
+    tooltip: {
+      ...koyuIpucu('axis'),
+      valueFormatter: (v) => (typeof v === 'number' ? v.toFixed(ondalik) : String(v)),
+    },
+    xAxis: {
+      type: 'category',
+      data: siralar.map(String),
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, fontSize: 10 },
+      axisLine: { lineStyle: { color: RENKLER.kenarlik } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      min: Number((enKucuk - pay).toFixed(ondalik)),
+      max: Number((enBuyuk + pay).toFixed(ondalik)),
+      splitLine: { lineStyle: { color: IZGARA_RENK } },
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, fontSize: 10 },
+    },
+    series: [
+      {
+        type: 'line',
+        data: degerler.map((d, i) => ({
+          value: d,
+          symbolSize: ihlalIndeksleri.has(i) ? 10 : 5,
+          itemStyle: { color: ihlalIndeksleri.has(i) ? RENKLER.hata : RENKLER.cyan },
+        })),
+        lineStyle: { color: RENKLER.cyan, width: 1.5 },
+        symbol: 'circle',
+        markLine: { symbol: 'none', silent: true, data: cizgiler },
+      },
+    ],
+  };
+}

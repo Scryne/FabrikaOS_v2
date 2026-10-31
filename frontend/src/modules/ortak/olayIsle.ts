@@ -121,6 +121,17 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
       }
       break;
     }
+    case 'kalite.spc_ihlal': {
+      // Başka istasyondan girilen ölçüm ihlal üretti → kart + plan özeti tazelensin.
+      const karId = typeof olay.id === 'number' ? olay.id : undefined;
+      if (karId !== undefined) void qc.invalidateQueries({ queryKey: ['spc-kart', karId] });
+      void qc.invalidateQueries({ queryKey: ['kontrol-plani'] });
+      break;
+    }
+    case 'kalibrasyon.yaklasiyor':
+      void qc.invalidateQueries({ queryKey: ['olcum-cihazlari'] });
+      void qc.invalidateQueries({ queryKey: ['olcum-cihazi'] });
+      break;
     case 'duyuru.yeni':
       void qc.invalidateQueries({ queryKey: ['duyurular'] });
       void qc.invalidateQueries({ queryKey: ['ticari-ozet'] });

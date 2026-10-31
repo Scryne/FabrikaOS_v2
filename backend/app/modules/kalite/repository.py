@@ -123,6 +123,7 @@ async def uygunsuzluk_listele(
     adet: int,
     durum: str | None = None,
     onem: str | None = None,
+    tedarikci_firma_id: int | None = None,
     arama: str | None = None,
     siralama: str | None = None,
     yon: str | None = None,
@@ -132,6 +133,8 @@ async def uygunsuzluk_listele(
         filtreler.append(Uygunsuzluk.durum == durum)
     if onem is not None:
         filtreler.append(Uygunsuzluk.onem == onem)
+    if tedarikci_firma_id is not None:
+        filtreler.append(Uygunsuzluk.tedarikci_firma_id == tedarikci_firma_id)
     if arama:
         kalip = f"%{arama}%"
         filtreler.append(or_(Uygunsuzluk.kod.ilike(kalip), Uygunsuzluk.baslik.ilike(kalip)))

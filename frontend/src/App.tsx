@@ -35,6 +35,11 @@ import { RiskListesi } from '@/modules/isg/RiskListesi';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
+import { KontrolPlanlari } from '@/modules/kalite/KontrolPlanlari';
+import { KontrolPlaniDetay } from '@/modules/kalite/KontrolPlaniDetay';
+import { OlcumCihazlari } from '@/modules/kalite/OlcumCihazlari';
+import { OlcumCihaziDetay } from '@/modules/kalite/OlcumCihaziDetay';
+import { SpcKarti } from '@/modules/kalite/SpcKarti';
 import { IkizSayfasi } from '@/modules/ikiz/IkizSayfasi';
 import { GirisSayfasi } from '@/modules/kimlik/GirisSayfasi';
 import { GuvenlikSayfasi } from '@/modules/kimlik/GuvenlikSayfasi';
@@ -421,6 +426,26 @@ export function App() {
               </IzinKapisi>
             }
           />
+          {/* S26-A: kontrol planı + SPC, ölçüm cihazı + kalibrasyon (ADR-0025). */}
+          {(
+            [
+              ['kontrol-planlari', <KontrolPlanlari key="kp" />],
+              ['kontrol-planlari/:id', <KontrolPlaniDetay key="kpd" />],
+              ['karakteristikler/:id/spc', <SpcKarti key="spc" />],
+              ['olcum-cihazlari', <OlcumCihazlari key="oc" />],
+              ['olcum-cihazlari/:id', <OlcumCihaziDetay key="ocd" />],
+            ] as const
+          ).map(([yol, sayfa]) => (
+            <Route
+              key={yol}
+              path={yol}
+              element={
+                <IzinKapisi izin="kalite:oku" modul="kalite">
+                  {sayfa}
+                </IzinKapisi>
+              }
+            />
+          ))}
           <Route
             path="enerji-tuketimleri"
             element={

@@ -5,6 +5,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
   BankOutlined,
   CheckCircleOutlined,
@@ -38,7 +39,20 @@ export function FirmaListesi() {
   const [param, paramDegistir] = useSayfaParam();
   const { data, isPending, isError } = useFirmalar(param);
   const { data: ozet, isPending: ozetYukleniyor } = useTicariOzet();
-  const [detayId, setDetayId] = useState<number | null>(null);
+  // ``?firma=<id>`` derin bağlantısı (ör. uygunsuzluğun tedarikçisi) çekmeceyi açık başlatır.
+  const [arama, setArama] = useSearchParams();
+  const [detayId, setDetayId] = useState<number | null>(() => Number(arama.get('firma')) || null);
+  const detayKapat = () => {
+    setDetayId(null);
+    if (arama.has('firma'))
+      setArama(
+        (p) => {
+          p.delete('firma');
+          return p;
+        },
+        { replace: true },
+      );
+  };
   const [formAcik, setFormAcik] = useState(false);
 
   const s = ozet?.sayaclar;
@@ -135,7 +149,7 @@ export function FirmaListesi() {
           })}
         />
       </Card>
-      <FirmaDetay id={detayId} kapat={() => setDetayId(null)} />
+      <FirmaDetay id={detayId} kapat={detayKapat} />
       <FirmaFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

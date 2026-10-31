@@ -18,6 +18,8 @@ OLAY_TURU_KATALOGU: dict[str, str] = {
     "kalite.uygunsuzluk": "Kalite uygunsuzluğu açıldı",
     "isg.kaza": "İş kazası kaydı oluştu",
     "sla.asildi": "SLA hedef tarihi aşıldı",
+    "kalite.spc_ihlal": "SPC kontrol kartı kural ihlali",
+    "kalibrasyon.yaklasiyor": "Ölçüm cihazı kalibrasyonu yaklaşıyor",
 }
 
 # API anahtarı kapsam beyaz-listesi: dış veri uçlarının istediği okuma izinleri.

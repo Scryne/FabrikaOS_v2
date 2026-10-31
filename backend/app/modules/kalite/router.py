@@ -22,6 +22,7 @@ from app.core.gercekzaman import yayinla
 from app.core.olaylar import olay_yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
+from app.modules.crm.models import Firma
 from app.modules.kalite import durum, repository, service
 from app.modules.kalite.birimler import (
     CAPA_AKSIYON_DURUMLARI,
@@ -216,6 +217,7 @@ def _uygunsuzluk_cevap(u: Uygunsuzluk) -> dict[str, Any]:
         aciklama=u.aciklama,
         kaynak_kontrol_id=u.kaynak_kontrol_id,
         makine_id=u.makine_id,
+        tedarikci_firma_id=u.tedarikci_firma_id,
         onem=u.onem,
         durum=u.durum,
         kok_neden=u.kok_neden,
@@ -235,6 +237,7 @@ def _uygunsuzluk_detay_cevap(u: Uygunsuzluk) -> dict[str, Any]:
         aciklama=u.aciklama,
         kaynak_kontrol_id=u.kaynak_kontrol_id,
         makine_id=u.makine_id,
+        tedarikci_firma_id=u.tedarikci_firma_id,
         onem=u.onem,
         durum=u.durum,
         kok_neden=u.kok_neden,
@@ -274,6 +277,16 @@ async def uygunsuzluk_olustur(
         await repository.kontrol_getir(db, govde.kaynak_kontrol_id) is None
     ):
         raise KaynakBulunamadi("Kaynak kalite kontrol bulunamadı")
+    if govde.tedarikci_firma_id is not None:
+        # Giriş muayenesi uygunsuzluğu: kaynak bir tedarikçi olmalı (müşteri kaydı değil).
+        firma = await db.get(Firma, govde.tedarikci_firma_id)
+        if firma is None:
+            raise KaynakBulunamadi("Tedarikçi firma bulunamadı")
+        if firma.tip not in ("tedarikci", "her_ikisi"):
+            raise DogrulamaHatasi(
+                "Firma tedarikçi değil",
+                detaylar=[{"alan": "tedarikci_firma_id", "mesaj": "Firma tipi müşteri"}],
+            )
     u = Uygunsuzluk(
         kod=service.uygunsuzluk_gecici_kod(),
         baslik=govde.baslik,
@@ -281,6 +294,7 @@ async def uygunsuzluk_olustur(
         onem=govde.onem,
         kaynak_kontrol_id=govde.kaynak_kontrol_id,
         makine_id=govde.makine_id,
+        tedarikci_firma_id=govde.tedarikci_firma_id,
         sorumlu_kullanici_id=govde.sorumlu_kullanici_id,
         acan_kullanici_id=kullanici.id,
     )
@@ -320,6 +334,7 @@ async def uygunsuzluk_listele(
     adet: int = 20,
     durum: str | None = None,
     onem: str | None = None,
+    tedarikci_firma_id: int | None = None,
     arama: str | None = None,
     siralama: str | None = None,
     yon: str | None = None,
@@ -332,6 +347,7 @@ async def uygunsuzluk_listele(
         adet=adet,
         durum=durum,
         onem=onem,
+        tedarikci_firma_id=tedarikci_firma_id,
         arama=arama,
         siralama=siralama,
         yon=yon,
