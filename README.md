@@ -236,6 +236,22 @@ npm run test:e2e            # Playwright E2E — çalışan yığın + seed'li t
 
 ## Veritabanı, migrasyon ve provizyonlama
 
+**Kısa yol (S21):** tek komut, idempotent — public şema, mevcut tenant'ların göçü (tenant başına
+yalıtılmış), istenirse yeni tenant:
+
+```bash
+docker compose up -d
+docker compose exec api python backend/scripts/kurulum.py
+docker compose exec -e KURULUM_ADMIN_PAROLA='Parola123!' api python backend/scripts/kurulum.py   --tenant fabrika-a --ad "Fabrika A" --admin-eposta admin@fabrika-a.test --plan profesyonel
+# İsteğe bağlı demo verisi (satış/eğitim): docker compose exec api python backend/scripts/demo_verisi.py
+```
+
+Müşterinin mevcut ana verisi (firma, makine, malzeme, personel, açılış stoğu) arayüzden
+**Yönetim › Veri içe aktarma** ile CSV/XLSX olarak yüklenir (ADR-0042). Yedek, geri yükleme,
+staging ve dağıtım: [`docs/operasyon/dr.md`](docs/operasyon/dr.md).
+
+Ayrıntılı (elle) yol:
+
 Çok kiracılılık **şema-başına-tenant**'tır: control-plane `public`, her fabrika `tenant_<slug>`.
 Migrasyonlar iki Alembic ağacında tutulur ve **fan-out** edilir (bkz.
 [`docs/adr/0004-*`](docs/adr/0004-alembic-fan-out.md)).

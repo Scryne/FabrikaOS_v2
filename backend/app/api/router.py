@@ -15,6 +15,7 @@ from app.kimlik.kullanici_router import router as kullanici_router
 from app.kimlik.router import router as kimlik_router
 from app.modules.abonelik.router import router as abonelik_router
 from app.modules.ai.router import router as ai_router
+from app.modules.aktarim.router import router as aktarim_router
 from app.modules.analitik.router import router as analitik_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.bildirim.router import router as bildirim_router
@@ -85,3 +86,4 @@ api_router.include_router(ai_router)
 api_router.include_router(analitik_router)
 api_router.include_router(rapor_router)
 api_router.include_router(ws_router)
+api_router.include_router(aktarim_router)

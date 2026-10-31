@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Hazırlık (readiness) */
+        /** Hazırlık (readiness): veritabanı + Redis */
         get: operations["hazir_saglik_hazir_get"];
         put?: never;
         post?: never;
@@ -3530,6 +3530,278 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/ice-aktarma/turler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İçe aktarma türleri */
+        get: operations["turler_api_v1_ice_aktarma_turler_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/firma/sablon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Firmalar (müşteri / tedarikçi): CSV şablonu */
+        get: operations["sablon_api_v1_ice_aktarma_firma_sablon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/firma/onizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Firmalar (müşteri / tedarikçi): önizle (yazmaz) */
+        post: operations["onizle_api_v1_ice_aktarma_firma_onizle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/firma/uygula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Firmalar (müşteri / tedarikçi): uygula (hepsi ya da hiçbiri) */
+        post: operations["uygula_api_v1_ice_aktarma_firma_uygula_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/makine/sablon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Makineler: CSV şablonu */
+        get: operations["sablon_api_v1_ice_aktarma_makine_sablon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/makine/onizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Makineler: önizle (yazmaz) */
+        post: operations["onizle_api_v1_ice_aktarma_makine_onizle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/makine/uygula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Makineler: uygula (hepsi ya da hiçbiri) */
+        post: operations["uygula_api_v1_ice_aktarma_makine_uygula_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/malzeme/sablon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Malzemeler: CSV şablonu */
+        get: operations["sablon_api_v1_ice_aktarma_malzeme_sablon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/malzeme/onizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Malzemeler: önizle (yazmaz) */
+        post: operations["onizle_api_v1_ice_aktarma_malzeme_onizle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/malzeme/uygula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Malzemeler: uygula (hepsi ya da hiçbiri) */
+        post: operations["uygula_api_v1_ice_aktarma_malzeme_uygula_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/personel/sablon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Personel: CSV şablonu */
+        get: operations["sablon_api_v1_ice_aktarma_personel_sablon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/personel/onizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Personel: önizle (yazmaz) */
+        post: operations["onizle_api_v1_ice_aktarma_personel_onizle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/personel/uygula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Personel: uygula (hepsi ya da hiçbiri) */
+        post: operations["uygula_api_v1_ice_aktarma_personel_uygula_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/acilis_stogu/sablon": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Açılış stoğu: CSV şablonu */
+        get: operations["sablon_api_v1_ice_aktarma_acilis_stogu_sablon_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/acilis_stogu/onizle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Açılış stoğu: önizle (yazmaz) */
+        post: operations["onizle_api_v1_ice_aktarma_acilis_stogu_onizle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ice-aktarma/acilis_stogu/uygula": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Açılış stoğu: uygula (hepsi ya da hiçbiri) */
+        post: operations["uygula_api_v1_ice_aktarma_acilis_stogu_uygula_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3615,6 +3887,17 @@ export interface components {
             sorumlu_kullanici_id?: number | null;
             /** Termin Tarihi */
             termin_tarihi?: string | null;
+        };
+        /** AlanDTO */
+        AlanDTO: {
+            /** Ad */
+            ad: string;
+            /** Zorunlu */
+            zorunlu: boolean;
+            /** Aciklama */
+            aciklama: string;
+            /** Ornek */
+            ornek: string;
         };
         /** AnonimlestirDTO */
         AnonimlestirDTO: {
@@ -3913,6 +4196,31 @@ export interface components {
             /** Dosya */
             dosya: string;
         };
+        /** Body_onizle_api_v1_ice_aktarma_acilis_stogu_onizle_post */
+        Body_onizle_api_v1_ice_aktarma_acilis_stogu_onizle_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_onizle_api_v1_ice_aktarma_firma_onizle_post */
+        Body_onizle_api_v1_ice_aktarma_firma_onizle_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_onizle_api_v1_ice_aktarma_makine_onizle_post */
+        Body_onizle_api_v1_ice_aktarma_makine_onizle_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_onizle_api_v1_ice_aktarma_malzeme_onizle_post */
+        Body_onizle_api_v1_ice_aktarma_malzeme_onizle_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_onizle_api_v1_ice_aktarma_personel_onizle_post */
+        Body_onizle_api_v1_ice_aktarma_personel_onizle_post: {
+            /** Dosya */
+            dosya: string;
+        };
         /** Body_surum_yukle_api_v1_belgeler__belge_id__surumler_post */
         Body_surum_yukle_api_v1_belgeler__belge_id__surumler_post: {
             /**
@@ -3973,6 +4281,31 @@ export interface components {
              * Format: password
              */
             client_secret?: string | null;
+        };
+        /** Body_uygula_api_v1_ice_aktarma_acilis_stogu_uygula_post */
+        Body_uygula_api_v1_ice_aktarma_acilis_stogu_uygula_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_uygula_api_v1_ice_aktarma_firma_uygula_post */
+        Body_uygula_api_v1_ice_aktarma_firma_uygula_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_uygula_api_v1_ice_aktarma_makine_uygula_post */
+        Body_uygula_api_v1_ice_aktarma_makine_uygula_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_uygula_api_v1_ice_aktarma_malzeme_uygula_post */
+        Body_uygula_api_v1_ice_aktarma_malzeme_uygula_post: {
+            /** Dosya */
+            dosya: string;
+        };
+        /** Body_uygula_api_v1_ice_aktarma_personel_uygula_post */
+        Body_uygula_api_v1_ice_aktarma_personel_uygula_post: {
+            /** Dosya */
+            dosya: string;
         };
         /** CihazCevapDTO */
         CihazCevapDTO: {
@@ -5741,6 +6074,27 @@ export interface components {
             /** Ideal Cevrim Sn */
             ideal_cevrim_sn: number;
         };
+        /** OnizlemeDTO */
+        OnizlemeDTO: {
+            /** Tur */
+            tur: string;
+            /** Toplam */
+            toplam: number;
+            /** Yeni */
+            yeni: number;
+            /** Guncelle */
+            guncelle: number;
+            /** Ayni */
+            ayni: number;
+            /** Hatali */
+            hatali: number;
+            /** Eksik Kolonlar */
+            eksik_kolonlar: string[];
+            /** Bilinmeyen Kolonlar */
+            bilinmeyen_kolonlar: string[];
+            /** Satirlar */
+            satirlar: components["schemas"]["SatirSonucuDTO"][];
+        };
         /**
          * OperatorEslesmeCevapDTO
          * @description Sıralı operatör önerisi satırı (skor 0–1, kural-tabanlı gerekçeli).
@@ -6531,6 +6885,26 @@ export interface components {
             para_birimi: string;
             /** Kalemler */
             kalemler: components["schemas"]["SatinalmaKalemDTO"][];
+        };
+        /** SatirHatasiDTO */
+        SatirHatasiDTO: {
+            /** Alan */
+            alan: string;
+            /** Mesaj */
+            mesaj: string;
+        };
+        /** SatirSonucuDTO */
+        SatirSonucuDTO: {
+            /** Satir */
+            satir: number;
+            /** Anahtar */
+            anahtar: string;
+            /** Islem */
+            islem: string;
+            /** Hatalar */
+            hatalar: components["schemas"]["SatirHatasiDTO"][];
+            /** Degisen */
+            degisen: string[];
         };
         /** SayfaMeta */
         SayfaMeta: {
@@ -7362,6 +7736,21 @@ export interface components {
             fire_orani: number;
             /** Oee */
             oee: number;
+        };
+        /** TurDTO */
+        TurDTO: {
+            /** Kod */
+            kod: string;
+            /** Baslik */
+            baslik: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Anahtar */
+            anahtar: string[];
+            /** Yetkili */
+            yetkili: boolean;
+            /** Alanlar */
+            alanlar: components["schemas"]["AlanDTO"][];
         };
         /** UretimGirisDTO */
         UretimGirisDTO: {
@@ -8507,6 +8896,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["OkunduSayisiDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[OnizlemeDTO] */
+        Zarf_OnizlemeDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["OnizlemeDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[OrtakCevapDTO] */
@@ -9936,6 +10340,22 @@ export interface components {
             data?: components["schemas"]["TrendNoktasiDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[TurDTO]] */
+        Zarf_list_TurDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["TurDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[UretimOzetiSatirDTO]] */
         Zarf_list_UretimOzetiSatirDTO__: {
             /**
@@ -10172,6 +10592,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Zarf_dict_str__Any__"];
                 };
+            };
+            /** @description En az bir bağımlılık hazır değil */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -18278,6 +18705,446 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    turler_api_v1_ice_aktarma_turler_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_TurDTO__"];
+                };
+            };
+        };
+    };
+    sablon_api_v1_ice_aktarma_firma_sablon_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    onizle_api_v1_ice_aktarma_firma_onizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_onizle_api_v1_ice_aktarma_firma_onizle_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygula_api_v1_ice_aktarma_firma_uygula_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_uygula_api_v1_ice_aktarma_firma_uygula_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sablon_api_v1_ice_aktarma_makine_sablon_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    onizle_api_v1_ice_aktarma_makine_onizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_onizle_api_v1_ice_aktarma_makine_onizle_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygula_api_v1_ice_aktarma_makine_uygula_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_uygula_api_v1_ice_aktarma_makine_uygula_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sablon_api_v1_ice_aktarma_malzeme_sablon_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    onizle_api_v1_ice_aktarma_malzeme_onizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_onizle_api_v1_ice_aktarma_malzeme_onizle_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygula_api_v1_ice_aktarma_malzeme_uygula_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_uygula_api_v1_ice_aktarma_malzeme_uygula_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sablon_api_v1_ice_aktarma_personel_sablon_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    onizle_api_v1_ice_aktarma_personel_onizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_onizle_api_v1_ice_aktarma_personel_onizle_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygula_api_v1_ice_aktarma_personel_uygula_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_uygula_api_v1_ice_aktarma_personel_uygula_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sablon_api_v1_ice_aktarma_acilis_stogu_sablon_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    onizle_api_v1_ice_aktarma_acilis_stogu_onizle_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_onizle_api_v1_ice_aktarma_acilis_stogu_onizle_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    uygula_api_v1_ice_aktarma_acilis_stogu_uygula_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_uygula_api_v1_ice_aktarma_acilis_stogu_uygula_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnizlemeDTO_"];
                 };
             };
             /** @description Validation Error */

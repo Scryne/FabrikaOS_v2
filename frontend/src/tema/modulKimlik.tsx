@@ -9,6 +9,7 @@
 import type { ReactNode } from 'react';
 import {
   AlertOutlined,
+  ImportOutlined,
   ApartmentOutlined,
   AreaChartOutlined,
   AuditOutlined,
@@ -90,6 +91,7 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   kullanicilar: <IdcardOutlined />,
   abonelik: <CreditCardOutlined />,
   'bildirim-tercihleri': <NotificationOutlined />,
+  'ice-aktarma': <ImportOutlined />,
 };
 
 /**

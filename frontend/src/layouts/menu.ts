@@ -14,8 +14,12 @@ export type MenuOgesi = {
   yol: string;
   /** Gerekli RBAC izni; yoksa öğe herkese görünür (yalnız oturum yeterli). */
   izin?: string;
+  /** İzinlerden herhangi biri yeterli (ör. içe aktarma: her tür kendi yazma iznini ister). */
+  herhangiIzin?: string[];
   /** Bağlı olduğu entitlement modülü; kapalıysa öğe gizlenir (S16). Yoksa çekirdek. */
   modul?: string;
+  /** Modüllerden herhangi biri açıksa görünür (birden çok modüle hizmet eden yüzeyler). */
+  herhangiModul?: string[];
 };
 
 export const MENU: MenuOgesi[] = [
@@ -312,6 +316,16 @@ export const MENU: MenuOgesi[] = [
     izin: 'kvkk:yonet',
   },
   {
+    // S21: onboarding içe aktarma — tür başına izin backend'de; menü, yazma izinlerinden biri
+    // olan herkese görünür (sayfa yetkisiz türleri kilitli gösterir).
+    anahtar: 'ice-aktarma',
+    etiketAnahtari: 'menu.ice_aktarma',
+    bolum: 'menu.bolum_yonetim',
+    yol: '/ice-aktarma',
+    herhangiIzin: ['crm:yaz', 'uretim:yaz', 'stok:yaz', 'ik:yaz'],
+    herhangiModul: ['crm', 'uretim', 'stok', 'ik'],
+  },
+  {
     anahtar: 'webhooklar',
     etiketAnahtari: 'menu.webhooklar',
     bolum: 'menu.bolum_yonetim',
@@ -333,6 +347,9 @@ export function gorunurMenu(
 ): MenuOgesi[] {
   return ogeler.filter(
     (o) =>
-      (o.izin === undefined || izinVar(o.izin)) && (o.modul === undefined || modulAcik(o.modul)),
+      (o.izin === undefined || izinVar(o.izin)) &&
+      (o.herhangiIzin === undefined || o.herhangiIzin.some(izinVar)) &&
+      (o.modul === undefined || modulAcik(o.modul)) &&
+      (o.herhangiModul === undefined || o.herhangiModul.some(modulAcik)),
   );
 }

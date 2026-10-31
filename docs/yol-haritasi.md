@@ -36,7 +36,7 @@ Definition of Done (DoD).
 | **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ✅ ADR-0021 |
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ✅ ADR-0040 |
 | | S20 | Yedekleme/DR + Staging | ✅ ADR-0041 |
-| | S21 | Tohumlama & Pilot | ⬜ |
+| | S21 | Tohumlama & Pilot | 🔄 ADR-0042 · pilot müşteri bekliyor |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
@@ -403,10 +403,16 @@ migration fan-out deploy çalışır. DR runbook `docs/operasyon/`.
 > mutasyonun 8'i yakalandı), demo tatbikatı 1,9 sn, PITR tatbikatı hedef ana doğru döndü,
 > staging'de PII taraması 0. Prod compose Docker'da koşturulmadı. Runbook `docs/operasyon/dr.md`.
 
-#### ⬜ S21 — Tohumlama & Pilot
+#### 🔄 S21 — Tohumlama & Pilot
 Tohumlama: sistem (global referans, `public`), tenant (rol/izin), demo; onboarding CSV içe aktarma;
 idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 **Kabul:** `docker compose up` + seed ile sistem anlamlı veriyle açılır; pilot tenant gerçek veriyle.
+> **Yazılım tarafı uygulandı (2026-11-01, ADR-0042):** `scripts/kurulum.py` (public + tenant başına göç
+> + provizyon; idempotent, iki koşuyla ölçüldü). Veri içe aktarma (firma, makine, malzeme, personel,
+> açılış stoğu): önizle → hepsi-ya-hiç uygula, anahtarla idempotent, `;`/cp1254/XLSX, `1.234,5`,
+> TCKN sağlaması, açılış stoğu hareketle; arayüz Yönetim › Veri içe aktarma. Demo seed'inde saate
+> bağlı hata düzeltildi (teslim tarihi yerel 20:00'den önce reddediliyordu). **Açık:** pilot fabrika
+> (müşteri + sözleşme gerektirir) — hazırlık listesi `docs/operasyon/pilot.md`.
 
 #### ⬜ S22 — UAT + Sertleştirme + GA `v1.0.0`
 **UAT** (pilot kabul); güvenlik sertleştirme (OWASP ZAP, bandit, pentest düzeltmeleri); yük/performans

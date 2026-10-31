@@ -1174,7 +1174,9 @@ def tedarik_zinciri(c: Istemci) -> None:
         f"/api/v1/satinalma-siparisleri/{gecikmis['id']}/teslim-al",
         {
             "irsaliye_no": "IRS-2026-0141",
-            "fiili_tarih": (bugun - timedelta(hours=20)).isoformat(),
+            # Fiili tarih verilmez (= şimdi): sipariş bugün açıldığı için geçmiş bir an,
+            # yerel saat 20:00'den önce sipariş gününden önceye düşüp reddediliyordu (§4b).
+            # Gecikme yine görünür: beklenen teslim iki gün önceydi.
             "lokasyon_id": loklar["RAF-A-01"],
             "kalemler": [{"siparis_kalemi_id": ilk["id"], "miktar": round(ilk["miktar"] * 0.6, 3)}],
         },

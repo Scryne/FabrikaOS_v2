@@ -127,7 +127,8 @@
     "kvkk": "Data Privacy",
     "depolar": "Warehouses",
     "sayimlar": "Stock counts",
-    "siparisler": "Purchase orders"
+    "siparisler": "Purchase orders",
+    "ice_aktarma": "Data import"
   },
   "entegrasyon": {
     "alt": "Webhook subscriptions, delivery log and 3rd-party API keys",
@@ -1808,5 +1809,41 @@
     "acildi": "Order {{kod}} raised",
     "talep_siparisi": "Order",
     "siparise_git": "Go to order"
+  },
+  "aktarim": {
+    "baslik": "Data import",
+    "aciklama": "Load your existing records from a spreadsheet. Everything is previewed first; if any row has an error, nothing is written.",
+    "turler": "Import order",
+    "sira_notu": "Order matters: materials link to supplier companies, opening stock links to materials.",
+    "yetki_yok": "You lack the permission or module for this type",
+    "hic_yetki": "There is no data type you can import. Ask your administrator for access.",
+    "sablon": "Download template",
+    "kolon": "Column",
+    "kolon_aciklama": "Description",
+    "ornek": "Example",
+    "eslesme": "Matched to existing records by: {{anahtar}}. An empty cell leaves the existing value unchanged.",
+    "dosya_birak": "Drop a CSV or Excel file here, or browse",
+    "dosya_ipucu": ".csv (semicolon or comma) or .xlsx · up to 5 MB, 10,000 rows",
+    "onizleme": "Preview",
+    "toplam": "Rows",
+    "islem_yeni": "New",
+    "islem_guncelle": "To update",
+    "islem_ayni": "Unchanged",
+    "islem_hata": "Errors",
+    "suzgec_tum": "All",
+    "satir": "Row",
+    "anahtar": "Record",
+    "islem": "Action",
+    "ayrinti": "Details",
+    "degisen": "Changed",
+    "uygula": "Apply {{adet}} records",
+    "uygulandi": "{{yeni}} created, {{guncelle}} updated; {{ayni}} were already up to date.",
+    "uygulanamadi": "Could not apply. Preview the file again.",
+    "okunamadi": "The file could not be read.",
+    "hata_notu": "Fix the rows with errors in your file and upload it again; nothing is written until all errors are resolved.",
+    "eksik_kolon": "Required column missing: {{kolonlar}}. Use the template headers.",
+    "bilinmeyen_kolon": "Unrecognized columns will be ignored: {{kolonlar}}",
+    "kirpildi": "Showing the first {{gosterilen}} rows; the totals cover the whole file.",
+    "uygulandi_alt": "You can move on to the next type or upload a corrected file. The import was recorded in the audit log."
   }
 }

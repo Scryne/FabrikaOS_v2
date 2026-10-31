@@ -42,6 +42,7 @@ import { KullaniciListesi } from '@/modules/kimlik/KullaniciListesi';
 import { SsoDonusSayfasi } from '@/modules/kimlik/SsoDonusSayfasi';
 import { DenetimKayitlari } from '@/modules/uyum/DenetimKayitlari';
 import { KvkkSayfasi } from '@/modules/uyum/KvkkSayfasi';
+import { IceAktarma } from '@/modules/aktarim/IceAktarma';
 import { KioskSayfasi } from '@/modules/kiosk/KioskSayfasi';
 import { PrimitifVitrini } from '@/modules/onizleme/PrimitifVitrini';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
@@ -232,6 +233,8 @@ export function App() {
           <Route path="bildirim-tercihleri" element={<BildirimTercihleri />} />
           {/* Kişisel güvenlik: 2FA + oturum/cihaz yönetimi (oturum yeterli; S23). */}
           <Route path="guvenlik" element={<GuvenlikSayfasi />} />
+          {/* S21 içe aktarma: tür başına izin + modül kapısı backend'de; sayfa yetkisizi kilitler. */}
+          <Route path="ice-aktarma" element={<IceAktarma />} />
           {/* Uyum yüzeyi — modül kapısı YOK (çekirdek hak); yalnız izinle korunur. */}
           <Route
             path="denetim-kayitlari"

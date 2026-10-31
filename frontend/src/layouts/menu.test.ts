@@ -25,6 +25,19 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
     ]);
   });
 
+  it('herhangi-izin öğesi tek bir izinle görünür (içe aktarma)', () => {
+    const yalnizIk = gorunurMenu(MENU, (izin) => izin === 'ik:yaz').map((o) => o.anahtar);
+    expect(yalnizIk).toContain('ice-aktarma');
+    const okuyucu = gorunurMenu(MENU, (izin) => izin.endsWith(':oku')).map((o) => o.anahtar);
+    expect(okuyucu).not.toContain('ice-aktarma');
+    const yalnizIkModulu = gorunurMenu(
+      MENU,
+      () => true,
+      (m) => m === 'ik',
+    ).map((o) => o.anahtar);
+    expect(yalnizIkModulu).toContain('ice-aktarma');
+  });
+
   it('tam yetkili kullanıcı tüm öğeleri görür', () => {
     const gorunur = gorunurMenu(MENU, () => true);
     expect(gorunur).toHaveLength(MENU.length);

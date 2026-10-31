@@ -127,7 +127,8 @@
     "kvkk": "KVKK",
     "depolar": "Depolar",
     "sayimlar": "Sayımlar",
-    "siparisler": "Satınalma siparişleri"
+    "siparisler": "Satınalma siparişleri",
+    "ice_aktarma": "Veri içe aktarma"
   },
   "entegrasyon": {
     "alt": "Webhook abonelikleri, teslimat günlüğü ve 3. taraf API anahtarları",
@@ -1808,5 +1809,41 @@
     "acildi": "Sipariş {{kod}} açıldı",
     "talep_siparisi": "Sipariş",
     "siparise_git": "Siparişe git"
+  },
+  "aktarim": {
+    "baslik": "Veri içe aktarma",
+    "aciklama": "Kuruluşta mevcut kayıtları tablo dosyasıyla yükleyin. Önce önizlenir; tek satırda hata varsa hiçbir şey yazılmaz.",
+    "turler": "Yükleme sırası",
+    "sira_notu": "Sıra önemlidir: malzemeler tedarikçi firmaya, açılış stoğu malzemeye bağlanır.",
+    "yetki_yok": "Bu tür için yetkiniz ya da modülünüz yok",
+    "hic_yetki": "İçe aktarabileceğiniz bir veri türü yok. Yetki için yöneticinize başvurun.",
+    "sablon": "Şablonu indir",
+    "kolon": "Kolon",
+    "kolon_aciklama": "Açıklama",
+    "ornek": "Örnek",
+    "eslesme": "Var olan kayıtla eşleştirme: {{anahtar}}. Boş hücre mevcut değeri değiştirmez.",
+    "dosya_birak": "CSV ya da Excel dosyasını buraya bırakın veya seçin",
+    "dosya_ipucu": ".csv (noktalı virgül ya da virgül) veya .xlsx · en fazla 5 MB, 10.000 satır",
+    "onizleme": "Önizleme",
+    "toplam": "Satır",
+    "islem_yeni": "Yeni",
+    "islem_guncelle": "Güncellenecek",
+    "islem_ayni": "Değişmeyen",
+    "islem_hata": "Hatalı",
+    "suzgec_tum": "Tümü",
+    "satir": "Satır",
+    "anahtar": "Kayıt",
+    "islem": "İşlem",
+    "ayrinti": "Ayrıntı",
+    "degisen": "Değişen",
+    "uygula": "{{adet}} kaydı uygula",
+    "uygulandi": "{{yeni}} yeni kayıt, {{guncelle}} güncelleme; {{ayni}} kayıt zaten günceldi.",
+    "uygulanamadi": "Uygulanamadı. Dosyayı yeniden önizleyin.",
+    "okunamadi": "Dosya okunamadı.",
+    "hata_notu": "Hatalı satırları dosyada düzeltip yeniden yükleyin; hatalar giderilmeden hiçbir kayıt yazılmaz.",
+    "eksik_kolon": "Zorunlu kolon eksik: {{kolonlar}}. Şablondaki başlıkları kullanın.",
+    "bilinmeyen_kolon": "Tanınmayan kolonlar yok sayılacak: {{kolonlar}}",
+    "kirpildi": "İlk {{gosterilen}} satır gösteriliyor; sayılar dosyanın tamamını kapsar.",
+    "uygulandi_alt": "Sıradaki türe geçebilir ya da düzeltilmiş bir dosya yükleyebilirsiniz. İşlem denetim kayıtlarına yazıldı."
   }
 }

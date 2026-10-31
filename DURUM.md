@@ -22,6 +22,18 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S21 tohumlama + veri içe aktarma (ADR-0042)
+
+- `scripts/kurulum.py`: public + tenant başına göç + provizyon; iki kez koşturuldu, ikincisi temiz.
+- Veri içe aktarma (firma, makine, malzeme, personel, açılış stoğu): önizle → hepsi-ya-hiç uygula,
+  anahtarla idempotent; `;`/cp1254/XLSX ve `1.234,5`; TCKN sağlaması, yanıtta değer yok; açılış stoğu
+  hareketle (ikinci yükleme stoğu ikiye katlamaz). Backend 12 test (5/5 mutasyon), FE 3 + menü.
+- Ekran turu: 1440 ve 390 px taşmasız (390'da 306 px taşma bulundu: ızgara `minmax(0,1fr)`),
+  hatalı dosyada uygula kapalı, temiz dosya uygulandı, yeni makine listede; konsol 0.
+- Demo seed'i saate bağlı kırılıyordu: gecikmiş siparişin teslim tarihi "şimdi − 20 sa" idi; yerel
+  20:00'den önce sipariş gününden önceye düşüp reddediliyordu (gece yarısından sonra yakalandı).
+- Açık: pilot fabrika (müşteri gerektirir), `docs/operasyon/pilot.md`.
+
 ## 2026-10-31 — S20 yedekleme/DR + staging (ADR-0041)
 
 - Tenant yedeği/geri yüklemesi (`app/operasyon/yedek.py`, `scripts/yedek.py`): yapı göçten, veri
@@ -95,7 +107,7 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 ## Ne yarım / bilinçli açık
 
 - S25 tamam (ADR-0024 "Uygulama durumu"); fatura eşlemesi ve birim dönüşümü bilinçli olarak
-  sonraya. S19 (ADR-0040) ve S20 (ADR-0041) tamam; S21–S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
+  sonraya. S19 (ADR-0040) ve S20 (ADR-0041) tamam; S21 yazılım tarafı tamam (pilot müşteri bekliyor); S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
   saklama politikası yok (S3 notu) — yük testiyle (S22) birlikte ele alınacak.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).

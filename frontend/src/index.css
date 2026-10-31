@@ -1080,3 +1080,126 @@ a.varlik-ad:hover {
     display: none;
   }
 }
+
+/* S21 veri içe aktarma: solda numaralı tür listesi (yükleme sırası), sağda çalışma alanı. */
+.aktarim-duzen {
+  display: grid;
+  /* minmax(0, …): ızgara öğesi içerik genişliğine (tablo) uzamasın — 390 px'te 306 px taşıyordu. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 992px) {
+  .aktarim-duzen {
+    grid-template-columns: 280px minmax(0, 1fr);
+  }
+}
+.aktarim-calisma {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+}
+.aktarim-tur-listesi {
+  list-style: none;
+  counter-reset: aktarim;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+.aktarim-tur-listesi li {
+  counter-increment: aktarim;
+}
+.aktarim-tur {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--metin);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.aktarim-tur::before {
+  content: counter(aktarim);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--metin-soluk);
+  border: 1px solid var(--kenarlik-parlak);
+}
+.aktarim-tur > span {
+  flex: 1;
+}
+.aktarim-tur:hover:not(:disabled) {
+  background: var(--yuzey-ust);
+}
+.aktarim-tur:focus-visible {
+  outline: 2px solid var(--mavi);
+  outline-offset: 1px;
+}
+.aktarim-tur--secili {
+  border-color: var(--kenarlik-parlak);
+  background: var(--yuzey-ust);
+}
+.aktarim-tur--secili::before {
+  color: var(--metin);
+  border-color: var(--hat-yonetim);
+}
+.aktarim-tur:disabled {
+  color: var(--metin-soluk);
+  cursor: not-allowed;
+}
+.aktarim-sira-notu {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+.aktarim-tur-aciklama {
+  margin: 0 0 12px;
+  color: var(--metin-soluk);
+}
+.aktarim-eslesme {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+.aktarim-zorunlu {
+  color: var(--hata);
+}
+.aktarim-uyari {
+  margin-top: 12px;
+}
+.aktarim-arac {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 12px;
+}
+.aktarim-dugmeler {
+  display: flex;
+  gap: 8px;
+}
+.aktarim-hata-notu {
+  margin: 0 0 12px;
+  color: var(--hata);
+  font-size: 13px;
+}
+.aktarim-hatalar {
+  margin: 0;
+  padding-left: 16px;
+}
+.aktarim-hatalar code {
+  font-size: 12px;
+}
