@@ -6,20 +6,30 @@ yeni bir zaman serisi açar ve Prometheus'u şişirir. Tenant etiket olarak yaz�
 tenant × rota × durum kardinalitesi); tenant kırılımı loglarda ve izlerde.
 
 Süreç-içi tek kayıt defteri (``KAYIT``): API ``/metrics`` ucundan, işçiler kendi portlarından
-(``metrik_sunucusu_baslat``) yayınlar. Uvicorn çok işçili koşarsa her işçi ayrı kazınmalıdır.
+(``metrik_sunucusu_baslat``) yayınlar.
+
+**Çok işçili uvicorn (S22):** tek süreç ~125 istek/sn'de doyuyor (k6, 2026-11-01); üretimde
+``--workers N`` gerekir. O zaman her işçinin sayacı ayrı bellekte durur ve ``/metrics``'i hangi
+işçi karşılarsa yalnız onunkini döndürürdü. ``PROMETHEUS_MULTIPROC_DIR`` tanımlıysa
+prometheus_client değerleri bu dizindeki dosyalara yazar ve ``metrik_ciktisi`` bütün işçileri
+toplar. Dizin her açılışta boşaltılmalıdır (Dockerfile/compose komutu).
 """
 
 from __future__ import annotations
 
+import os
 import time
 from collections.abc import Awaitable, Callable, MutableMapping
 from typing import Any
 
 from prometheus_client import (
+    CONTENT_TYPE_LATEST,
     CollectorRegistry,
     Counter,
     Gauge,
     Histogram,
+    generate_latest,
+    multiprocess,
     start_http_server,
 )
 
@@ -54,12 +64,14 @@ HTTP_SUREN = Gauge(
     "fabrikaos_http_suren_istekler",
     "Şu anda işlenen HTTP istekleri.",
     registry=KAYIT,
+    multiprocess_mode="livesum",  # çok işçide yaşayan süreçlerin toplamı
 )
 SURUM = Gauge(
     "fabrikaos_surum_bilgisi",
     "Çalışan sürüm (değer her zaman 1).",
     ["surum"],
     registry=KAYIT,
+    multiprocess_mode="max",
 )
 SURUM.labels(surum=__version__).set(1)
 
@@ -75,6 +87,7 @@ ISCI_SON_BASARI = Gauge(
     "İşçinin son başarılı işleminin Unix zamanı (durgunluk alarmı için).",
     ["isci"],
     registry=KAYIT,
+    multiprocess_mode="max",
 )
 
 ESLESMEYEN = "eslesmeyen"
@@ -124,6 +137,15 @@ def isci_sonuc(isci: str, sonuc: str) -> None:
     ISCI_MESAJ.labels(isci=isci, sonuc=sonuc).inc()
     if sonuc == "islendi":
         ISCI_SON_BASARI.labels(isci=isci).set(time.time())
+
+
+def metrik_ciktisi() -> tuple[bytes, str]:
+    """Prometheus metin biçimi; çok süreç modunda bütün işçilerin toplamı."""
+    if os.environ.get("PROMETHEUS_MULTIPROC_DIR"):
+        toplayici = CollectorRegistry()
+        multiprocess.MultiProcessCollector(toplayici)  # type: ignore[no-untyped-call]
+        return generate_latest(toplayici), CONTENT_TYPE_LATEST
+    return generate_latest(KAYIT), CONTENT_TYPE_LATEST
 
 
 def metrik_sunucusu_baslat(port: int) -> None:

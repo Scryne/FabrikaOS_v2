@@ -22,6 +22,17 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S22 sertleştirme ve kapasite (ADR-0043)
+
+- Bandit: yüksek 0, orta 22 (hepsi B608, tek tek incelendi: beyaz liste / doğrulanmış şema adı /
+  katalog tablo adı), CI kapısı orta ve üstü.
+- k6 (`perf/k6/nfr01_liste.js`, 16 uç): 1 işçi 20 kullanıcı p95 181 ms ✅, 50 kullanıcı 469 ms ❌
+  (kuyruk, ~125 istek/sn'de doyuyor); 4 işçi 50 kullanıcı p95 154 ms ✅, 340 istek/sn.
+- Prod katmanı 4 işçi + Prometheus çok süreç modu; canlıda 4 işçiye dağılan 200 istek `/metrics`'te
+  200 olarak toplandı. Ölçüm sırasında bulunan tuzak: Windows'ta öldürülen üst sürecin yetim
+  işçileri portu dinlemeye devam edip eski kodla cevap veriyordu.
+- Açık: ZAP/pentest, 50 tenant yük testi, UAT ve `v1.0.0` (pilot gerekir).
+
 ## 2026-11-01 — S21 tohumlama + veri içe aktarma (ADR-0042)
 
 - `scripts/kurulum.py`: public + tenant başına göç + provizyon; iki kez koşturuldu, ikincisi temiz.
@@ -107,7 +118,7 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 ## Ne yarım / bilinçli açık
 
 - S25 tamam (ADR-0024 "Uygulama durumu"); fatura eşlemesi ve birim dönüşümü bilinçli olarak
-  sonraya. S19 (ADR-0040) ve S20 (ADR-0041) tamam; S21 yazılım tarafı tamam (pilot müşteri bekliyor); S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
+  sonraya. S19 (ADR-0040) ve S20 (ADR-0041) tamam; S21 ve S22'nin yazılım tarafı tamam; pilot, UAT ve GA dışa bağlı. `uretim_verileri` hypertable'ında sıkıştırma/
   saklama politikası yok (S3 notu) — yük testiyle (S22) birlikte ele alınacak.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).

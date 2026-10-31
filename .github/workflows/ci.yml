@@ -60,6 +60,14 @@ jobs:
       - name: pytest (birim + entegrasyon)
         run: pytest
 
+      - name: Statik güvenlik taraması (bandit, orta ve üstü)
+        # B608 (SQL'e metin birleştirme) 22 noktada tek tek incelendi: birleştirilen yalnız beyaz
+        # liste ifadeleri, sema_adi() ile doğrulanmış şema adları ve katalogdan gelen tırnaklı tablo
+        # adları (docs/operasyon/guvenlik-ve-performans.md). Yeni SQL birleştirme kod incelemesinde.
+        run: |
+          pip install "bandit>=1.8"
+          bandit -r backend/app -ll -q -s B608
+
       - name: Bağımlılık güvenliği (pip-audit)
         run: |
           pip install pip-audit

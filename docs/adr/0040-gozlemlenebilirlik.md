@@ -79,7 +79,7 @@ webhook adresi depoda tutulmaz (`infra/alertmanager/gizli/`, `.gitignore`).
 - (+) Alarm kuralları kod gibi test edilir; CI'da `promtool test rules` koşabilir.
 - (−) Loki/Alloy yalnız yapılandırma olarak doğrulandı; Docker ortamında koşturulmadı
   (makinede Docker test için açılmıyor). İlk staging kurulumunda doğrulanacak.
-- (−) Çok işçili uvicorn'da her işçi ayrı kazınmalı (prometheus_client çok süreç modu
-  kullanılmadı); bugünkü tek süreç dağıtımında sorun değil.
+- (±) Çok işçili uvicorn: S22'de çok süreç modu eklendi (`PROMETHEUS_MULTIPROC_DIR`), `/metrics`
+  bütün işçilerin toplamını verir (ADR-0043).
 - **Açık:** Sentry projesi ve DSN (ücretsiz katman yeterli, şartname §11) hesap açılınca;
   platform panelinde "kuyruk sağlığı / hata oranı" kartları Prometheus'tan okunabilir (S27).

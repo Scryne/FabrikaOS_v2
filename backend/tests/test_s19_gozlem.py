@@ -295,3 +295,28 @@ async def test_otel_sql_spani_uretilir(test_db: str) -> None:
     finally:
         SQLAlchemyInstrumentor().uninstrument()
         await motor.dispose()
+
+
+def test_cok_surec_metrikleri_toplanir(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """S22: --workers N altında /metrics bütün işçilerin toplamını vermeli (yetim değer yok)."""
+    import os
+    import subprocess
+    import sys
+
+    ortam = {**os.environ, "PROMETHEUS_MULTIPROC_DIR": str(tmp_path), "DATABASE_URL": "x"}
+    artir = (
+        "from app.core.metrikler import HTTP_ISTEK;"
+        "HTTP_ISTEK.labels(yontem='GET', rota='/cok', durum='200').inc(5)"
+    )
+    for _ in range(2):  # iki ayrı "işçi" süreci
+        subprocess.run([sys.executable, "-c", artir], env=ortam, check=True, cwd="backend")
+    oku = "from app.core.metrikler import metrik_ciktisi;print(metrik_ciktisi()[0].decode())"
+    cikti = subprocess.run(
+        [sys.executable, "-c", oku],
+        env=ortam,
+        check=True,
+        cwd="backend",
+        capture_output=True,
+        text=True,
+    ).stdout
+    assert 'fabrikaos_http_istekleri_total{durum="200",rota="/cok",yontem="GET"} 10.0' in cikti

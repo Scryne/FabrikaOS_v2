@@ -37,7 +37,7 @@ Definition of Done (DoD).
 | **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ✅ ADR-0040 |
 | | S20 | Yedekleme/DR + Staging | ✅ ADR-0041 |
 | | S21 | Tohumlama & Pilot | 🔄 ADR-0042 · pilot müşteri bekliyor |
-| | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
+| | S22 | UAT + Sertleştirme + GA `v1.0.0` | 🔄 ADR-0043 · UAT/GA pilot bekliyor |
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ✅ ADR-0024 |
@@ -414,10 +414,14 @@ idempotent seed. **Pilot fabrika** devreye alma; gerçek veriyle çalıştırma.
 > bağlı hata düzeltildi (teslim tarihi yerel 20:00'den önce reddediliyordu). **Açık:** pilot fabrika
 > (müşteri + sözleşme gerektirir) — hazırlık listesi `docs/operasyon/pilot.md`.
 
-#### ⬜ S22 — UAT + Sertleştirme + GA `v1.0.0`
+#### 🔄 S22 — UAT + Sertleştirme + GA `v1.0.0`
 **UAT** (pilot kabul); güvenlik sertleştirme (OWASP ZAP, bandit, pentest düzeltmeleri); yük/performans
 (Locust/k6, NFR doğrulama); dokümantasyon tamamlama; **GA `v1.0.0`** + CHANGELOG.
 **Kabul:** NFR hedefleri karşılanır; kritik güvenlik bulgusu yok; UAT kabul; dokümanlar tam; `v1.0.0`.
+> **Sertleştirme ve kapasite uygulandı (2026-11-01, ADR-0043):** bandit (yüksek 0; B608'in 22 noktası
+> incelendi) CI kapısı; NFR-01 k6 ölçümü: 1 işçi 20 kullanıcıda p95 181 ms, 50'de 469 ms (kuyruk) →
+> prod 4 işçi, 50 kullanıcıda p95 154 ms / 340 istek/sn; Prometheus çok süreç modu; CHANGELOG.
+> **Açık:** ZAP/pentest (staging), 50 tenant yük testi, UAT ve GA etiketi (pilot gerekir).
 
 > **🚦 GA Kapısı:** 7 kritik test ailesi yeşil + NFR'ler + KVKK/güvenlik + dokümantasyon tam.
 

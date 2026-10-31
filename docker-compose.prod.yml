@@ -7,12 +7,21 @@
 
 services:
   api:
+    # Traefik arkasında gerçek istemci IP'si (denetim izi, rate limit) X-Forwarded-For'dan gelir.
+    # S22 ölçümü: tek süreç ~125 istek/sn'de doyuyor, 4 işçi 50 eşzamanlı kullanıcıda p95 154 ms.
+    # Çok işçide Prometheus sayaçları paylaşılan dizinden toplanır; dizin her açılışta boşaltılır.
     environment:
       APP_ENV: ${APP_ENV:-prod}
       DATABASE_URL: postgresql+asyncpg://fabrikaos:${POSTGRES_PAROLA}@db:5432/fabrikaos
-    # Traefik arkasında gerçek istemci IP'si (denetim izi, rate limit) X-Forwarded-For'dan gelir.
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000",
-              "--proxy-headers", "--forwarded-allow-ips", "*"]
+      PROMETHEUS_MULTIPROC_DIR: /tmp/prometheus
+    command:
+      - sh
+      - -c
+      - >-
+        rm -rf /tmp/prometheus && mkdir -p /tmp/prometheus &&
+        exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${API_ISCI:-4}
+        --proxy-headers --forwarded-allow-ips '*'
+
     ports: !reset []
     labels: !override
       - "traefik.enable=true"

@@ -9,14 +9,13 @@ from typing import Any
 
 from fastapi import APIRouter, Header, Response
 from opentelemetry.instrumentation.utils import suppress_instrumentation
-from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from sqlalchemy import text
 
 from app import __version__
 from app.core.config import get_settings
 from app.core.db.session import get_engine
 from app.core.exceptions import KimlikHatasi
-from app.core.metrikler import KAYIT
+from app.core.metrikler import metrik_ciktisi
 from app.core.responses import Zarf, basari
 from app.core.security.redis_istemci import get_redis
 
@@ -100,4 +99,5 @@ async def metrikler(authorization: str | None = Header(default=None)) -> Respons
         beklenen = f"Bearer {token}"
         if not authorization or not hmac.compare_digest(authorization, beklenen):
             raise KimlikHatasi("Metrik ucu için geçerli token gerekli")
-    return Response(generate_latest(KAYIT), media_type=CONTENT_TYPE_LATEST)
+    govde, tur = metrik_ciktisi()
+    return Response(govde, media_type=tur)
