@@ -10,8 +10,7 @@ import asyncio
 import asyncpg
 
 from app.core.db import fanout
-
-ASYNCPG_URL = "postgresql://fabrikaos:fabrikaos@localhost:5432/fabrikaos_test"
+from tests.conftest import ASYNCPG_URL
 
 
 async def _tablolar(sema: str) -> set[str]:

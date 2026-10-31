@@ -7,10 +7,9 @@ import json
 import asyncpg
 from httpx import AsyncClient
 
-from tests.conftest import ALFA
+from tests.conftest import ALFA, ASYNCPG_URL
 
 KIMLIK = "/api/v1/kimlik"
-ASYNCPG_URL = "postgresql://fabrikaos:fabrikaos@localhost:5432/fabrikaos_test"
 
 
 async def _giris(istemci: AsyncClient, t: dict) -> str:

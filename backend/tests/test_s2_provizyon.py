@@ -12,8 +12,7 @@ import asyncpg
 
 from app.control_plane.provizyon import tenant_provizyonla
 from app.kimlik.izinler import IZIN_KATALOGU, VARSAYILAN_ROLLER
-
-ASYNCPG_URL = "postgresql://fabrikaos:fabrikaos@localhost:5432/fabrikaos_test"
+from tests.conftest import ASYNCPG_URL
 
 
 async def _sayimlar(sema: str) -> dict[str, int]:

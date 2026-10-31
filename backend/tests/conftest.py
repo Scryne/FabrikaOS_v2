@@ -37,12 +37,16 @@ from app.main import create_app
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-_SUNUCU = "postgresql://fabrikaos:fabrikaos@localhost:5432"
-_TEST_DB = "fabrikaos_test"
 TEST_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    f"postgresql+asyncpg://fabrikaos:fabrikaos@localhost:5432/{_TEST_DB}",
+    "postgresql+asyncpg://fabrikaos:fabrikaos@localhost:5432/fabrikaos_test",
 )
+# Bakım bağlantısı (DROP/CREATE DATABASE) test DB'siyle aynı sunucuya ve aynı ada gider. Sabit
+# sunucu/ad, TEST_DATABASE_URL başka bir sunucuyu ya da adı gösterirken yanlış veritabanını
+# sıfırlardı (iki koşu aynı sunucuda birbirinin veritabanını düşürür).
+_SUNUCU, _TEST_DB = TEST_URL.replace("postgresql+asyncpg://", "postgresql://").rsplit("/", 1)
+# Testlerin doğrudan asyncpg bağlantısı da aynı veritabanına gider (sabit localhost:5432 değil).
+ASYNCPG_URL = f"{_SUNUCU}/{_TEST_DB}"
 
 ALFA = {"slug": "alfa", "ad": "Alfa Fabrika", "eposta": "admin@alfa.test", "parola": "Alfa12345!"}
 BETA = {"slug": "beta", "ad": "Beta Fabrika", "eposta": "admin@beta.test", "parola": "Beta12345!"}
