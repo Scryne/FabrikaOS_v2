@@ -66,6 +66,19 @@ class Settings(BaseSettings):
     smtp_parola: str = ""
     smtp_gonderen: str = "bildirim@fabrikaos.test"
 
+    # --- Gözlemlenebilirlik (S19, ADR-0040) ---
+    # Boş DSN = Sentry kapalı (dev/test varsayılanı). Ortam boşsa app_env kullanılır.
+    sentry_dsn: str = ""
+    sentry_ortam: str = ""
+    sentry_iz_orani: float = 0.0  # Sentry performans izi örnekleme oranı (0 = kapalı)
+    # /metrics: boş = açık (iç ağ / Traefik dışı); doluysa ``Authorization: Bearer <token>``.
+    metrik_token: str = ""
+    # OTLP/HTTP toplayıcı kökü (ör. http://otel-collector:4318); boş = dağıtık izleme kapalı.
+    otel_endpoint: str = ""
+    otel_servis_adi: str = "fabrikaos-api"
+    # İşçi süreçlerinin (ingestion, bildirim, webhook relay) /metrics portu; 0 = kapalı.
+    isci_metrik_portu: int = 0
+
     @property
     def is_prod(self) -> bool:
         return self.app_env == "prod"

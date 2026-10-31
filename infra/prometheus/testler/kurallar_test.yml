@@ -1,0 +1,142 @@
+# promtool test rules infra/prometheus/testler/kurallar_test.yml
+# Her alarm hem tetiklenmesi gereken hem tetiklenmemesi gereken seriyle sınanır.
+rule_files:
+  - ../kurallar/fabrikaos.yml
+
+evaluation_interval: 1m
+
+tests:
+  # 1) Dakikada 100 başarılı + 20 sunucu hatası (%16,7) → hızlı yanma (> %7,2) ve yavaş yanma.
+  - interval: 1m
+    input_series:
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/api/v1/makineler",durum="200"}'
+        values: "0+100x90"
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/api/v1/makineler",durum="500"}'
+        values: "0+20x90"
+    alert_rule_test:
+      - eval_time: 2m
+        alertname: FabrikaOSHataButcesiHizliYaniyor
+        exp_alerts: []          # koşul 1. dakikada başladı, "for: 2m" dolmadan bekliyor
+      - eval_time: 10m
+        alertname: FabrikaOSHataButcesiHizliYaniyor
+        exp_alerts:
+          - exp_labels:
+              onem: kritik
+            exp_annotations:
+              ozet: "5xx oranı erişilebilirlik bütçesini 14,4x hızla yakıyor"
+              aciklama: "Son 1 saatte 5xx oranı 16.67%. Sentry'de request_id ile ilgili hataya gidin."
+              runbook: docs/operasyon/gozlemlenebilirlik.md#hata-butcesi
+      - eval_time: 30m
+        alertname: FabrikaOSHataButcesiYavasYaniyor
+        exp_alerts:
+          - exp_labels:
+              onem: uyari
+            exp_annotations:
+              ozet: "5xx oranı erişilebilirlik bütçesini 6x hızla yakıyor"
+              aciklama: "Son 6 saatte 5xx oranı 16.67%."
+              runbook: docs/operasyon/gozlemlenebilirlik.md#hata-butcesi
+
+  # 2) Sağlıklı trafik: %0,1 hata (bütçenin altında) → hiçbir bütçe alarmı yok.
+  - interval: 1m
+    input_series:
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/api/v1/makineler",durum="200"}'
+        values: "0+999x90"
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/api/v1/makineler",durum="500"}'
+        values: "0+1x90"
+    alert_rule_test:
+      - eval_time: 60m
+        alertname: FabrikaOSHataButcesiHizliYaniyor
+        exp_alerts: []
+      - eval_time: 60m
+        alertname: FabrikaOSHataButcesiYavasYaniyor
+        exp_alerts: []
+    promql_expr_test:
+      - expr: fabrikaos:sli_hata_orani:5m
+        eval_time: 30m
+        exp_samples:
+          - labels: "fabrikaos:sli_hata_orani:5m"
+            value: 0.001
+
+  # 2b) Yalnız hazırlık yoklaması 503 dönüyor (bağımlılık düştü, kullanıcı trafiği sağlıklı):
+  #     yoklama uçları SLI dışı → bütçe alarmı yok.
+  - interval: 1m
+    input_series:
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/api/v1/makineler",durum="200"}'
+        values: "0+100x90"
+      - series: 'fabrikaos_http_istekleri_total{yontem="GET",rota="/saglik/hazir",durum="503"}'
+        values: "0+60x90"
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: FabrikaOSHataButcesiHizliYaniyor
+        exp_alerts: []
+
+  # 3) API kazınamıyor: 2 dakikadan sonra kritik.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="fabrikaos-api",instance="api:8000"}'
+        values: "1 1 0 0 0 0 0"
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: FabrikaOSApiErisilemiyor
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: FabrikaOSApiErisilemiyor
+        exp_alerts:
+          - exp_labels:
+              onem: kritik
+              job: fabrikaos-api
+              instance: "api:8000"
+            exp_annotations:
+              ozet: "API metrik ucu 2 dakikadır kazınamıyor"
+              aciklama: "api:8000 yanıt vermiyor. /saglik/hazir ve konteyner loglarına bakın."
+              runbook: docs/operasyon/gozlemlenebilirlik.md#api-erisilemiyor
+
+  # 4) İşçi durgunluğu: bildirim işçisinin son başarısı t=0'da kaldı; relay her dakika başarılı.
+  #    promtool'da time() değerlendirme anının saniyesidir.
+  - interval: 1m
+    input_series:
+      - series: 'fabrikaos_isci_son_basari_zamani{isci="bildirim"}'
+        values: "0x20"
+      - series: 'fabrikaos_isci_son_basari_zamani{isci="webhook_relay"}'
+        values: "0+60x20"
+      - series: 'fabrikaos_isci_son_basari_zamani{isci="ingestion"}'
+        values: "0x20"
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: FabrikaOSIsciDurgun
+        exp_alerts:
+          - exp_labels:
+              onem: uyari
+              isci: bildirim
+            exp_annotations:
+              ozet: "bildirim işçisi 5 dakikadır başarılı tur yapmadı"
+              aciklama: "Outbox birikiyor olabilir; işçi loglarında 'tenant hatası' satırlarına bakın."
+              runbook: docs/operasyon/gozlemlenebilirlik.md#isci-durgun
+
+  # 5) Gecikme: GET'lerin yarısı 300 ms'yi aşıyor → gecikme bütçesi alarmı; p95 kaydı rota başına.
+  - interval: 1m
+    input_series:
+      - series: 'fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",rota="/api/v1/raporlar",le="0.3"}'
+        values: "0+50x60"
+      - series: 'fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",rota="/api/v1/raporlar",le="1.0"}'
+        values: "0+100x60"
+      - series: 'fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",rota="/api/v1/raporlar",le="+Inf"}'
+        values: "0+100x60"
+      - series: 'fabrikaos_http_istek_suresi_saniye_count{yontem="GET",rota="/api/v1/raporlar"}'
+        values: "0+100x60"
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: FabrikaOSGecikmeButcesiYaniyor
+        exp_alerts:
+          - exp_labels:
+              onem: uyari
+            exp_annotations:
+              ozet: "GET isteklerinin %30'undan fazlası 300 ms'yi aşıyor (NFR-01)"
+              aciklama: "Yavaş istek oranı 50%. fabrikaos:p95_saniye:5m ile rotayı bulun."
+              runbook: docs/operasyon/gozlemlenebilirlik.md#gecikme
+    promql_expr_test:
+      - expr: fabrikaos:sli_yavas_orani:5m
+        eval_time: 20m
+        exp_samples:
+          - labels: "fabrikaos:sli_yavas_orani:5m"
+            value: 0.5

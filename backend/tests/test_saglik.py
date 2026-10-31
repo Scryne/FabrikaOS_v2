@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from httpx import AsyncClient
 
+from app.api import saglik
+
 
 async def test_saglik_200_ve_zarf(istemci: AsyncClient) -> None:
     yanit = await istemci.get("/saglik")
@@ -16,7 +18,13 @@ async def test_saglik_200_ve_zarf(istemci: AsyncClient) -> None:
     assert "x-request-id" in basliklar
 
 
-async def test_saglik_hazir(istemci: AsyncClient) -> None:
+async def test_saglik_hazir(istemci: AsyncClient, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    # Bu dosya DB'siz; bağımlılık yoklamaları S19'dan beri gerçek (bkz. test_s19_gozlem).
+    async def _tamam() -> None:
+        return None
+
+    monkeypatch.setattr(saglik, "_db_yokla", _tamam)
+    monkeypatch.setattr(saglik, "_redis_yokla", _tamam)
     yanit = await istemci.get("/saglik/hazir")
     assert yanit.status_code == 200
     assert yanit.json()["data"]["hazir"] is True

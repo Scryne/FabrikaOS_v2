@@ -34,7 +34,7 @@ Definition of Done (DoD).
 | | S17 | Platform Admin Paneli | ✅ ADR-0019 |
 | | S18 | Dış Portal + Webhook + API Entegrasyon | ✅ ADR-0020 |
 | **4B — Vitrin Bütünlüğü** (köprü) | S-VB | Bildirim Merkezi + SLA + operatör eşleştirme + tedarikçi skoru + coğrafi harita + takvim + landing hizalama | ✅ ADR-0021 |
-| **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ⬜ |
+| **5 — Operasyon & GA** | S19 | Gözlemlenebilirlik | ✅ ADR-0040 |
 | | S20 | Yedekleme/DR + Staging | ⬜ |
 | | S21 | Tohumlama & Pilot | ⬜ |
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
@@ -377,10 +377,17 @@ tenant izolasyon testli; migration eklenirse `public`+≥2 tenant fan-out up/dow
 ### FAZ 5 — Operasyon & GA · ~4 sprint
 **Amaç:** Üretime hazır operasyon, gözlemlenebilirlik, yedekleme/DR, tohumlama, pilot, UAT, GA.
 
-#### ⬜ S19 — Gözlemlenebilirlik
+#### ✅ S19 — Gözlemlenebilirlik
 Yapılandırılmış log (`tenant_id`+`request_id`) + merkezi toplama; Sentry; Prometheus+Grafana;
 OpenTelemetry; alerting kuralları.
 **Kabul:** Hata Sentry'de tenant/istek bağlamıyla görünür; SLI/SLO panoları yayında; alarm tetiklenir.
+> **Uygulandı (2026-11-01, ADR-0040):** `/metrics` (rota şablonu etiketli istek sayısı/süre,
+> işçi sayaçları), Sentry (tenant/request_id etiketi; gövde, çerez, `Authorization`, yığın
+> yerelleri gönderilmez), OTel (FastAPI + SQLAlchemy 2.1, log satırında `trace_id`), gerçek
+> hazırlık yoklaması (DB + Redis, 503). SLO-1/SLO-2 çok pencereli yanma hızı alarmları
+> `promtool` testli; compose `gozlem` profili (Prometheus, Alertmanager, Grafana panosu, Loki,
+> Alloy, Jaeger). Canlı tur: gerçek 503 trafiği → alarm → Alertmanager → webhook; pano ve izler
+> gerçek veriyle. Loki/Alloy Docker'da doğrulanmadı (staging'de). `docs/operasyon/`.
 
 #### ⬜ S20 — Yedekleme/DR + Staging
 **Tenant-aware yedekleme** (şema bazlı) + geri yükleme; RPO/RTO; restore **tatbikatı** (≥çeyreklik);

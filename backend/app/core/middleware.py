@@ -24,6 +24,8 @@ from app.core.context import (
     request_id_ctx,
     tenant_slug_ctx,
 )
+from app.core.hata_izleme import hata_bildir
+from app.core.izleme import span_baglami_yaz
 
 Scope = MutableMapping[str, Any]
 Message = MutableMapping[str, Any]
@@ -59,7 +61,9 @@ class RequestContextMiddleware:
         request_id = headers.get("x-request-id") or uuid.uuid4().hex
 
         request_id_ctx.set(request_id)
-        tenant_slug_ctx.set(_tenant_slug(headers))
+        slug = _tenant_slug(headers)
+        tenant_slug_ctx.set(slug)
+        span_baglami_yaz(slug, request_id)  # S19: OTel sunucu span'i (kapalıysa no-op)
         # Doğrulanmış tenant her istekte sıfırdan kurulur (tenant_cozumle set eder).
         cozulmus_tenant_ctx.set(None)
         # ASGI ``client`` = (host, port) | None. Proxy başlığı çözümlemesi ASGI sunucusuna
@@ -116,6 +120,7 @@ class BeklenmeyenHataMiddleware:
             if basladi:
                 raise  # yanıt yarıda kesildi; düzgün bir 500 artık gönderilemez
             _hata_logger.exception("Beklenmeyen hata: %s", exc)
+            hata_bildir(exc)  # S19: Sentry (DSN yoksa no-op); bağlam etiketleri before_send'de
             await send(
                 {
                     "type": "http.response.start",

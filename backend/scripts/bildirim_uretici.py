@@ -24,7 +24,9 @@ from sqlalchemy.pool import NullPool
 
 from app.control_plane.models import Tenant
 from app.core.config import get_settings
+from app.core.hata_izleme import hata_bildir, hata_izleme_kur
 from app.core.logging import yapilandir_loglama
+from app.core.metrikler import isci_sonuc, metrik_sunucusu_baslat
 from app.modules.bildirim.kanallar import EPostaKanali
 from app.modules.bildirim.uretici import tenant_uretici_turu
 
@@ -39,7 +41,10 @@ async def tur(sm: async_sessionmaker, kanal: EPostaKanali, tenant: str | None) -
     for slug in sluglar:
         try:
             await tenant_uretici_turu(sm, slug, eposta_kanali=kanal)
-        except Exception:  # noqa: BLE001 — tek tenant hatası döngüyü düşürmez
+            isci_sonuc("bildirim", "islendi")
+        except Exception as exc:  # noqa: BLE001 — tek tenant hatası döngüyü düşürmez
+            isci_sonuc("bildirim", "hata")
+            hata_bildir(exc)
             logger.exception("bildirim üretici tenant hatası: %s", slug)
 
 
@@ -67,6 +72,8 @@ def main() -> None:
 
     s = get_settings()
     yapilandir_loglama(s.log_level)
+    hata_izleme_kur(s)
+    metrik_sunucusu_baslat(s.isci_metrik_portu)
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(

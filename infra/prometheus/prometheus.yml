@@ -1,0 +1,32 @@
+# FabrikaOS — Prometheus (S19, ADR-0040). docker-compose `gozlem` profili ile kalkar.
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    sistem: fabrikaos
+
+rule_files:
+  - /etc/prometheus/kurallar/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+scrape_configs:
+  - job_name: fabrikaos-api
+    metrics_path: /metrics
+    # METRIK_TOKEN tanımlıysa aynı değer bu dosyaya yazılır (compose secret / bind mount).
+    # authorization:
+    #   credentials_file: /etc/prometheus/metrik_token
+    static_configs:
+      - targets: ["api:8000"]
+
+  # İşçiler ISCI_METRIK_PORTU=9101 ile kendi /metrics sunucularını açar.
+  - job_name: fabrikaos-isci
+    static_configs:
+      - targets: ["ingestion:9101", "bildirim:9101", "webhook-relay:9101"]
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

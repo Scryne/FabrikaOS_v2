@@ -1,0 +1,27 @@
+# FabrikaOS — Alertmanager (S19, ADR-0040).
+# Alıcı adresi depoda tutulmaz: nöbet kanalının webhook URL'si (Slack/Teams/ntfy köprüsü vb.)
+# /etc/alertmanager/nobet_webhook_url dosyasına yazılır (compose: ./infra/alertmanager/gizli/).
+route:
+  receiver: nobet
+  group_by: [alertname, isci]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['onem="kritik"']
+      receiver: nobet
+      group_wait: 10s
+      repeat_interval: 1h
+
+# Kritik alarm sürerken aynı kaynağın uyarı seviyesindeki alarmı gürültüdür.
+inhibit_rules:
+  - source_matchers: ['alertname="FabrikaOSHataButcesiHizliYaniyor"']
+    target_matchers: ['alertname="FabrikaOSHataButcesiYavasYaniyor"']
+  - source_matchers: ['alertname="FabrikaOSApiErisilemiyor"']
+    target_matchers: ['onem="uyari"']
+
+receivers:
+  - name: nobet
+    webhook_configs:
+      - url_file: /etc/alertmanager/gizli/nobet_webhook_url
+        send_resolved: true

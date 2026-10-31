@@ -21,13 +21,16 @@ from app.core.config import get_settings
 from app.core.context import request_id_ctx, tenant_slug_ctx
 from app.core.db.tenancy import search_path_ayarla, tenant_bul
 from app.core.gercekzaman import yayinla
+from app.core.hata_izleme import hata_bildir, hata_izleme_kur
 from app.core.logging import yapilandir_loglama
+from app.core.metrikler import isci_sonuc, metrik_sunucusu_baslat
 from app.ingestion.isleyici import MesajGecersiz, mesaj_coz
 from app.ingestion.service import olcum_yaz_toplu
 
 logger = logging.getLogger("app.ingestion.worker")
 
 TOPIC = "fabrikaos/+/+/olcum"
+ISCI = "ingestion"
 
 
 async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: bytes) -> None:
@@ -36,6 +39,7 @@ async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: b
         slug, cihaz_kod, paket = mesaj_coz(topic, payload)
     except MesajGecersiz:
         logger.warning("geçersiz mesaj düşürüldü: topic=%s", topic)
+        isci_sonuc(ISCI, "dusuruldu")
         return
 
     t_slug = tenant_slug_ctx.set(slug)
@@ -46,14 +50,18 @@ async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: b
             tenant = await tenant_bul(session, slug)
             if tenant is None or not tenant.aktif:
                 logger.warning("bilinmeyen/pasif tenant, düşürüldü: slug=%s", slug)
+                isci_sonuc(ISCI, "dusuruldu")
                 return
             await search_path_ayarla(session, slug)
             sonuc = await olcum_yaz_toplu(session, cihaz_kod=cihaz_kod, paketler=[paket])
             etkilenen = sonuc.etkilenen_makineler
         for makine_id in etkilenen:
             await yayinla(slug, {"tur": "uretim.eklendi", "makine_id": makine_id, "kaynak": "saha"})
-    except Exception:  # noqa: BLE001 — tek mesaj döngüyü düşürmez
+        isci_sonuc(ISCI, "islendi")
+    except Exception as exc:  # noqa: BLE001 — tek mesaj döngüyü düşürmez
         logger.exception("ingestion mesaj işleme hatası: topic=%s", topic)
+        isci_sonuc(ISCI, "hata")
+        hata_bildir(exc)
     finally:
         tenant_slug_ctx.reset(t_slug)
         request_id_ctx.reset(t_req)
@@ -76,6 +84,8 @@ async def calistir(*, broker_host: str, broker_port: int, db_url: str) -> None:
 def main() -> None:
     s = get_settings()
     yapilandir_loglama(s.log_level)
+    hata_izleme_kur(s)
+    metrik_sunucusu_baslat(s.isci_metrik_portu)
     # aiomqtt/paho, Windows ProactorEventLoop'ta soket okuma/yazma kaydını desteklemez.
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

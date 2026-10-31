@@ -1,0 +1,9 @@
+apiVersion: 1
+providers:
+  - name: fabrikaos
+    folder: FabrikaOS
+    type: file
+    disableDeletion: true
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/panolar

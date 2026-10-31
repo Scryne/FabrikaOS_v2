@@ -13,6 +13,8 @@ import sys
 from datetime import UTC, datetime
 from typing import Any
 
+from opentelemetry import trace
+
 from app.core.context import request_id_ctx, tenant_slug_ctx
 
 
@@ -47,6 +49,10 @@ class JsonFormatter(logging.Formatter):
             "request_id": getattr(record, "request_id", "-"),
             "tenant": getattr(record, "tenant_slug", "-"),
         }
+        # S19: etkin bir OpenTelemetry span'i varsa log satırı ize bağlanır.
+        span_baglami = trace.get_current_span().get_span_context()
+        if span_baglami.is_valid:
+            payload["trace_id"] = format(span_baglami.trace_id, "032x")
         if record.exc_info:
             payload["hata"] = self.formatException(record.exc_info)
         return json.dumps(payload, ensure_ascii=False)

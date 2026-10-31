@@ -13,8 +13,12 @@ from app import __version__
 from app.api.router import api_router
 from app.api.saglik import router as saglik_router
 from app.core.config import get_settings
+from app.core.db.session import get_engine
 from app.core.exceptions import hata_handlerlari_kaydet
+from app.core.hata_izleme import hata_izleme_kur
+from app.core.izleme import izleme_kur
 from app.core.logging import yapilandir_loglama
+from app.core.metrikler import MetrikMiddleware
 from app.core.middleware import BeklenmeyenHataMiddleware, RequestContextMiddleware
 
 logger = logging.getLogger("app")
@@ -31,6 +35,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 def create_app() -> FastAPI:
     ayar = get_settings()
+    hata_izleme_kur(ayar)  # S19: Sentry (DSN yoksa kapalı)
 
     app = FastAPI(
         title="FabrikaOS API",
@@ -41,9 +46,11 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # Dıştan içe: CORS → istek bağlamı → beklenmeyen hata. (Starlette son eklenen middleware'i
-    # en dışta uygular.) Hata katmanı en içte ki 500 yanıtı da CORS + x-request-id taşısın.
+    # Dıştan içe: CORS → istek bağlamı → metrik → beklenmeyen hata. (Starlette son eklenen
+    # middleware'i en dışta uygular.) Hata katmanı en içte ki 500 yanıtı da CORS + x-request-id
+    # taşısın; metrik katmanı onun dışında ki üretilen 500'ler SLI'ya sayılsın.
     app.add_middleware(BeklenmeyenHataMiddleware)
+    app.add_middleware(MetrikMiddleware)
     app.add_middleware(RequestContextMiddleware)
     if ayar.cors_origins:
         app.add_middleware(
@@ -58,6 +65,11 @@ def create_app() -> FastAPI:
 
     app.include_router(saglik_router)
     app.include_router(api_router, prefix=ayar.api_v1_prefix)
+
+    # S19: OTel en dışa sarar (span, istek bağlamından önce açılır); kapalıysa motor da
+    # oluşturulmaz.
+    if ayar.otel_endpoint:
+        izleme_kur(app, get_engine(), ayar)
 
     return app
 

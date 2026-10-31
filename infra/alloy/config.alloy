@@ -1,0 +1,41 @@
+// Grafana Alloy (S19): FabrikaOS konteynerlerinin stdout JSON loglarını Loki'ye taşır.
+// Etiket olarak yalnız düşük kardinaliteli alanlar (servis, seviye); tenant ve request_id log
+// gövdesinde kalır ve Grafana'da `| json` ile süzülür (tenant başına akış Loki'yi şişirir).
+discovery.docker "konteynerler" {
+  host = "unix:///var/run/docker.sock"
+  filter {
+    name   = "label"
+    values = ["com.docker.compose.project=fabrikaos"]
+  }
+}
+
+discovery.relabel "fabrikaos" {
+  targets = discovery.docker.konteynerler.targets
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "servis"
+  }
+}
+
+loki.source.docker "fabrikaos" {
+  host          = "unix:///var/run/docker.sock"
+  targets       = discovery.relabel.fabrikaos.output
+  labels        = { sistem = "fabrikaos" }
+  forward_to    = [loki.process.json.receiver]
+}
+
+loki.process "json" {
+  stage.json {
+    expressions = { seviye = "seviye" }
+  }
+  stage.labels {
+    values = { seviye = "" }
+  }
+  forward_to = [loki.write.yerel.receiver]
+}
+
+loki.write "yerel" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

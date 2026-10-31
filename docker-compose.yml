@@ -12,6 +12,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
       REDIS_URL: redis://redis:6379/0
       MINIO_ENDPOINT: minio:9000
+      # S19: boş = kapalı. `gozlem` profiliyle: OTEL_ENDPOINT=http://jaeger:4318
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:-}
+      SENTRY_DSN: ${SENTRY_DSN:-}
     ports:
       - "8000:8000"          # doğrudan erişim (birincil): http://localhost:8000/saglik
     depends_on:
@@ -37,6 +40,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       MQTT_HOST: mqtt
       MQTT_PORT: "1883"
+      ISCI_METRIK_PORTU: "9101"   # S19: Prometheus kazıması (fabrikaos-isci işi)
     command: ["python", "-m", "app.ingestion.worker"]
     depends_on:
       db:
@@ -57,6 +61,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
       REDIS_URL: redis://redis:6379/0
+      ISCI_METRIK_PORTU: "9101"
     command: ["python", "backend/scripts/bildirim_uretici.py"]
     depends_on:
       db:
@@ -74,6 +79,7 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://fabrikaos:fabrikaos@db:5432/fabrikaos
       REDIS_URL: redis://redis:6379/0
+      ISCI_METRIK_PORTU: "9101"
     command: ["python", "backend/scripts/webhook_relay.py"]
     depends_on:
       db:
@@ -142,9 +148,77 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     networks: [fabrikaos]
 
+  # --- S19 gözlemlenebilirlik (ADR-0040): `docker compose --profile gozlem up` ---------------
+  prometheus:
+    image: prom/prometheus:v3.15.1
+    profiles: [gozlem]
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=35d"     # 30 günlük SLO penceresi + pay
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/prometheus/kurallar:/etc/prometheus/kurallar:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks: [fabrikaos]
+
+  alertmanager:
+    image: prom/alertmanager:v0.34.2
+    profiles: [gozlem]
+    command: ["--config.file=/etc/alertmanager/alertmanager.yml"]
+    volumes:
+      - ./infra/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./infra/alertmanager/gizli:/etc/alertmanager/gizli:ro   # nobet_webhook_url (depoda değil)
+    ports:
+      - "9093:9093"
+    networks: [fabrikaos]
+
+  grafana:
+    image: grafana/grafana:13.3.0
+    profiles: [gozlem]
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PAROLA:-yerel-grafana}
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/panolar/fabrikaos-sli.json
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/panolar:/var/lib/grafana/panolar:ro
+    ports:
+      - "3000:3000"
+    networks: [fabrikaos]
+
+  loki:
+    image: grafana/loki:3.7.9
+    profiles: [gozlem]
+    command: ["-config.file=/etc/loki/loki.yml"]
+    volumes:
+      - ./infra/loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+    networks: [fabrikaos]
+
+  alloy:
+    image: grafana/alloy:v1.21.3
+    profiles: [gozlem]
+    command: ["run", "/etc/alloy/config.alloy"]
+    volumes:
+      - ./infra/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [fabrikaos]
+
+  # OTLP/HTTP 4318 alır, arayüz 16686. Bellek içi saklama: dev/staging içindir.
+  jaeger:
+    image: jaegertracing/jaeger:2.22.0
+    profiles: [gozlem]
+    ports:
+      - "16686:16686"
+    networks: [fabrikaos]
+
 volumes:
   db-data:
   minio-data:
+  prometheus-data:
+  loki-data:
 
 networks:
   fabrikaos:

@@ -1,0 +1,109 @@
+# FabrikaOS SLI kayıt kuralları ve alarmlar (S19, ADR-0040; SLO tanımları docs/operasyon/slo.md).
+#
+# SLO-1 Erişilebilirlik (NFR-03): 30 günde isteklerin >= %99,5'i 5xx olmadan döner.
+#   Hata bütçesi = 0,005. Alarmlar çok pencereli yanma hızıdır (Google SRE Workbook, bölüm 5):
+#   hızlı yanma 14,4x (1 sa + 5 dk) → 2 günde bütçenin %2'si; yavaş yanma 6x (6 sa + 30 dk).
+# SLO-2 Gecikme (NFR-01): okuma (GET) isteklerinin >= %95'i 300 ms altında (p95 < 300 ms).
+#   Hata bütçesi = 0,05. 0,3 s bir histogram kova sınırıdır; oran tahminsiz okunur.
+# Yoklama uçları (/saglik, /saglik/hazir) SLI dışıdır: kullanıcı trafiği değiller ve hazırlık
+#   yoklaması bağımlılık düştüğünde 2 sn zaman aşımıyla 503 döner — SLI'ya girerse p95'i ve
+#   hata oranını kullanıcı deneyiminden bağımsız bozar (canlı denemede görüldü, 2026-11-01).
+groups:
+  - name: fabrikaos-sli
+    rules:
+      - record: fabrikaos:sli_hata_orani:5m
+        expr: |
+          sum(rate(fabrikaos_http_istekleri_total{durum=~"5..",rota!~"/saglik.*"}[5m]))
+            / clamp_min(sum(rate(fabrikaos_http_istekleri_total{rota!~"/saglik.*"}[5m])), 1e-9)
+      - record: fabrikaos:sli_hata_orani:30m
+        expr: |
+          sum(rate(fabrikaos_http_istekleri_total{durum=~"5..",rota!~"/saglik.*"}[30m]))
+            / clamp_min(sum(rate(fabrikaos_http_istekleri_total{rota!~"/saglik.*"}[30m])), 1e-9)
+      - record: fabrikaos:sli_hata_orani:1h
+        expr: |
+          sum(rate(fabrikaos_http_istekleri_total{durum=~"5..",rota!~"/saglik.*"}[1h]))
+            / clamp_min(sum(rate(fabrikaos_http_istekleri_total{rota!~"/saglik.*"}[1h])), 1e-9)
+      - record: fabrikaos:sli_hata_orani:6h
+        expr: |
+          sum(rate(fabrikaos_http_istekleri_total{durum=~"5..",rota!~"/saglik.*"}[6h]))
+            / clamp_min(sum(rate(fabrikaos_http_istekleri_total{rota!~"/saglik.*"}[6h])), 1e-9)
+      - record: fabrikaos:sli_yavas_orani:5m
+        expr: |
+          1 - (
+            sum(rate(fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",le="0.3",rota!~"/saglik.*"}[5m]))
+              / clamp_min(sum(rate(fabrikaos_http_istek_suresi_saniye_count{yontem="GET",rota!~"/saglik.*"}[5m])), 1e-9)
+          )
+      - record: fabrikaos:sli_yavas_orani:1h
+        expr: |
+          1 - (
+            sum(rate(fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",le="0.3",rota!~"/saglik.*"}[1h]))
+              / clamp_min(sum(rate(fabrikaos_http_istek_suresi_saniye_count{yontem="GET",rota!~"/saglik.*"}[1h])), 1e-9)
+          )
+      - record: fabrikaos:p95_saniye:5m
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le, rota) (rate(fabrikaos_http_istek_suresi_saniye_bucket{yontem="GET",rota!~"/saglik.*"}[5m])))
+
+  - name: fabrikaos-alarmlar
+    rules:
+      - alert: FabrikaOSApiErisilemiyor
+        expr: up{job="fabrikaos-api"} == 0
+        for: 2m
+        labels:
+          onem: kritik
+        annotations:
+          ozet: "API metrik ucu 2 dakikadır kazınamıyor"
+          aciklama: "{{ $labels.instance }} yanıt vermiyor. /saglik/hazir ve konteyner loglarına bakın."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#api-erisilemiyor
+
+      - alert: FabrikaOSHataButcesiHizliYaniyor
+        expr: fabrikaos:sli_hata_orani:1h > (14.4 * 0.005) and fabrikaos:sli_hata_orani:5m > (14.4 * 0.005)
+        for: 2m
+        labels:
+          onem: kritik
+        annotations:
+          ozet: "5xx oranı erişilebilirlik bütçesini 14,4x hızla yakıyor"
+          aciklama: "Son 1 saatte 5xx oranı {{ $value | humanizePercentage }}. Sentry'de request_id ile ilgili hataya gidin."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#hata-butcesi
+
+      - alert: FabrikaOSHataButcesiYavasYaniyor
+        expr: fabrikaos:sli_hata_orani:6h > (6 * 0.005) and fabrikaos:sli_hata_orani:30m > (6 * 0.005)
+        for: 15m
+        labels:
+          onem: uyari
+        annotations:
+          ozet: "5xx oranı erişilebilirlik bütçesini 6x hızla yakıyor"
+          aciklama: "Son 6 saatte 5xx oranı {{ $value | humanizePercentage }}."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#hata-butcesi
+
+      - alert: FabrikaOSGecikmeButcesiYaniyor
+        expr: fabrikaos:sli_yavas_orani:1h > (6 * 0.05) and fabrikaos:sli_yavas_orani:5m > (6 * 0.05)
+        for: 10m
+        labels:
+          onem: uyari
+        annotations:
+          ozet: "GET isteklerinin %30'undan fazlası 300 ms'yi aşıyor (NFR-01)"
+          aciklama: "Yavaş istek oranı {{ $value | humanizePercentage }}. fabrikaos:p95_saniye:5m ile rotayı bulun."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#gecikme
+
+      # Bildirim üretici ve webhook relay her turda (~10 sn) en az bir tenant işler; 5 dakika
+      # başarı yoksa döngü takılmıştır. Ingestion boşta kalabilir (mesaj gelmeyebilir), dahil değil.
+      - alert: FabrikaOSIsciDurgun
+        expr: time() - fabrikaos_isci_son_basari_zamani{isci=~"bildirim|webhook_relay"} > 300
+        for: 1m
+        labels:
+          onem: uyari
+        annotations:
+          ozet: "{{ $labels.isci }} işçisi 5 dakikadır başarılı tur yapmadı"
+          aciklama: "Outbox birikiyor olabilir; işçi loglarında 'tenant hatası' satırlarına bakın."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#isci-durgun
+
+      - alert: FabrikaOSIsciHatalari
+        expr: sum by (isci) (increase(fabrikaos_isci_mesajlari_total{sonuc="hata"}[10m])) > 5
+        for: 5m
+        labels:
+          onem: uyari
+        annotations:
+          ozet: "{{ $labels.isci }} işçisinde 10 dakikada {{ $value }} hata"
+          aciklama: "Hatalar Sentry'de tenant etiketiyle; tek tenant mı yoksa hepsi mi, oradan ayırın."
+          runbook: docs/operasyon/gozlemlenebilirlik.md#isci-hatalari

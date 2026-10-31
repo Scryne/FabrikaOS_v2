@@ -22,6 +22,19 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S19 gözlemlenebilirlik (ADR-0040)
+
+- `/metrics` (rota şablonu etiketli istek/süre + işçi sayaçları), Sentry (tenant/request_id
+  etiketli; gövde/çerez/`Authorization`/yığın yerelleri gönderilmez), OpenTelemetry (FastAPI +
+  SQLAlchemy, log satırında `trace_id`), gerçek hazırlık yoklaması (DB + Redis → 503).
+- SLO-1 (%99,5) ve SLO-2 (GET p95 < 300 ms) çok pencereli yanma hızı alarmları; `promtool` birim
+  testli, 6 mutasyonun 6'sı yakalandı; CI'da `gozlem-kurallari` işi.
+- Canlı tur (Docker'sız, Windows ikilileri): gerçek 503 trafiği → alarm → Alertmanager → webhook;
+  Grafana panosu ve Jaeger izi gerçek veriyle. Turda bulunup düzeltilen: SQLAlchemy 2.1'de
+  enstrümantasyon sessizce kapalıydı; yoklama uçları SLI'yı bozuyordu; yoklama SQL'i sahipsiz iz
+  üretiyordu. Testte bulunan: Sentry yığın yerelleri `Authorization` başlığını taşıyordu.
+- Loki + Alloy yalnız yapılandırma (Docker'da doğrulanmadı). `docs/operasyon/`.
+
 ## 2026-11-01 — S25-B satınalma siparişi → teslim → iade
 
 - Backend 674 test geçti (yalnız Docker isteyen MQTT turu kırmızı), ruff/mypy temiz; frontend 214,
@@ -69,7 +82,8 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 ## Ne yarım / bilinçli açık
 
 - S25 tamam (ADR-0024 "Uygulama durumu"); fatura eşlemesi ve birim dönüşümü bilinçli olarak
-  sonraya. Faz 5 operasyon sprintleri (S19–S22) açık.
+  sonraya. S19 tamam (ADR-0040); S20–S22 açık. `uretim_verileri` hypertable'ında sıkıştırma/
+  saklama politikası yok (S3 notu) — yük testiyle (S22) birlikte ele alınacak.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).
 - Uzak dallar: `feat/persona-pano-landing-derinlestirme`, `feat/s18-dis-portal-webhook`,
