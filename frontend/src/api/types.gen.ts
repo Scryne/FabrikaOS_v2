@@ -1367,7 +1367,12 @@ export interface paths {
         /** Stok hareketlerini listele */
         get: operations["stok_hareketi_listele_api_v1_stok_hareketleri_get"];
         put?: never;
-        /** Stok hareketi ekle (giriş/çıkış/düzeltme) */
+        /**
+         * Stok hareketi ekle (giriş/çıkış)
+         * @description **`tur='duzeltme'` KULLANIMDAN KALDIRILDI (deprecated).** Bu tür bakiyeyi *mutlak* olarak yazar: hazırlanma ile uygulanma arasında yapılan tüm hareketleri sessizce siler (veri kaybı). Ayrıca artık `stok:duzeltme` izni ister ve her kullanımı denetim izine + uyarı loguna yazılır.
+         *
+         *     Sayım farkı düzeltmesi için **delta** semantikli sayım akışını kullanın (`/sayimlar/{id}/onayla`, S25/ADR-0024).
+         */
         post: operations["stok_hareketi_olustur_api_v1_stok_hareketleri_post"];
         delete?: never;
         options?: never;
@@ -1505,6 +1510,332 @@ export interface paths {
         };
         /** Satınalma özeti (pano/KPI) */
         get: operations["satinalma_ozet_api_v1_satinalma_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/depolar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Depolar ve lokasyonları (ağaç) */
+        get: operations["depolar_api_v1_depolar_get"];
+        put?: never;
+        /** Depo oluştur */
+        post: operations["depo_olustur_api_v1_depolar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/lokasyonlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lokasyon oluştur */
+        post: operations["lokasyon_olustur_api_v1_lokasyonlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stok-bakiyeleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lokasyon × lot bakiyeleri */
+        get: operations["bakiyeler_api_v1_stok_bakiyeleri_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stok-transferleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Lokasyonlar arası transfer */
+        post: operations["transfer_api_v1_stok_transferleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sayım oturumları */
+        get: operations["sayimlar_api_v1_sayimlar_get"];
+        put?: never;
+        /** Sayım aç (lokasyon) */
+        post: operations["sayim_ac_api_v1_sayimlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar/{sayim_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sayım detayı */
+        get: operations["sayim_detay_api_v1_sayimlar__sayim_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar/{sayim_id}/satirlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Sayım satırı yaz (malzeme başına) */
+        put: operations["sayim_satir_api_v1_sayimlar__sayim_id__satirlar_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar/{sayim_id}/gonder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sayımı onaya gönder */
+        post: operations["sayim_gonder_api_v1_sayimlar__sayim_id__gonder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar/{sayim_id}/onayla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sayım farklarını uygula (delta) */
+        post: operations["sayim_onay_api_v1_sayimlar__sayim_id__onayla_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/sayimlar/{sayim_id}/iptal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sayımı iptal et */
+        post: operations["sayim_iptal_api_v1_sayimlar__sayim_id__iptal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/malzemeler/{malzeme_id}/etiket.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Malzeme etiketi (QR + Code 128) */
+        get: operations["malzeme_etiketi_api_v1_malzemeler__malzeme_id__etiket_pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/malzeme-kodu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Okutulan koddan malzemeyi bul (tam eşleşme) */
+        get: operations["malzeme_kodla_api_v1_malzeme_kodu_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma-siparisleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Satınalma siparişleri */
+        get: operations["siparisler_api_v1_satinalma_siparisleri_get"];
+        put?: never;
+        /** Onaylı talepten sipariş aç */
+        post: operations["siparis_olustur_api_v1_satinalma_siparisleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma-siparisleri/{siparis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sipariş detayı + teslim geçmişi */
+        get: operations["siparis_detay_api_v1_satinalma_siparisleri__siparis_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma-siparisleri/{siparis_id}/iptal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Siparişi iptal et */
+        post: operations["siparis_iptal_api_v1_satinalma_siparisleri__siparis_id__iptal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma-siparisleri/{siparis_id}/kapat": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Kısmi siparişi kapat */
+        post: operations["siparis_kapat_api_v1_satinalma_siparisleri__siparis_id__kapat_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satinalma-siparisleri/{siparis_id}/teslim-al": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** İrsaliyeyle teslim al (kısmi destekli, idempotent) */
+        post: operations["teslim_al_api_v1_satinalma_siparisleri__siparis_id__teslim_al_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teslim-almalar/{teslim_id}/iade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Teslimi (kısmen) iade et */
+        post: operations["iade_api_v1_teslim_almalar__teslim_id__iade_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/teslim-almalar/eslesmemis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Siparişe bağlanmamış hızlı mal kabuller */
+        get: operations["eslesmemis_api_v1_teslim_almalar_eslesmemis_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3728,6 +4059,18 @@ export interface components {
              */
             olusturma_tarihi: string;
         };
+        /** DepoOlusturDTO */
+        DepoOlusturDTO: {
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /**
+             * Adres
+             * @default
+             */
+            adres: string;
+        };
         /**
          * DisDurumDTO
          * @description Portal özet ekranı: firma bağlamı + talep durum kırılımı + son talepler.
@@ -4238,6 +4581,25 @@ export interface components {
         HakAyarlaDTO: {
             /** Acik */
             acik: boolean | null;
+        };
+        /** IadeDTO */
+        IadeDTO: {
+            /** Irsaliye No */
+            irsaliye_no: string;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Kalemler */
+            kalemler: components["schemas"]["IadeKalemDTO"][];
+        };
+        /** IadeKalemDTO */
+        IadeKalemDTO: {
+            /** Teslim Alma Kalemi Id */
+            teslim_alma_kalemi_id: number;
+            /** Miktar */
+            miktar: number | string;
         };
         /** IhracCevapDTO */
         IhracCevapDTO: {
@@ -4918,6 +5280,11 @@ export interface components {
             /** Gecti Orani */
             gecti_orani: number;
         };
+        /** KapatDTO */
+        KapatDTO: {
+            /** Neden */
+            neden: string;
+        };
         /**
          * KoltukDTO
          * @description Koltuk kullanımı; ``limit=None`` sınırsız demektir.
@@ -5048,6 +5415,17 @@ export interface components {
             /** Kisi Id */
             kisi_id: number;
         };
+        /** LokasyonOlusturDTO */
+        LokasyonOlusturDTO: {
+            /** Depo Id */
+            depo_id: number;
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Ust Lokasyon Id */
+            ust_lokasyon_id?: number | null;
+        };
         /** MakineCevapDTO */
         MakineCevapDTO: {
             /** Id */
@@ -5133,6 +5511,11 @@ export interface components {
             /** Tedarikci Firma Id */
             tedarikci_firma_id?: number | null;
             /**
+             * Lot Takipli
+             * @default false
+             */
+            lot_takipli: boolean;
+            /**
              * Olusturma Tarihi
              * Format: date-time
              */
@@ -5156,6 +5539,8 @@ export interface components {
             aktif?: boolean | null;
             /** Tedarikci Firma Id */
             tedarikci_firma_id?: number | null;
+            /** Lot Takipli */
+            lot_takipli?: boolean | null;
         };
         /** MalzemeOlusturDTO */
         MalzemeOlusturDTO: {
@@ -5184,6 +5569,11 @@ export interface components {
             kritik_stok: number | string;
             /** Tedarikci Firma Id */
             tedarikci_firma_id?: number | null;
+            /**
+             * Lot Takipli
+             * @default false
+             */
+            lot_takipli: boolean;
         };
         /** ModelKaydiCevapDTO */
         ModelKaydiCevapDTO: {
@@ -5965,6 +6355,10 @@ export interface components {
             id: number;
             /** Malzeme Id */
             malzeme_id: number;
+            /** Malzeme Kod */
+            malzeme_kod?: string | null;
+            /** Malzeme Ad */
+            malzeme_ad?: string | null;
             /** Miktar */
             miktar: number;
             /** Birim */
@@ -6147,6 +6541,28 @@ export interface components {
             /** Toplam */
             toplam: number;
         };
+        /** SayimOlusturDTO */
+        SayimOlusturDTO: {
+            /** Lokasyon Id */
+            lokasyon_id: number;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+        };
+        /** SayimSatirDTO */
+        SayimSatirDTO: {
+            /** Malzeme Id */
+            malzeme_id: number;
+            /** Sayilan Miktar */
+            sayilan_miktar: number | string;
+            /**
+             * Lot No
+             * @default
+             */
+            lot_no: string;
+        };
         /** SertifikaCevapDTO */
         SertifikaCevapDTO: {
             /** Id */
@@ -6202,6 +6618,34 @@ export interface components {
              * @default
              */
             aciklama: string;
+        };
+        /** SiparisKalemAyarDTO */
+        SiparisKalemAyarDTO: {
+            /** Talep Kalemi Id */
+            talep_kalemi_id: number;
+            /** Birim Fiyat */
+            birim_fiyat?: number | string | null;
+            /**
+             * Fazla Teslim Toleransi Yuzde
+             * @default 0
+             */
+            fazla_teslim_toleransi_yuzde: number | string;
+        };
+        /** SiparisOlusturDTO */
+        SiparisOlusturDTO: {
+            /** Talep Id */
+            talep_id: number;
+            /** Tedarikci Firma Id */
+            tedarikci_firma_id: number;
+            /** Beklenen Teslim Tarihi */
+            beklenen_teslim_tarihi?: string | null;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Kalemler */
+            kalemler?: components["schemas"]["SiparisKalemAyarDTO"][];
         };
         /** SonDuyuruDTO */
         SonDuyuruDTO: {
@@ -6417,6 +6861,20 @@ export interface components {
              * Format: date-time
              */
             olusturma_tarihi: string;
+            /** Lokasyon Id */
+            lokasyon_id?: number | null;
+            /**
+             * Lot No
+             * @default
+             */
+            lot_no: string;
+            /** Transfer Grubu */
+            transfer_grubu?: string | null;
+            /**
+             * Hizli Kabul
+             * @default false
+             */
+            hizli_kabul: boolean;
         };
         /** StokHareketiOlusturDTO */
         StokHareketiOlusturDTO: {
@@ -6433,6 +6891,18 @@ export interface components {
             aciklama: string;
             /** Kaynak */
             kaynak?: string | null;
+            /** Lokasyon Id */
+            lokasyon_id?: number | null;
+            /**
+             * Lot No
+             * @default
+             */
+            lot_no: string;
+            /**
+             * Hizli Kabul
+             * @default false
+             */
+            hizli_kabul: boolean;
         };
         /** StokKpiDTO */
         StokKpiDTO: {
@@ -6722,6 +7192,38 @@ export interface components {
             /** Onay */
             onay: string;
         };
+        /** TeslimAlDTO */
+        TeslimAlDTO: {
+            /** Irsaliye No */
+            irsaliye_no: string;
+            /** Fiili Tarih */
+            fiili_tarih?: string | null;
+            /** Lokasyon Id */
+            lokasyon_id?: number | null;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Kalemler */
+            kalemler: components["schemas"]["TeslimKalemDTO"][];
+        };
+        /** TeslimKalemDTO */
+        TeslimKalemDTO: {
+            /** Siparis Kalemi Id */
+            siparis_kalemi_id: number;
+            /** Miktar */
+            miktar: number | string;
+            /**
+             * Lot No
+             * @default
+             */
+            lot_no: string;
+            /** Birim */
+            birim?: string | null;
+            /** Lokasyon Id */
+            lokasyon_id?: number | null;
+        };
         /** TeslimatCevapDTO */
         TeslimatCevapDTO: {
             /** Id */
@@ -6821,6 +7323,27 @@ export interface components {
              * @default
              */
             gecici_token: string;
+        };
+        /** TransferDTO */
+        TransferDTO: {
+            /** Malzeme Id */
+            malzeme_id: number;
+            /** Kaynak Lokasyon Id */
+            kaynak_lokasyon_id: number;
+            /** Hedef Lokasyon Id */
+            hedef_lokasyon_id: number;
+            /** Miktar */
+            miktar: number | string;
+            /**
+             * Lot No
+             * @default
+             */
+            lot_no: string;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
         };
         /** TrendNoktasiDTO */
         TrendNoktasiDTO: {
@@ -12914,6 +13437,743 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_SatinalmaOzetDTO_"];
+                };
+            };
+        };
+    };
+    depolar_api_v1_depolar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
+    depo_olustur_api_v1_depolar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepoOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    lokasyon_olustur_api_v1_lokasyonlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LokasyonOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bakiyeler_api_v1_stok_bakiyeleri_get: {
+        parameters: {
+            query?: {
+                malzeme_id?: number | null;
+                lokasyon_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    transfer_api_v1_stok_transferleri_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransferDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayimlar_api_v1_sayimlar_get: {
+        parameters: {
+            query?: {
+                durum?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_ac_api_v1_sayimlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SayimOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_detay_api_v1_sayimlar__sayim_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sayim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_satir_api_v1_sayimlar__sayim_id__satirlar_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sayim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SayimSatirDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_gonder_api_v1_sayimlar__sayim_id__gonder_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sayim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_onay_api_v1_sayimlar__sayim_id__onayla_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sayim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sayim_iptal_api_v1_sayimlar__sayim_id__iptal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sayim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    malzeme_etiketi_api_v1_malzemeler__malzeme_id__etiket_pdf_get: {
+        parameters: {
+            query?: {
+                adet?: number;
+            };
+            header?: never;
+            path: {
+                malzeme_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    malzeme_kodla_api_v1_malzeme_kodu_get: {
+        parameters: {
+            query: {
+                kod: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparisler_api_v1_satinalma_siparisleri_get: {
+        parameters: {
+            query?: {
+                durum?: string | null;
+                tedarikci_firma_id?: number | null;
+                talep_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_olustur_api_v1_satinalma_siparisleri_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiparisOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_detay_api_v1_satinalma_siparisleri__siparis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_iptal_api_v1_satinalma_siparisleri__siparis_id__iptal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_kapat_api_v1_satinalma_siparisleri__siparis_id__kapat_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KapatDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    teslim_al_api_v1_satinalma_siparisleri__siparis_id__teslim_al_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeslimAlDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    iade_api_v1_teslim_almalar__teslim_id__iade_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                teslim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IadeDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    eslesmemis_api_v1_teslim_almalar_eslesmemis_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

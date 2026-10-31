@@ -133,6 +133,14 @@ export const MENU: MenuOgesi[] = [
     modul: 'stok',
   },
   {
+    anahtar: 'siparisler',
+    etiketAnahtari: 'menu.siparisler',
+    bolum: 'menu.bolum_stok',
+    yol: '/satinalma-siparisleri',
+    izin: 'satinalma:oku',
+    modul: 'stok',
+  },
+  {
     anahtar: 'kalite',
     etiketAnahtari: 'menu.kalite',
     bolum: 'menu.bolum_kalite',

@@ -73,6 +73,7 @@ def _malzeme_cevap(m: Malzeme) -> dict[str, Any]:
         aktif=m.aktif,
         kritik=kritik,
         tedarikci_firma_id=m.tedarikci_firma_id,
+        lot_takipli=m.lot_takipli,
         olusturma_tarihi=m.olusturma_tarihi,
     ).model_dump()
 
@@ -106,6 +107,7 @@ async def malzeme_olustur(
         max_stok=govde.max_stok,
         kritik_stok=govde.kritik_stok,
         tedarikci_firma_id=govde.tedarikci_firma_id,
+        lot_takipli=govde.lot_takipli,
     )
     await repository.malzeme_ekle(db, malzeme)
     await denetim_yaz(
@@ -195,6 +197,7 @@ async def malzeme_guncelle(
         "kritik_stok",
         "aktif",
         "tedarikci_firma_id",
+        "lot_takipli",
     ):
         deger = getattr(govde, alan)
         if deger is not None:
@@ -221,6 +224,7 @@ def _hareket_cevap(h: StokHareketi) -> dict[str, Any]:
         lokasyon_id=h.lokasyon_id,
         lot_no=h.lot_no,
         transfer_grubu=h.transfer_grubu,
+        hizli_kabul=h.hizli_kabul,
     ).model_dump()
 
 
@@ -270,6 +274,11 @@ async def stok_hareketi_olustur(
             govde.malzeme_id,
             govde.miktar,
         )
+    if govde.hizli_kabul and (govde.tur != "giris" or not (govde.kaynak or "").strip()):
+        raise DogrulamaHatasi(
+            "Hızlı mal kabul giriş hareketidir ve irsaliye numarası ister",
+            detaylar=[{"alan": "kaynak", "mesaj": "İrsaliye no zorunlu (sonra siparişe eşlenir)"}],
+        )
     if idempotency_key is not None:
         mevcut = await repository.hareket_idempotent_getir(db, idempotency_key)
         if mevcut is not None:
@@ -290,6 +299,7 @@ async def stok_hareketi_olustur(
         idempotency_anahtari=idempotency_key,
         lokasyon_id=govde.lokasyon_id,
         lot_no=govde.lot_no,
+        hizli_kabul=govde.hizli_kabul,
     )
     await denetim_yaz(
         db,
@@ -377,7 +387,15 @@ def _talep_cevap(t: SatinalmaTalebi) -> dict[str, Any]:
     ).model_dump()
 
 
-def _talep_detay_cevap(t: SatinalmaTalebi) -> dict[str, Any]:
+async def _talep_detay_cevap(db: AsyncSession, t: SatinalmaTalebi) -> dict[str, Any]:
+    malzemeler = {
+        m.id: m
+        for m in (
+            await db.execute(
+                select(Malzeme).where(Malzeme.id.in_([k.malzeme_id for k in t.kalemler] or [0]))
+            )
+        ).scalars()
+    }
     return SatinalmaTalebiDetayDTO(
         id=t.id,
         kod=t.kod,
@@ -395,6 +413,8 @@ def _talep_detay_cevap(t: SatinalmaTalebi) -> dict[str, Any]:
             SatinalmaKalemCevapDTO(
                 id=k.id,
                 malzeme_id=k.malzeme_id,
+                malzeme_kod=malzemeler[k.malzeme_id].kod if k.malzeme_id in malzemeler else None,
+                malzeme_ad=malzemeler[k.malzeme_id].ad if k.malzeme_id in malzemeler else None,
                 miktar=float(k.miktar),
                 birim=k.birim,
                 tahmini_birim_fiyat=(
@@ -459,7 +479,7 @@ async def talep_olustur(
     await yayinla(tenant.slug, {"tur": "satinalma.durum", "id": talep.id, "durum": talep.durum})
     talep_tam = await repository.talep_getir_kalemli(db, talep.id)
     assert talep_tam is not None
-    return basari(_talep_detay_cevap(talep_tam), mesaj="Satınalma talebi oluşturuldu")
+    return basari(await _talep_detay_cevap(db, talep_tam), mesaj="Satınalma talebi oluşturuldu")
 
 
 @router.get(
@@ -500,7 +520,7 @@ async def talep_detay(
     talep = await repository.talep_getir_kalemli(db, talep_id)
     if talep is None:
         raise KaynakBulunamadi("Satınalma talebi bulunamadı")
-    return basari(_talep_detay_cevap(talep), mesaj="Satınalma talebi detayı")
+    return basari(await _talep_detay_cevap(db, talep), mesaj="Satınalma talebi detayı")
 
 
 @router.patch(
@@ -548,7 +568,7 @@ async def talep_guncelle(
     )
     talep_tam = await repository.talep_getir_kalemli(db, talep.id)
     assert talep_tam is not None
-    return basari(_talep_detay_cevap(talep_tam), mesaj="Satınalma talebi güncellendi")
+    return basari(await _talep_detay_cevap(db, talep_tam), mesaj="Satınalma talebi güncellendi")
 
 
 async def _gecis(

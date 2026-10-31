@@ -33,7 +33,6 @@ export function SayimListesi() {
   const depolar = useDepolar();
   const sayimAc = useSayimAc();
   const [acik, setAcik] = useState(false);
-  const [form] = Form.useForm();
 
   const kolonlar: ColumnsType<Sayim> = [
     {
@@ -72,14 +71,7 @@ export function SayimListesi() {
         alt={t('sayim.alt')}
         sag={
           yazabilir ? (
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                form.resetFields();
-                setAcik(true);
-              }}
-            >
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setAcik(true)}>
               {t('sayim.yeni')}
             </Button>
           ) : null
@@ -110,11 +102,11 @@ export function SayimListesi() {
         okText={t('sayim.ac')}
         confirmLoading={sayimAc.isPending}
         onCancel={() => setAcik(false)}
-        onOk={() => form.submit()}
+        okButtonProps={{ htmlType: 'submit', form: 'sayim-ac-formu' }}
         destroyOnHidden
       >
         <Form
-          form={form}
+          id="sayim-ac-formu"
           layout="vertical"
           onFinish={(v: { lokasyon_id: number; aciklama?: string }) =>
             sayimAc.mutate(v, {

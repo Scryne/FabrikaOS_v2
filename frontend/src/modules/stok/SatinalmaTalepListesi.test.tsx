@@ -6,6 +6,14 @@ import '@/i18n';
 
 import { SatinalmaTalepListesi } from './SatinalmaTalepListesi';
 
+// S25-B: talep çekmecesi sipariş hook'larını kullanır (ağsız test için sahte).
+vi.mock('./siparisHooks', () => ({
+  SiparisPim: () => null,
+  useSiparisler: () => ({ data: [], isPending: false }),
+  useSiparisOlustur: () => ({ mutate: vi.fn(), isPending: false }),
+  useTedarikciler: () => ({ data: [], isPending: false }),
+}));
+
 vi.mock('./hooks', () => {
   const sahteMutasyon = () => ({ mutateAsync: vi.fn(), isPending: false });
   return {

@@ -13,13 +13,14 @@ FK'ler şema önekiyle yazılmaz (``malzemeler.id``, ``kullanici.id``); aktif ``
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
+    Date,
     DateTime,
     ForeignKey,
     Numeric,
@@ -82,6 +83,8 @@ class StokHareketi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     )
     lot_no: Mapped[str] = mapped_column(String(60), default="", nullable=False)
     transfer_grubu: Mapped[str | None] = mapped_column(String(36), index=True, nullable=True)
+    # S25-B (ADR-0024 §4b): PO'suz hızlı mal kabul; resmî teslim alma bunu eşleştirir.
+    hizli_kabul: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
 class SatinalmaTalebi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
@@ -233,3 +236,140 @@ class SayimSatiri(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     @property
     def fark(self) -> Decimal:
         return self.sayilan_miktar - self.sistem_miktari
+
+
+# ── S25-B: satınalma siparişi → teslim alma → iade (ADR-0024 §3, §4b) ─────────
+
+
+class SatinalmaSiparisi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """Onaylanmış talepten açılan sipariş: acik → kismi_teslim → tamamlandi | kapatildi | iptal."""
+
+    __tablename__ = "satinalma_siparisleri"
+
+    kod: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    talep_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("satinalma_talepleri.id", ondelete="RESTRICT"), nullable=False
+    )
+    tedarikci_firma_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("firmalar.id", ondelete="RESTRICT"), index=True, nullable=False
+    )
+    durum: Mapped[str] = mapped_column(String(20), default="acik", index=True, nullable=False)
+    para_birimi: Mapped[str] = mapped_column(String(3), default="TRY", nullable=False)
+    beklenen_teslim_tarihi: Mapped[date | None] = mapped_column(Date, nullable=True)
+    aciklama: Mapped[str] = mapped_column(String(1000), default="", nullable=False)
+    olusturan_kullanici_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("kullanici.id", ondelete="SET NULL"), nullable=True
+    )
+    kapanis_nedeni: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    kalemler: Mapped[list[SatinalmaSiparisiKalemi]] = relationship(
+        back_populates="siparis",
+        cascade="all, delete-orphan",
+        order_by="SatinalmaSiparisiKalemi.id",
+    )
+
+
+class SatinalmaSiparisiKalemi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """Sipariş kalemi; ``teslim_alinan_miktar`` iadeler düşülmüş kümülatif teslimdir."""
+
+    __tablename__ = "satinalma_siparisi_kalemleri"
+    __table_args__ = (
+        CheckConstraint("miktar > 0", name="ck_satinalma_siparisi_kalemleri_miktar"),
+        CheckConstraint("teslim_alinan_miktar >= 0", name="ck_satinalma_siparisi_kalemleri_teslim"),
+    )
+
+    siparis_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("satinalma_siparisleri.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    talep_kalemi_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("satinalma_talebi_kalemleri.id", ondelete="SET NULL"), nullable=True
+    )
+    malzeme_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("malzemeler.id", ondelete="RESTRICT"), nullable=False
+    )
+    miktar: Mapped[Decimal] = mapped_column(_MIKTAR, nullable=False)
+    birim_fiyat: Mapped[Decimal | None] = mapped_column(_PARA, nullable=True)
+    fazla_teslim_toleransi_yuzde: Mapped[Decimal] = mapped_column(
+        Numeric(5, 2), default=Decimal(0), nullable=False
+    )
+    teslim_alinan_miktar: Mapped[Decimal] = mapped_column(
+        _MIKTAR, default=Decimal(0), nullable=False
+    )
+
+    siparis: Mapped[SatinalmaSiparisi] = relationship(back_populates="kalemler")
+
+
+class TeslimAlma(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """İrsaliye başlığı. ``tur='iade'`` kayıt ``iade_edilen_id`` ile orijinal teslime bağlıdır."""
+
+    __tablename__ = "teslim_almalar"
+    __table_args__ = (
+        UniqueConstraint("siparis_id", "irsaliye_no", "tur", name="uq_teslim_almalar_siparis_id"),
+        CheckConstraint("tur IN ('teslim', 'iade')", name="ck_teslim_almalar_tur"),
+    )
+
+    siparis_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("satinalma_siparisleri.id", ondelete="RESTRICT"),
+        index=True,
+        nullable=False,
+    )
+    tur: Mapped[str] = mapped_column(String(10), default="teslim", nullable=False)
+    irsaliye_no: Mapped[str] = mapped_column(String(40), nullable=False)
+    iade_edilen_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("teslim_almalar.id", ondelete="RESTRICT"), nullable=True
+    )
+    # Fiziksel geliş anı (§4b): gelecekte ve sipariş tarihinden önce olamaz.
+    fiili_tarih: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    # Beklenen teslim tarihi yoksa ``None`` (tedarikçi skoruna katılmaz).
+    zamaninda: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    aciklama: Mapped[str] = mapped_column(String(500), default="", nullable=False)
+    idempotency_anahtari: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
+    olusturan_kullanici_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("kullanici.id", ondelete="SET NULL"), nullable=True
+    )
+
+    kalemler: Mapped[list[TeslimAlmaKalemi]] = relationship(
+        back_populates="teslim", cascade="all, delete-orphan", order_by="TeslimAlmaKalemi.id"
+    )
+
+
+class TeslimAlmaKalemi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """Teslim/iade satırı. Hızlı mal kabulle eşleştiyse ``eslesen_hareket_id`` dolu,
+    ``stok_hareketi_id`` boştur (çift sayım yok)."""
+
+    __tablename__ = "teslim_alma_kalemleri"
+    __table_args__ = (CheckConstraint("miktar > 0", name="ck_teslim_alma_kalemleri_miktar"),)
+
+    teslim_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("teslim_almalar.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    siparis_kalemi_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("satinalma_siparisi_kalemleri.id", ondelete="RESTRICT"),
+        index=True,
+        nullable=False,
+    )
+    iade_edilen_kalem_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("teslim_alma_kalemleri.id", ondelete="RESTRICT"), nullable=True
+    )
+    miktar: Mapped[Decimal] = mapped_column(_MIKTAR, nullable=False)
+    lokasyon_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("lokasyonlar.id", ondelete="RESTRICT"), nullable=False
+    )
+    lot_no: Mapped[str] = mapped_column(String(60), default="", nullable=False)
+    fazla_teslim: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    stok_hareketi_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("stok_hareketleri.id", ondelete="RESTRICT"), nullable=True
+    )
+    eslesen_hareket_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("stok_hareketleri.id", ondelete="RESTRICT"),
+        unique=True,
+        nullable=True,
+    )
+
+    teslim: Mapped[TeslimAlma] = relationship(back_populates="kalemler")

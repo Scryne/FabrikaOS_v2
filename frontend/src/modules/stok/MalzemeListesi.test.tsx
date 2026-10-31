@@ -6,6 +6,9 @@ import '@/i18n';
 
 import { MalzemeListesi } from './MalzemeListesi';
 
+// S25: hareket formu lokasyon seçimi için depo ağacını okur (ağsız test için sahte).
+vi.mock('./depoHooks', () => ({ useDepolar: () => ({ data: [] }) }));
+
 vi.mock('./hooks', () => {
   const sahteMutasyon = () => ({ mutateAsync: vi.fn(), isPending: false });
   return {

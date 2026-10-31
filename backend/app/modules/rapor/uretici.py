@@ -19,6 +19,8 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
+from app.core.pdf_font import FONT, FONT_KALIN, fontlari_kaydet
+
 
 @dataclass(frozen=True, slots=True)
 class RaporIcerik:
@@ -38,7 +40,8 @@ def _hucre_metni(deger: Any) -> str:
 
 
 def pdf_uret(icerik: RaporIcerik) -> bytes:
-    """İçeriği tek tablolu, yatay A4 PDF'e döker."""
+    """İçeriği tek tablolu, yatay A4 PDF'e döker (DejaVu: Türkçe karakterler basılır)."""
+    fontlari_kaydet()
     tampon = io.BytesIO()
     belge = SimpleDocTemplate(
         tampon,
@@ -50,10 +53,12 @@ def pdf_uret(icerik: RaporIcerik) -> bytes:
         bottomMargin=15 * mm,
     )
     stiller = getSampleStyleSheet()
-    ince = ParagraphStyle("AltBaslik", parent=stiller["Normal"], textColor=colors.grey)
+    normal = ParagraphStyle("TrNormal", parent=stiller["Normal"], fontName=FONT)
+    baslik = ParagraphStyle("TrBaslik", parent=stiller["Title"], fontName=FONT_KALIN)
+    ince = ParagraphStyle("AltBaslik", parent=normal, textColor=colors.grey)
 
     akis: list[Any] = [
-        Paragraph(icerik.baslik, stiller["Title"]),
+        Paragraph(icerik.baslik, baslik),
         Paragraph(icerik.alt_baslik, ince),
         Spacer(1, 6 * mm),
     ]
@@ -67,6 +72,8 @@ def pdf_uret(icerik: RaporIcerik) -> bytes:
             [
                 ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f2937")),
                 ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                ("FONTNAME", (0, 0), (-1, -1), FONT),
+                ("FONTNAME", (0, 0), (-1, 0), FONT_KALIN),
                 ("FONTSIZE", (0, 0), (-1, -1), 8),
                 ("GRID", (0, 0), (-1, -1), 0.4, colors.HexColor("#9ca3af")),
                 ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#f3f4f6")]),
@@ -78,7 +85,7 @@ def pdf_uret(icerik: RaporIcerik) -> bytes:
 
     if icerik.ozet:
         akis.append(Spacer(1, 6 * mm))
-        akis.extend(Paragraph(satir, stiller["Normal"]) for satir in icerik.ozet)
+        akis.extend(Paragraph(satir, normal) for satir in icerik.ozet)
 
     belge.build(akis)
     return tampon.getvalue()

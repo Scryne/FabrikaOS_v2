@@ -22,6 +22,8 @@ class MalzemeOlusturDTO(BaseModel):
     kritik_stok: Decimal = Field(default=Decimal(0), ge=0)
     # Ana tedarikçi (S-VB): tedarikçi performans skoru kalite bileşeni bağlantısı.
     tedarikci_firma_id: int | None = None
+    # S25 (ADR-0024 §4): açıksa giriş hareketi ve teslim alma lot numarası ister.
+    lot_takipli: bool = False
 
 
 class MalzemeGuncelleDTO(BaseModel):
@@ -33,6 +35,7 @@ class MalzemeGuncelleDTO(BaseModel):
     kritik_stok: Decimal | None = Field(default=None, ge=0)
     aktif: bool | None = None
     tedarikci_firma_id: int | None = None
+    lot_takipli: bool | None = None
 
 
 class MalzemeCevapDTO(BaseModel):
@@ -48,6 +51,7 @@ class MalzemeCevapDTO(BaseModel):
     aktif: bool
     kritik: bool
     tedarikci_firma_id: int | None = None
+    lot_takipli: bool = False
     olusturma_tarihi: datetime
 
 
@@ -60,6 +64,8 @@ class StokHareketiOlusturDTO(BaseModel):
     # S25: boşsa varsayılan ANA/GENEL lokasyonu; lot takipli malzemede girişte zorunlu.
     lokasyon_id: int | None = None
     lot_no: str = Field(default="", max_length=60)
+    # S25-B (ADR-0024 §4b): PO'suz hızlı mal kabul; ``kaynak`` = irsaliye no (zorunlu).
+    hizli_kabul: bool = False
 
 
 class StokHareketiCevapDTO(BaseModel):
@@ -75,6 +81,7 @@ class StokHareketiCevapDTO(BaseModel):
     lokasyon_id: int | None = None
     lot_no: str = ""
     transfer_grubu: str | None = None
+    hizli_kabul: bool = False
 
 
 class SatinalmaKalemDTO(BaseModel):
@@ -106,6 +113,9 @@ class RedDTO(BaseModel):
 class SatinalmaKalemCevapDTO(BaseModel):
     id: int
     malzeme_id: int
+    # Detayda malzemenin kodu/adı (arayüz kimlik numarası yerine malzemeyi gösterir).
+    malzeme_kod: str | None = None
+    malzeme_ad: str | None = None
     miktar: float
     birim: str
     tahmini_birim_fiyat: float | None = None

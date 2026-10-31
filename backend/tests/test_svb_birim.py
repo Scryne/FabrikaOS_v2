@@ -147,17 +147,36 @@ def test_tedarikci_skoru_tam_sinyal() -> None:
             sozlesme_toplam=4,
             talep_cozulen=5,
             talep_toplam=10,
+            teslim_zamaninda=3,
+            teslim_toplam=4,
         )
     )
-    assert detay.skor == pytest.approx(40 * 0.8 + 30 * 0.75 + 30 * 0.5, abs=0.1)
+    assert detay.skor == pytest.approx(30 * 0.8 + 20 * 0.75 + 20 * 0.5 + 30 * 0.75, abs=0.1)
     assert detay.yetersiz_veri == []
-    assert detay.zamaninda_teslim is None  # S25'te dolar
+    assert detay.zamaninda_teslim == pytest.approx(0.75)
+
+
+def test_tedarikci_skoru_teslimsiz_notr_ve_isaretli() -> None:
+    """S25-B: PO teslimi olmayan tedarikçide teslim bileşeni nötr, alan None, işaretli."""
+    detay = tedarikci_skoru(
+        SkorSinyalleri(
+            kalite_gecen=5,
+            kalite_toplam=5,
+            sozlesme_saglikli=2,
+            sozlesme_toplam=2,
+            talep_cozulen=3,
+            talep_toplam=3,
+        )
+    )
+    assert detay.skor == pytest.approx(70 + 30 * 0.5)
+    assert detay.zamaninda_teslim is None
+    assert detay.yetersiz_veri == ["teslim"]
 
 
 def test_tedarikci_skoru_sinyalsiz_notr_ve_dürüst() -> None:
     detay = tedarikci_skoru(SkorSinyalleri())
     assert detay.skor == pytest.approx(50.0)  # tüm bileşenler nötr 0.5
-    assert set(detay.yetersiz_veri) == {"kalite", "sozlesme", "talep"}
+    assert set(detay.yetersiz_veri) == {"kalite", "sozlesme", "talep", "teslim"}
 
 
 def test_tedarikci_skoru_sinirlar() -> None:
@@ -169,6 +188,8 @@ def test_tedarikci_skoru_sinirlar() -> None:
             sozlesme_toplam=2,
             talep_cozulen=3,
             talep_toplam=3,
+            teslim_zamaninda=4,
+            teslim_toplam=4,
         )
     )
     assert tam.skor == 100.0
@@ -180,6 +201,8 @@ def test_tedarikci_skoru_sinirlar() -> None:
             sozlesme_toplam=2,
             talep_cozulen=0,
             talep_toplam=3,
+            teslim_zamaninda=0,
+            teslim_toplam=4,
         )
     )
     assert sifir.skor == 0.0

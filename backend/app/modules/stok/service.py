@@ -58,6 +58,7 @@ async def stok_hareketi_uygula(
     idempotency_anahtari: str | None = None,
     lokasyon_id: int | None = None,
     lot_no: str = "",
+    hizli_kabul: bool = False,
 ) -> tuple[StokHareketi, bool]:
     """Bakiyeyi günceller, hareketi yazar, gerekirse kenar-tetikli ``stok.kritik`` yayınlar.
 
@@ -92,6 +93,7 @@ async def stok_hareketi_uygula(
         idempotency_anahtari=idempotency_anahtari,
         lokasyon_id=hareket_lokasyonu,
         lot_no=lot_no,
+        hizli_kabul=hizli_kabul,
     )
     db.add(hareket)
 

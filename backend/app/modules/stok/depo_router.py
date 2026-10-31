@@ -10,7 +10,7 @@ from __future__ import annotations
 from decimal import Decimal
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Header
+from fastapi import APIRouter, Depends, Header, Query, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,6 +24,7 @@ from app.core.gercekzaman import yayinla
 from app.core.responses import basari
 from app.kimlik.models import Kullanici
 from app.modules.stok import depo_service, repository
+from app.modules.stok.etiket import etiket_pdf
 from app.modules.stok.models import (
     Depo,
     Lokasyon,
@@ -430,3 +431,32 @@ async def sayim_iptal(sayim_id: int, kullanici: Yaz, db: Oturum) -> dict[str, An
         db, eylem="iptal", kaynak="sayim", kaynak_id=str(oturum.id), kullanici=kullanici, detay={}
     )
     return basari(await _sayim_detay(db, oturum), mesaj="Sayım iptal edildi")
+
+
+# ── Etiket & kodla bulma (S25-B) ─────────────────────────────────────────────
+
+
+@router.get("/malzemeler/{malzeme_id}/etiket.pdf", summary="Malzeme etiketi (QR + Code 128)")
+async def malzeme_etiketi(
+    malzeme_id: int, _k: Oku, db: Oturum, adet: Annotated[int, Query(ge=1, le=100)] = 1
+) -> Response:
+    malzeme = await db.get(Malzeme, malzeme_id)
+    if malzeme is None:
+        raise KaynakBulunamadi("Malzeme bulunamadı")
+    return Response(
+        content=etiket_pdf(malzeme, adet),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="etiket-{malzeme.id}.pdf"'},
+    )
+
+
+@router.get("/malzeme-kodu", summary="Okutulan koddan malzemeyi bul (tam eşleşme)")
+async def malzeme_kodla(
+    _k: Oku, db: Oturum, kod: Annotated[str, Query(min_length=1, max_length=50)]
+) -> dict[str, Any]:
+    malzeme = (
+        await db.execute(select(Malzeme).where(Malzeme.kod == kod.strip()))
+    ).scalar_one_or_none()
+    if malzeme is None:
+        raise KaynakBulunamadi("Bu kodla malzeme yok")
+    return basari({"id": malzeme.id, "kod": malzeme.kod, "ad": malzeme.ad})

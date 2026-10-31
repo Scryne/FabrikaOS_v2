@@ -22,6 +22,17 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S25-B satınalma siparişi → teslim → iade
+
+- Backend 674 test geçti (yalnız Docker isteyen MQTT turu kırmızı), ruff/mypy temiz; frontend 214,
+  tsc/ESLint/Prettier temiz. Sipariş listesi/detayı, teslim ve iade pencereleri 1440 ve 390 px'te
+  taşmasız, konsol hatasız.
+- Demo seed: kiracı "kurumsal" planla açılıyor (önce "deneme"nin 5 koltuğuna takılıp duruyordu);
+  tedarik zinciri bölümü eklendi (lokasyonlar, transfer, açık sayım, biri gecikmiş iki sipariş,
+  eşleşmemiş hızlı kabul).
+- Rapor PDF'leri Türkçe karakterleri kutu basıyordu (Helvetica/WinAnsi) → DejaVu Sans gömülü.
+- Talep çekmecesi malzemeyi kimlik numarasıyla gösteriyordu → ad + kod.
+
 ## 2026-10-31 — Docker'sız test tabanı + S25-A
 
 - Testler Docker'sız yerel PostgreSQL 16 + TimescaleDB + Redis'te koşuyor (`TEST_DATABASE_URL`,
@@ -57,8 +68,8 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 
 ## Ne yarım / bilinçli açık
 
-- S25-B (PO → teslim alma, barkod/etiket PDF, tedarikçi teslim skoru) açık; S25-A uygulandı
-  (ADR-0024 "Uygulama durumu"). Faz 5 operasyon sprintleri (S19–S22) açık.
+- S25 tamam (ADR-0024 "Uygulama durumu"); fatura eşlemesi ve birim dönüşümü bilinçli olarak
+  sonraya. Faz 5 operasyon sprintleri (S19–S22) açık.
 - Stok tahmin modeli malzeme başına ≥3 günlük gerçek tüketim ister; yeni tenant'ta bekler.
 - Playwright E2E CI'da değil (çalışan yığın + seed ister).
 - Uzak dallar: `feat/persona-pano-landing-derinlestirme`, `feat/s18-dis-portal-webhook`,

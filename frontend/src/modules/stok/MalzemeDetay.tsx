@@ -17,8 +17,9 @@ import {
   EditOutlined,
   GoldOutlined,
   PlusOutlined,
+  PrinterOutlined,
 } from '@ant-design/icons';
-import { Button, Result, Skeleton, Space, Tag } from 'antd';
+import { App, Button, Result, Skeleton, Space, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -33,6 +34,8 @@ import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { RENKLER } from '@/tema/tema';
 import { useAuthStore } from '@/store/authStore';
+
+import { etiketIndir } from './siparisHooks';
 
 import {
   type Malzeme,
@@ -180,6 +183,8 @@ export function MalzemeDetay() {
   const hareketler = useStokHareketleri(param, id);
   const [hareketAcik, setHareketAcik] = useState(false);
   const [duzenleAcik, setDuzenleAcik] = useState(false);
+  const [etiketYukleniyor, setEtiketYukleniyor] = useState(false);
+  const { message } = App.useApp();
 
   // Seri türevleri: kronolojik bakiye trendi + tür kırılımı + giriş/çıkış toplamı.
   const turev = useMemo(() => {
@@ -335,16 +340,30 @@ export function MalzemeDetay() {
           </Space>
         }
         sag={
-          yazabilir && (
-            <Space wrap>
-              <Button icon={<EditOutlined />} onClick={() => setDuzenleAcik(true)}>
-                {t('stok.duzenle')}
-              </Button>
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setHareketAcik(true)}>
-                {t('stok.hareket_ekle')}
-              </Button>
-            </Space>
-          )
+          <Space wrap>
+            <Button
+              icon={<PrinterOutlined />}
+              loading={etiketYukleniyor}
+              onClick={() => {
+                setEtiketYukleniyor(true);
+                etiketIndir(m.id, m.kod)
+                  .catch(() => message.error(t('stok.etiket_hata')))
+                  .finally(() => setEtiketYukleniyor(false));
+              }}
+            >
+              {t('stok.etiket')}
+            </Button>
+            {yazabilir && (
+              <>
+                <Button icon={<EditOutlined />} onClick={() => setDuzenleAcik(true)}>
+                  {t('stok.duzenle')}
+                </Button>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setHareketAcik(true)}>
+                  {t('stok.hareket_ekle')}
+                </Button>
+              </>
+            )}
+          </Space>
         }
       />
 

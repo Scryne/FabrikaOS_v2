@@ -984,6 +984,93 @@ body {
   transition: transform 480ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
+/* Varlık adı + alt satır, ``.varlik-hucre`` dışında da aynı dil (S25 tabloları: ad bağlantısı
+   beyaz, kod/lokasyon satırı soluk). Değerler yukarıdaki kapsamlı kurallarla aynıdır. */
+.varlik-ad {
+  color: var(--metin);
+  font-weight: 600;
+  line-height: 1.25;
+}
+a.varlik-ad:hover {
+  color: var(--mavi);
+}
+.varlik-alt {
+  color: var(--metin-soluk);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* S25-B sipariş listesi: dar ekranda tedarikçi sütunu gizlenir, kodun altında görünür. */
+.siparis-alt-tedarikci {
+  display: block;
+}
+@media (min-width: 768px) {
+  .siparis-alt-tedarikci {
+    display: none;
+  }
+}
+.siparis-suzgec {
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+
+/* Sayfa başlığındaki durum pimi başlık puntosunu miras almasın. */
+.baslik-pim {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* S25-B sipariş detayı: irsaliye kayıtları ve teslim/iade penceresindeki kalem satırları. */
+.teslim-kayit {
+  border: 1px solid var(--kenarlik);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.teslim-kayit-ust {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.teslim-kalemler {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.teslim-kalem-satir {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 8px 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--kenarlik);
+  border-radius: 10px;
+}
+.teslim-kalem-satir .teslim-lot {
+  grid-column: 1 / -1;
+}
+.teslim-kalem-ad {
+  min-width: 0;
+}
+.form-iki-sutun {
+  display: grid;
+  grid-template-columns: 1fr;
+  column-gap: 12px;
+}
+@media (min-width: 576px) {
+  .form-iki-sutun {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 480px) {
+  .teslim-kalem-satir {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* S25 depo bakiyesi: dar ekranda lokasyon/lot sütunları gizlenir, malzeme hücresinin altında görünür. */
 .depo-lok-alt {
   display: block;

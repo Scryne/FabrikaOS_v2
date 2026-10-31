@@ -55,6 +55,8 @@ import { DepoBakiye } from '@/modules/stok/DepoBakiye';
 import { KritikStok } from '@/modules/stok/KritikStok';
 import { SayimDetay } from '@/modules/stok/SayimDetay';
 import { SayimListesi } from '@/modules/stok/SayimListesi';
+import { SiparisDetay } from '@/modules/stok/SiparisDetay';
+import { SiparisListesi } from '@/modules/stok/SiparisListesi';
 import { MalzemeDetay } from '@/modules/stok/MalzemeDetay';
 import { MalzemeListesi } from '@/modules/stok/MalzemeListesi';
 import { SatinalmaTalepListesi } from '@/modules/stok/SatinalmaTalepListesi';
@@ -381,6 +383,22 @@ export function App() {
             element={
               <IzinKapisi izin="satinalma:oku" modul="stok">
                 <SatinalmaTalepListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="satinalma-siparisleri"
+            element={
+              <IzinKapisi izin="satinalma:oku" modul="stok">
+                <SiparisListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="satinalma-siparisleri/:id"
+            element={
+              <IzinKapisi izin="satinalma:oku" modul="stok">
+                <SiparisDetay />
               </IzinKapisi>
             }
           />

@@ -238,4 +238,18 @@ malzemede girişte lot zorunlu), §5 negatif bakiye `CHECK miktar >= 0` + servis
 Testler: `backend/tests/test_s25_depo_sayim.py`. Ekranlar: `/depolar`, `/sayimlar`,
 `/sayimlar/:id`.
 
-**S25-B (açık):** §3 PO → kısmi teslim alma, barkod/etiket PDF, tedarikçi zamanında-teslim skoru.
+**S25-B (2026-11-01, uygulandı):** göç `b8d4f0e36a29` (satinalma_siparisleri, kalemleri,
+teslim_almalar, teslim_alma_kalemleri; `stok_hareketleri.hizli_kabul`). Sipariş yalnız onaylı
+talepten açılır; talep başına tek aktif sipariş (kısmi UNIQUE indeks). §3: aynı siparişte aynı
+irsaliye ikinci kez stok yazmaz (sipariş satır kilidi + `(siparis_id, irsaliye_no, tur)` UNIQUE;
+eşzamanlı gönderim testli), fazla teslim kümülatif (`FAZLA_TESLIM`), iade orijinal teslime bağlı
+ve teslim edileni aşamaz (`IADE_FAZLA`). §4b: aynı malzeme + irsaliye no'lu eşleşmemiş hızlı kabul
+yeni hareket üretmeden bağlanır; miktar farklıysa `ESLESME_MIKTAR` (sessiz çift sayım yerine
+düzeltme istenir); `fiili_tarih` gelecekte ve sipariş gününden önce olamaz. §6: gövdedeki birim
+temel birimden farklıysa `BIRIM_UYUSMAZLIGI`; aktarım `teslim_alma_kalemine_gore_miktar`'dan geçer.
+Tedarikçi skoru: `30·kalite + 20·sözleşme + 20·talep + 30·zamanında teslim` (sinyalsiz bileşen
+nötr 0,5 ve `yetersiz_veri`'de). Testler: `backend/tests/test_s25b_siparis.py` (12; 7 mutasyonun
+7'si yakalandı). Ekranlar: `/satinalma-siparisleri`, `/satinalma-siparisleri/:id`, talep
+çekmecesinde "Sipariş aç", malzeme detayında "Etiket", hareket formunda "Hızlı mal kabul".
+
+**Açık:** üç yönlü eşlemenin fatura ayağı (S18 e-Fatura API anahtarıyla), birim dönüşümü (§6).

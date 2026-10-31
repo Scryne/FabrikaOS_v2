@@ -155,6 +155,13 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
                     yuzde={skor.talep_cozum_orani * 100}
                     renk={skorRengi(skor.talep_cozum_orani * 100)}
                   />
+                  {skor.zamaninda_teslim != null && (
+                    <OranSatiri
+                      etiket={t('crm.skor_teslim')}
+                      yuzde={skor.zamaninda_teslim * 100}
+                      renk={skorRengi(skor.zamaninda_teslim * 100)}
+                    />
+                  )}
                 </div>
               </div>
             </>

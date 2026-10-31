@@ -4,14 +4,15 @@
 toplanır. Skor **dürüsttür** — sinyali olmayan bileşen nötr (0.5) sayılır ve
 gerekçede "yetersiz veri" işaretlenir; bölme/NaN hatası imkânsızdır.
 
-Bileşenler (ağırlıklar sabit, toplam 100):
+Bileşenler (ağırlıklar sabit, toplam 100; S25-B'de teslim bileşeni eklendi):
 
-    skor = 40 * kalite_gecme_orani   # firmanın malzemelerine bağlı kalite kontrolleri
-         + 30 * sozlesme_uyumu        # sözleşmelerin sağlıklı (feshedilmemiş) oranı
-         + 30 * talep_cozum_orani     # firmayla ilişkili taleplerin çözülme oranı
+    skor = 30 * kalite_gecme_orani   # firmanın malzemelerine bağlı kalite kontrolleri
+         + 20 * sozlesme_uyumu        # sözleşmelerin sağlıklı (feshedilmemiş) oranı
+         + 20 * talep_cozum_orani     # firmayla ilişkili taleplerin çözülme oranı
+         + 30 * zamaninda_teslim      # beklenen tarihli PO teslimlerinin zamanında oranı
 
-``zamaninda_teslim`` alanı S25 (satınalma siparişi teslim alma) için ayrılmıştır;
-o sprintte formüle katılır, bugün ``None`` döner.
+``zamaninda_teslim`` sinyal yoksa ``None`` döner, formülde nötr (0.5) sayılır ve
+``yetersiz_veri``ye ``"teslim"`` olarak düşer. Ölçü teslim (irsaliye) başınadır, iade sayılmaz.
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.modules.kalite.models import KaliteKontrol
 from app.modules.sozlesme.models import Sozlesme
-from app.modules.stok.models import Malzeme
+from app.modules.stok.models import Malzeme, SatinalmaSiparisi, TeslimAlma
 from app.modules.talep.models import Talep
 
 # Sinyalsiz bileşenin nötr değeri (taraf tutmaz; gerekçede işaretlenir).
@@ -40,6 +41,8 @@ class SkorSinyalleri:
     sozlesme_toplam: int = 0
     talep_cozulen: int = 0
     talep_toplam: int = 0
+    teslim_zamaninda: int = 0
+    teslim_toplam: int = 0
 
 
 @dataclass(frozen=True)
@@ -50,7 +53,7 @@ class SkorDetay:
     kalite_gecme_orani: float
     sozlesme_uyumu: float
     talep_cozum_orani: float
-    zamaninda_teslim: float | None  # S25'te dolar (PO teslim alma)
+    zamaninda_teslim: float | None  # PO teslimi yoksa None (formülde nötr)
     yetersiz_veri: list[str]
 
 
@@ -66,6 +69,7 @@ def tedarikci_skoru(sinyaller: SkorSinyalleri) -> SkorDetay:
     kalite, kalite_var = _oran(sinyaller.kalite_gecen, sinyaller.kalite_toplam)
     sozlesme, sozlesme_var = _oran(sinyaller.sozlesme_saglikli, sinyaller.sozlesme_toplam)
     talep, talep_var = _oran(sinyaller.talep_cozulen, sinyaller.talep_toplam)
+    teslim, teslim_var = _oran(sinyaller.teslim_zamaninda, sinyaller.teslim_toplam)
 
     yetersiz = [
         ad
@@ -73,17 +77,18 @@ def tedarikci_skoru(sinyaller: SkorSinyalleri) -> SkorDetay:
             ("kalite", kalite_var),
             ("sozlesme", sozlesme_var),
             ("talep", talep_var),
+            ("teslim", teslim_var),
         )
         if not var
     ]
-    skor = round(40 * kalite + 30 * sozlesme + 30 * talep, 1)
+    skor = round(30 * kalite + 20 * sozlesme + 20 * talep + 30 * teslim, 1)
     skor = min(max(skor, 0.0), 100.0)
     return SkorDetay(
         skor=skor,
         kalite_gecme_orani=round(kalite, 4),
         sozlesme_uyumu=round(sozlesme, 4),
         talep_cozum_orani=round(talep, 4),
-        zamaninda_teslim=None,
+        zamaninda_teslim=round(teslim, 4) if teslim_var else None,
         yetersiz_veri=yetersiz,
     )
 
@@ -137,6 +142,24 @@ async def sinyal_topla(db: AsyncSession, firma_id: int) -> SkorSinyalleri:
         )
     ).scalar_one()
 
+    teslim_kosul = (
+        TeslimAlma.tur == "teslim",
+        TeslimAlma.zamaninda.is_not(None),
+        TeslimAlma.siparis_id.in_(
+            select(SatinalmaSiparisi.id).where(SatinalmaSiparisi.tedarikci_firma_id == firma_id)
+        ),
+    )
+    teslim_toplam = (
+        await db.execute(select(func.count()).select_from(TeslimAlma).where(*teslim_kosul))
+    ).scalar_one()
+    teslim_zamaninda = (
+        await db.execute(
+            select(func.count())
+            .select_from(TeslimAlma)
+            .where(*teslim_kosul, TeslimAlma.zamaninda.is_(True))
+        )
+    ).scalar_one()
+
     return SkorSinyalleri(
         kalite_gecen=int(kalite_gecen),
         kalite_toplam=int(kalite_toplam),
@@ -144,4 +167,6 @@ async def sinyal_topla(db: AsyncSession, firma_id: int) -> SkorSinyalleri:
         sozlesme_toplam=int(sozlesme_toplam),
         talep_cozulen=int(talep_cozulen),
         talep_toplam=int(talep_toplam),
+        teslim_zamaninda=int(teslim_zamaninda),
+        teslim_toplam=int(teslim_toplam),
     )

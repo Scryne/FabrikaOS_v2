@@ -108,8 +108,8 @@ async def test_firma_skoru_sinyal_zinciri_ve_izolasyon(
     assert r.status_code == 200, r.text
     data = r.json()["data"]
     assert data["skor"] == 50.0
-    assert set(data["yetersiz_veri"]) == {"kalite", "sozlesme", "talep"}
-    assert data["zamaninda_teslim"] is None  # S25'te dolar
+    assert set(data["yetersiz_veri"]) == {"kalite", "sozlesme", "talep", "teslim"}
+    assert data["zamaninda_teslim"] is None  # PO teslimi yok
 
     # Kalite sinyali: firmaya bağlı malzeme + geçen giriş kontrolü.
     r = await kurulu_istemci.post(
@@ -137,7 +137,7 @@ async def test_firma_skoru_sinyal_zinciri_ve_izolasyon(
     r = await kurulu_istemci.get(f"/api/v1/firmalar/{firma_id}/skor", headers=h)
     data = r.json()["data"]
     assert data["kalite_gecme_orani"] == 1.0
-    assert data["skor"] == 70.0  # 40*1.0 + 30*0.5 + 30*0.5
+    assert data["skor"] == 65.0  # 30*1.0 + 20*0.5 + 20*0.5 + 30*0.5
     assert "kalite" not in data["yetersiz_veri"]
 
     # RBAC: crm:oku olmayan 403.

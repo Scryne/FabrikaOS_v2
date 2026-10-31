@@ -40,7 +40,7 @@ Definition of Done (DoD).
 | | S22 | UAT + Sertleştirme + GA `v1.0.0` | ⬜ |
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
-| | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | 🔄 S25-A ✅ · S25-B ⬜ |
+| | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ✅ ADR-0024 |
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ⬜ |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
@@ -458,10 +458,13 @@ BOM patlatma doğru miktarları tüketir ve idempotent (çift kapanış çift ha
 lot ileri/geri izleme zinciri doğru; MTBF/MTTR bilinen seriyle doğrulanır; otomatik bakım
 iş emri bir-kez üretilir; migration fan-out up/down. ADR-0023.
 
-#### 🔄 S25 — Tedarik Zinciri Derinleşmesi (WMS & satınalma olgunluğu)
+#### ✅ S25 — Tedarik Zinciri Derinleşmesi (WMS & satınalma olgunluğu)
 > **Durum (2026-10-31):** **S25-A ✅** depo/lokasyon, lokasyon×lot bakiyesi, iki bacaklı transfer,
 > sayım oturumu (delta onay, `stok:duzeltme`, sayan≠onaylayan) + üç ekran (Depolar, Sayımlar, Sayım
-> detayı). **S25-B ⬜** PO → kısmi teslim alma, barkod/etiket PDF, tedarikçi zamanında-teslim skoru.
+> detayı). **S25-B ✅** onaylı talepten PO → kısmi teslim (idempotent irsaliye, kümülatif fazla teslim
+> toleransı) → iade; hızlı mal kabul eşleşmesi (§4b, çift sayım yok); malzeme etiketi PDF (QR +
+> Code 128, Türkçe font) + koddan bulma; tedarikçi skoruna zamanında teslim (30 puan). Üç yönlü
+> eşleme (fatura) S18 e-Fatura ile, birim dönüşümü ADR-0024 §6 gereği bilinçli olarak sonraya.
 **Depo/lokasyon:** `Depo` + `Lokasyon` hiyerarşisi; stok hareketlerine lokasyon boyutu +
 **transfer** hareketi (çift bacak, tek transaction). **Stok sayımı:** `SayimOturumu` →
 sayım satırları → fark raporu → **onaylı düzeltme hareketi** (ayrı `stok:duzeltme` izni —

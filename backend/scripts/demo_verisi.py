@@ -1057,6 +1057,161 @@ def _son_zaman(c: Istemci, yol: str) -> datetime | None:
     return datetime.fromisoformat(kayit[0]["zaman"]) if kayit else None
 
 
+# ------------------------------------------------ S25 tedarik zinciri (2026-11-01)
+#
+# Depo/lokasyon, transfer, sayım ve satınalma siparişi → teslim alma ekranları demo tenant'ta
+# boş açılıyordu. Var olan tenant'ta da çalışır; sipariş varsa hiçbir şey yazmaz.
+
+
+def tedarik_zinciri(c: Istemci) -> None:
+    if _liste(c, "/api/v1/satinalma-siparisleri"):
+        return
+    depolar = _liste(c, "/api/v1/depolar")
+    ana = next(d for d in depolar if d["kod"] == "ANA")
+    genel = next(lok for lok in ana["lokasyonlar"] if lok["kod"] == "GENEL")
+    mevcut = {lok["kod"]: lok["id"] for d in depolar for lok in d["lokasyonlar"]}
+    loklar: dict[str, int] = {}
+    for kod, ad in [
+        ("RAF-A-01", "Hammadde rafı A1"),
+        ("RAF-B-02", "Yarı mamul rafı B2"),
+        ("SEVK", "Sevkiyat alanı"),
+    ]:
+        loklar[kod] = (
+            mevcut.get(kod)
+            or c.post("/api/v1/lokasyonlar", {"depo_id": ana["id"], "kod": kod, "ad": ad})["id"]
+        )
+    if not any(d["kod"] == "YDK" for d in depolar):
+        ydk = c.post(
+            "/api/v1/depolar",
+            {"kod": "YDK", "ad": "Yedek parça deposu", "adres": "B blok zemin kat"},
+        )
+        loklar["YDK-01"] = c.post(
+            "/api/v1/lokasyonlar", {"depo_id": ydk["id"], "kod": "YDK-01", "ad": "Rulman dolabı"}
+        )["id"]
+
+    # Genel alandaki stoğun bir kısmı raflara taşınır (iki bacaklı transfer).
+    bakiyeler = _liste(c, f"/api/v1/stok-bakiyeleri?lokasyon_id={genel['id']}")
+    for b, hedef in zip(
+        bakiyeler[:6],
+        ["RAF-A-01", "RAF-A-01", "RAF-B-02", "RAF-B-02", "SEVK", "RAF-A-01"],
+        strict=False,
+    ):
+        miktar = round(b["miktar"] * 0.4, 3)
+        if miktar > 0:
+            c.post(
+                "/api/v1/stok-transferleri",
+                {
+                    "malzeme_id": b["malzeme_id"],
+                    "kaynak_lokasyon_id": genel["id"],
+                    "hedef_lokasyon_id": loklar[hedef],
+                    "miktar": miktar,
+                    "aciklama": "Raf düzeni",
+                },
+            )
+
+    # Rafta açık bir sayım: bir satır eksik, bir satır tam (onay ayrı kullanıcıyı bekler).
+    raf = _liste(c, f"/api/v1/stok-bakiyeleri?lokasyon_id={loklar['RAF-A-01']}")
+    if raf:
+        sayim = c.post(
+            "/api/v1/sayimlar", {"lokasyon_id": loklar["RAF-A-01"], "aciklama": "Ay sonu sayımı"}
+        )
+        for i, b in enumerate(raf[:3]):
+            fark = -2 if i == 0 else 0
+            c.put(
+                f"/api/v1/sayimlar/{sayim['id']}/satirlar",
+                {"malzeme_id": b["malzeme_id"], "sayilan_miktar": max(b["miktar"] + fark, 0)},
+            )
+        c.post(f"/api/v1/sayimlar/{sayim['id']}/gonder", {})
+
+    # Siparişler: onaylı talepten; biri gecikmiş ve kısmi, biri zamanında tamam.
+    firmalar = _liste(c, "/api/v1/firmalar?tip=tedarikci&sayfa=1&adet=20")
+    if not firmalar:
+        print("  tedarik zinciri: tedarikçi firma yok, sipariş atlandı")
+        return
+    talepler = [
+        t
+        for t in _liste(c, "/api/v1/satinalma-talepleri?sayfa=1&adet=100")
+        if t["durum"] == "onaylandi"
+    ]
+    if len(talepler) < 2:
+        malzemeler = _liste(c, "/api/v1/malzemeler?sayfa=1&adet=20")
+        m = malzemeler[2]
+        t = c.post(
+            "/api/v1/satinalma-talepleri",
+            {
+                "baslik": "Profil ve boru ikmali",
+                "aciklama": "Demo talebi",
+                "para_birimi": "TRY",
+                "kalemler": [
+                    {
+                        "malzeme_id": m["id"],
+                        "miktar": 120,
+                        "birim": m["birim"],
+                        "tahmini_birim_fiyat": 64.0,
+                    }
+                ],
+            },
+        )
+        c.post(f"/api/v1/satinalma-talepleri/{t['id']}/gonder", {})
+        c.post(f"/api/v1/satinalma-talepleri/{t['id']}/onayla", {})
+        talepler.append(c.get(f"/api/v1/satinalma-talepleri/{t['id']}"))
+    bugun = datetime.now(UTC)
+    gecikmis = c.post(
+        "/api/v1/satinalma-siparisleri",
+        {
+            "talep_id": talepler[0]["id"],
+            "tedarikci_firma_id": firmalar[0]["id"],
+            "beklenen_teslim_tarihi": (bugun - timedelta(days=2)).date().isoformat(),
+            "aciklama": "Sac ikmali, iki partide teslim",
+            "kalemler": [
+                {"talep_kalemi_id": k["id"], "fazla_teslim_toleransi_yuzde": 5}
+                for k in c.get(f"/api/v1/satinalma-talepleri/{talepler[0]['id']}")["kalemler"]
+            ],
+        },
+    )
+    ilk = gecikmis["kalemler"][0]
+    c.post(
+        f"/api/v1/satinalma-siparisleri/{gecikmis['id']}/teslim-al",
+        {
+            "irsaliye_no": "IRS-2026-0141",
+            "fiili_tarih": (bugun - timedelta(hours=20)).isoformat(),
+            "lokasyon_id": loklar["RAF-A-01"],
+            "kalemler": [{"siparis_kalemi_id": ilk["id"], "miktar": round(ilk["miktar"] * 0.6, 3)}],
+        },
+    )
+    zamaninda = c.post(
+        "/api/v1/satinalma-siparisleri",
+        {
+            "talep_id": talepler[1]["id"],
+            "tedarikci_firma_id": firmalar[-1]["id"],
+            "beklenen_teslim_tarihi": (bugun + timedelta(days=3)).date().isoformat(),
+        },
+    )
+    c.post(
+        f"/api/v1/satinalma-siparisleri/{zamaninda['id']}/teslim-al",
+        {
+            "irsaliye_no": "IRS-2026-0147",
+            "kalemler": [
+                {"siparis_kalemi_id": k["id"], "miktar": k["miktar"]} for k in zamaninda["kalemler"]
+            ],
+        },
+    )
+    # Siparişsiz gelen mal: hızlı kabulle stoğa girer, eşleşmeyi bekler.
+    m = gecikmis["kalemler"][-1]
+    c.post(
+        "/api/v1/stok-hareketleri",
+        {
+            "malzeme_id": m["malzeme_id"],
+            "tur": "giris",
+            "miktar": 40,
+            "kaynak": "IRS-2026-0152",
+            "hizli_kabul": True,
+            "aciklama": "Sabah gelen parti, sipariş eşleşmesi bekliyor",
+        },
+    )
+    print("  tedarik zinciri: lokasyonlar, transfer, sayım, 2 sipariş, 1 hızlı kabul")
+
+
 def tazele(c: Istemci, makineler: list[dict]) -> None:
     """Zaman serisini son kayıttan bugüne kadar uzatır (üretim vardiyaları + enerji).
 
@@ -1108,6 +1263,7 @@ def tamamla(c: Istemci, ben: dict) -> None:
     urun_recete_uretim(c, m, ben["id"])
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, m)
+    tedarik_zinciri(c)
     raporlar(c)
     ai_egit(c)
 
@@ -1115,7 +1271,11 @@ def tamamla(c: Istemci, ben: dict) -> None:
 async def provizyonla(slug: str, ad: str, eposta: str, parola: str) -> None:
     from app.control_plane.provizyon import tenant_provizyonla
 
-    await tenant_provizyonla(slug=slug, ad=ad, admin_eposta=eposta, admin_parola=parola)
+    # Demo tüm modülleri ve 8 kullanıcıyı gösterir: "deneme" planının 5 koltuğu ve modül
+    # kısıtı (S16) seed'i kullanıcılar adımında 409 KOLTUK_LIMITI ile durduruyordu.
+    await tenant_provizyonla(
+        slug=slug, ad=ad, admin_eposta=eposta, admin_parola=parola, plan_kodu="kurumsal"
+    )
 
 
 def main() -> int:
@@ -1166,6 +1326,7 @@ def main() -> int:
     urun_recete_uretim(c, m, ben["id"])
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, _makineler_profilli(c))
+    tedarik_zinciri(c)
     raporlar(c)
     ai_egit(c)
     print(f"\nTamam. Giriş: {args.admin_eposta} / {args.admin_parola}  (X-Tenant: {args.tenant})")

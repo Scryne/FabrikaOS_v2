@@ -52,8 +52,6 @@ export function DepoBakiye() {
   const lokasyonOlustur = useLokasyonOlustur();
   const [transferSatir, setTransferSatir] = useState<Bakiye | null>(null);
   const [lokasyonDepo, setLokasyonDepo] = useState<number | null>(null);
-  const [transferForm] = Form.useForm();
-  const [lokasyonForm] = Form.useForm();
 
   const tumLokasyonlar = useMemo(
     () => (depolar.data ?? []).flatMap((d) => d.lokasyonlar.map((l) => ({ ...l, depoKod: d.kod }))),
@@ -130,14 +128,7 @@ export function DepoBakiye() {
             key: 'aksiyon',
             align: 'right' as const,
             render: (_v: unknown, b: Bakiye) => (
-              <Button
-                size="small"
-                icon={<SwapOutlined />}
-                onClick={() => {
-                  transferForm.resetFields();
-                  setTransferSatir(b);
-                }}
-              >
+              <Button size="small" icon={<SwapOutlined />} onClick={() => setTransferSatir(b)}>
                 {t('depo.transfer')}
               </Button>
             ),
@@ -185,10 +176,7 @@ export function DepoBakiye() {
                 <Button
                   size="small"
                   icon={<PlusOutlined />}
-                  onClick={() => {
-                    lokasyonForm.resetFields();
-                    setLokasyonDepo((depolar.data ?? [])[0]?.id ?? null);
-                  }}
+                  onClick={() => setLokasyonDepo((depolar.data ?? [])[0]?.id ?? null)}
                 >
                   {t('depo.lokasyon_ekle')}
                 </Button>
@@ -239,12 +227,12 @@ export function DepoBakiye() {
         okText={t('depo.transfer')}
         confirmLoading={transfer.isPending}
         onCancel={() => setTransferSatir(null)}
-        onOk={() => transferForm.submit()}
+        okButtonProps={{ htmlType: 'submit', form: 'depo-transfer-formu' }}
         destroyOnHidden
       >
         {transferSatir && (
           <Form
-            form={transferForm}
+            id="depo-transfer-formu"
             layout="vertical"
             onFinish={(v: { hedef: number; miktar: number; aciklama?: string }) =>
               transfer.mutate(
@@ -304,7 +292,7 @@ export function DepoBakiye() {
                 min={0.001}
                 step={1}
                 style={{ width: '100%' }}
-                addonAfter={transferSatir.birim}
+                suffix={transferSatir.birim}
               />
             </Form.Item>
             <Form.Item name="aciklama" label={t('depo.aciklama')}>
@@ -320,11 +308,11 @@ export function DepoBakiye() {
         okText={t('depo.kaydet')}
         confirmLoading={lokasyonOlustur.isPending}
         onCancel={() => setLokasyonDepo(null)}
-        onOk={() => lokasyonForm.submit()}
+        okButtonProps={{ htmlType: 'submit', form: 'depo-lokasyon-formu' }}
         destroyOnHidden
       >
         <Form
-          form={lokasyonForm}
+          id="depo-lokasyon-formu"
           layout="vertical"
           initialValues={{ depo_id: lokasyonDepo }}
           onFinish={(v: { depo_id: number; kod: string; ad: string }) =>

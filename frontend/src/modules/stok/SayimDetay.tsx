@@ -167,7 +167,7 @@ export function SayimDetay() {
                 min={0}
                 inputMode="decimal"
                 style={{ width: '100%' }}
-                addonAfter={(malzemeler.data ?? []).find((m) => m.id === secili)?.birim}
+                suffix={(malzemeler.data ?? []).find((m) => m.id === secili)?.birim}
               />
             </Form.Item>
             <Button
