@@ -32,6 +32,9 @@ import { PersonelDetay } from '@/modules/ik/PersonelDetay';
 import { PersonelListesi } from '@/modules/ik/PersonelListesi';
 import { KazaListesi } from '@/modules/isg/KazaListesi';
 import { RiskListesi } from '@/modules/isg/RiskListesi';
+import { IsgEgitimleri } from '@/modules/isg/IsgEgitimleri';
+import { Tatbikatlar } from '@/modules/isg/Tatbikatlar';
+import { OrgSemasi } from '@/modules/ik/OrgSemasi';
 import { IsEmriEkrani } from '@/modules/isemri/IsEmriEkrani';
 import { KaliteKontrolListesi } from '@/modules/kalite/KaliteKontrolListesi';
 import { UygunsuzlukListesi } from '@/modules/kalite/UygunsuzlukListesi';
@@ -467,6 +470,30 @@ export function App() {
             element={
               <IzinKapisi izin="isg:oku" modul="isg">
                 <RiskListesi />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="isg/egitimler"
+            element={
+              <IzinKapisi izin="isg:oku" modul="isg">
+                <IsgEgitimleri />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="isg/tatbikatlar"
+            element={
+              <IzinKapisi izin="isg:oku" modul="isg">
+                <Tatbikatlar />
+              </IzinKapisi>
+            }
+          />
+          <Route
+            path="ik/org-semasi"
+            element={
+              <IzinKapisi izin="ik:oku" modul="ik">
+                <OrgSemasi />
               </IzinKapisi>
             }
           />

@@ -46,6 +46,9 @@ class IsKazasiCevapDTO(BaseModel):
     personel_id: int | None = None
     makine_id: int | None = None
     raporlayan_kullanici_id: int | None = None
+    # S26-B: kazadan açılmış CAPA vakası (yoksa boş), ADR-0044.
+    capa_uygunsuzluk_id: int | None = None
+    capa_kod: str | None = None
     olusturma_tarihi: datetime
 
 

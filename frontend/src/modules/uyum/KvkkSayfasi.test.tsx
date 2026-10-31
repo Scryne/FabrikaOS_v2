@@ -118,7 +118,7 @@ describe('KvkkSayfasi', () => {
   });
 
   it('hazır ihracı indirir', async () => {
-    const u = userEvent.setup();
+    const u = userEvent.setup({ delay: null });
     ekranaBas();
     await u.click(within(satir('KV-2026-000001')).getByRole('button', { name: /ndir/ }));
     await waitFor(() => expect(ihracIndir).toHaveBeenCalledWith(IHRACLAR[0]));
@@ -130,17 +130,22 @@ describe('KvkkSayfasi', () => {
   });
 
   it('süresi dolanları temizle aksiyonu çağrılır', async () => {
-    const u = userEvent.setup();
+    const u = userEvent.setup({ delay: null });
     ekranaBas();
-    await u.click(screen.getByRole('button', { name: /temizle/i }));
+    // getByRole bu büyük sayfada tüm erişilebilirlik ağacını hesaplar; paralel koşuda 15 sn'yi
+    // aşıyordu. Metinden düğmeye çıkmak aynı öğeyi bulur (button olduğu ayrıca doğrulanır).
+    const dugme = screen.getByText(/temizle/i).closest('button');
+    expect(dugme).not.toBeNull();
+    await u.click(dugme!);
     await waitFor(() => expect(temizle).toHaveBeenCalled());
   });
 
   it('anonimleştirme onay metni yazılmadan çalıştırılamaz', async () => {
-    const u = userEvent.setup();
+    const u = userEvent.setup({ delay: null });
     ekranaBas();
 
-    const dugme = screen.getByRole('button', { name: /^Anonimleştir$/ });
+    const dugme = screen.getByText(/^Anonimleştir$/).closest('button') as HTMLButtonElement;
+    expect(dugme).not.toBeNull();
     expect(dugme).toBeDisabled();
 
     // Yanlış metin de açmaz (birebir "ANONIM" şart).
@@ -154,10 +159,15 @@ describe('KvkkSayfasi', () => {
   });
 
   it('ihraç formu kişi no olmadan gönderilmez', async () => {
-    const u = userEvent.setup();
+    const u = userEvent.setup({ delay: null });
     ekranaBas();
-    await u.click(screen.getByRole('button', { name: /hracı başlat/ }));
-    await waitFor(() => expect(screen.getByText(/kişi numarası gerekli/i)).toBeInTheDocument());
+    const baslat = screen.getByText(/hracı başlat/).closest('button');
+    expect(baslat).not.toBeNull();
+    await u.click(baslat!);
+    // antd form doğrulaması asenkron; paralel koşuda 1 sn'lik varsayılan beklemeyi aşabiliyor.
+    await waitFor(() => expect(screen.getByText(/kişi numarası gerekli/i)).toBeInTheDocument(), {
+      timeout: 5000,
+    });
     expect(ihracBaslat).not.toHaveBeenCalled();
   });
 });

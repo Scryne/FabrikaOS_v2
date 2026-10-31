@@ -61,6 +61,7 @@ def _personel_cevap(p: Personel) -> dict[str, Any]:
         ise_giris_tarihi=p.ise_giris_tarihi,
         yillik_izin_hakki=p.yillik_izin_hakki,
         kullanici_id=p.kullanici_id,
+        yonetici_id=p.yonetici_id,
         aktif=p.aktif,
         olusturma_tarihi=p.olusturma_tarihi,
     ).model_dump()
@@ -539,6 +540,7 @@ def _zimmet_cevap(z: Zimmet) -> dict[str, Any]:
         id=z.id,
         personel_id=z.personel_id,
         demirbas=z.demirbas,
+        kategori=z.kategori,
         seri_no=z.seri_no,
         zimmet_tarihi=z.zimmet_tarihi,
         iade_tarihi=z.iade_tarihi,
@@ -564,6 +566,7 @@ async def zimmet_olustur(
     zimmet = Zimmet(
         personel_id=govde.personel_id,
         demirbas=govde.demirbas,
+        kategori=govde.kategori,
         seri_no=govde.seri_no,
         zimmet_tarihi=govde.zimmet_tarihi,
         aciklama=govde.aciklama,

@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import {
   CheckCircleOutlined,
   FileSearchOutlined,
@@ -63,7 +64,22 @@ export function UygunsuzlukListesi() {
   const yazabilir = useAuthStore((s) => s.izinVar('kalite:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const [gorunum, setGorunum] = useState<Gorunum>('liste');
-  const [detayId, setDetayId] = useState<number | null>(null);
+  // ``?uygunsuzluk=<id>`` derin bağlantısı (ör. kazadan açılan CAPA) çekmeceyi açık başlatır.
+  const [aramaParam, setAramaParam] = useSearchParams();
+  const [detayId, setDetayId] = useState<number | null>(
+    () => Number(aramaParam.get('uygunsuzluk')) || null,
+  );
+  const detayKapat = () => {
+    setDetayId(null);
+    if (aramaParam.has('uygunsuzluk'))
+      setAramaParam(
+        (p) => {
+          p.delete('uygunsuzluk');
+          return p;
+        },
+        { replace: true },
+      );
+  };
   const [formAcik, setFormAcik] = useState(false);
 
   const { data, isPending, isError } = useUygunsuzluklar(param);
@@ -222,7 +238,7 @@ export function UygunsuzlukListesi() {
         />
       )}
 
-      <UygunsuzlukDetay id={detayId} kapat={() => setDetayId(null)} />
+      <UygunsuzlukDetay id={detayId} kapat={detayKapat} />
       <UygunsuzlukFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

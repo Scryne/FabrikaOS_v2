@@ -555,7 +555,8 @@ def ik(c: Istemci) -> None:
                 "unvan": unvan,
                 "eposta": f"{sicil.lower()}@demo.test",
                 "telefon": f"0532 000 00 {i:02d}",
-                "ise_giris_tarihi": _tarih(365 * (i % 5) + 90),
+                # S26-B: yıllık izin onayı bakiye ister; herkes en az 1 yıllık (ADR-0044).
+                "ise_giris_tarihi": _tarih(365 * (i % 5 + 1) + 90),
                 "yillik_izin_hakki": 14,
             },
         )
@@ -1214,6 +1215,216 @@ def tedarik_zinciri(c: Istemci) -> None:
     print("  tedarik zinciri: lokasyonlar, transfer, sayım, 2 sipariş, 1 hızlı kabul")
 
 
+def kalite_olgunluk(c: Istemci) -> None:
+    """S26-A: ölçüm cihazları + kalibrasyon, kontrol planı, SPC ölçümleri (son noktalarda kayma)."""
+    if _liste(c, "/api/v1/olcum-cihazlari"):
+        return
+    cihazlar = [
+        ("OC-001", "Dijital kumpas 0–150 mm", "Kumpas", "Son kontrol", 365, 40, "uygun"),
+        ("OC-002", "Mikrometre 0–25 mm", "Mikrometre", "CNC-2", 180, 170, "ayarlandi"),
+        ("OC-003", "Komparatör saat", "Komparatör", "Kalite lab", 365, None, None),
+    ]
+    kimlik: dict[str, int] = {}
+    for kod, ad, tur, konum, periyot, gun_once, sonuc in cihazlar:
+        ch = c.post(
+            "/api/v1/olcum-cihazlari",
+            {"kod": kod, "ad": ad, "tur": tur, "konum": konum, "kalibrasyon_periyodu_gun": periyot},
+        )
+        kimlik[kod] = ch["id"]
+        if gun_once is not None:
+            c.post(
+                f"/api/v1/olcum-cihazlari/{ch['id']}/kalibrasyonlar",
+                {
+                    "tarih": _tarih(gun_once),
+                    "sonuc": sonuc,
+                    "sertifika_no": f"KAL-{kod}",
+                    "kurum": "Akredite kalibrasyon lab.",
+                },
+            )
+    plan = c.post(
+        "/api/v1/kontrol-planlari",
+        {
+            "ad": "Mil işleme – son kontrol",
+            "operasyon": "CNC tornalama",
+            "karakteristikler": [
+                {
+                    "ad": "Mil çapı",
+                    "birim": "mm",
+                    "nominal": 25.0,
+                    "alt_tolerans": 24.95,
+                    "ust_tolerans": 25.05,
+                    "alt_grup_boyutu": 5,
+                    "cihaz_id": kimlik["OC-001"],
+                },
+                {
+                    "ad": "Toplam boy",
+                    "birim": "mm",
+                    "nominal": 120.0,
+                    "alt_tolerans": 119.8,
+                    "ust_tolerans": 120.2,
+                    "alt_grup_boyutu": 4,
+                    "cihaz_id": kimlik["OC-001"],
+                },
+                {
+                    "ad": "Yüzey pürüzlülüğü Ra",
+                    "birim": "µm",
+                    "ust_tolerans": 1.6,
+                    "alt_grup_boyutu": 3,
+                    "cihaz_id": kimlik["OC-003"],
+                },
+            ],
+        },
+    )
+    cap, boy, _ra = plan["karakteristikler"]
+    for i in range(25):
+        kayma = 0.012 if i >= 21 else 0.0  # son dört alt grupta takım aşınması
+        degerler = [round(rng.gauss(25.0 + kayma, 0.006), 4) for _ in range(5)]
+        c.post(f"/api/v1/karakteristikler/{cap['id']}/olcumler", {"degerler": degerler})
+        if i == 19:
+            c.post(f"/api/v1/karakteristikler/{cap['id']}/limitleri-sabitle", {})
+    for _ in range(12):
+        degerler = [round(rng.gauss(120.02, 0.03), 3) for _ in range(4)]
+        c.post(f"/api/v1/karakteristikler/{boy['id']}/olcumler", {"degerler": degerler})
+    print("  kalite olgunluğu: 3 cihaz, 1 plan, 37 alt grup")
+
+
+def isg_ik_olgunluk(c: Istemci) -> None:
+    """S26-B: org şeması, eğitim + KKD gereksinimleri, eğitimler, KKD teslimleri, tatbikat,
+    işe giriş listesi, kazadan CAPA."""
+    if _liste(c, "/api/v1/isg/tatbikatlar"):
+        return
+    personel = {p["sicil_no"]: p for p in _liste(c, "/api/v1/personeller")}
+    if "P-000" not in personel:
+        personel["P-000"] = c.post(
+            "/api/v1/personeller",
+            {
+                "sicil_no": "P-000",
+                "ad": "Kerem",
+                "soyad": "Aydın",
+                "departman": "Yönetim",
+                "unvan": "Genel Müdür",
+                "ise_giris_tarihi": _tarih(365 * 9),
+                "dogum_tarihi": "1978-04-12",
+            },
+        )
+    pid = {s: p["id"] for s, p in personel.items()}
+    org = {
+        "P-001": "P-000",
+        "P-003": "P-000",
+        "P-004": "P-000",
+        "P-005": "P-000",
+        "P-006": "P-000",
+        "P-007": "P-000",
+        "P-010": "P-000",
+        "P-008": "P-001",
+        "P-009": "P-001",
+        "P-002": "P-007",
+    }
+    for ast, ust in org.items():
+        if ast in pid and ust in pid:
+            c.put(f"/api/v1/personeller/{pid[ast]}/yonetici", {"yonetici_id": pid[ust]})
+
+    for dep, konu in [
+        ("", "temel_isg"),
+        ("Üretim", "yuksekte_calisma"),
+        ("Üretim", "is_makinesi"),
+        ("Bakım", "elektrik"),
+        ("Depo", "is_makinesi"),
+    ]:
+        c.post("/api/v1/isg/gereksinimler/egitim", {"departman": dep, "ad": konu})
+    for dep, kkd in [
+        ("Üretim", "Baret"),
+        ("Üretim", "İş ayakkabısı"),
+        ("Üretim", "Koruyucu gözlük"),
+        ("Bakım", "İş ayakkabısı"),
+        ("Bakım", "Yalıtkan eldiven"),
+        ("Depo", "İş ayakkabısı"),
+    ]:
+        c.post("/api/v1/isg/gereksinimler/kkd", {"departman": dep, "ad": kkd})
+
+    herkes = [pid[s] for s in pid if s not in ("P-010",)]
+    egitimler = [
+        ("temel_isg", "Temel İSG eğitimi (yıllık tekrar)", 300, 12, 8, herkes),
+        (
+            "is_makinesi",
+            "Forklift ve iş makinesi güvenliği",
+            350,
+            12,
+            4,
+            [pid["P-001"], pid["P-008"], pid["P-002"]],
+        ),
+        ("yuksekte_calisma", "Yüksekte çalışma", 400, 12, 4, [pid["P-008"]]),
+        ("elektrik", "Elektrik güvenliği (LOTO)", 90, 24, 6, [pid["P-004"]]),
+        ("ilk_yardim", "İlk yardım sertifika programı", 200, 36, 16, [pid["P-003"], pid["P-005"]]),
+    ]
+    for konu, baslik, gun_once, ay, saat, katilim in egitimler:
+        c.post(
+            "/api/v1/isg/egitimler",
+            {
+                "konu": konu,
+                "baslik": baslik,
+                "tarih": _tarih(gun_once),
+                "gecerlilik_ay": ay,
+                "sure_saat": saat,
+                "egitmen": "OSGB İSG uzmanı",
+                "personel_idler": katilim,
+            },
+        )
+    for sicil, kkdler in [
+        ("P-001", ["Baret", "İş ayakkabısı", "Koruyucu gözlük"]),
+        ("P-008", ["Baret", "İş ayakkabısı"]),
+        ("P-004", ["İş ayakkabısı"]),
+        ("P-002", ["İş ayakkabısı"]),
+    ]:
+        for kkd in kkdler:
+            c.post(
+                "/api/v1/zimmetler",
+                {
+                    "personel_id": pid[sicil],
+                    "demirbas": kkd,
+                    "kategori": "kkd",
+                    "zimmet_tarihi": _tarih(120),
+                },
+            )
+
+    c.post(
+        "/api/v1/isg/tatbikatlar",
+        {
+            "tur": "deprem",
+            "tarih": _tarih(300),
+            "yer": "Tüm tesis",
+            "katilimci_sayisi": 46,
+            "tahliye_suresi_sn": 312,
+            "bulgular": "Toplanma alanı tabelası arka girişten görünmüyor.",
+            "sonraki_tarih": _tarih(65),
+        },
+    )
+    c.post(
+        "/api/v1/isg/tatbikatlar",
+        {
+            "tur": "yangin",
+            "tarih": _tarih(120),
+            "yer": "Üretim holü",
+            "katilimci_sayisi": 38,
+            "tahliye_suresi_sn": 214,
+            "bulgular": "B kapısı kilitliydi; anahtar güvenlikte.",
+            "sonraki_tarih": _tarih(-60),
+        },
+    )
+
+    liste = c.post(f"/api/v1/personeller/{pid['P-009']}/kontrol-listeleri", {"tur": "giris"})
+    for madde in liste["maddeler"][:4]:
+        c.put(
+            f"/api/v1/kontrol-listeleri/{liste['id']}/maddeler/{madde['anahtar']}", {"tamam": True}
+        )
+
+    kazalar = _liste(c, "/api/v1/is-kazalari")
+    agir = next((k for k in kazalar if k["agirlik"] in ("agir", "orta")), None)
+    if agir is not None:
+        c.post(f"/api/v1/is-kazalari/{agir['id']}/capa", {})
+    print("  İSG + İK olgunluğu: org, 5 eğitim, 6 KKD gereksinimi, 2 tatbikat, giriş listesi")
+
+
 def tazele(c: Istemci, makineler: list[dict]) -> None:
     """Zaman serisini son kayıttan bugüne kadar uzatır (üretim vardiyaları + enerji).
 
@@ -1266,6 +1477,8 @@ def tamamla(c: Istemci, ben: dict) -> None:
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, m)
     tedarik_zinciri(c)
+    kalite_olgunluk(c)
+    isg_ik_olgunluk(c)
     raporlar(c)
     ai_egit(c)
 
@@ -1329,6 +1542,8 @@ def main() -> int:
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, _makineler_profilli(c))
     tedarik_zinciri(c)
+    kalite_olgunluk(c)
+    isg_ik_olgunluk(c)
     raporlar(c)
     ai_egit(c)
     print(f"\nTamam. Giriş: {args.admin_eposta} / {args.admin_parola}  (X-Tenant: {args.tenant})")

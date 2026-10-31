@@ -22,6 +22,22 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S26-B İSG + İK kurumsal tamamlama (ADR-0044)
+
+- Backend 741 test yeşil (MQTT hariç): S26-B birim 7 (hakediş tablosu, artık gün, yaş alt sınırı,
+  matris durumları), entegrasyon 7, göç up/down 1 (S26-A ve S26-B ayrı ayrı geri alınıp yeniden
+  kuruluyor). Mutasyonlar yakalandı: bakiye kapısı, `FOR UPDATE` kilidi (eşzamanlı iki onaydan
+  biri 409), açık zimmet kuralı, org döngü kontrolü.
+- Ön yüz 223 test yeşil (iki ardışık tam koşu). `KvkkSayfasi` testindeki zaman aşımı giderildi:
+  büyük sayfada `getByRole` ve karakter gecikmesi paralel koşuda 15 sn'yi aşıyordu; aynı öğeler
+  ucuz sorguyla bulunuyor, doğrulamalar değişmedi.
+- Canlı (demo tenant, tohum gerçek API'den): org şeması (genel müdür + 3 yönetici), eğitim matrisi
+  13 geçerli / 3 yaklaşıyor / 5 eksik-geçmiş, KKD eksikleri, iki tatbikat (biri gecikmiş plan),
+  yarım işe giriş listesi, kazadan açılmış CAPA. Ekran turu 1440/390: 11 görünüm, taşma 0,
+  konsol hatası 0.
+- Demo tohumunda işe giriş tarihleri en az 1 yıl öne alındı: yeni bakiye kapısı 90 günlük
+  personelin 5 günlük yıllık iznini (doğru olarak) reddediyordu.
+
 ## 2026-11-01 — S26-A kalite olgunluğu: SPC + kalibrasyon (ADR-0025)
 
 - Backend 726 test yeşil (MQTT gidiş-dönüşü hariç, Docker gerekiyor); S26-A'nın 18'i: SPC saf

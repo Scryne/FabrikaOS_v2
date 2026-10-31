@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 from decimal import Decimal
+from typing import Any
 
 from sqlalchemy import (
     BigInteger,
@@ -23,7 +24,9 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
@@ -48,6 +51,10 @@ class Personel(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     yillik_izin_hakki: Mapped[int] = mapped_column(Integer, default=14, nullable=False)
     kullanici_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("kullanici.id", ondelete="SET NULL"), index=True, nullable=True
+    )
+    # S26-B org şeması: doğrudan yönetici (döngü servis katmanında 409, ADR-0044).
+    yonetici_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("personel.id", ondelete="SET NULL"), index=True, nullable=True
     )
     aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
@@ -103,6 +110,10 @@ class Zimmet(KimlikMixin, ZamanDamgaliMixin, TenantBase):
         BigInteger, ForeignKey("personel.id", ondelete="CASCADE"), index=True, nullable=False
     )
     demirbas: Mapped[str] = mapped_column(String(200), nullable=False)
+    # S26-B: ``kkd`` kişisel koruyucu donanım teslimidir; KKD eksik raporu buna bakar.
+    kategori: Mapped[str] = mapped_column(
+        String(20), default="demirbas", index=True, nullable=False
+    )
     seri_no: Mapped[str] = mapped_column(String(100), default="", nullable=False)
     zimmet_tarihi: Mapped[date] = mapped_column(Date, nullable=False)
     iade_tarihi: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -124,3 +135,24 @@ class Sertifika(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     alinma_tarihi: Mapped[date] = mapped_column(Date, nullable=False)
     gecerlilik_tarihi: Mapped[date | None] = mapped_column(Date, index=True, nullable=True)
     aciklama: Mapped[str] = mapped_column(String(1000), default="", nullable=False)
+
+
+class PersonelKontrolListesi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
+    """İşe giriş / işten çıkış kontrol listesi (S26-B). ``maddeler`` sıralı JSON dizi.
+
+    Madde: ``{"anahtar", "ad", "tamam", "tamamlayan_kullanici_id", "zaman"}``. Çıkış listesi
+    tamamlanınca personel pasifleşir; açık zimmet varken tamamlanamaz (ADR-0044).
+    """
+
+    __tablename__ = "personel_kontrol_listeleri"
+    __table_args__ = (UniqueConstraint("personel_id", "tur", name="uq_personel_kontrol_listesi"),)
+
+    personel_id: Mapped[int] = mapped_column(
+        BigInteger, ForeignKey("personel.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    tur: Mapped[str] = mapped_column(String(10), nullable=False)
+    maddeler: Mapped[list[dict[str, Any]]] = mapped_column(JSONB, default=list, nullable=False)
+    durum: Mapped[str] = mapped_column(String(20), default="acik", index=True, nullable=False)
+    tamamlanma_tarihi: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )

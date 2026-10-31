@@ -58,6 +58,7 @@ class PersonelCevapDTO(BaseModel):
     ise_giris_tarihi: date | None = None
     yillik_izin_hakki: int
     kullanici_id: int | None = None
+    yonetici_id: int | None = None
     aktif: bool
     olusturma_tarihi: datetime
 
@@ -122,6 +123,7 @@ class FazlaMesaiCevapDTO(BaseModel):
 class ZimmetOlusturDTO(BaseModel):
     personel_id: int
     demirbas: str = Field(min_length=1, max_length=200)
+    kategori: str = Field(default="demirbas", pattern="^(demirbas|kkd)$")
     seri_no: str = Field(default="", max_length=100)
     zimmet_tarihi: date
     aciklama: str = Field(default="", max_length=1000)
@@ -131,6 +133,7 @@ class ZimmetCevapDTO(BaseModel):
     id: int
     personel_id: int
     demirbas: str
+    kategori: str = "demirbas"
     seri_no: str
     zimmet_tarihi: date
     iade_tarihi: date | None = None

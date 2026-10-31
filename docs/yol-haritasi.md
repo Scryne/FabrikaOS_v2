@@ -41,7 +41,7 @@ Definition of Done (DoD).
 | **6 — Kurumsal Derinleşme** (GA sonrası, v1.x) | S23 | Kurumsal güvenlik & uyum (2FA/SSO, denetim kaydı, KVKK self-servis) | ✅ ADR-0022 |
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ✅ ADR-0024 |
-| | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | 🔄 S26-A ✅ ADR-0025 |
+| | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ✅ ADR-0025, ADR-0044 |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
 | **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ⬜ |
@@ -504,14 +504,18 @@ fonksiyonu) → firma detayında.
 uygulanamaz (403) ve onay sonrası bakiye doğru düzelir; PO→kısmi teslim→stok bakiye zinciri
 uçtan uca testli; tedarikçi skoru deterministik; migration fan-out up/down. ADR-0024.
 
-#### 🔄 S26 — Kalite, İSG & İK Kurumsal Tamamlama (QMS olgunluğu)
+#### ✅ S26 — Kalite, İSG & İK Kurumsal Tamamlama (QMS olgunluğu)
 > **Durum (2026-11-01):** **S26-A ✅** (kalite, ADR-0025): kontrol planı + karakteristik, X̄-R
 > kartı + Western Electric 1–4 (saf, birim testli), faz-I limit sabitleme, Cp/Cpk; ölçüm cihazı +
 > kalibrasyon (geçersiz cihazla ölçüm 422, uygunsuz kalibrasyon → kullanım dışı); `kalite.spc_ihlal`
 > yalnız yeni noktada, `kalibrasyon.yaklasiyor` kenar tetikli; sözleşme/SLA/kalibrasyon taramaları
 > bildirim işçisinde zamanlı (önceden hiçbiri zamanlanmamıştı); uygunsuzluk ↔ tedarikçi. Beş ekran
-> + uygunsuzluk formu seçicileri. **S26-B ⬜** İSG (eğitim matrisi, KKD↔zimmet, tatbikat, kaza→CAPA)
-> ve İK (izin hakediş 409, org şeması, işe giriş/çıkış listesi).
+> + uygunsuzluk formu seçicileri. **S26-B ✅** (ADR-0044): yıllık izin hakedişi (md. 53 tablosu,
+> kümülatif devir) onayda `FOR UPDATE` ile zorlanır (aşım 409, eşzamanlı onay testli); org şeması
+> (döngü 409); işe giriş/çıkış listesi (açık zimmetle çıkış kapanmaz, tamamlanınca personel pasif);
+> İSG eğitim matrisi (geçerli/yaklaşıyor/geçmiş/eksik), KKD = `kkd` kategorili zimmet + departman
+> gereksinimi, acil durum tatbikatı, kaza → CAPA (kaza başına tek vaka, iki izin). Üç yeni ekran +
+> personel detayı sekmeleri. Bilinen sınır: izin günü takvim günü (iş günü takvimi sonraya).
 **Kalite:** `KontrolPlani` (ürün/operasyon başına karakteristik + tolerans); **SPC**
 (X̄-R kontrol grafiği verisi + Western Electric kural ihlali tespiti — saf fonksiyon,
 birim testli; ihlalde `kalite.spc_ihlal` outbox); `OlcumCihazi` + **kalibrasyon takibi**

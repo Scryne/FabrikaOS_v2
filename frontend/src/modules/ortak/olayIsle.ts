@@ -85,6 +85,7 @@ export function olayIsle(qc: QueryClient, olay: Olay): void {
     case 'ik.izin': {
       void qc.invalidateQueries({ queryKey: ['izin-talepleri'] });
       void qc.invalidateQueries({ queryKey: ['ik-ozet'] });
+      void qc.invalidateQueries({ queryKey: ['izin-bakiyesi'] }); // S26-B: onay bakiyeden düşer
       const izinId = typeof olay.id === 'number' ? olay.id : undefined;
       if (izinId !== undefined) void qc.invalidateQueries({ queryKey: ['izin-talebi', izinId] });
       break;

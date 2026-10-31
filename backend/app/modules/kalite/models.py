@@ -88,6 +88,14 @@ class Uygunsuzluk(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     makine_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("makineler.id", ondelete="SET NULL"), index=True, nullable=True
     )
+    # S26-B kaza → CAPA köprüsü: kaza başına tek vaka (UNIQUE), ADR-0044.
+    kaynak_kaza_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("is_kazalari.id", ondelete="SET NULL"),
+        unique=True,
+        index=True,
+        nullable=True,
+    )
     onem: Mapped[str] = mapped_column(String(20), default="orta", index=True, nullable=False)
     durum: Mapped[str] = mapped_column(String(20), default=ILK_DURUM, index=True, nullable=False)
     kok_neden: Mapped[str] = mapped_column(String(2000), default="", nullable=False)

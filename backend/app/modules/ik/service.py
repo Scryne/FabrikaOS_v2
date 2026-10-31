@@ -15,6 +15,7 @@ from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.kimlik.models import Kullanici
 from app.modules.ik import izin_durum
 from app.modules.ik.models import IzinTalebi
+from app.modules.ik.olgunluk import onay_oncesi_bakiye_kontrol
 
 
 def izin_gecici_kod() -> str:
@@ -70,6 +71,10 @@ async def izin_durum_gecisi(
             "Red nedeni gerekli",
             detaylar=[{"alan": "red_nedeni", "mesaj": "'reddedildi' için zorunlu"}],
         )
+
+    if hedef == "onaylandi":
+        # S26-B: yıllık izin bakiyeden düşer; aşım 409 (personel kilitli, ADR-0044).
+        await onay_oncesi_bakiye_kontrol(db, izin)
 
     izin.durum = hedef
     if hedef in ("onaylandi", "reddedildi"):

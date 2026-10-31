@@ -3975,6 +3975,266 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/personeller/{personel_id}/izin-bakiyesi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Yıllık izin hakedişi ve bakiyesi */
+        get: operations["izin_bakiyesi_api_v1_personeller__personel_id__izin_bakiyesi_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/personeller/{personel_id}/yonetici": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Doğrudan yönetici ata / kaldır */
+        put: operations["yonetici_ata_api_v1_personeller__personel_id__yonetici_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ik/org-semasi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Org şeması */
+        get: operations["org_semasi_api_v1_ik_org_semasi_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/personeller/{personel_id}/kontrol-listeleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Personelin işe giriş / çıkış kontrol listeleri */
+        get: operations["kontrol_listeleri_api_v1_personeller__personel_id__kontrol_listeleri_get"];
+        put?: never;
+        /** Kontrol listesi aç (varsa olanı döner) */
+        post: operations["kontrol_listesi_ac_api_v1_personeller__personel_id__kontrol_listeleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/kontrol-listeleri/{liste_id}/maddeler/{anahtar}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Kontrol maddesini işaretle / geri al */
+        put: operations["madde_isaretle_api_v1_kontrol_listeleri__liste_id__maddeler__anahtar__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/egitimler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İSG eğitimleri */
+        get: operations["egitimler_api_v1_isg_egitimler_get"];
+        put?: never;
+        /** Eğitim kaydı (katılımcılarla) */
+        post: operations["egitim_olustur_api_v1_isg_egitimler_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/egitimler/{egitim_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Eğitim detayı */
+        get: operations["egitim_detay_api_v1_isg_egitimler__egitim_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/egitimler/{egitim_id}/katilimcilar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Katılımcı listesini değiştir */
+        put: operations["katilimcilari_degistir_api_v1_isg_egitimler__egitim_id__katilimcilar_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/egitim-matrisi": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Eğitim matrisi */
+        get: operations["egitim_matrisi_api_v1_isg_egitim_matrisi_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/gereksinimler/{tur}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Departman gereksinimleri (egitim | kkd) */
+        get: operations["gereksinimler_api_v1_isg_gereksinimler__tur__get"];
+        put?: never;
+        /** Gereksinim ekle */
+        post: operations["gereksinim_ekle_api_v1_isg_gereksinimler__tur__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/gereksinimler/{tur}/{gereksinim_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Gereksinim kaldır */
+        delete: operations["gereksinim_sil_api_v1_isg_gereksinimler__tur___gereksinim_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/kkd-eksikleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** KKD eksikleri */
+        get: operations["kkd_eksikleri_api_v1_isg_kkd_eksikleri_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/tatbikatlar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tatbikatlar */
+        get: operations["tatbikatlar_api_v1_isg_tatbikatlar_get"];
+        put?: never;
+        /** Tatbikat kaydı */
+        post: operations["tatbikat_olustur_api_v1_isg_tatbikatlar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/isg/tatbikatlar/{tatbikat_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Tatbikat düzenle */
+        patch: operations["tatbikat_guncelle_api_v1_isg_tatbikatlar__tatbikat_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/is-kazalari/{kaza_id}/capa": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kazaya bağlı CAPA vakası (yoksa boş) */
+        get: operations["kaza_capa_api_v1_is_kazalari__kaza_id__capa_get"];
+        put?: never;
+        /** Kazadan CAPA vakası aç */
+        post: operations["kazadan_capa_api_v1_is_kazalari__kaza_id__capa_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4480,6 +4740,11 @@ export interface components {
             /** Dosya */
             dosya: string;
         };
+        /** CapaAcDTO */
+        CapaAcDTO: {
+            /** Sorumlu Kullanici Id */
+            sorumlu_kullanici_id?: number | null;
+        };
         /** CihazCevapDTO */
         CihazCevapDTO: {
             /** Id */
@@ -4830,6 +5095,64 @@ export interface components {
             /** Toplam Boyut */
             toplam_boyut: number;
         };
+        /** EgitimDTO */
+        EgitimDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Konu */
+            konu: string;
+            /** Baslik */
+            baslik: string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /** Sure Saat */
+            sure_saat: number;
+            /** Egitmen */
+            egitmen: string;
+            /** Gecerlilik Ay */
+            gecerlilik_ay: number;
+            /** Gecerlilik Sonu */
+            gecerlilik_sonu: string | null;
+            /** Aciklama */
+            aciklama: string;
+            /** Katilimci Sayisi */
+            katilimci_sayisi: number;
+        };
+        /** EgitimDetayDTO */
+        EgitimDetayDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Konu */
+            konu: string;
+            /** Baslik */
+            baslik: string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /** Sure Saat */
+            sure_saat: number;
+            /** Egitmen */
+            egitmen: string;
+            /** Gecerlilik Ay */
+            gecerlilik_ay: number;
+            /** Gecerlilik Sonu */
+            gecerlilik_sonu: string | null;
+            /** Aciklama */
+            aciklama: string;
+            /** Katilimci Sayisi */
+            katilimci_sayisi: number;
+            /** Katilimcilar */
+            katilimcilar: components["schemas"]["KatilimciDTO"][];
+        };
         /** EgitimIstekDTO */
         EgitimIstekDTO: {
             /**
@@ -4837,6 +5160,40 @@ export interface components {
              * @description Model türü
              */
             tur: string;
+        };
+        /** EgitimOlusturDTO */
+        EgitimOlusturDTO: {
+            /** Konu */
+            konu: string;
+            /** Baslik */
+            baslik: string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /**
+             * Sure Saat
+             * @default 0
+             */
+            sure_saat: number | string;
+            /**
+             * Egitmen
+             * @default
+             */
+            egitmen: string;
+            /**
+             * Gecerlilik Ay
+             * @default 12
+             */
+            gecerlilik_ay: number;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Personel Idler */
+            personel_idler?: number[];
         };
         /** EnerjiKirilimDTO */
         EnerjiKirilimDTO: {
@@ -5078,6 +5435,25 @@ export interface components {
              */
             aciklama: string;
         };
+        /** GereksinimDTO */
+        GereksinimDTO: {
+            /** Id */
+            id: number;
+            /** Departman */
+            departman: string;
+            /** Ad */
+            ad: string;
+        };
+        /** GereksinimOlusturDTO */
+        GereksinimOlusturDTO: {
+            /**
+             * Departman
+             * @default
+             */
+            departman: string;
+            /** Ad */
+            ad: string;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -5087,6 +5463,18 @@ export interface components {
         HakAyarlaDTO: {
             /** Acik */
             acik: boolean | null;
+        };
+        /** HakedisSatiriDTO */
+        HakedisSatiriDTO: {
+            /** Hizmet Yili */
+            hizmet_yili: number;
+            /**
+             * Dogdugu Tarih
+             * Format: date
+             */
+            dogdugu_tarih: string;
+            /** Gun */
+            gun: number;
         };
         /** IadeDTO */
         IadeDTO: {
@@ -5454,6 +5842,10 @@ export interface components {
             makine_id?: number | null;
             /** Raporlayan Kullanici Id */
             raporlayan_kullanici_id?: number | null;
+            /** Capa Uygunsuzluk Id */
+            capa_uygunsuzluk_id?: number | null;
+            /** Capa Kod */
+            capa_kod?: string | null;
             /**
              * Olusturma Tarihi
              * Format: date-time
@@ -5544,6 +5936,25 @@ export interface components {
             toplam_risk: number;
             /** Risk Matrisi */
             risk_matrisi: components["schemas"]["RiskHucreDTO"][];
+        };
+        /** IzinBakiyesiDTO */
+        IzinBakiyesiDTO: {
+            /** Personel Id */
+            personel_id: number;
+            /** Hakedilen */
+            hakedilen: number;
+            /** Kullanilan */
+            kullanilan: number;
+            /** Bakiye */
+            bakiye: number;
+            /** Kidem Yili */
+            kidem_yili: number;
+            /** Sonraki Hak Tarihi */
+            sonraki_hak_tarihi: string | null;
+            /** Sonraki Hak Gun */
+            sonraki_hak_gun: number;
+            /** Satirlar */
+            satirlar: components["schemas"]["HakedisSatiriDTO"][];
         };
         /** IzinTalebiCevapDTO */
         IzinTalebiCevapDTO: {
@@ -5912,6 +6323,44 @@ export interface components {
             /** Cihaz Id */
             cihaz_id?: number | null;
         };
+        /** KatilimciDTO */
+        KatilimciDTO: {
+            /** Personel Id */
+            personel_id: number;
+            /** Ad Soyad */
+            ad_soyad: string;
+            /** Departman */
+            departman: string;
+        };
+        /** KatilimcilarDTO */
+        KatilimcilarDTO: {
+            /** Personel Idler */
+            personel_idler: number[];
+        };
+        /** KazaCapaDTO */
+        KazaCapaDTO: {
+            /** Uygunsuzluk Id */
+            uygunsuzluk_id: number;
+            /** Kod */
+            kod: string;
+            /** Durum */
+            durum: string;
+            /** Onem */
+            onem: string;
+        };
+        /** KkdEksikDTO */
+        KkdEksikDTO: {
+            /** Personel Id */
+            personel_id: number;
+            /** Ad Soyad */
+            ad_soyad: string;
+            /** Departman */
+            departman: string;
+            /** Gerekli */
+            gerekli: string[];
+            /** Eksik */
+            eksik: string[];
+        };
         /**
          * KoltukDTO
          * @description Koltuk kullanımı; ``limit=None`` sınırsız demektir.
@@ -5921,6 +6370,40 @@ export interface components {
             limit: number | null;
             /** Kullanilan */
             kullanilan: number;
+        };
+        /** KontrolListesiDTO */
+        KontrolListesiDTO: {
+            /** Id */
+            id: number;
+            /** Personel Id */
+            personel_id: number;
+            /** Tur */
+            tur: string;
+            /** Durum */
+            durum: string;
+            /** Maddeler */
+            maddeler: components["schemas"]["KontrolMaddesiDTO"][];
+            /** Tamamlanan */
+            tamamlanan: number;
+            /** Toplam */
+            toplam: number;
+            /** Tamamlanma Tarihi */
+            tamamlanma_tarihi: string | null;
+            /** Acik Zimmet */
+            acik_zimmet: number;
+        };
+        /** KontrolMaddesiDTO */
+        KontrolMaddesiDTO: {
+            /** Anahtar */
+            anahtar: string;
+            /** Ad */
+            ad: string;
+            /** Tamam */
+            tamam: boolean;
+            /** Tamamlayan Kullanici Id */
+            tamamlayan_kullanici_id?: number | null;
+            /** Zaman */
+            zaman?: string | null;
         };
         /** KontrolPlaniDTO */
         KontrolPlaniDTO: {
@@ -6101,6 +6584,11 @@ export interface components {
             /** Kisi Id */
             kisi_id: number;
         };
+        /** ListeAcDTO */
+        ListeAcDTO: {
+            /** Tur */
+            tur: string;
+        };
         /** LokasyonOlusturDTO */
         LokasyonOlusturDTO: {
             /** Depo Id */
@@ -6111,6 +6599,11 @@ export interface components {
             ad: string;
             /** Ust Lokasyon Id */
             ust_lokasyon_id?: number | null;
+        };
+        /** MaddeDTO */
+        MaddeDTO: {
+            /** Tamam */
+            tamam: boolean;
         };
         /** MakineCevapDTO */
         MakineCevapDTO: {
@@ -6260,6 +6753,39 @@ export interface components {
              * @default false
              */
             lot_takipli: boolean;
+        };
+        /** MatrisDTO */
+        MatrisDTO: {
+            /** Konular */
+            konular: string[];
+            /** Personeller */
+            personeller: components["schemas"]["MatrisSatirDTO"][];
+            /** Ozet */
+            ozet: {
+                [key: string]: number;
+            };
+        };
+        /** MatrisHucreDTO */
+        MatrisHucreDTO: {
+            /** Durum */
+            durum: string;
+            /** Son Tarih */
+            son_tarih?: string | null;
+            /** Gecerlilik Sonu */
+            gecerlilik_sonu?: string | null;
+        };
+        /** MatrisSatirDTO */
+        MatrisSatirDTO: {
+            /** Personel Id */
+            personel_id: number;
+            /** Ad Soyad */
+            ad_soyad: string;
+            /** Departman */
+            departman: string;
+            /** Hucreler */
+            hucreler: {
+                [key: string]: components["schemas"]["MatrisHucreDTO"];
+            };
         };
         /** ModelKaydiCevapDTO */
         ModelKaydiCevapDTO: {
@@ -6595,6 +7121,21 @@ export interface components {
              */
             is_turu: string;
         };
+        /** OrgDugumDTO */
+        OrgDugumDTO: {
+            /** Id */
+            id: number;
+            /** Ad Soyad */
+            ad_soyad: string;
+            /** Unvan */
+            unvan: string;
+            /** Departman */
+            departman: string;
+            /** Yonetici Id */
+            yonetici_id: number | null;
+            /** Ast Sayisi */
+            ast_sayisi: number;
+        };
         /** OrtakCevapDTO */
         OrtakCevapDTO: {
             /** Id */
@@ -6761,6 +7302,8 @@ export interface components {
             yillik_izin_hakki: number;
             /** Kullanici Id */
             kullanici_id?: number | null;
+            /** Yonetici Id */
+            yonetici_id?: number | null;
             /** Aktif */
             aktif: boolean;
             /**
@@ -7941,6 +8484,74 @@ export interface components {
              */
             esik_gun: number;
         };
+        /** TatbikatDTO */
+        TatbikatDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Tur */
+            tur: string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /** Yer */
+            yer: string;
+            /** Katilimci Sayisi */
+            katilimci_sayisi: number;
+            /** Tahliye Suresi Sn */
+            tahliye_suresi_sn: number | null;
+            /** Bulgular */
+            bulgular: string;
+            /** Sonraki Tarih */
+            sonraki_tarih: string | null;
+            /** Yurutucu Kullanici Id */
+            yurutucu_kullanici_id: number | null;
+        };
+        /** TatbikatGuncelleDTO */
+        TatbikatGuncelleDTO: {
+            /** Yer */
+            yer?: string | null;
+            /** Katilimci Sayisi */
+            katilimci_sayisi?: number | null;
+            /** Tahliye Suresi Sn */
+            tahliye_suresi_sn?: number | null;
+            /** Bulgular */
+            bulgular?: string | null;
+            /** Sonraki Tarih */
+            sonraki_tarih?: string | null;
+        };
+        /** TatbikatOlusturDTO */
+        TatbikatOlusturDTO: {
+            /** Tur */
+            tur: string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /**
+             * Yer
+             * @default
+             */
+            yer: string;
+            /**
+             * Katilimci Sayisi
+             * @default 0
+             */
+            katilimci_sayisi: number;
+            /** Tahliye Suresi Sn */
+            tahliye_suresi_sn?: number | null;
+            /**
+             * Bulgular
+             * @default
+             */
+            bulgular: string;
+            /** Sonraki Tarih */
+            sonraki_tarih?: string | null;
+        };
         /**
          * TedarikciSkorDTO
          * @description Tedarikçi performans skoru (S-VB): 0-100 + bileşen kırılımı + dürüstlük notları.
@@ -8673,6 +9284,11 @@ export interface components {
             /** Boylam */
             boylam?: number | null;
         };
+        /** YoneticiDTO */
+        YoneticiDTO: {
+            /** Yonetici Id */
+            yonetici_id?: number | null;
+        };
         /** YorumOlusturDTO */
         YorumOlusturDTO: {
             /** Metin */
@@ -8933,6 +9549,21 @@ export interface components {
             data?: components["schemas"]["DysOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[EgitimDetayDTO] */
+        Zarf_EgitimDetayDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["EgitimDetayDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[EnerjiOlcumCevapDTO] */
         Zarf_EnerjiOlcumCevapDTO_: {
             /**
@@ -8991,6 +9622,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["FirmaCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[GereksinimDTO] */
+        Zarf_GereksinimDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["GereksinimDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[IhracCevapDTO] */
@@ -9143,6 +9789,21 @@ export interface components {
             data?: components["schemas"]["IsgOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[IzinBakiyesiDTO] */
+        Zarf_IzinBakiyesiDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["IzinBakiyesiDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[IzinTalebiCevapDTO] */
         Zarf_IzinTalebiCevapDTO_: {
             /**
@@ -9201,6 +9862,36 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["KaliteOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[KazaCapaDTO] */
+        Zarf_KazaCapaDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KazaCapaDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[KontrolListesiDTO] */
+        Zarf_KontrolListesiDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KontrolListesiDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[KontrolPlaniDetayDTO] */
@@ -9306,6 +9997,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["MalzemeCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[MatrisDTO] */
+        Zarf_MatrisDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["MatrisDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[ModelKaydiCevapDTO] */
@@ -9759,6 +10465,21 @@ export interface components {
             data?: components["schemas"]["TalepOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[TatbikatDTO] */
+        Zarf_TatbikatDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["TatbikatDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[TedarikciSkorDTO] */
         Zarf_TedarikciSkorDTO_: {
             /**
@@ -9832,6 +10553,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["TokenCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[Union[KazaCapaDTO, NoneType]] */
+        Zarf_Union_KazaCapaDTO__NoneType__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["KazaCapaDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[Union[dict[str, Any], NoneType]] */
@@ -9970,6 +10706,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["WebhookCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[YoneticiDTO] */
+        Zarf_YoneticiDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["YoneticiDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[ZimmetCevapDTO] */
@@ -10247,6 +10998,22 @@ export interface components {
             data?: components["schemas"]["DuyuruCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[EgitimDTO]] */
+        Zarf_list_EgitimDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["EgitimDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[EnerjiOlcumCevapDTO]] */
         Zarf_list_EnerjiOlcumCevapDTO__: {
             /**
@@ -10309,6 +11076,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["FirmaCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[GereksinimDTO]] */
+        Zarf_list_GereksinimDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["GereksinimDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[IhracCevapDTO]] */
@@ -10405,6 +11188,38 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["KaliteKontrolCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[KkdEksikDTO]] */
+        Zarf_list_KkdEksikDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["KkdEksikDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[KontrolListesiDTO]] */
+        Zarf_list_KontrolListesiDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["KontrolListesiDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[KontrolPlaniDTO]] */
@@ -10565,6 +11380,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["OperatorEslesmeCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[OrgDugumDTO]] */
+        Zarf_list_OrgDugumDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["OrgDugumDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[OrtakCevapDTO]] */
@@ -10855,6 +11686,22 @@ export interface components {
             data?: components["schemas"]["TalepCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[TatbikatDTO]] */
+        Zarf_list_TatbikatDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["TatbikatDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[TenantOzetDTO]] */
         Zarf_list_TenantOzetDTO__: {
             /**
@@ -11055,6 +11902,11 @@ export interface components {
             personel_id: number;
             /** Demirbas */
             demirbas: string;
+            /**
+             * Kategori
+             * @default demirbas
+             */
+            kategori: string;
             /** Seri No */
             seri_no: string;
             /**
@@ -11080,6 +11932,11 @@ export interface components {
             personel_id: number;
             /** Demirbas */
             demirbas: string;
+            /**
+             * Kategori
+             * @default demirbas
+             */
+            kategori: string;
             /**
              * Seri No
              * @default
@@ -20127,6 +20984,649 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_dict_str__Any__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    izin_bakiyesi_api_v1_personeller__personel_id__izin_bakiyesi_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_IzinBakiyesiDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    yonetici_ata_api_v1_personeller__personel_id__yonetici_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["YoneticiDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_YoneticiDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    org_semasi_api_v1_ik_org_semasi_get: {
+        parameters: {
+            query?: {
+                departman?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_OrgDugumDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontrol_listeleri_api_v1_personeller__personel_id__kontrol_listeleri_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_KontrolListesiDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kontrol_listesi_ac_api_v1_personeller__personel_id__kontrol_listeleri_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                personel_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ListeAcDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KontrolListesiDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    madde_isaretle_api_v1_kontrol_listeleri__liste_id__maddeler__anahtar__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                liste_id: number;
+                anahtar: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MaddeDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KontrolListesiDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    egitimler_api_v1_isg_egitimler_get: {
+        parameters: {
+            query?: {
+                konu?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_EgitimDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    egitim_olustur_api_v1_isg_egitimler_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EgitimOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EgitimDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    egitim_detay_api_v1_isg_egitimler__egitim_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                egitim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EgitimDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    katilimcilari_degistir_api_v1_isg_egitimler__egitim_id__katilimcilar_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                egitim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KatilimcilarDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EgitimDetayDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    egitim_matrisi_api_v1_isg_egitim_matrisi_get: {
+        parameters: {
+            query?: {
+                departman?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_MatrisDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gereksinimler_api_v1_isg_gereksinimler__tur__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tur: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_GereksinimDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gereksinim_ekle_api_v1_isg_gereksinimler__tur__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tur: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GereksinimOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_GereksinimDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    gereksinim_sil_api_v1_isg_gereksinimler__tur___gereksinim_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tur: string;
+                gereksinim_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_NoneType_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kkd_eksikleri_api_v1_isg_kkd_eksikleri_get: {
+        parameters: {
+            query?: {
+                departman?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_KkdEksikDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tatbikatlar_api_v1_isg_tatbikatlar_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_TatbikatDTO__"];
+                };
+            };
+        };
+    };
+    tatbikat_olustur_api_v1_isg_tatbikatlar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TatbikatOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TatbikatDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    tatbikat_guncelle_api_v1_isg_tatbikatlar__tatbikat_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tatbikat_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TatbikatGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_TatbikatDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kaza_capa_api_v1_is_kazalari__kaza_id__capa_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kaza_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_Union_KazaCapaDTO__NoneType__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kazadan_capa_api_v1_is_kazalari__kaza_id__capa_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kaza_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CapaAcDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_KazaCapaDTO_"];
                 };
             };
             /** @description Validation Error */

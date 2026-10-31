@@ -4,7 +4,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { DatePicker, Form, Input, InputNumber, Modal } from 'antd';
+import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 
 import { useMesaiOlustur, useSertifikaOlustur, useZimmetOlustur } from './hooks';
 
@@ -64,6 +64,7 @@ export function ZimmetFormu({ acik, kapat, personelId }: FormProps) {
     await olustur.mutateAsync({
       personel_id: personelId,
       demirbas: v.demirbas,
+      kategori: v.kategori ?? 'demirbas',
       seri_no: v.seri_no ?? '',
       zimmet_tarihi: v.zimmet_tarihi.format('YYYY-MM-DD'),
       aciklama: v.aciklama ?? '',
@@ -87,6 +88,16 @@ export function ZimmetFormu({ acik, kapat, personelId }: FormProps) {
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="demirbas" label={t('ik.demirbas')} rules={[{ required: true }]}>
           <Input maxLength={200} />
+        </Form.Item>
+        <Form.Item
+          name="kategori"
+          label={t('ik26.zimmet_kategori')}
+          initialValue="demirbas"
+          tooltip={t('ik26.zimmet_kategori_ipucu')}
+        >
+          <Select
+            options={['demirbas', 'kkd'].map((k) => ({ value: k, label: t(`ik26.kategori_${k}`) }))}
+          />
         </Form.Item>
         <Form.Item name="seri_no" label={t('ik.seri_no')}>
           <Input maxLength={100} />

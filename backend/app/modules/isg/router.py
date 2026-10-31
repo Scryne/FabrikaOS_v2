@@ -36,12 +36,13 @@ from app.modules.isg.schemas import (
     RiskDegerlendirmeOlusturDTO,
     RiskHucreDTO,
 )
+from app.modules.kalite.models import Uygunsuzluk
 
 router = APIRouter(tags=["İSG"], dependencies=[Depends(modul_gerekli("isg"))])
 
 
 # --- İş kazası ---
-def _kaza_cevap(k: IsKazasi) -> dict[str, Any]:
+def _kaza_cevap(k: IsKazasi, capa: tuple[int, str] | None = None) -> dict[str, Any]:
     return IsKazasiCevapDTO(
         id=k.id,
         kod=k.kod,
@@ -55,8 +56,22 @@ def _kaza_cevap(k: IsKazasi) -> dict[str, Any]:
         personel_id=k.personel_id,
         makine_id=k.makine_id,
         raporlayan_kullanici_id=k.raporlayan_kullanici_id,
+        capa_uygunsuzluk_id=capa[0] if capa else None,
+        capa_kod=capa[1] if capa else None,
         olusturma_tarihi=k.olusturma_tarihi,
     ).model_dump()
+
+
+async def _capa_haritasi(db: AsyncSession, kaza_idler: list[int]) -> dict[int, tuple[int, str]]:
+    """Kaza → (uygunsuzluk id, kod); listede tek sorgu (S26-B)."""
+    if not kaza_idler:
+        return {}
+    satirlar = await db.execute(
+        select(Uygunsuzluk.kaynak_kaza_id, Uygunsuzluk.id, Uygunsuzluk.kod).where(
+            Uygunsuzluk.kaynak_kaza_id.in_(kaza_idler)
+        )
+    )
+    return {int(k): (i, kod) for k, i, kod in satirlar if k is not None}
 
 
 def _kaza_dogrula(tur: str, agirlik: str) -> None:
@@ -146,7 +161,13 @@ async def kaza_listele(
         siralama=siralama,
         yon=yon,
     )
-    return sayfali([_kaza_cevap(k) for k in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+    capalar = await _capa_haritasi(db, [k.id for k in kayitlar])
+    return sayfali(
+        [_kaza_cevap(k, capalar.get(k.id)) for k in kayitlar],
+        sayfa=sayfa,
+        adet=adet,
+        toplam=toplam,
+    )
 
 
 @router.get(

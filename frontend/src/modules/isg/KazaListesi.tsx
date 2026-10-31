@@ -27,6 +27,7 @@ import { BOLUM_RENGI } from '@/tema/modulKimlik';
 import { RENKLER } from '@/tema/tema';
 
 import { type IsKazasi, useIsgOzet, useKazalar } from './hooks';
+import { KazaCapaHucre } from './KazaCapaHucre';
 import { KazaFormu } from './KazaFormu';
 
 const HAT = BOLUM_RENGI['menu.bolum_isg_ik'];
@@ -119,6 +120,11 @@ export function KazaListesi() {
       key: 'kaybedilen_gun',
       align: 'right',
       render: (v: number) => <span className="sayisal">{v}</span>,
+    },
+    {
+      title: t('isg26.capa'),
+      key: 'capa',
+      render: (_v, k) => <KazaCapaHucre kaza={k} />,
     },
   ];
 

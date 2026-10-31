@@ -1246,3 +1246,92 @@ a.varlik-ad:hover {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+/* S26-B İSG + İK (ADR-0044). */
+.ik26-bakiye-ozet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px 20px;
+  margin-bottom: 16px;
+}
+.ik26-bakiye-ozet > div {
+  display: grid;
+  gap: 2px;
+}
+.ik26-bakiye-sayi {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.ik26-bakiye-sayi small {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--metin-soluk);
+}
+.ik26-listeler {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+@media (min-width: 992px) {
+  .ik26-listeler {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.ik26-liste {
+  padding: 14px 16px;
+  border: 1px solid var(--kenarlik);
+  border-radius: 10px;
+  min-width: 0;
+}
+.ik26-liste-baslik {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.ik26-maddeler {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.ik26-maddeler li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.org-agac .ant-tree-node-content-wrapper {
+  padding: 4px 6px;
+}
+.org-dugum {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.org-dep {
+  margin: 0;
+}
+.isg26-gereksinimler {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+@media (min-width: 992px) {
+  .isg26-gereksinimler {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.isg26-gereksinim-form {
+  row-gap: 8px;
+  margin-bottom: 12px;
+}
+.isg26-sure {
+  display: flex;
+  gap: 8px;
+}

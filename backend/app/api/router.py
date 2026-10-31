@@ -28,9 +28,11 @@ from app.modules.enerji.router import router as enerji_router
 from app.modules.entegrasyon.anahtar_router import router as api_anahtar_router
 from app.modules.entegrasyon.disveri_router import router as disveri_router
 from app.modules.entegrasyon.router import router as entegrasyon_router
+from app.modules.ik.olgunluk_router import router as ik_olgunluk_router
 from app.modules.ik.router import router as ik_router
 from app.modules.ikiz.router import router as ikiz_router
 from app.modules.isemri.router import router as isemri_router
+from app.modules.isg.olgunluk_router import router as isg_olgunluk_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
 from app.modules.kalite.spc_router import router as kalite_spc_router
@@ -89,3 +91,5 @@ api_router.include_router(rapor_router)
 api_router.include_router(ws_router)
 api_router.include_router(aktarim_router)
 api_router.include_router(kalite_spc_router)
+api_router.include_router(ik_olgunluk_router)
+api_router.include_router(isg_olgunluk_router)

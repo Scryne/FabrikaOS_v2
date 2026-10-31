@@ -6,6 +6,11 @@ import '@/i18n';
 
 import { KazaListesi } from './KazaListesi';
 
+// S26-B CAPA hücresi (useMutation) — liste testinde ağ yok.
+vi.mock('./olgunlukHooks', () => ({
+  useKazadanCapa: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
 vi.mock('./hooks', () => {
   const sahteMutasyon = () => ({ mutateAsync: vi.fn(), isPending: false });
   return {

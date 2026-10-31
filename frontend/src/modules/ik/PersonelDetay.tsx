@@ -25,6 +25,8 @@ import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { useAuthStore } from '@/store/authStore';
 
 import { MesaiFormu, SertifikaFormu, ZimmetFormu } from './AltKayitFormlari';
+import { useIzinBakiyesi } from './olgunlukHooks';
+import { IzinBakiyesiSekmesi, KontrolListesiSekmesi, YoneticiSecici } from './PersonelOlgunluk';
 import {
   type FazlaMesai,
   type Sertifika,
@@ -114,7 +116,21 @@ function ZimmetSekmesi({ personelId }: { personelId: number }) {
   const [formAcik, setFormAcik] = useState(false);
 
   const kolonlar: ColumnsType<Zimmet> = [
-    { title: t('ik.demirbas'), dataIndex: 'demirbas', key: 'demirbas' },
+    {
+      title: t('ik.demirbas'),
+      dataIndex: 'demirbas',
+      key: 'demirbas',
+      render: (v: string, z) => (
+        <Space size={6}>
+          {v}
+          {z.kategori === 'kkd' && (
+            <Tag color="orange" bordered={false}>
+              {t('ik26.kategori_kkd_kisa')}
+            </Tag>
+          )}
+        </Space>
+      ),
+    },
     { title: t('ik.seri_no'), dataIndex: 'seri_no', key: 'seri_no' },
     { title: t('ik.zimmet_tarihi'), dataIndex: 'zimmet_tarihi', key: 'zimmet_tarihi' },
     {
@@ -215,6 +231,7 @@ export function PersonelDetay() {
   const mesailer = useMesailer(id);
   const zimmetler = useZimmetler(id);
   const sertifikalar = useSertifikalar(id);
+  const bakiye = useIzinBakiyesi(id);
   const [izinAcik, setIzinAcik] = useState(false);
 
   const onayliMesai = (mesailer.data ?? []).filter((m) => m.onayli).reduce((a, m) => a + m.saat, 0);
@@ -224,9 +241,10 @@ export function PersonelDetay() {
   const ozetMetrikler: OzetMetrik[] = [
     {
       anahtar: 'izin',
-      baslik: t('ik.kpi_izin'),
-      deger: String(personel?.yillik_izin_hakki ?? 0),
-      birim: t('ik.birim_gun'),
+      // S26-B: kanuni hakedişten kalan gün (işe giriş tarihi yoksa hesaplanamaz).
+      baslik: t('ik26.kalan_izin'),
+      deger: personel?.ise_giris_tarihi ? String(bakiye.data?.bakiye ?? '…') : '—',
+      birim: personel?.ise_giris_tarihi ? t('ik.birim_gun') : undefined,
       ikon: <CalendarOutlined />,
     },
     {
@@ -300,6 +318,9 @@ export function PersonelDetay() {
               {personel.departman || '—'}
             </Descriptions.Item>
             <Descriptions.Item label={t('ik.unvan')}>{personel.unvan || '—'}</Descriptions.Item>
+            <Descriptions.Item label={t('ik26.yonetici')}>
+              <YoneticiSecici personel={personel} />
+            </Descriptions.Item>
             <Descriptions.Item label={t('ik.telefon')}>{personel.telefon || '—'}</Descriptions.Item>
             <Descriptions.Item label={t('ik.eposta')}>{personel.eposta || '—'}</Descriptions.Item>
             <Descriptions.Item label={t('ik.ise_giris_tarihi')}>
@@ -320,6 +341,11 @@ export function PersonelDetay() {
             <Tabs
               items={[
                 {
+                  key: 'bakiye',
+                  label: t('ik26.sekme_bakiye'),
+                  children: <IzinBakiyesiSekmesi personel={personel} />,
+                },
+                {
                   key: 'mesai',
                   label: t('ik.sekme_mesai'),
                   children: <MesaiSekmesi personelId={id} />,
@@ -333,6 +359,11 @@ export function PersonelDetay() {
                   key: 'sertifika',
                   label: t('ik.sekme_sertifika'),
                   children: <SertifikaSekmesi personelId={id} />,
+                },
+                {
+                  key: 'kontrol',
+                  label: t('ik26.sekme_kontrol'),
+                  children: <KontrolListesiSekmesi personelId={id} />,
                 },
               ]}
             />
