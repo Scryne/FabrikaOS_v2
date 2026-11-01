@@ -56,8 +56,9 @@ async function hamIstek(
   govde?: unknown,
   kimlikli = true,
   jeton?: string,
+  ekBaslik?: Record<string, string>,
 ): Promise<Response> {
-  const headers: Record<string, string> = { Accept: 'application/json' };
+  const headers: Record<string, string> = { Accept: 'application/json', ...ekBaslik };
 
   const tenant = cozumleTenant();
   if (tenant) headers['X-Tenant'] = tenant;
@@ -138,13 +139,14 @@ async function istekCevap(
   yol: string,
   govde?: unknown,
   kimlikli = true,
+  ekBaslik?: Record<string, string>,
 ): Promise<Response> {
-  let cevap = await hamIstek(yontem, yol, govde, kimlikli);
+  let cevap = await hamIstek(yontem, yol, govde, kimlikli, undefined, ekBaslik);
 
   if (cevap.status === 401 && kimlikli) {
     const yeniAccess = await accessYenile();
     if (yeniAccess) {
-      cevap = await hamIstek(yontem, yol, govde, kimlikli);
+      cevap = await hamIstek(yontem, yol, govde, kimlikli, undefined, ekBaslik);
     } else {
       oturumDusur();
       throw new ApiHata(401, 'Oturum sona erdi, lütfen tekrar giriş yapın');
@@ -162,8 +164,10 @@ export async function istek<T>(
   yol: string,
   govde?: unknown,
   kimlikli = true,
+  /** Ek başlıklar (ör. Idempotency-Key); 401 sonrası yeniden denemede aynen gider. */
+  ekBaslik?: Record<string, string>,
 ): Promise<T> {
-  const cevap = await istekCevap(yontem, yol, govde, kimlikli);
+  const cevap = await istekCevap(yontem, yol, govde, kimlikli, ekBaslik);
   const zarf = await zarfOku<T>(cevap);
   return zarf.data as T;
 }

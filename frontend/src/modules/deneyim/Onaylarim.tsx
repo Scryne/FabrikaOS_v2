@@ -24,6 +24,7 @@ const TUR_RENK: Record<string, string> = {
   izin_talebi: '#b49cf7',
   fazla_mesai: '#f6b84b',
   sayim: '#67cdf9',
+  fatura: '#bef264',
 };
 
 export function Onaylarim() {
@@ -136,7 +137,7 @@ export function Onaylarim() {
             deger: String(kalemler.length),
             ikon: <InboxOutlined />,
           },
-          ...['satinalma_talebi', 'izin_talebi', 'fazla_mesai', 'sayim'].map((x) => ({
+          ...['satinalma_talebi', 'izin_talebi', 'fazla_mesai', 'sayim', 'fatura'].map((x) => ({
             anahtar: x,
             baslik: t(`onay.tur_${x}`),
             deger: String(sayac[x] ?? 0),

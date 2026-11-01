@@ -26,6 +26,7 @@ colors:
   hat-kalite: "#8b5cf6"
   hat-isg-ik: "#f59e0b"
   hat-ticari: "#34d399"
+  hat-finans: "#a3e635"
   hat-dokuman: "#f472b6"
   hat-zeka: "#d946ef"
   hat-yonetim: "#94a3b8"

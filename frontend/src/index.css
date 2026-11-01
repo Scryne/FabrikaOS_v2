@@ -32,6 +32,7 @@
   --hat-kalite: #8b5cf6;
   --hat-isg-ik: #f59e0b;
   --hat-ticari: #34d399;
+  --hat-finans: #a3e635;
   --hat-dokuman: #f472b6;
   --hat-zeka: #d946ef;
   --hat-yonetim: #94a3b8;
@@ -1426,4 +1427,73 @@ a.varlik-ad:hover {
     padding: 0 !important;
     margin: 0 !important;
   }
+}
+
+/* ── Finans (S29) ─────────────────────────────────────────────────────────── */
+.form-izgara-3 {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.2fr);
+  gap: 0 16px;
+}
+.fatura-kalemleri {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.fatura-kalem {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) 96px minmax(0, 1.2fr) 82px 32px;
+  gap: 8px;
+  align-items: start;
+}
+.fatura-kalem .ant-form-item {
+  margin-bottom: 8px;
+}
+.fatura-kalem-baslik {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  padding: 0 2px;
+}
+.fatura-toplam {
+  display: grid;
+  grid-template-columns: auto auto;
+  justify-content: end;
+  gap: 4px 24px;
+  margin: 16px 0;
+}
+.fatura-toplam dt {
+  color: var(--metin-soluk);
+  text-align: right;
+}
+.fatura-toplam dd {
+  margin: 0;
+  text-align: right;
+  min-width: 140px;
+}
+.fatura-toplam .genel {
+  font-weight: 600;
+  color: var(--metin);
+  border-top: 1px solid var(--kenarlik);
+  padding-top: 6px;
+}
+@media (max-width: 760px) {
+  .form-izgara-3 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fatura-kalem {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--kenarlik);
+  }
+  .fatura-kalem > :first-child {
+    grid-column: 1 / -1;
+  }
+  .fatura-kalem-baslik {
+    display: none;
+  }
+}
+
+.finans-tablo .sayisal {
+  white-space: nowrap;
 }

@@ -40,6 +40,7 @@ import {
   TeamOutlined,
   ThunderboltOutlined,
   ToolOutlined,
+  WalletOutlined,
   WifiOutlined,
 } from '@ant-design/icons';
 
@@ -53,6 +54,7 @@ export const BOLUM_RENGI: Record<string, string> = {
   'menu.bolum_kalite': '#8b5cf6',
   'menu.bolum_isg_ik': '#f59e0b',
   'menu.bolum_ticari': '#34d399',
+  'menu.bolum_finans': '#a3e635',
   'menu.bolum_dokuman': '#f472b6',
   'menu.bolum_zeka': '#d946ef',
   'menu.bolum_yonetim': '#94a3b8',
@@ -99,6 +101,10 @@ export const MENU_IKONLARI: Record<string, ReactNode> = {
   'ice-aktarma': <ImportOutlined />,
   'kontrol-planlari': <LineChartOutlined />,
   'olcum-cihazlari': <DashboardOutlined />,
+  'finans-ozet': <FundOutlined />,
+  faturalar: <FileTextOutlined />,
+  'cari-hesaplar': <BankOutlined />,
+  odemeler: <WalletOutlined />,
 };
 
 /**
@@ -123,6 +129,7 @@ export const MODUL_KIMLIK: Record<string, { bolum: string; anahtar: string }> = 
   ai: { bolum: 'menu.bolum_zeka', anahtar: 'tahminler' },
   analitik: { bolum: 'menu.bolum_zeka', anahtar: 'analitik' },
   rapor: { bolum: 'menu.bolum_zeka', anahtar: 'raporlar' },
+  finans: { bolum: 'menu.bolum_finans', anahtar: 'faturalar' },
 };
 
 export type ModulKimlik = {

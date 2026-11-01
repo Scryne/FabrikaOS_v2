@@ -23,6 +23,18 @@ import { IzinKapisi, KorunanRota } from '@/routes/KorunanRota';
 import { useAuthStore } from '@/store/authStore';
 
 // Rota düzeyi code-split (S27-A, ADR-0045): her sayfa kendi parçasında, ilk açılışta yüklenir.
+const FinansPano = lazy(() =>
+  import('@/modules/finans/FinansPano').then((m) => ({ default: m.FinansPano })),
+);
+const FaturaListesi = lazy(() =>
+  import('@/modules/finans/FaturaListesi').then((m) => ({ default: m.FaturaListesi })),
+);
+const CariHesaplar = lazy(() =>
+  import('@/modules/finans/CariHesaplar').then((m) => ({ default: m.CariHesaplar })),
+);
+const Odemeler = lazy(() =>
+  import('@/modules/finans/Odemeler').then((m) => ({ default: m.Odemeler })),
+);
 const Onaylarim = lazy(() =>
   import('@/modules/deneyim/Onaylarim').then((m) => ({ default: m.Onaylarim })),
 );
@@ -542,6 +554,38 @@ export function App() {
               element={
                 <IzinKapisi izin="satinalma:oku" modul="stok">
                   <SatinalmaTalepListesi />
+                </IzinKapisi>
+              }
+            />
+            <Route
+              path="finans"
+              element={
+                <IzinKapisi izin="finans:oku" modul="finans">
+                  <FinansPano />
+                </IzinKapisi>
+              }
+            />
+            <Route
+              path="faturalar"
+              element={
+                <IzinKapisi izin="finans:oku" modul="finans">
+                  <FaturaListesi />
+                </IzinKapisi>
+              }
+            />
+            <Route
+              path="cari-hesaplar"
+              element={
+                <IzinKapisi izin="finans:oku" modul="finans">
+                  <CariHesaplar />
+                </IzinKapisi>
+              }
+            />
+            <Route
+              path="odemeler"
+              element={
+                <IzinKapisi izin="finans:oku" modul="finans">
+                  <Odemeler />
                 </IzinKapisi>
               }
             />

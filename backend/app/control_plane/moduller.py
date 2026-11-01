@@ -34,6 +34,8 @@ MODUL_KATALOGU: dict[str, str] = {
     # S18 üst-segment eklentileri: yalnız deneme/kurumsal planlarında.
     "entegrasyon": "Entegrasyon (webhook, API anahtarları)",
     "dis-portal": "Dış Portal (müşteri self-servis)",
+    # S29 (Faz 7, ADR-0048): yeni satılabilir modül — yalnız deneme/kurumsal planlarında.
+    "finans": "Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet)",
 }
 
 

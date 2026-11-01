@@ -20,6 +20,9 @@ OLAY_TURU_KATALOGU: dict[str, str] = {
     "sla.asildi": "SLA hedef tarihi aşıldı",
     "kalite.spc_ihlal": "SPC kontrol kartı kural ihlali",
     "kalibrasyon.yaklasiyor": "Ölçüm cihazı kalibrasyonu yaklaşıyor",
+    "fatura.kesildi": "Fatura kesildi",
+    "odeme.alindi": "Tahsilat alındı",
+    "odeme.yapildi": "Firmaya ödeme yapıldı",
 }
 
 # API anahtarı kapsam beyaz-listesi: dış veri uçlarının istediği okuma izinleri.
@@ -28,4 +31,5 @@ ENTEGRASYON_IZIN_KAPSAMLARI: dict[str, str] = {
     "uretim:oku": "Üretim özeti okuma",
     "stok:oku": "Stok bakiyeleri okuma",
     "satinalma:oku": "Satınalma talepleri okuma",
+    "finans:oku": "Kesilmiş faturalar okuma (e-Fatura entegratörü)",
 }

@@ -60,6 +60,10 @@ IZIN_KATALOGU: dict[str, str] = {
     "entegrasyon:oku": "Webhook aboneliklerini ve API anahtarlarını görüntüleme",
     "entegrasyon:yaz": "Webhook aboneliği ve API anahtarı yönetimi",
     "dis:erisim": "Dış self-servis portal erişimi (firma-kapsamlı)",
+    # S29 (ADR-0048): finans — kesme/iade/iptal ve firmaya ödeme onay ister.
+    "finans:oku": "Cari, fatura ve ödemeleri görüntüleme",
+    "finans:yaz": "Fatura hazırlama ve tahsilat kaydı",
+    "finans:onay": "Fatura kesme/iptal ve firmaya ödeme kaydı",
     # S23 (ADR-0022) — güvenlik & uyum çekirdek yüzeyi (modül kapısı YOK: satılabilir
     # yetenek değil, her tenant'ın hakkı; yalnız izinle korunur).
     "denetim:oku": "Denetim kayıtlarını (audit trail) görüntüleme",
@@ -119,4 +123,8 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "dis-panel": frozenset({"dis:erisim"}),
     # Uyum sorumlusu (S23): denetim izi + KVKK ihraç/anonimleştirme yönetir.
     "uyum": frozenset({"denetim:oku", "kvkk:yonet"}),
+    # Finans (S29): fatura hazırlar, tahsilat girer; KESEMEZ (görev ayrımı).
+    "finans": frozenset({"finans:oku", "finans:yaz", "crm:oku"}),
+    # Finans onaylayan (mali işler yöneticisi): faturayı keser/iptal eder, ödeme kaydeder.
+    "finans-onaylayan": frozenset({"finans:oku", "finans:yaz", "finans:onay", "crm:oku"}),
 }

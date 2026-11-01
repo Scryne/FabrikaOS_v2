@@ -16904,6 +16904,1130 @@
           }
         }
       }
+    },
+    "/api/v1/faturalar": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Faturaları listele",
+        "operationId": "fatura_listele_api_v1_faturalar_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Sayfa"
+            }
+          },
+          {
+            "name": "adet",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Adet"
+            }
+          },
+          {
+            "name": "tur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tur"
+            }
+          },
+          {
+            "name": "durum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Durum"
+            }
+          },
+          {
+            "name": "firma_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Firma Id"
+            }
+          },
+          {
+            "name": "vadesi_gecmis",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Vadesi Gecmis"
+            }
+          },
+          {
+            "name": "arama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Arama"
+            }
+          },
+          {
+            "name": "siralama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Siralama"
+            }
+          },
+          {
+            "name": "yon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Yon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_FaturaCevapDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Fatura hazırla",
+        "operationId": "fatura_olustur_api_v1_faturalar_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaturaOlusturDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Fatura detayı",
+        "operationId": "fatura_detay_api_v1_faturalar__fatura_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Taslak faturayı düzenle",
+        "operationId": "fatura_guncelle_api_v1_faturalar__fatura_id__patch",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaturaGuncelleDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/gonder": {
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Onaya gönder",
+        "operationId": "fatura_gonder_api_v1_faturalar__fatura_id__gonder_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/kes": {
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Faturayı kes",
+        "operationId": "fatura_kes_api_v1_faturalar__fatura_id__kes_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/iade": {
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Faturayı düzeltmeye iade et",
+        "operationId": "fatura_iade_api_v1_faturalar__fatura_id__iade_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NedenDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/iptal": {
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Faturayı iptal et",
+        "operationId": "fatura_iptal_api_v1_faturalar__fatura_id__iptal_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NedenDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/pdf": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Fatura PDF'i (bilgi nüshası)",
+        "operationId": "fatura_pdf_indir_api_v1_faturalar__fatura_id__pdf_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/odemeler": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Tahsilat ve ödemeler",
+        "operationId": "odeme_listele_api_v1_odemeler_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Sayfa"
+            }
+          },
+          {
+            "name": "adet",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Adet"
+            }
+          },
+          {
+            "name": "tur",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tur"
+            }
+          },
+          {
+            "name": "firma_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Firma Id"
+            }
+          },
+          {
+            "name": "arama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Arama"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_OdemeCevapDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Tahsilat ya da ödeme kaydet",
+        "operationId": "odeme_olustur_api_v1_odemeler_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OdemeOlusturDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_OdemeCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cari-hesaplar": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Cari hesaplar",
+        "operationId": "cari_listele_api_v1_cari_hesaplar_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Sayfa"
+            }
+          },
+          {
+            "name": "adet",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Adet"
+            }
+          },
+          {
+            "name": "arama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Arama"
+            }
+          },
+          {
+            "name": "bakiyeli",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Bakiyeli"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_CariHesapCevapDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cari-hesaplar/{firma_id}/ekstre": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Cari hesap ekstresi",
+        "operationId": "cari_ekstre_api_v1_cari_hesaplar__firma_id__ekstre_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "firma_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Firma Id"
+            }
+          },
+          {
+            "name": "baslangic",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Baslangic"
+            }
+          },
+          {
+            "name": "bitis",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bitis"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_CariEkstreDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/finans/ozet": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Finans özeti",
+        "operationId": "finans_ozet_api_v1_finans_ozet_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FinansOzetDTO_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/finans/yaslandirma": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Alacak/borç yaşlandırma",
+        "operationId": "finans_yaslandirma_api_v1_finans_yaslandirma_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_YaslandirmaDTO_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/finans/maliyet": {
+      "get": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "Üretim malzeme maliyeti (kapanan iş emirleri)",
+        "operationId": "finans_maliyet_api_v1_finans_maliyet_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "gun",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 30,
+              "title": "Gun"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_IsEmriMaliyetiDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/faturalar/{fatura_id}/gib-durumu": {
+      "put": {
+        "tags": [
+          "Finans"
+        ],
+        "summary": "e-Fatura iletim durumunu işle (entegratörden dönen sonuç)",
+        "operationId": "fatura_gib_durumu_api_v1_faturalar__fatura_id__gib_durumu_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "fatura_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Fatura Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GibDurumDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaturaCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/entegrasyon/faturalar": {
+      "get": {
+        "tags": [
+          "Entegrasyon"
+        ],
+        "summary": "Kesilmiş faturalar (API anahtarı; kapsam finans:oku) — e-Fatura entegratörü için",
+        "operationId": "efatura_listele_api_v1_entegrasyon_faturalar_get",
+        "parameters": [
+          {
+            "name": "gib_durumu",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": "gonderilmedi",
+              "title": "Gib Durumu"
+            }
+          },
+          {
+            "name": "sayfa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Sayfa"
+            }
+          },
+          {
+            "name": "adet",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "title": "Adet"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_EFaturaDisDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -18465,6 +19589,147 @@
         "type": "object",
         "title": "CapaAcDTO"
       },
+      "CariEkstreDTO": {
+        "properties": {
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "type": "string",
+            "title": "Firma Ad"
+          },
+          "bakiye": {
+            "type": "number",
+            "title": "Bakiye"
+          },
+          "acilis_bakiyesi": {
+            "type": "number",
+            "title": "Acilis Bakiyesi"
+          },
+          "hareketler": {
+            "items": {
+              "$ref": "#/components/schemas/CariHareketCevapDTO"
+            },
+            "type": "array",
+            "title": "Hareketler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firma_id",
+          "firma_ad",
+          "bakiye",
+          "acilis_bakiyesi",
+          "hareketler"
+        ],
+        "title": "CariEkstreDTO"
+      },
+      "CariHareketCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "tarih": {
+            "type": "string",
+            "format": "date",
+            "title": "Tarih"
+          },
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "aciklama": {
+            "type": "string",
+            "title": "Aciklama"
+          },
+          "borc": {
+            "type": "number",
+            "title": "Borc"
+          },
+          "alacak": {
+            "type": "number",
+            "title": "Alacak"
+          },
+          "bakiye_sonrasi": {
+            "type": "number",
+            "title": "Bakiye Sonrasi"
+          },
+          "kaynak": {
+            "type": "string",
+            "title": "Kaynak"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarih",
+          "tur",
+          "aciklama",
+          "borc",
+          "alacak",
+          "bakiye_sonrasi",
+          "kaynak"
+        ],
+        "title": "CariHareketCevapDTO"
+      },
+      "CariHesapCevapDTO": {
+        "properties": {
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "type": "string",
+            "title": "Firma Ad"
+          },
+          "firma_tip": {
+            "type": "string",
+            "title": "Firma Tip"
+          },
+          "bakiye": {
+            "type": "number",
+            "title": "Bakiye"
+          },
+          "para_birimi": {
+            "type": "string",
+            "title": "Para Birimi"
+          },
+          "acik_fatura": {
+            "type": "integer",
+            "title": "Acik Fatura"
+          },
+          "vadesi_gecen": {
+            "type": "number",
+            "title": "Vadesi Gecen"
+          },
+          "son_hareket": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Son Hareket"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firma_id",
+          "firma_ad",
+          "firma_tip",
+          "bakiye",
+          "para_birimi",
+          "acik_fatura",
+          "vadesi_gecen",
+          "son_hareket"
+        ],
+        "title": "CariHesapCevapDTO"
+      },
       "CihazCevapDTO": {
         "properties": {
           "id": {
@@ -19360,6 +20625,94 @@
         "title": "DysOzetDTO",
         "description": "DYS (belge) KPI özeti (OzetSerit) — salt-okunur toplulaştırma."
       },
+      "EFaturaDisDTO": {
+        "properties": {
+          "ettn": {
+            "type": "string",
+            "title": "Ettn"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "senaryo": {
+            "type": "string",
+            "title": "Senaryo"
+          },
+          "fatura_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Fatura Tarihi"
+          },
+          "para_birimi": {
+            "type": "string",
+            "title": "Para Birimi"
+          },
+          "gonderen": {
+            "type": "string",
+            "title": "Gonderen"
+          },
+          "karsi_taraf_unvan": {
+            "type": "string",
+            "title": "Karsi Taraf Unvan"
+          },
+          "karsi_taraf_vkn": {
+            "type": "string",
+            "title": "Karsi Taraf Vkn"
+          },
+          "karsi_taraf_vergi_dairesi": {
+            "type": "string",
+            "title": "Karsi Taraf Vergi Dairesi"
+          },
+          "ara_toplam": {
+            "type": "number",
+            "title": "Ara Toplam"
+          },
+          "kdv_toplam": {
+            "type": "number",
+            "title": "Kdv Toplam"
+          },
+          "genel_toplam": {
+            "type": "number",
+            "title": "Genel Toplam"
+          },
+          "gib_durumu": {
+            "type": "string",
+            "title": "Gib Durumu"
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/FaturaKalemiCevapDTO"
+            },
+            "type": "array",
+            "title": "Kalemler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ettn",
+          "kod",
+          "tur",
+          "senaryo",
+          "fatura_tarihi",
+          "para_birimi",
+          "gonderen",
+          "karsi_taraf_unvan",
+          "karsi_taraf_vkn",
+          "karsi_taraf_vergi_dairesi",
+          "ara_toplam",
+          "kdv_toplam",
+          "genel_toplam",
+          "gib_durumu",
+          "kalemler"
+        ],
+        "title": "EFaturaDisDTO",
+        "description": "e-Fatura entegratörüne giden alanlar (UBL-TR'yi entegratör üretir; bu iskelet veridir)."
+      },
       "EgitimDTO": {
         "properties": {
           "id": {
@@ -19794,6 +21147,460 @@
         ],
         "title": "EnerjiTrendNoktaDTO"
       },
+      "FaturaCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "type": "string",
+            "title": "Firma Ad"
+          },
+          "durum": {
+            "type": "string",
+            "title": "Durum"
+          },
+          "fatura_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Fatura Tarihi"
+          },
+          "vade_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Vade Tarihi"
+          },
+          "para_birimi": {
+            "type": "string",
+            "title": "Para Birimi"
+          },
+          "ara_toplam": {
+            "type": "number",
+            "title": "Ara Toplam"
+          },
+          "kdv_toplam": {
+            "type": "number",
+            "title": "Kdv Toplam"
+          },
+          "genel_toplam": {
+            "type": "number",
+            "title": "Genel Toplam"
+          },
+          "odenen_tutar": {
+            "type": "number",
+            "title": "Odenen Tutar"
+          },
+          "acik_tutar": {
+            "type": "number",
+            "title": "Acik Tutar"
+          },
+          "vadesi_gecti": {
+            "type": "boolean",
+            "title": "Vadesi Gecti"
+          },
+          "aciklama": {
+            "type": "string",
+            "title": "Aciklama"
+          },
+          "iade_nedeni": {
+            "type": "string",
+            "title": "Iade Nedeni"
+          },
+          "iptal_nedeni": {
+            "type": "string",
+            "title": "Iptal Nedeni"
+          },
+          "satinalma_siparisi_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satinalma Siparisi Id"
+          },
+          "olusturan_kullanici_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Olusturan Kullanici Id"
+          },
+          "kesen_kullanici_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kesen Kullanici Id"
+          },
+          "kesim_tarihi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kesim Tarihi"
+          },
+          "ettn": {
+            "type": "string",
+            "title": "Ettn"
+          },
+          "senaryo": {
+            "type": "string",
+            "title": "Senaryo"
+          },
+          "gib_durumu": {
+            "type": "string",
+            "title": "Gib Durumu"
+          },
+          "olusturma_tarihi": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Olusturma Tarihi"
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/FaturaKalemiCevapDTO"
+            },
+            "type": "array",
+            "title": "Kalemler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kod",
+          "tur",
+          "firma_id",
+          "firma_ad",
+          "durum",
+          "fatura_tarihi",
+          "vade_tarihi",
+          "para_birimi",
+          "ara_toplam",
+          "kdv_toplam",
+          "genel_toplam",
+          "odenen_tutar",
+          "acik_tutar",
+          "vadesi_gecti",
+          "aciklama",
+          "iade_nedeni",
+          "iptal_nedeni",
+          "satinalma_siparisi_id",
+          "olusturan_kullanici_id",
+          "kesen_kullanici_id",
+          "kesim_tarihi",
+          "ettn",
+          "senaryo",
+          "gib_durumu",
+          "olusturma_tarihi",
+          "kalemler"
+        ],
+        "title": "FaturaCevapDTO"
+      },
+      "FaturaGuncelleDTO": {
+        "properties": {
+          "firma_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firma Id"
+          },
+          "fatura_tarihi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatura Tarihi"
+          },
+          "vade_gun": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 365.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vade Gun"
+          },
+          "kalemler": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FaturaKalemiGirdiDTO"
+                },
+                "type": "array",
+                "maxItems": 200,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kalemler"
+          },
+          "aciklama": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aciklama"
+          }
+        },
+        "type": "object",
+        "title": "FaturaGuncelleDTO"
+      },
+      "FaturaKalemiCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sira": {
+            "type": "integer",
+            "title": "Sira"
+          },
+          "aciklama": {
+            "type": "string",
+            "title": "Aciklama"
+          },
+          "malzeme_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Malzeme Id"
+          },
+          "miktar": {
+            "type": "number",
+            "title": "Miktar"
+          },
+          "birim": {
+            "type": "string",
+            "title": "Birim"
+          },
+          "birim_fiyat": {
+            "type": "number",
+            "title": "Birim Fiyat"
+          },
+          "kdv_orani": {
+            "type": "integer",
+            "title": "Kdv Orani"
+          },
+          "satir_tutari": {
+            "type": "number",
+            "title": "Satir Tutari"
+          },
+          "kdv_tutari": {
+            "type": "number",
+            "title": "Kdv Tutari"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sira",
+          "aciklama",
+          "malzeme_id",
+          "miktar",
+          "birim",
+          "birim_fiyat",
+          "kdv_orani",
+          "satir_tutari",
+          "kdv_tutari"
+        ],
+        "title": "FaturaKalemiCevapDTO"
+      },
+      "FaturaKalemiGirdiDTO": {
+        "properties": {
+          "aciklama": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Aciklama"
+          },
+          "miktar": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 999999999.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$"
+              }
+            ],
+            "title": "Miktar"
+          },
+          "birim": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Birim",
+            "default": "adet"
+          },
+          "birim_fiyat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 99999999999.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+              }
+            ],
+            "title": "Birim Fiyat"
+          },
+          "kdv_orani": {
+            "type": "integer",
+            "title": "Kdv Orani",
+            "default": 20
+          },
+          "malzeme_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Malzeme Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "aciklama",
+          "miktar",
+          "birim_fiyat"
+        ],
+        "title": "FaturaKalemiGirdiDTO"
+      },
+      "FaturaOlusturDTO": {
+        "properties": {
+          "tur": {
+            "type": "string",
+            "pattern": "^(satis|alis)$",
+            "title": "Tur"
+          },
+          "firma_id": {
+            "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "minimum": 1.0,
+            "title": "Firma Id"
+          },
+          "fatura_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Fatura Tarihi"
+          },
+          "vade_gun": {
+            "type": "integer",
+            "maximum": 365.0,
+            "minimum": 0.0,
+            "title": "Vade Gun",
+            "default": 30
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/FaturaKalemiGirdiDTO"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Kalemler"
+          },
+          "aciklama": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Aciklama",
+            "default": ""
+          },
+          "senaryo": {
+            "type": "string",
+            "pattern": "^(TEMELFATURA|TICARIFATURA|EARSIV)$",
+            "title": "Senaryo",
+            "default": "TEMELFATURA"
+          },
+          "satinalma_siparisi_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Satinalma Siparisi Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tur",
+          "firma_id",
+          "fatura_tarihi",
+          "kalemler"
+        ],
+        "title": "FaturaOlusturDTO"
+      },
       "FazlaMesaiCevapDTO": {
         "properties": {
           "id": {
@@ -19888,6 +21695,44 @@
           "saat"
         ],
         "title": "FazlaMesaiOlusturDTO"
+      },
+      "FinansOzetDTO": {
+        "properties": {
+          "acik_alacak": {
+            "type": "number",
+            "title": "Acik Alacak"
+          },
+          "acik_borc": {
+            "type": "number",
+            "title": "Acik Borc"
+          },
+          "vadesi_gecen_alacak": {
+            "type": "number",
+            "title": "Vadesi Gecen Alacak"
+          },
+          "bu_ay_satis": {
+            "type": "number",
+            "title": "Bu Ay Satis"
+          },
+          "bu_ay_tahsilat": {
+            "type": "number",
+            "title": "Bu Ay Tahsilat"
+          },
+          "onay_bekleyen": {
+            "type": "integer",
+            "title": "Onay Bekleyen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "acik_alacak",
+          "acik_borc",
+          "vadesi_gecen_alacak",
+          "bu_ay_satis",
+          "bu_ay_tahsilat",
+          "onay_bekleyen"
+        ],
+        "title": "FinansOzetDTO"
       },
       "FirmaCevapDTO": {
         "properties": {
@@ -20273,6 +22118,20 @@
           "ad"
         ],
         "title": "GereksinimOlusturDTO"
+      },
+      "GibDurumDTO": {
+        "properties": {
+          "gib_durumu": {
+            "type": "string",
+            "pattern": "^(gonderildi|kabul|red|hata)$",
+            "title": "Gib Durumu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gib_durumu"
+        ],
+        "title": "GibDurumDTO"
       },
       "HTTPValidationError": {
         "properties": {
@@ -21172,6 +23031,89 @@
           "ortalama_kapanma_saat"
         ],
         "title": "IsEmriKpiDTO"
+      },
+      "IsEmriMaliyetiDTO": {
+        "properties": {
+          "is_emri_id": {
+            "type": "integer",
+            "title": "Is Emri Id"
+          },
+          "is_emri_kod": {
+            "type": "string",
+            "title": "Is Emri Kod"
+          },
+          "urun_kod": {
+            "type": "string",
+            "title": "Urun Kod"
+          },
+          "urun_ad": {
+            "type": "string",
+            "title": "Urun Ad"
+          },
+          "miktar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Miktar"
+          },
+          "kapanis_tarihi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kapanis Tarihi"
+          },
+          "malzeme_maliyeti": {
+            "type": "number",
+            "title": "Malzeme Maliyeti"
+          },
+          "birim_maliyet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birim Maliyet"
+          },
+          "eksik_fiyat": {
+            "type": "integer",
+            "title": "Eksik Fiyat"
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/MaliyetKalemiDTO"
+            },
+            "type": "array",
+            "title": "Kalemler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_emri_id",
+          "is_emri_kod",
+          "urun_kod",
+          "urun_ad",
+          "miktar",
+          "kapanis_tarihi",
+          "malzeme_maliyeti",
+          "birim_maliyet",
+          "eksik_fiyat",
+          "kalemler"
+        ],
+        "title": "IsEmriMaliyetiDTO"
       },
       "IsEmriOlusturDTO": {
         "properties": {
@@ -23787,6 +25729,63 @@
         ],
         "title": "MakineOlusturDTO"
       },
+      "MaliyetKalemiDTO": {
+        "properties": {
+          "malzeme_id": {
+            "type": "integer",
+            "title": "Malzeme Id"
+          },
+          "malzeme_kod": {
+            "type": "string",
+            "title": "Malzeme Kod"
+          },
+          "malzeme_ad": {
+            "type": "string",
+            "title": "Malzeme Ad"
+          },
+          "miktar": {
+            "type": "number",
+            "title": "Miktar"
+          },
+          "birim_fiyat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birim Fiyat"
+          },
+          "fiyat_kaynagi": {
+            "type": "string",
+            "title": "Fiyat Kaynagi"
+          },
+          "tutar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tutar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "malzeme_id",
+          "malzeme_kod",
+          "malzeme_ad",
+          "miktar",
+          "birim_fiyat",
+          "fiyat_kaynagi",
+          "tutar"
+        ],
+        "title": "MaliyetKalemiDTO"
+      },
       "MalzemeCevapDTO": {
         "properties": {
           "id": {
@@ -24401,6 +26400,182 @@
         ],
         "title": "MtbfMttrCevapDTO",
         "description": "Makine güvenilirlik metrikleri (S24) — arıza yoksa metrikler null."
+      },
+      "NedenDTO": {
+        "properties": {
+          "neden": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Neden",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "NedenDTO"
+      },
+      "OdemeCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "type": "string",
+            "title": "Firma Ad"
+          },
+          "fatura_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatura Id"
+          },
+          "fatura_kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatura Kod"
+          },
+          "tarih": {
+            "type": "string",
+            "format": "date",
+            "title": "Tarih"
+          },
+          "tutar": {
+            "type": "number",
+            "title": "Tutar"
+          },
+          "yontem": {
+            "type": "string",
+            "title": "Yontem"
+          },
+          "aciklama": {
+            "type": "string",
+            "title": "Aciklama"
+          },
+          "olusturma_tarihi": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Olusturma Tarihi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kod",
+          "tur",
+          "firma_id",
+          "firma_ad",
+          "fatura_id",
+          "fatura_kod",
+          "tarih",
+          "tutar",
+          "yontem",
+          "aciklama",
+          "olusturma_tarihi"
+        ],
+        "title": "OdemeCevapDTO"
+      },
+      "OdemeOlusturDTO": {
+        "properties": {
+          "tur": {
+            "type": "string",
+            "pattern": "^(tahsilat|odeme)$",
+            "title": "Tur"
+          },
+          "firma_id": {
+            "type": "integer",
+            "maximum": 9.223372036854776e+18,
+            "minimum": 1.0,
+            "title": "Firma Id"
+          },
+          "tutar": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 99999999999.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$"
+              }
+            ],
+            "title": "Tutar"
+          },
+          "tarih": {
+            "type": "string",
+            "format": "date",
+            "title": "Tarih"
+          },
+          "yontem": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Yontem",
+            "default": "havale"
+          },
+          "fatura_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 9.223372036854776e+18,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fatura Id"
+          },
+          "aciklama": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Aciklama",
+            "default": ""
+          },
+          "idempotency_anahtari": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Idempotency Anahtari"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tur",
+          "firma_id",
+          "tutar",
+          "tarih"
+        ],
+        "title": "OdemeOlusturDTO"
       },
       "OeeCevapDTO": {
         "properties": {
@@ -31147,6 +33322,116 @@
         "type": "object",
         "title": "YaklasanTaraDTO"
       },
+      "YaslandirmaDTO": {
+        "properties": {
+          "alacak": {
+            "$ref": "#/components/schemas/YaslandirmaYonuDTO"
+          },
+          "borc": {
+            "$ref": "#/components/schemas/YaslandirmaYonuDTO"
+          }
+        },
+        "type": "object",
+        "required": [
+          "alacak",
+          "borc"
+        ],
+        "title": "YaslandirmaDTO"
+      },
+      "YaslandirmaFirmaDTO": {
+        "properties": {
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "type": "string",
+            "title": "Firma Ad"
+          },
+          "toplam": {
+            "type": "number",
+            "title": "Toplam"
+          },
+          "vadesi_gelmemis": {
+            "type": "number",
+            "title": "Vadesi Gelmemis"
+          },
+          "gun_0_30": {
+            "type": "number",
+            "title": "Gun 0 30"
+          },
+          "gun_31_60": {
+            "type": "number",
+            "title": "Gun 31 60"
+          },
+          "gun_61_90": {
+            "type": "number",
+            "title": "Gun 61 90"
+          },
+          "gun_90_ustu": {
+            "type": "number",
+            "title": "Gun 90 Ustu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "firma_id",
+          "firma_ad",
+          "toplam",
+          "vadesi_gelmemis",
+          "gun_0_30",
+          "gun_31_60",
+          "gun_61_90",
+          "gun_90_ustu"
+        ],
+        "title": "YaslandirmaFirmaDTO"
+      },
+      "YaslandirmaYonuDTO": {
+        "properties": {
+          "toplam": {
+            "type": "number",
+            "title": "Toplam"
+          },
+          "vadesi_gelmemis": {
+            "type": "number",
+            "title": "Vadesi Gelmemis"
+          },
+          "gun_0_30": {
+            "type": "number",
+            "title": "Gun 0 30"
+          },
+          "gun_31_60": {
+            "type": "number",
+            "title": "Gun 31 60"
+          },
+          "gun_61_90": {
+            "type": "number",
+            "title": "Gun 61 90"
+          },
+          "gun_90_ustu": {
+            "type": "number",
+            "title": "Gun 90 Ustu"
+          },
+          "firmalar": {
+            "items": {
+              "$ref": "#/components/schemas/YaslandirmaFirmaDTO"
+            },
+            "type": "array",
+            "title": "Firmalar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "toplam",
+          "vadesi_gelmemis",
+          "gun_0_30",
+          "gun_31_60",
+          "gun_61_90",
+          "gun_90_ustu",
+          "firmalar"
+        ],
+        "title": "YaslandirmaYonuDTO"
+      },
       "YenileGirdiDTO": {
         "properties": {
           "refresh_token": {
@@ -31584,6 +33869,42 @@
         "type": "object",
         "title": "Zarf[BildirimOzetDTO]"
       },
+      "Zarf_CariEkstreDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CariEkstreDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[CariEkstreDTO]"
+      },
       "Zarf_CihazCevapDTO_": {
         "properties": {
           "success": {
@@ -31980,6 +34301,42 @@
         "type": "object",
         "title": "Zarf[EnerjiOzetDTO]"
       },
+      "Zarf_FaturaCevapDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FaturaCevapDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[FaturaCevapDTO]"
+      },
       "Zarf_FazlaMesaiCevapDTO_": {
         "properties": {
           "success": {
@@ -32015,6 +34372,42 @@
         },
         "type": "object",
         "title": "Zarf[FazlaMesaiCevapDTO]"
+      },
+      "Zarf_FinansOzetDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FinansOzetDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[FinansOzetDTO]"
       },
       "Zarf_FirmaCevapDTO_": {
         "properties": {
@@ -33125,6 +35518,42 @@
         },
         "type": "object",
         "title": "Zarf[NoneType]"
+      },
+      "Zarf_OdemeCevapDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OdemeCevapDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[OdemeCevapDTO]"
       },
       "Zarf_OeeCevapDTO_": {
         "properties": {
@@ -34676,6 +37105,42 @@
         "type": "object",
         "title": "Zarf[WebhookCevapDTO]"
       },
+      "Zarf_YaslandirmaDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/YaslandirmaDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[YaslandirmaDTO]"
+      },
       "Zarf_YoneticiDTO_": {
         "properties": {
           "success": {
@@ -35146,6 +37611,46 @@
         "type": "object",
         "title": "Zarf[list[BildirimTercihDTO]]"
       },
+      "Zarf_list_CariHesapCevapDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/CariHesapCevapDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[CariHesapCevapDTO]]"
+      },
       "Zarf_list_CihazCevapDTO__": {
         "properties": {
           "success": {
@@ -35426,6 +37931,46 @@
         "type": "object",
         "title": "Zarf[list[DuyuruCevapDTO]]"
       },
+      "Zarf_list_EFaturaDisDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/EFaturaDisDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[EFaturaDisDTO]]"
+      },
       "Zarf_list_EgitimDTO__": {
         "properties": {
           "success": {
@@ -35545,6 +38090,46 @@
         },
         "type": "object",
         "title": "Zarf[list[EnerjiTrendNoktaDTO]]"
+      },
+      "Zarf_list_FaturaCevapDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FaturaCevapDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[FaturaCevapDTO]]"
       },
       "Zarf_list_FazlaMesaiCevapDTO__": {
         "properties": {
@@ -35785,6 +38370,46 @@
         },
         "type": "object",
         "title": "Zarf[list[IsEmriCevapDTO]]"
+      },
+      "Zarf_list_IsEmriMaliyetiDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/IsEmriMaliyetiDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[IsEmriMaliyetiDTO]]"
       },
       "Zarf_list_IsKazasiCevapDTO__": {
         "properties": {
@@ -36225,6 +38850,46 @@
         },
         "type": "object",
         "title": "Zarf[list[ModelKaydiCevapDTO]]"
+      },
+      "Zarf_list_OdemeCevapDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/OdemeCevapDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[OdemeCevapDTO]]"
       },
       "Zarf_list_OeeOzetSatirDTO__": {
         "properties": {

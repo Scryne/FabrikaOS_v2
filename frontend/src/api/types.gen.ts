@@ -4286,6 +4286,264 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/faturalar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Faturaları listele */
+        get: operations["fatura_listele_api_v1_faturalar_get"];
+        put?: never;
+        /** Fatura hazırla */
+        post: operations["fatura_olustur_api_v1_faturalar_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fatura detayı */
+        get: operations["fatura_detay_api_v1_faturalar__fatura_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Taslak faturayı düzenle */
+        patch: operations["fatura_guncelle_api_v1_faturalar__fatura_id__patch"];
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/gonder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Onaya gönder */
+        post: operations["fatura_gonder_api_v1_faturalar__fatura_id__gonder_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/kes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Faturayı kes */
+        post: operations["fatura_kes_api_v1_faturalar__fatura_id__kes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/iade": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Faturayı düzeltmeye iade et */
+        post: operations["fatura_iade_api_v1_faturalar__fatura_id__iade_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/iptal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Faturayı iptal et */
+        post: operations["fatura_iptal_api_v1_faturalar__fatura_id__iptal_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Fatura PDF'i (bilgi nüshası) */
+        get: operations["fatura_pdf_indir_api_v1_faturalar__fatura_id__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/odemeler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tahsilat ve ödemeler */
+        get: operations["odeme_listele_api_v1_odemeler_get"];
+        put?: never;
+        /** Tahsilat ya da ödeme kaydet */
+        post: operations["odeme_olustur_api_v1_odemeler_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cari-hesaplar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cari hesaplar */
+        get: operations["cari_listele_api_v1_cari_hesaplar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/cari-hesaplar/{firma_id}/ekstre": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Cari hesap ekstresi */
+        get: operations["cari_ekstre_api_v1_cari_hesaplar__firma_id__ekstre_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finans/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Finans özeti */
+        get: operations["finans_ozet_api_v1_finans_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finans/yaslandirma": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Alacak/borç yaşlandırma */
+        get: operations["finans_yaslandirma_api_v1_finans_yaslandirma_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/finans/maliyet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Üretim malzeme maliyeti (kapanan iş emirleri) */
+        get: operations["finans_maliyet_api_v1_finans_maliyet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/faturalar/{fatura_id}/gib-durumu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** e-Fatura iletim durumunu işle (entegratörden dönen sonuç) */
+        put: operations["fatura_gib_durumu_api_v1_faturalar__fatura_id__gib_durumu_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/entegrasyon/faturalar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Kesilmiş faturalar (API anahtarı; kapsam finans:oku) — e-Fatura entegratörü için */
+        get: operations["efatura_listele_api_v1_entegrasyon_faturalar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4814,6 +5072,60 @@ export interface components {
             /** Sorumlu Kullanici Id */
             sorumlu_kullanici_id?: number | null;
         };
+        /** CariEkstreDTO */
+        CariEkstreDTO: {
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string;
+            /** Bakiye */
+            bakiye: number;
+            /** Acilis Bakiyesi */
+            acilis_bakiyesi: number;
+            /** Hareketler */
+            hareketler: components["schemas"]["CariHareketCevapDTO"][];
+        };
+        /** CariHareketCevapDTO */
+        CariHareketCevapDTO: {
+            /** Id */
+            id: number;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /** Tur */
+            tur: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Borc */
+            borc: number;
+            /** Alacak */
+            alacak: number;
+            /** Bakiye Sonrasi */
+            bakiye_sonrasi: number;
+            /** Kaynak */
+            kaynak: string;
+        };
+        /** CariHesapCevapDTO */
+        CariHesapCevapDTO: {
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string;
+            /** Firma Tip */
+            firma_tip: string;
+            /** Bakiye */
+            bakiye: number;
+            /** Para Birimi */
+            para_birimi: string;
+            /** Acik Fatura */
+            acik_fatura: number;
+            /** Vadesi Gecen */
+            vadesi_gecen: number;
+            /** Son Hareket */
+            son_hareket: string | null;
+        };
         /** CihazCevapDTO */
         CihazCevapDTO: {
             /** Id */
@@ -5164,6 +5476,45 @@ export interface components {
             /** Toplam Boyut */
             toplam_boyut: number;
         };
+        /**
+         * EFaturaDisDTO
+         * @description e-Fatura entegratörüne giden alanlar (UBL-TR'yi entegratör üretir; bu iskelet veridir).
+         */
+        EFaturaDisDTO: {
+            /** Ettn */
+            ettn: string;
+            /** Kod */
+            kod: string;
+            /** Tur */
+            tur: string;
+            /** Senaryo */
+            senaryo: string;
+            /**
+             * Fatura Tarihi
+             * Format: date
+             */
+            fatura_tarihi: string;
+            /** Para Birimi */
+            para_birimi: string;
+            /** Gonderen */
+            gonderen: string;
+            /** Karsi Taraf Unvan */
+            karsi_taraf_unvan: string;
+            /** Karsi Taraf Vkn */
+            karsi_taraf_vkn: string;
+            /** Karsi Taraf Vergi Dairesi */
+            karsi_taraf_vergi_dairesi: string;
+            /** Ara Toplam */
+            ara_toplam: number;
+            /** Kdv Toplam */
+            kdv_toplam: number;
+            /** Genel Toplam */
+            genel_toplam: number;
+            /** Gib Durumu */
+            gib_durumu: string;
+            /** Kalemler */
+            kalemler: components["schemas"]["FaturaKalemiCevapDTO"][];
+        };
         /** EgitimDTO */
         EgitimDTO: {
             /** Id */
@@ -5335,6 +5686,160 @@ export interface components {
             /** Adet */
             adet: number;
         };
+        /** FaturaCevapDTO */
+        FaturaCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Tur */
+            tur: string;
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string;
+            /** Durum */
+            durum: string;
+            /**
+             * Fatura Tarihi
+             * Format: date
+             */
+            fatura_tarihi: string;
+            /**
+             * Vade Tarihi
+             * Format: date
+             */
+            vade_tarihi: string;
+            /** Para Birimi */
+            para_birimi: string;
+            /** Ara Toplam */
+            ara_toplam: number;
+            /** Kdv Toplam */
+            kdv_toplam: number;
+            /** Genel Toplam */
+            genel_toplam: number;
+            /** Odenen Tutar */
+            odenen_tutar: number;
+            /** Acik Tutar */
+            acik_tutar: number;
+            /** Vadesi Gecti */
+            vadesi_gecti: boolean;
+            /** Aciklama */
+            aciklama: string;
+            /** Iade Nedeni */
+            iade_nedeni: string;
+            /** Iptal Nedeni */
+            iptal_nedeni: string;
+            /** Satinalma Siparisi Id */
+            satinalma_siparisi_id: number | null;
+            /** Olusturan Kullanici Id */
+            olusturan_kullanici_id: number | null;
+            /** Kesen Kullanici Id */
+            kesen_kullanici_id: number | null;
+            /** Kesim Tarihi */
+            kesim_tarihi: string | null;
+            /** Ettn */
+            ettn: string;
+            /** Senaryo */
+            senaryo: string;
+            /** Gib Durumu */
+            gib_durumu: string;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+            /** Kalemler */
+            kalemler: components["schemas"]["FaturaKalemiCevapDTO"][];
+        };
+        /** FaturaGuncelleDTO */
+        FaturaGuncelleDTO: {
+            /** Firma Id */
+            firma_id?: number | null;
+            /** Fatura Tarihi */
+            fatura_tarihi?: string | null;
+            /** Vade Gun */
+            vade_gun?: number | null;
+            /** Kalemler */
+            kalemler?: components["schemas"]["FaturaKalemiGirdiDTO"][] | null;
+            /** Aciklama */
+            aciklama?: string | null;
+        };
+        /** FaturaKalemiCevapDTO */
+        FaturaKalemiCevapDTO: {
+            /** Id */
+            id: number;
+            /** Sira */
+            sira: number;
+            /** Aciklama */
+            aciklama: string;
+            /** Malzeme Id */
+            malzeme_id: number | null;
+            /** Miktar */
+            miktar: number;
+            /** Birim */
+            birim: string;
+            /** Birim Fiyat */
+            birim_fiyat: number;
+            /** Kdv Orani */
+            kdv_orani: number;
+            /** Satir Tutari */
+            satir_tutari: number;
+            /** Kdv Tutari */
+            kdv_tutari: number;
+        };
+        /** FaturaKalemiGirdiDTO */
+        FaturaKalemiGirdiDTO: {
+            /** Aciklama */
+            aciklama: string;
+            /** Miktar */
+            miktar: number | string;
+            /**
+             * Birim
+             * @default adet
+             */
+            birim: string;
+            /** Birim Fiyat */
+            birim_fiyat: number | string;
+            /**
+             * Kdv Orani
+             * @default 20
+             */
+            kdv_orani: number;
+            /** Malzeme Id */
+            malzeme_id?: number | null;
+        };
+        /** FaturaOlusturDTO */
+        FaturaOlusturDTO: {
+            /** Tur */
+            tur: string;
+            /** Firma Id */
+            firma_id: number;
+            /**
+             * Fatura Tarihi
+             * Format: date
+             */
+            fatura_tarihi: string;
+            /**
+             * Vade Gun
+             * @default 30
+             */
+            vade_gun: number;
+            /** Kalemler */
+            kalemler: components["schemas"]["FaturaKalemiGirdiDTO"][];
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /**
+             * Senaryo
+             * @default TEMELFATURA
+             */
+            senaryo: string;
+            /** Satinalma Siparisi Id */
+            satinalma_siparisi_id?: number | null;
+        };
         /** FazlaMesaiCevapDTO */
         FazlaMesaiCevapDTO: {
             /** Id */
@@ -5376,6 +5881,21 @@ export interface components {
              * @default
              */
             aciklama: string;
+        };
+        /** FinansOzetDTO */
+        FinansOzetDTO: {
+            /** Acik Alacak */
+            acik_alacak: number;
+            /** Acik Borc */
+            acik_borc: number;
+            /** Vadesi Gecen Alacak */
+            vadesi_gecen_alacak: number;
+            /** Bu Ay Satis */
+            bu_ay_satis: number;
+            /** Bu Ay Tahsilat */
+            bu_ay_tahsilat: number;
+            /** Onay Bekleyen */
+            onay_bekleyen: number;
         };
         /** FirmaCevapDTO */
         FirmaCevapDTO: {
@@ -5522,6 +6042,11 @@ export interface components {
             departman: string;
             /** Ad */
             ad: string;
+        };
+        /** GibDurumDTO */
+        GibDurumDTO: {
+            /** Gib Durumu */
+            gib_durumu: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -5834,6 +6359,29 @@ export interface components {
             kapanan: number;
             /** Ortalama Kapanma Saat */
             ortalama_kapanma_saat: number | null;
+        };
+        /** IsEmriMaliyetiDTO */
+        IsEmriMaliyetiDTO: {
+            /** Is Emri Id */
+            is_emri_id: number;
+            /** Is Emri Kod */
+            is_emri_kod: string;
+            /** Urun Kod */
+            urun_kod: string;
+            /** Urun Ad */
+            urun_ad: string;
+            /** Miktar */
+            miktar: number | null;
+            /** Kapanis Tarihi */
+            kapanis_tarihi: string | null;
+            /** Malzeme Maliyeti */
+            malzeme_maliyeti: number;
+            /** Birim Maliyet */
+            birim_maliyet: number | null;
+            /** Eksik Fiyat */
+            eksik_fiyat: number;
+            /** Kalemler */
+            kalemler: components["schemas"]["MaliyetKalemiDTO"][];
         };
         /** IsEmriOlusturDTO */
         IsEmriOlusturDTO: {
@@ -6732,6 +7280,23 @@ export interface components {
             /** Boylam */
             boylam?: number | null;
         };
+        /** MaliyetKalemiDTO */
+        MaliyetKalemiDTO: {
+            /** Malzeme Id */
+            malzeme_id: number;
+            /** Malzeme Kod */
+            malzeme_kod: string;
+            /** Malzeme Ad */
+            malzeme_ad: string;
+            /** Miktar */
+            miktar: number;
+            /** Birim Fiyat */
+            birim_fiyat: number | null;
+            /** Fiyat Kaynagi */
+            fiyat_kaynagi: string;
+            /** Tutar */
+            tutar: number | null;
+        };
         /** MalzemeCevapDTO */
         MalzemeCevapDTO: {
             /** Id */
@@ -6937,6 +7502,75 @@ export interface components {
             mtbf_saat?: number | null;
             /** Mttr Saat */
             mttr_saat?: number | null;
+        };
+        /** NedenDTO */
+        NedenDTO: {
+            /**
+             * Neden
+             * @default
+             */
+            neden: string;
+        };
+        /** OdemeCevapDTO */
+        OdemeCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Tur */
+            tur: string;
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string;
+            /** Fatura Id */
+            fatura_id: number | null;
+            /** Fatura Kod */
+            fatura_kod: string | null;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /** Tutar */
+            tutar: number;
+            /** Yontem */
+            yontem: string;
+            /** Aciklama */
+            aciklama: string;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+        };
+        /** OdemeOlusturDTO */
+        OdemeOlusturDTO: {
+            /** Tur */
+            tur: string;
+            /** Firma Id */
+            firma_id: number;
+            /** Tutar */
+            tutar: number | string;
+            /**
+             * Tarih
+             * Format: date
+             */
+            tarih: string;
+            /**
+             * Yontem
+             * @default havale
+             */
+            yontem: string;
+            /** Fatura Id */
+            fatura_id?: number | null;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
+            /** Idempotency Anahtari */
+            idempotency_anahtari?: string | null;
         };
         /** OeeCevapDTO */
         OeeCevapDTO: {
@@ -9357,6 +9991,47 @@ export interface components {
              */
             esik_gun: number;
         };
+        /** YaslandirmaDTO */
+        YaslandirmaDTO: {
+            alacak: components["schemas"]["YaslandirmaYonuDTO"];
+            borc: components["schemas"]["YaslandirmaYonuDTO"];
+        };
+        /** YaslandirmaFirmaDTO */
+        YaslandirmaFirmaDTO: {
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string;
+            /** Toplam */
+            toplam: number;
+            /** Vadesi Gelmemis */
+            vadesi_gelmemis: number;
+            /** Gun 0 30 */
+            gun_0_30: number;
+            /** Gun 31 60 */
+            gun_31_60: number;
+            /** Gun 61 90 */
+            gun_61_90: number;
+            /** Gun 90 Ustu */
+            gun_90_ustu: number;
+        };
+        /** YaslandirmaYonuDTO */
+        YaslandirmaYonuDTO: {
+            /** Toplam */
+            toplam: number;
+            /** Vadesi Gelmemis */
+            vadesi_gelmemis: number;
+            /** Gun 0 30 */
+            gun_0_30: number;
+            /** Gun 31 60 */
+            gun_31_60: number;
+            /** Gun 61 90 */
+            gun_61_90: number;
+            /** Gun 90 Ustu */
+            gun_90_ustu: number;
+            /** Firmalar */
+            firmalar: components["schemas"]["YaslandirmaFirmaDTO"][];
+        };
         /** YenileGirdiDTO */
         YenileGirdiDTO: {
             /** Refresh Token */
@@ -9533,6 +10208,21 @@ export interface components {
             data?: components["schemas"]["BildirimOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[CariEkstreDTO] */
+        Zarf_CariEkstreDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["CariEkstreDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[CihazCevapDTO] */
         Zarf_CihazCevapDTO_: {
             /**
@@ -9698,6 +10388,21 @@ export interface components {
             data?: components["schemas"]["EnerjiOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[FaturaCevapDTO] */
+        Zarf_FaturaCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["FaturaCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[FazlaMesaiCevapDTO] */
         Zarf_FazlaMesaiCevapDTO_: {
             /**
@@ -9711,6 +10416,21 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["FazlaMesaiCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[FinansOzetDTO] */
+        Zarf_FinansOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["FinansOzetDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[FirmaCevapDTO] */
@@ -10177,6 +10897,21 @@ export interface components {
             message: string;
             /** Data */
             data?: null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[OdemeCevapDTO] */
+        Zarf_OdemeCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["OdemeCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[OeeCevapDTO] */
@@ -10827,6 +11562,21 @@ export interface components {
             data?: components["schemas"]["WebhookCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[YaslandirmaDTO] */
+        Zarf_YaslandirmaDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["YaslandirmaDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[YoneticiDTO] */
         Zarf_YoneticiDTO_: {
             /**
@@ -11021,6 +11771,22 @@ export interface components {
             data?: components["schemas"]["BildirimTercihDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[CariHesapCevapDTO]] */
+        Zarf_list_CariHesapCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["CariHesapCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[CihazCevapDTO]] */
         Zarf_list_CihazCevapDTO__: {
             /**
@@ -11133,6 +11899,22 @@ export interface components {
             data?: components["schemas"]["DuyuruCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[EFaturaDisDTO]] */
+        Zarf_list_EFaturaDisDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["EFaturaDisDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[EgitimDTO]] */
         Zarf_list_EgitimDTO__: {
             /**
@@ -11179,6 +11961,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["EnerjiTrendNoktaDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[FaturaCevapDTO]] */
+        Zarf_list_FaturaCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["FaturaCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[FazlaMesaiCevapDTO]] */
@@ -11275,6 +12073,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["IsEmriCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[IsEmriMaliyetiDTO]] */
+        Zarf_list_IsEmriMaliyetiDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["IsEmriMaliyetiDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[IsKazasiCevapDTO]] */
@@ -11451,6 +12265,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["ModelKaydiCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[OdemeCevapDTO]] */
+        Zarf_list_OdemeCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["OdemeCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[OeeOzetSatirDTO]] */
@@ -21843,6 +22673,584 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_KazaCapaDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_listele_api_v1_faturalar_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                tur?: string | null;
+                durum?: string | null;
+                firma_id?: number | null;
+                vadesi_gecmis?: boolean;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_FaturaCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_olustur_api_v1_faturalar_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaturaOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_detay_api_v1_faturalar__fatura_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_guncelle_api_v1_faturalar__fatura_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaturaGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_gonder_api_v1_faturalar__fatura_id__gonder_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_kes_api_v1_faturalar__fatura_id__kes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_iade_api_v1_faturalar__fatura_id__iade_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NedenDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_iptal_api_v1_faturalar__fatura_id__iptal_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NedenDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_pdf_indir_api_v1_faturalar__fatura_id__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    odeme_listele_api_v1_odemeler_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                tur?: string | null;
+                firma_id?: number | null;
+                arama?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_OdemeCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    odeme_olustur_api_v1_odemeler_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OdemeOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OdemeCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cari_listele_api_v1_cari_hesaplar_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                arama?: string | null;
+                bakiyeli?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_CariHesapCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cari_ekstre_api_v1_cari_hesaplar__firma_id__ekstre_get: {
+        parameters: {
+            query?: {
+                baslangic?: string | null;
+                bitis?: string | null;
+            };
+            header?: never;
+            path: {
+                firma_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_CariEkstreDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    finans_ozet_api_v1_finans_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FinansOzetDTO_"];
+                };
+            };
+        };
+    };
+    finans_yaslandirma_api_v1_finans_yaslandirma_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_YaslandirmaDTO_"];
+                };
+            };
+        };
+    };
+    finans_maliyet_api_v1_finans_maliyet_get: {
+        parameters: {
+            query?: {
+                gun?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_IsEmriMaliyetiDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    fatura_gib_durumu_api_v1_faturalar__fatura_id__gib_durumu_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fatura_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GibDurumDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaturaCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    efatura_listele_api_v1_entegrasyon_faturalar_get: {
+        parameters: {
+            query?: {
+                gib_durumu?: string | null;
+                sayfa?: number;
+                adet?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_EFaturaDisDTO__"];
                 };
             };
             /** @description Validation Error */

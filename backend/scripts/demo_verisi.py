@@ -116,12 +116,14 @@ def kullanicilar(c: Istemci) -> None:
         ("ik@demo.test", "Zeynep Arslan", ["ik"]),
         ("ik.yonetici@demo.test", "Murat Çelik", ["ik-onaylayan"]),
         ("crm@demo.test", "Deniz Aydın", ["crm"]),
+        ("finans@demo.test", "Selin Kaya", ["finans"]),
+        ("mali.isler@demo.test", "Okan Yurt", ["finans-onaylayan"]),
     ]:
         c.post(
             "/api/v1/kullanicilar",
             {"eposta": eposta, "parola": "Demo1234!", "ad_soyad": ad, "roller": roller},
         )
-    print("  kullanıcılar: 7")
+    print("  kullanıcılar: 9")
 
 
 # Gerçekçi metal işleme hattı — soldan sağa akış (Kesim → Büküm → Talaşlı İmalat →
@@ -1478,6 +1480,179 @@ def tazele(c: Istemci, makineler: list[dict]) -> None:
         print(f"  enerji tazelendi: +{n}")
 
 
+def finans(c: Istemci) -> None:
+    """S29: satış/alış faturaları, tahsilat ve ödemeler; kimi vadesi geçmiş, biri onay bekliyor.
+
+    Faturayı finans kullanıcısı hazırlar, mali işler yöneticisi keser (görev ayrımı); tahsilatı
+    finans, firmaya ödemeyi mali işler girer.
+    """
+    if _liste(c, "/api/v1/faturalar"):
+        return
+    kullanicilar = {k["eposta"] for k in _liste(c, "/api/v1/kullanicilar")}
+    for eposta, ad, rol in (
+        ("finans@demo.test", "Selin Kaya", "finans"),
+        ("mali.isler@demo.test", "Okan Yurt", "finans-onaylayan"),
+    ):
+        if eposta not in kullanicilar:
+            c.post(
+                "/api/v1/kullanicilar",
+                {"eposta": eposta, "parola": "Demo1234!", "ad_soyad": ad, "roller": [rol]},
+            )
+    hazirlayan = _onayci(c, "finans@demo.test")
+    mali = _onayci(c, "mali.isler@demo.test")
+
+    firmalar = _liste(c, "/api/v1/firmalar")
+    for i, f in enumerate(firmalar):
+        if not f.get("vergi_no"):
+            c.patch(
+                f"/api/v1/firmalar/{f['id']}",
+                {"vergi_no": f"99900{i:05d}", "vergi_dairesi": f"{f.get('il') or 'Merkez'} VD"},
+            )
+    musteriler = [f for f in firmalar if f["tip"] in ("musteri", "her_ikisi")]
+    tedarikciler = [f for f in firmalar if f["tip"] in ("tedarikci", "her_ikisi")]
+    if not musteriler or not tedarikciler:
+        print("  finans: firma yok, atlandı")
+        return
+
+    # (firma, tür, gün önce, vade, kalemler [(açıklama, miktar, fiyat, kdv)], ödeme oranı, son)
+    tanimlar = [
+        (
+            musteriler[0],
+            "satis",
+            95,
+            30,
+            [("Sac parça seti — Ağustos sevkiyatı", 1200, 38.5, 20)],
+            1.0,
+            "kes",
+        ),
+        (
+            musteriler[0],
+            "satis",
+            64,
+            30,
+            [("Sac parça seti — Eylül sevkiyatı", 1500, 38.5, 20)],
+            0.4,
+            "kes",
+        ),
+        (
+            musteriler[0],
+            "satis",
+            20,
+            45,
+            [("Kaynaklı montaj alt grubu", 300, 210.0, 20), ("Nakliye", 1, 4500, 20)],
+            0.0,
+            "kes",
+        ),
+        (
+            musteriler[1 % len(musteriler)],
+            "satis",
+            75,
+            30,
+            [("Kapak paneli — boyalı", 2400, 22.75, 20)],
+            0.0,
+            "kes",
+        ),
+        (
+            musteriler[1 % len(musteriler)],
+            "satis",
+            12,
+            30,
+            [("Kapak paneli — boyalı", 1800, 22.75, 20)],
+            0.0,
+            "kes",
+        ),
+        (
+            musteriler[2 % len(musteriler)],
+            "satis",
+            40,
+            60,
+            [("Gövde işleme hizmeti", 80, 1650.0, 20)],
+            0.5,
+            "kes",
+        ),
+        (
+            musteriler[2 % len(musteriler)],
+            "satis",
+            3,
+            30,
+            [("Prototip parça", 12, 3200.0, 20)],
+            0.0,
+            "onay",
+        ),
+        (musteriler[0], "satis", 1, 30, [("Numune sevkiyatı", 50, 41.0, 20)], 0.0, "taslak"),
+        (tedarikciler[0], "alis", 80, 30, [("DKP sac 2 mm", 18000, 31.2, 20)], 1.0, "kes"),
+        (tedarikciler[0], "alis", 35, 30, [("DKP sac 3 mm", 9000, 33.8, 20)], 0.5, "kes"),
+        (
+            tedarikciler[1 % len(tedarikciler)],
+            "alis",
+            50,
+            45,
+            [("Kare profil 40×40", 2500, 58.0, 20)],
+            0.0,
+            "kes",
+        ),
+        (
+            tedarikciler[1 % len(tedarikciler)],
+            "alis",
+            8,
+            30,
+            [("Kaynak teli ve gaz", 1, 18750, 20)],
+            0.0,
+            "kes",
+        ),
+    ]
+    sayac = {"kes": 0, "onay": 0, "taslak": 0, "odeme": 0}
+    for firma, tur, gun_once, vade, kalemler, odeme_orani, son in tanimlar:
+        f = hazirlayan.post(
+            "/api/v1/faturalar",
+            {
+                "tur": tur,
+                "firma_id": firma["id"],
+                "fatura_tarihi": _tarih(gun_once),
+                "vade_gun": vade,
+                "kalemler": [
+                    {
+                        "aciklama": a,
+                        "miktar": m,
+                        "birim_fiyat": fy,
+                        "kdv_orani": kdv,
+                        "birim": "adet",
+                    }
+                    for a, m, fy, kdv in kalemler
+                ],
+                "aciklama": "Demo faturası",
+            },
+        )
+        sayac[son] += 1
+        if son == "taslak":
+            continue
+        hazirlayan.post(f"/api/v1/faturalar/{f['id']}/gonder", {})
+        if son == "onay":
+            continue
+        f = mali.post(f"/api/v1/faturalar/{f['id']}/kes", {})
+        if odeme_orani > 0:
+            tutar = (
+                round(f["genel_toplam"] * odeme_orani, 2) if odeme_orani < 1 else f["genel_toplam"]
+            )
+            kayit = hazirlayan if tur == "satis" else mali
+            kayit.post(
+                "/api/v1/odemeler",
+                {
+                    "tur": "tahsilat" if tur == "satis" else "odeme",
+                    "firma_id": firma["id"],
+                    "fatura_id": f["id"],
+                    "tutar": tutar,
+                    "tarih": _tarih(max(gun_once - vade // 2, 0)),
+                    "yontem": "havale",
+                },
+            )
+            sayac["odeme"] += 1
+    print(
+        f"  finans: {sayac['kes']} kesilmiş + {sayac['onay']} onay bekleyen + "
+        f"{sayac['taslak']} taslak fatura, {sayac['odeme']} tahsilat/ödeme"
+    )
+
+
 def tamamla(c: Istemci, ben: dict) -> None:
     """Var olan tenant: eksik modülleri doldur, zaman serisini bugüne getir, modelleri eğit."""
     m = _makineler_profilli(c)
@@ -1490,6 +1665,7 @@ def tamamla(c: Istemci, ben: dict) -> None:
     tedarik_zinciri(c)
     kalite_olgunluk(c)
     isg_ik_olgunluk(c)
+    finans(c)
     raporlar(c)
     ai_egit(c)
 
@@ -1555,6 +1731,7 @@ def main() -> int:
     tedarik_zinciri(c)
     kalite_olgunluk(c)
     isg_ik_olgunluk(c)
+    finans(c)
     raporlar(c)
     ai_egit(c)
     print(f"\nTamam. Giriş: {args.admin_eposta} / {args.admin_parola}  (X-Tenant: {args.tenant})")

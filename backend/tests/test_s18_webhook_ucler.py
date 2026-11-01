@@ -128,6 +128,9 @@ async def test_olay_turleri_katalogu(kurulu_istemci: AsyncClient, alfa_h: dict[s
         "sla.asildi",  # S-VB / ADR-0021 — katalog 8 → 9
         "kalite.spc_ihlal",  # S26-A / ADR-0025 — katalog 9 → 11
         "kalibrasyon.yaklasiyor",
+        "fatura.kesildi",  # S29 / ADR-0048 — katalog 11 → 14
+        "odeme.alindi",
+        "odeme.yapildi",
     } == kodlar
 
 

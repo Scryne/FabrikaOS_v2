@@ -55,6 +55,8 @@ HEDEFLER: dict[str, tuple[str, list[str]]] = {
         ["tests/test_s26b_birim.py", "tests/test_s28_cekirdek_derin.py"],
     ),
     "zaman": ("app/core/zaman.py", ["tests/test_s27_is_gunu.py"]),
+    "finans_hesap": ("app/modules/finans/hesap.py", ["tests/test_s29_finans_birim.py"]),
+    "fatura_durum": ("app/modules/finans/durum.py", ["tests/test_s29_finans_birim.py"]),
 }
 
 _IKILI = {

@@ -29,6 +29,8 @@ from app.modules.enerji.router import router as enerji_router
 from app.modules.entegrasyon.anahtar_router import router as api_anahtar_router
 from app.modules.entegrasyon.disveri_router import router as disveri_router
 from app.modules.entegrasyon.router import router as entegrasyon_router
+from app.modules.finans.router import entegrator_router as efatura_router
+from app.modules.finans.router import router as finans_router
 from app.modules.ik.olgunluk_router import router as ik_olgunluk_router
 from app.modules.ik.router import router as ik_router
 from app.modules.ikiz.router import router as ikiz_router
@@ -95,3 +97,5 @@ api_router.include_router(kalite_spc_router)
 api_router.include_router(deneyim_router)
 api_router.include_router(ik_olgunluk_router)
 api_router.include_router(isg_olgunluk_router)
+api_router.include_router(finans_router)
+api_router.include_router(efatura_router)

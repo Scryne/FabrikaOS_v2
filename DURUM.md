@@ -22,6 +22,19 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S29 finans & muhasebe (ADR-0048)
+
+- Backend 819 test yeşil (S29: 11 entegrasyon + 17 birim), ön yüz 236. ruff, mypy, tsc, eslint temiz.
+- Eşzamanlı iki tahsilat açık tutarı aşamıyor; aynı Idempotency-Key ikinci ödeme açmıyor; hazırlayan
+  faturasını kesemiyor. Fatura satır kilidi, idempotency ve görev ayrımı tek tek kaldırıldığında ilgili
+  testler düşüyor (3/3); finans saf çekirdeği mutasyon %100.
+- Canlı (dev, demo tenant): Onaylarım'da onay bekleyen fatura görünür → kesildi → detaydan tahsilat
+  (açık tutar dolu gelir) → kapandı. 4 ekran 1440/390 taşmasız, konsol temiz. İlk turda pano
+  KPI'larında `₺` alt satıra düşüyor ve alacak tablosu sığmıyordu → kısa tutar biçimi, sade tablo.
+- Demo tohumu taze tenant'a baştan basıldı (12 fatura, 5 tahsilat/ödeme, çıkış 0).
+- Bilinçli sınır: genel muhasebe (yevmiye, mizan) ve doğrudan GİB bağlantısı yok; e-Fatura entegratör
+  üzerinden (iskelet uçlar hazır).
+
 ## 2026-11-01 — S28 kurumsal güvence (ADR-0047)
 
 - Backend 791 test yeşil (S28: +44), ön yüz 230. ruff, mypy temiz; gitleaks çalışma ağacı ve geçmiş temiz.

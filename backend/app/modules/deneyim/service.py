@@ -24,9 +24,11 @@ from app.control_plane.models import Tenant
 from app.kimlik.models import Kullanici
 from app.modules.crm.models import Firma
 from app.modules.dys.models import Belge
+from app.modules.finans.models import Fatura
 from app.modules.ik.models import FazlaMesai, IzinTalebi, Personel
 from app.modules.isemri.models import IsEmri
 from app.modules.stok.models import Malzeme, SatinalmaTalebi, SayimOturumu
+from app.modules.stok.siparis_pdf import para
 from app.modules.uretim.models import Makine
 
 
@@ -177,6 +179,34 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
                     detay_yolu=f"/sayimlar/{s.id}",
                 )
             )
+    if kullanici.izin_var("finans:onay") and await _acik(db, tenant, "finans"):
+        faturalar = (
+            await db.execute(
+                select(Fatura, Firma.ad)
+                .join(Firma, Firma.id == Fatura.firma_id)
+                .where(Fatura.durum == "onay_bekliyor")
+                .order_by(Fatura.olusturma_tarihi)
+            )
+        ).all()
+        for f, firma_ad in faturalar:
+            if f.olusturan_kullanici_id == kullanici.id:
+                kutu.kendi_kayitlarim += 1
+                continue
+            kutu.kalemler.append(
+                OnayKalemi(
+                    tur="fatura",
+                    id=f.id,
+                    kod=f.kod,
+                    baslik=f"{firma_ad} · {'satış' if f.tur == 'satis' else 'alış'} faturası",
+                    ozet=f"{para(f.genel_toplam, f.para_birimi)} · vade {f.vade_tarihi:%d.%m.%Y}",
+                    talep_eden=await _ad(db, f.olusturan_kullanici_id),
+                    tarih=f.olusturma_tarihi,
+                    onay_yolu=f"/faturalar/{f.id}/kes",
+                    red_yolu=f"/faturalar/{f.id}/iade",
+                    red_gerekce_zorunlu=True,
+                    detay_yolu=f"/faturalar?kayit={f.id}",
+                )
+            )
     kutu.kalemler.sort(key=lambda k: k.tarih)
     return kutu
 
@@ -291,6 +321,23 @@ async def _personel(db: AsyncSession, q: str, n: int) -> list[dict[str, Any]]:
     ]
 
 
+async def _fatura(db: AsyncSession, q: str, n: int) -> list[dict[str, Any]]:
+    k = _kalip(q)
+    rows = (
+        await db.execute(
+            select(Fatura.id, Fatura.kod, Fatura.durum, Firma.ad)
+            .join(Firma, Firma.id == Fatura.firma_id)
+            .where(or_(Fatura.kod.ilike(k), Firma.ad.ilike(k)))
+            .order_by(Fatura.id.desc())
+            .limit(n)
+        )
+    ).all()
+    return [
+        {"id": i, "baslik": kod, "alt": f"{ad} · {durum}", "yol": f"/faturalar?kayit={i}"}
+        for i, kod, durum, ad in rows
+    ]
+
+
 KAYNAKLAR: tuple[AramaKaynagi, ...] = (
     AramaKaynagi("makine", "uretim:oku", "uretim", _makine),
     AramaKaynagi("malzeme", "stok:oku", "stok", _malzeme),
@@ -298,6 +345,7 @@ KAYNAKLAR: tuple[AramaKaynagi, ...] = (
     AramaKaynagi("firma", "crm:oku", "crm", _firma),
     AramaKaynagi("belge", "dys:oku", "dys", _belge),
     AramaKaynagi("personel", "ik:oku", "ik", _personel),
+    AramaKaynagi("fatura", "finans:oku", "finans", _fatura),
 )
 
 

@@ -20,6 +20,7 @@ import app.modules.crm.models  # noqa: F401  (kullanici.firma_id FK hedefi — S
 import app.modules.durus.models  # noqa: F401
 import app.modules.enerji.models  # noqa: F401
 import app.modules.entegrasyon.models  # noqa: F401
+import app.modules.finans.models  # noqa: F401
 import app.modules.ik.models  # noqa: F401
 import app.modules.ikiz.models  # noqa: F401
 import app.modules.isemri.models  # noqa: F401

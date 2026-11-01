@@ -154,7 +154,31 @@ sürümler silinmez, indirilebilir kalır. **Duyurular:** yayınlanan duyuru tü
 bildirim olarak gider; hedef departman alanı duyurunun kimi ilgilendirdiğini belirtir (bugün
 gönderimi daraltmaz).
 
-## 9. Zekâ
+## 9. Finans
+
+**Faturalar** (`finans:oku`; hazırlamak için `finans:yaz`): satış ve alış faturaları. Akış
+`taslak → onay bekliyor → kesildi → kapandı`. Faturayı hazırlayan kişi kalemleri (açıklama, miktar,
+birim fiyat, KDV %0/%1/%10/%20) girer, toplam yazarken hesaplanır ve **Onaya gönder**ir. Onay
+yetkilisi (`finans:onay`) **Faturayı kes**er ya da nedenini yazarak düzeltmeye iade eder; faturayı
+hazırlayan kişi kendi faturasını kesemez. Kesilen fatura cari hesaba işlenir ve artık
+düzenlenemez. Ödemesi tamamlanan fatura kendiliğinden **kapandı** olur. Kesilmiş fatura yalnız
+hiç ödemesi yoksa ve nedenle iptal edilir. **PDF** bilgi nüshasıdır; resmî e-Fatura
+entegratör üzerinden gider.
+
+**Tahsilat & ödeme:** firmadan gelen tahsilatı finans kullanıcısı, firmaya yapılan ödemeyi onay
+yetkilisi girer. Faturaya bağlanan tutar faturanın açık tutarını aşamaz. Aynı formu iki kez
+göndermek (çift tık, kopan bağlantı) ikinci kayıt açmaz.
+
+**Cari hesaplar:** firma başına bakiye (yeşil: alacağımız, turuncu: borcumuz), açık fatura ve
+vadesi geçen alacak. Satıra tıklayınca son 12 ayın ekstresi (açılış bakiyesi, borç, alacak,
+yürüyen bakiye) açılır.
+
+**Finans özeti:** açık alacak ve borç, vadesi geçen alacak, bu ayın satışı ve tahsilatı; vade
+yaşına göre dağılım ve en büyük açık alacaklar (satıra tıklayınca o firmanın faturaları);
+kapanan iş emirlerinin malzeme maliyeti (reçeteden tüketilen malzeme × son satınalma fiyatı).
+Fiyatı bilinmeyen malzeme maliyete 0 diye eklenmez, "fiyatsız" diye işaretlenir.
+
+## 10. Zekâ
 
 **AI Tahminleri** (`ai:oku`): kestirimci bakım (arıza riski yüksek makineler), anomali (olağan
 dışı üretim/enerji değerleri), OEE ve stok tahmini. Tahminler karar desteğidir; tablolar
@@ -164,7 +188,7 @@ dayandıkları ölçümleri (veri günü, duruş ve fire oranı, günlük tüket
 PDF/XLSX raporlar arka planda hazırlanır; liste kendiliğinden güncellenir ve rapor hazır
 olunca zile "Raporunuz hazır" bildirimi düşer.
 
-## 10. Sık sorulanlar
+## 11. Sık sorulanlar
 
 - **"Bu işlem için yetkiniz yok" diyor.** Rolünüzde ilgili izin yok; yöneticiniz Yönetim ›
   Kullanıcılar'dan rol ekler.

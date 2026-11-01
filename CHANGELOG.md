@@ -13,6 +13,7 @@ ADR'lerde, sprint kabul kriterleri `docs/yol-haritasi.md`'de.
 _Commit geçmişinden üretildi (`pre-s25`'ten bu yana); elle düzenlemeyin._
 
 #### Sprintler
+- **S28** kurumsal güvence: mutasyon, sertleştirme taraması, dayanıklılık, alan şifrelemesi, doküman seti (ADR-0047) (`e0496d1`)
 - **S27** platform deneyimi: onay kutusu, içerik araması, code-split, dışa aktarma, sipariş PDF'i, erişilebilirlik (ADR-0045, ADR-0046) (`993ff42`)
 - **S26-B** İSG + İK kurumsal tamamlama (ADR-0044) (`ebfb27c`)
 - **S26-A** kalite olgunluğu: kontrol planı + SPC, ölçüm cihazı + kalibrasyon (ADR-0025) (`3c7c950`)
@@ -71,6 +72,12 @@ _Commit geçmişinden üretildi (`pre-s25`'ten bu yana); elle düzenlemeyin._
   staging kopyası, tenant başına göç dağıtımı, prod compose katmanı (Traefik joker TLS).
 - **S19 gözlemlenebilirlik (ADR-0040):** `/metrics`, Sentry, OpenTelemetry, gerçek hazırlık
   yoklaması, SLO yanma hızı alarmları, Grafana panosu.
+
+### Faz 7 — Kurumsal uygulama genişlemesi
+- **S29 finans & muhasebe (ADR-0048):** yeni `finans` modülü — cari hesap (kilitli tutulan bakiye,
+  çift sayımsız), satış/alış faturası (hazırla → onay → kes → kapandı; hazırlayan kesemez),
+  tahsilat/ödeme (Idempotency-Key), yaşlandırma, ekstre, üretim malzeme maliyeti, fatura PDF'i,
+  e-Fatura iskeleti; Finans özeti, Faturalar, Cari hesaplar, Tahsilat & ödeme ekranları.
 
 ### Faz 6 — Kurumsal derinleşme
 - **S28 kurumsal güvence (ADR-0047):** mutasyon testi (%93,4, CI eşiği %90); schemathesis

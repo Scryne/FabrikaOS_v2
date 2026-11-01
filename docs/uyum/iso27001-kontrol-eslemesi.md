@@ -15,7 +15,7 @@ Son gözden geçirme: 2026-11-01 (S28). Her satırın kanıtı kodda ya da testt
 
 | Kontrol | Durum | Üründeki karşılığı |
 |---|---|---|
-| 5.15 Erişim denetimi | ✅ | RBAC izin sözlüğü (`kaynak:eylem`, 50 izin, 19 varsayılan rol), her uçta `require_perm`; görev ayrımı hem rolde (`satinalma:onay`, `ik:onay`, `stok:duzeltme`) hem kişide (kaydı açan onaylayamaz: satınalma, izin, fazla mesai, sayım) |
+| 5.15 Erişim denetimi | ✅ | RBAC izin sözlüğü (`kaynak:eylem`, 53 izin, 21 varsayılan rol), her uçta `require_perm`; görev ayrımı hem rolde (`satinalma:onay`, `ik:onay`, `stok:duzeltme`) hem kişide (kaydı açan onaylayamaz: satınalma, izin, fazla mesai, sayım) |
 | 5.16 Kimlik yönetimi | ✅ | Tenant başına kullanıcı kaydı; SSO JIT provizyon + grup→rol senkronu |
 | 5.17 Kimlik doğrulama bilgisi | ✅ | argon2id parola özeti, tenant parola politikası, TOTP 2FA (sır şifreli), kurtarma kodları (yalnız özet) |
 | 5.18 Erişim hakları | ✅ | Rol/izin matrisi; platform panelinden entitlement; askıya alma erişimi anında keser |

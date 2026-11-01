@@ -46,6 +46,9 @@ BILDIRIM_OLAYLARI: dict[str, HedefKurali] = {
     "kalibrasyon.yaklasiyor": HedefKurali(
         onem="uyari", izin_kodu="kalite:oku", kisi_alanlari=("sorumlu_kullanici_id",)
     ),
+    # S29: fatura ve tahsilat finans ekibine.
+    "fatura.kesildi": HedefKurali(onem="bilgi", izin_kodu="finans:oku"),
+    "odeme.alindi": HedefKurali(onem="bilgi", izin_kodu="finans:oku"),
 }
 
 # ``sla.asildi`` kaynak türü -> ilgili modülün okuma izni (sorumluya ek hedef kümesi).
@@ -138,6 +141,14 @@ def bildirim_metni(olay_turu: str, govde: dict[str, Any]) -> tuple[str, str]:
             f"Kalibrasyon yaklaşıyor: {kod}",
             "Ölçüm cihazının kalibrasyon geçerliliği bitmek üzere ya da bitti.",
         ),
+        "fatura.kesildi": (
+            f"Fatura kesildi: {kod}",
+            "Fatura cari hesaba işlendi.",
+        ),
+        "odeme.alindi": (
+            f"Tahsilat alındı: {kod}",
+            "Firmadan gelen tahsilat cari hesaba işlendi.",
+        ),
     }
     return metinler.get(olay_turu, (olay_turu, ""))
 
@@ -154,6 +165,8 @@ def bildirim_verisi(olay_turu: str, govde: dict[str, Any]) -> dict[str, Any]:
         "duyuru.yeni": "duyuru",
         "kalite.spc_ihlal": "karakteristik",
         "kalibrasyon.yaklasiyor": "olcum_cihazi",
+        "fatura.kesildi": "fatura",
+        "odeme.alindi": "odeme",
     }
     kaynak_tur = str(govde.get("kaynak_tur") or varsayilan_kaynak.get(olay_turu, ""))
     kaynak_id = govde.get("kaynak_id") or govde.get("id")

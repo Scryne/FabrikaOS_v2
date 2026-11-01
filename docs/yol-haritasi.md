@@ -44,8 +44,8 @@ Definition of Done (DoD).
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ✅ ADR-0025, ADR-0044 |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ✅ ADR-0045, ADR-0046 |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ✅ ADR-0047 |
-| **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ▶ |
-| | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ⬜ |
+| **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ✅ ADR-0048 |
+| | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ▶ |
 | | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ⬜ |
 | | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ⬜ |
 | **8 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⏸ kapsam dışı (Scryne, 2026-11-01) |
@@ -607,7 +607,15 @@ fan-out, `require_perm` görev ayrımı, 202+süreç-içi async). Her sprint **d
 fan-out up/down + API + FE ekran + birim/entegrasyon testi + canlı e2e); global DoD aynen geçerli;
 kapsam modül başına **MoSCoW** ile korunur.
 
-#### ⬜ S29 — Finans & Muhasebe (MVP)
+#### ✅ S29 — Finans & Muhasebe (MVP)
+> **Durum (2026-11-01):** ✅ (ADR-0048). Modül `finans` (deneme + kurumsal): cari hesap (tutulan
+> bakiye + `FOR UPDATE`, hareket `kaynak` tekil → çift sayım yok), fatura `taslak → onay_bekliyor →
+> kesildi → kapandi` + iade/iptal (hazırlayan kesemez), tahsilat/ödeme (Idempotency-Key; ödeme
+> `finans:onay`), yaşlandırma, ekstre, üretim malzeme maliyeti (fiyatsız kalem işaretlenir, 0
+> sayılmaz), fatura PDF'i (bilgi nüshası), e-Fatura iskeleti (ETTN/senaryo/GİB durumu, entegratör
+> API anahtarıyla okur). Olaylar webhook + bildirim + Onaylarım + ⌘K. 4 ekran (1440/390 taşmasız),
+> 11 entegrasyon + 17 birim testi, finans çekirdeği mutasyon %100; kilit/idempotency/görev ayrımı
+> kaldırılınca testler düşüyor. Demo tohumu 12 fatura + 5 ödeme.
 Modül `finans`. **Cari hesap:** müşteri/tedarikçi bakiyesi (CRM `Firma`'ya bağlı, tutulan bakiye +
 `FOR UPDATE`). **Fatura:** satış/alış (oto kod `FT-`, saf durum makinesi `taslak→kesildi→tahsil/ödendi`
 + iptal). **Tahsilat/Ödeme:** hareket → cari bakiye günceller (idempotent). **Maliyet:** basit üretim/

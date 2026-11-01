@@ -17,7 +17,7 @@ Varsayılan roller ve verdikleri izinler:
 
 | Rol | Ne yapar |
 |---|---|
-| `admin` | Tüm izinler (50) |
+| `admin` | Tüm izinler (53) |
 | `izleyici` | Tüm modüllerde yalnız okuma; denetim kaydı ve KVKK hariç |
 | `depo` | Stok ve satınalma: okuma + kayıt |
 | `satinalma-onaylayan` | Satınalma talebi onayı (talebi açandan ayrı kişi olmalı) |
@@ -27,6 +27,8 @@ Varsayılan roller ve verdikleri izinler:
 | `analist` | Analitik ve raporlar (rapor üretme dahil) |
 | `ai` | AI tahminleri; model eğitimini başlatma (`ai:egit`) |
 | `uyum` | Denetim kayıtları ve KVKK işlemleri |
+| `finans` | Fatura hazırlama ve tahsilat; fatura kesemez |
+| `finans-onaylayan` | Fatura kesme/iade/iptal, firmaya ödeme |
 | `kiosk` | Atölye ekranı: yalnız üretim okuma |
 | `saha-cihaz` | Ağ geçidi hesabı: ölçüm gönderme (`edge`); insan kullanıcıya verilmez |
 | `dis-panel` | Dış portal: bağlı olduğu firmanın kayıtlarını görür (müşteri/tedarikçi kullanıcısı) |
@@ -43,7 +45,7 @@ Yönetim › Abonelik & Modüller: planınız, açık modüller, koltuk kullanı
 | Deneme | 5 | Tümü (deneme süresince) |
 | Temel | 10 | Üretim, iş emri, bakım, stok |
 | Profesyonel | 50 | Temel + saha, kalite, enerji, İSG, İK, CRM, sözleşme, talep, DYS, duyuru |
-| Kurumsal | Sınırsız | Tümü (AI, analitik, rapor, entegrasyon dahil) |
+| Kurumsal | Sınırsız | Tümü (AI, analitik, rapor, entegrasyon, finans dahil) |
 
 Kapalı bir modülün menüsü görünmez ve API'si 403 döner; veriler silinmez, plan yükselince geri gelir.
 
