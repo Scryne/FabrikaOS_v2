@@ -16,7 +16,7 @@ from datetime import UTC, date, datetime, timedelta
 
 from httpx import AsyncClient
 
-from tests.conftest import ALFA
+from tests.conftest import ALFA, onayci_basliklari
 from tests.test_s16_entitlement import _giris
 from tests.test_s25_depo_sayim import _bakiye, _genel, _kullanici, _lokasyon, _toplam
 
@@ -57,9 +57,11 @@ async def _onayli_talep(
     assert r.status_code == 201, r.text
     talep = r.json()["data"]
     if onayla:
-        for adim in ("gonder", "onayla"):
-            r = await istemci.post(f"{API}/satinalma-talepleri/{talep['id']}/{adim}", headers=h)
-            assert r.status_code == 200, r.text
+        r = await istemci.post(f"{API}/satinalma-talepleri/{talep['id']}/gonder", headers=h)
+        assert r.status_code == 200, r.text
+        onayci = await onayci_basliklari(istemci, h)  # görev ayrımı: açan onaylayamaz (S28)
+        r = await istemci.post(f"{API}/satinalma-talepleri/{talep['id']}/onayla", headers=onayci)
+        assert r.status_code == 200, r.text
     r = await istemci.get(f"{API}/satinalma-talepleri/{talep['id']}", headers=h)
     return r.json()["data"]
 

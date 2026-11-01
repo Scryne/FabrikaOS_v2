@@ -39,7 +39,8 @@ async def test_makine_olustur_listele_detay(kurulu_istemci: AsyncClient) -> None
     assert r.status_code == 200
     assert r.json()["data"]["kod"] == "MAK-A1"
 
-    r = await kurulu_istemci.get("/api/v1/makineler", headers=h)
+    # Arama ile: listenin ilk sayfası diğer testlerin makinelerine göre değişir (sıra bağımlılığı).
+    r = await kurulu_istemci.get("/api/v1/makineler?arama=MAK-A1", headers=h)
     assert r.status_code == 200
     assert "MAK-A1" in [m["kod"] for m in r.json()["data"]]
 

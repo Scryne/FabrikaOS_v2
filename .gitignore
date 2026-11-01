@@ -56,3 +56,8 @@ skills-lock.json
 # --- S19: gözlem gizlileri (Alertmanager webhook URL) ---
 infra/alertmanager/gizli/
 .env.traefik
+
+# S28: schemathesis/hypothesis yerel önbelleği
+.schemathesis/
+.hypothesis/
+sertlestirme-junit.xml

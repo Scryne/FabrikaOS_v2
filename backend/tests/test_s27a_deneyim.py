@@ -78,9 +78,11 @@ async def _bekleyen_sayim(
 async def test_onay_kutusu_izin_ve_gorev_ayrimi(kurulu_istemci: AsyncClient) -> None:
     admin = await _giris(kurulu_istemci, ALFA)
     mid = await _malzeme(kurulu_istemci, admin)
-    tid = await _bekleyen_talep(kurulu_istemci, admin, mid)
-    iid = await _bekleyen_izin(kurulu_istemci, admin)
     depocu = await _kullanici(kurulu_istemci, admin, ["depo"])
+    ik_girisci = await _kullanici(kurulu_istemci, admin, ["ik"])
+    tid = await _bekleyen_talep(kurulu_istemci, depocu, mid)
+    iid = await _bekleyen_izin(kurulu_istemci, ik_girisci)
+    kendi_talep = await _bekleyen_talep(kurulu_istemci, admin, mid)
     baskasinin = await _bekleyen_sayim(kurulu_istemci, admin, depocu)
     kendi = await _bekleyen_sayim(kurulu_istemci, admin, admin)
 
@@ -90,7 +92,8 @@ async def test_onay_kutusu_izin_ve_gorev_ayrimi(kurulu_istemci: AsyncClient) -> 
     assert ("izin_talebi", iid) in anahtarlar
     assert ("sayim", baskasinin) in anahtarlar
     assert ("sayim", kendi) not in anahtarlar  # kendi sayımını onaylayamaz
-    assert kutu["kendi_sayimlarim"] >= 1
+    assert ("satinalma_talebi", kendi_talep) not in anahtarlar  # kendi talebi de (S28)
+    assert kutu["kendi_kayitlarim"] >= 2
     izin = next(k for k in kutu["kalemler"] if k["tur"] == "izin_talebi" and k["id"] == iid)
     assert izin["red_gerekce_zorunlu"] is True
     assert izin["onay_yolu"] == f"/izin-talepleri/{iid}/onayla"
@@ -112,7 +115,7 @@ async def test_onay_kutusu_izin_ve_gorev_ayrimi(kurulu_istemci: AsyncClient) -> 
     # Onay izni olmayan kullanıcıda kutu boş.
     izleyici = await _kullanici(kurulu_istemci, admin, ["izleyici"])
     bos = (await kurulu_istemci.get(f"{API}/onaylarim", headers=izleyici)).json()["data"]
-    assert bos == {"kalemler": [], "kendi_sayimlarim": 0}
+    assert bos == {"kalemler": [], "kendi_kayitlarim": 0}
 
 
 async def test_arama_rbac_ve_kiraci_izolasyonu(kurulu_istemci: AsyncClient) -> None:

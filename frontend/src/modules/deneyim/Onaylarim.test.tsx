@@ -15,7 +15,7 @@ vi.mock('./hooks', () => ({
     isPending: false,
     isError: false,
     data: {
-      kendi_sayimlarim: 1,
+      kendi_kayitlarim: 1,
       kalemler: [
         {
           tur: 'izin_talebi',

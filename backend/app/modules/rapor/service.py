@@ -9,7 +9,9 @@ Akış (ADR-0016; ADR-0015 deseninin yeniden kullanımı):
    tür-bazlı satırları çeker, PDF/XLSX baytlarını ``asyncio.to_thread``'de üretir,
    ``NesneDepo``'ya ``tenant_<slug>/rapor/<id>/<dosya>`` anahtarıyla yazar ve kaydı
    ``hazir`` yapar. Hata → ``basarisiz`` + ``hata`` mesajı.
-3. Her iki sonda da ``rapor.hazir`` gerçek-zaman olayı yayınlanır (best-effort).
+3. Her iki sonda da ``rapor.hazir`` gerçek-zaman olayı yayınlanır (best-effort). Başarıda
+   ayrıca aynı işlemde outbox'a ``rapor.hazir`` yazılır → bildirim merkezi raporu isteyene
+   "Raporunuz hazır" düşürür (S28: kural vardı, olay hiç üretilmiyordu).
 
 Testler ``oturum_fabrikasi_ayarla`` ile test motorunu, ``es_zamanli_ayarla(True)`` ile
 görevi bekleyerek koşmayı enjekte eder (S13 ``ai.service`` ile aynı imzalar).
@@ -29,6 +31,7 @@ from app.core.db.session import get_sessionmaker
 from app.core.db.tenancy import search_path_ayarla
 from app.core.exceptions import DogrulamaHatasi
 from app.core.gercekzaman import yayinla
+from app.core.olaylar import olay_yayinla
 from app.modules.analitik.hesap import donem_oee, fire_orani
 from app.modules.dys.depolama import nesne_depo_al
 from app.modules.rapor import repository
@@ -170,6 +173,15 @@ async def _uret_dene(rapor_id: int, slug: str, baslangic: float) -> None:
         kayit.boyut = len(veri)
         kayit.satir_sayisi = len(icerik.satirlar)
         kayit.uretim_suresi_sn = round(time.monotonic() - baslangic, 3)
+        await olay_yayinla(
+            db,
+            olay_turu="rapor.hazir",
+            govde={
+                "kaynak_id": kayit.id,
+                "kod": kayit.kod,
+                "olusturan_kullanici_id": kayit.olusturan_kullanici_id,
+            },
+        )
         await db.commit()
     logger.info("rapor üretildi (kod=%s, tenant=%s, bayt=%s)", kayit.kod, slug, len(veri))
 

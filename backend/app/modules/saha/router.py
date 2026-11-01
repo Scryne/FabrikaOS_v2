@@ -139,7 +139,10 @@ async def olcum_csv(
     cihaz_kod: Annotated[str, Query(min_length=1, max_length=50)],
     dosya: Annotated[UploadFile, File()],
 ) -> dict[str, Any]:
-    ham = (await dosya.read()).decode("utf-8-sig")
+    try:
+        ham = (await dosya.read()).decode("utf-8-sig")
+    except UnicodeDecodeError as exc:  # ör. Excel'in Windows-1254 CSV'si (S28)
+        raise DogrulamaHatasi("CSV UTF-8 olarak kaydedilmeli (Excel: CSV UTF-8)") from exc
     try:
         paketler = csv_satirlari_coz(ham, cihaz_kod=cihaz_kod)
     except CsvGecersiz as exc:

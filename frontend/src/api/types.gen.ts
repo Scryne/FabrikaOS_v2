@@ -7168,8 +7168,8 @@ export interface components {
         OnayKutusuDTO: {
             /** Kalemler */
             kalemler: components["schemas"]["OnayKalemiDTO"][];
-            /** Kendi Sayimlarim */
-            kendi_sayimlarim: number;
+            /** Kendi Kayitlarim */
+            kendi_kayitlarim: number;
         };
         /** OnizlemeDTO */
         OnizlemeDTO: {

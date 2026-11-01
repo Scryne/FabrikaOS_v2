@@ -6,7 +6,7 @@ import re
 
 from httpx import AsyncClient
 
-from tests.conftest import ALFA, BETA
+from tests.conftest import ALFA, BETA, onayci_basliklari
 
 KIMLIK = "/api/v1/kimlik"
 
@@ -75,7 +75,10 @@ async def test_akis_gonder_onayla(kurulu_istemci: AsyncClient) -> None:
     assert (
         await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{tid}/gonder", headers=h)
     ).status_code == 200
-    r = await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{tid}/onayla", headers=h)
+    kendi = await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{tid}/onayla", headers=h)
+    assert kendi.status_code == 403, kendi.text  # talebi açan onaylayamaz (görev ayrımı)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
+    r = await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{tid}/onayla", headers=onayci)
     assert r.status_code == 200, r.text
     assert r.json()["data"]["durum"] == "onaylandi"
     assert r.json()["data"]["onaylayan_kullanici_id"] is not None
@@ -86,7 +89,8 @@ async def test_gecersiz_gecis_409(kurulu_istemci: AsyncClient) -> None:
     mid = await _malzeme_id(kurulu_istemci, h, "MLZ-ST3")
     d = await _talep(kurulu_istemci, h, mid)
     # taslak → onayla (önce gönderilmeli) yasak
-    r = await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{d['id']}/onayla", headers=h)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
+    r = await kurulu_istemci.post(f"/api/v1/satinalma-talepleri/{d['id']}/onayla", headers=onayci)
     assert r.status_code == 409, r.text
 
 

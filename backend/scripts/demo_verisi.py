@@ -97,6 +97,13 @@ class Istemci:
         return self.istek("GET", yol)
 
 
+def _onayci(c: Istemci, eposta: str) -> Istemci:
+    """Görev ayrımı (S28): kaydı açan admin onaylayamaz; onayı ilgili demo kullanıcısı verir."""
+    o = Istemci(str(c.http.base_url), c.tenant)
+    o.giris(eposta, "Demo1234!")
+    return o
+
+
 # ---------------------------------------------------------------- modüller
 
 
@@ -344,6 +351,8 @@ def stok(c: Istemci) -> list[dict]:
 
 
 def satinalma(c: Istemci, malzemeler: list[dict]) -> None:
+    onay = _onayci(c, "satinalma.onay@demo.test")
+
     def kalem(i: int, miktar: float, fiyat: float) -> dict:
         m = malzemeler[i]
         return {
@@ -373,9 +382,9 @@ def satinalma(c: Istemci, malzemeler: list[dict]) -> None:
         if durum != "taslak":
             c.post(f"/api/v1/satinalma-talepleri/{t['id']}/gonder", {})
         if durum == "onaylandi":
-            c.post(f"/api/v1/satinalma-talepleri/{t['id']}/onayla", {})
+            onay.post(f"/api/v1/satinalma-talepleri/{t['id']}/onayla", {})
         elif durum == "reddedildi":
-            c.post(
+            onay.post(
                 f"/api/v1/satinalma-talepleri/{t['id']}/reddet",
                 {"red_nedeni": "Bütçe onayı bekliyor; sonraki döneme ertelendi."},
             )
@@ -530,6 +539,7 @@ def isg(c: Istemci, makineler: list[dict]) -> None:
 
 
 def ik(c: Istemci) -> None:
+    ik_onay = _onayci(c, "ik.yonetici@demo.test")
     personel_tanimlari = [
         ("P-001", "Mehmet", "Yılmaz", "Üretim", "Vardiya Amiri"),
         ("P-002", "Ayşe", "Demir", "Depo", "Depo Sorumlusu"),
@@ -584,9 +594,9 @@ def ik(c: Istemci) -> None:
         if durum != "taslak":
             c.post(f"/api/v1/izin-talepleri/{z['id']}/gonder", {})
         if durum == "onaylandi":
-            c.post(f"/api/v1/izin-talepleri/{z['id']}/onayla", {})
+            ik_onay.post(f"/api/v1/izin-talepleri/{z['id']}/onayla", {})
         elif durum == "reddedildi":
-            c.post(
+            ik_onay.post(
                 f"/api/v1/izin-talepleri/{z['id']}/reddet",
                 {"red_nedeni": "Dönem yoğunluğu nedeniyle uygun değil."},
             )
@@ -602,7 +612,7 @@ def ik(c: Istemci) -> None:
             },
         )
         if pi in (0, 3):
-            c.post(f"/api/v1/fazla-mesailer/{fm['id']}/onayla", {})
+            ik_onay.post(f"/api/v1/fazla-mesailer/{fm['id']}/onayla", {})
 
     zimmetler = [
         (0, "Dizüstü bilgisayar Dell 5540", "DL5540-071"),
@@ -1067,6 +1077,7 @@ def _son_zaman(c: Istemci, yol: str) -> datetime | None:
 def tedarik_zinciri(c: Istemci) -> None:
     if _liste(c, "/api/v1/satinalma-siparisleri"):
         return
+    onay = _onayci(c, "satinalma.onay@demo.test")
     depolar = _liste(c, "/api/v1/depolar")
     ana = next(d for d in depolar if d["kod"] == "ANA")
     genel = next(lok for lok in ana["lokasyonlar"] if lok["kod"] == "GENEL")
@@ -1154,7 +1165,7 @@ def tedarik_zinciri(c: Istemci) -> None:
             },
         )
         c.post(f"/api/v1/satinalma-talepleri/{t['id']}/gonder", {})
-        c.post(f"/api/v1/satinalma-talepleri/{t['id']}/onayla", {})
+        onay.post(f"/api/v1/satinalma-talepleri/{t['id']}/onayla", {})
         talepler.append(c.get(f"/api/v1/satinalma-talepleri/{t['id']}"))
     bugun = datetime.now(UTC)
     gecikmis = c.post(

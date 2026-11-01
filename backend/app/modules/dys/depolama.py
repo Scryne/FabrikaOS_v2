@@ -70,10 +70,29 @@ class MinioNesneDepo:
     def __init__(
         self, *, endpoint: str, access_key: str, secret_key: str, secure: bool, bucket: str
     ) -> None:
+        import urllib3  # minio'nun kendi bağımlılığı
         from minio import Minio  # lazy import: dep yalnız gerçek depo kullanılırsa gerekir
 
         self._bucket = bucket
-        self._istemci = Minio(endpoint, access_key=access_key, secret_key=secret_key, secure=secure)
+        # SDK varsayılanı 5 dk zaman aşımı + 5 yeniden deneme: depo kapalıyken bir yükleme isteği
+        # yarım dakikaya yakın asılı kalıyordu (S28 sertleştirme taraması). Kısa bağlantı süresi ve
+        # iki deneme ile kesinti hızla 503'e döner; okuma süresi büyük dosyalar için geniş kalır.
+        http = urllib3.PoolManager(
+            timeout=urllib3.Timeout(connect=3, read=60),
+            # connect=1: ad çözümü/bağlantı reddi tekrarlandıkça süre katlanır (ölçüldü: 3 deneme
+            # × 7 sn DNS = 21 sn); 5xx'te iki deneme kalır.
+            retries=urllib3.Retry(
+                total=2, connect=1, backoff_factor=0.2, status_forcelist=[500, 502, 503, 504]
+            ),
+            maxsize=10,
+        )
+        self._istemci = Minio(
+            endpoint,
+            access_key=access_key,
+            secret_key=secret_key,
+            secure=secure,
+            http_client=http,
+        )
         self._bucket_hazir = False
 
     def _bucket_sagla(self) -> None:

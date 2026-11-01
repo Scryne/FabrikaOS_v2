@@ -6,6 +6,7 @@ kadardır. Bir refresh token kullanılmadan önce iptalli olup olmadığı kontr
 
 from __future__ import annotations
 
+from app.core.exceptions import HizmetKullanilamaz
 from app.core.security.redis_istemci import get_redis
 
 _ONEK = "iptal:refresh:"
@@ -17,5 +18,15 @@ async def refresh_iptal_et(jti: str, ttl_sn: int) -> None:
 
 
 async def refresh_iptalli_mi(jti: str) -> bool:
-    """``jti`` iptal listesinde mi?"""
-    return bool(await get_redis().exists(_ONEK + jti))
+    """``jti`` iptal listesinde mi?
+
+    Redis yoksa iptal durumu bilinemez: tek kullanımlık refresh'i kabul etmek replay'e kapı açar,
+    bu yüzden yenileme reddedilir — ama 500 değil 503 (geçici; erişim token'ı süresince oturum
+    sürer, Redis dönünce yenileme yeniden çalışır). S28 / ADR-0047.
+    """
+    try:
+        return bool(await get_redis().exists(_ONEK + jti))
+    except Exception as exc:  # noqa: BLE001
+        raise HizmetKullanilamaz(
+            "Oturum yenileme geçici olarak kullanılamıyor; birazdan yeniden deneyin"
+        ) from exc

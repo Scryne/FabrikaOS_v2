@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import HizmetKullanilamaz
 from app.modules.dys.depolama import belge_nesne_anahtari, nesne_depo_al
 from app.modules.dys.models import Belge, BelgeSurumu
 
@@ -42,7 +43,12 @@ async def surum_ekle(
     yeni_no = belge.guncel_surum + 1
     anahtar = belge_nesne_anahtari(tenant_slug, belge.id, yeni_no, dosya_adi)
     depo = nesne_depo_al()
-    await asyncio.to_thread(depo.yukle, anahtar, veri, icerik_tipi)
+    try:
+        await asyncio.to_thread(depo.yukle, anahtar, veri, icerik_tipi)
+    except Exception as exc:  # noqa: BLE001 — depo yoksa sürüm kaydı da açılmaz (S28)
+        raise HizmetKullanilamaz(
+            "Belge deposuna şu an yazılamıyor; dosya kaydedilmedi, birazdan yeniden deneyin"
+        ) from exc
     surum = BelgeSurumu(
         belge_id=belge.id,
         surum_no=yeni_no,

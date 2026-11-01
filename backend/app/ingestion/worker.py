@@ -4,16 +4,26 @@
 her mesaj için tenant doğrular, ``search_path``'i ayarlar, idempotent yazar, gerçek-zaman
 ``uretim.eklendi`` olayını yayınlar. Her mesaj log korelasyonu için ``tenant_slug_ctx``/
 ``request_id_ctx`` set eder. Hata izole edilir — döngü tek bozuk mesajla çökmez.
+
+Dayanıklılık (S28, ADR-0047):
+- **Veritabanı geçici yoksa mesaj düşürülmez:** bağlantı hataları geri çekilmeli yeniden denenir
+  (``YENIDEN_DENEME_SN``); yazım ``olcum_id`` ile idempotent olduğundan tekrar güvenlidir. Kalıcı
+  hatalar (bozuk veri, bilinmeyen tenant) eskisi gibi düşürülür.
+- **Broker koparsa süreç ölmez:** bağlantı üstel geri çekilmeyle (en çok 30 sn) yeniden kurulur.
+- **Kalıcı oturum + QoS 1:** sabit istemci kimliği ve ``clean_session=False`` ile işçi kapalıyken
+  broker QoS 1 mesajları tutar; kenar ajanı da tamponundan yeniden gönderir (çift yazım yok).
 """
 
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import sys
 from uuid import uuid4
 
 import aiomqtt
+from sqlalchemy.exc import InterfaceError, OperationalError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import NullPool
 
@@ -31,6 +41,15 @@ logger = logging.getLogger("app.ingestion.worker")
 
 TOPIC = "fabrikaos/+/+/olcum"
 ISCI = "ingestion"
+ISTEMCI_KIMLIGI = "fabrikaos-ingestion"
+YENIDEN_DENEME_SN: tuple[float, ...] = (0.5, 1, 2, 4, 8, 15)
+GECICI_HATALAR: tuple[type[BaseException], ...] = (
+    OperationalError,
+    InterfaceError,
+    ConnectionError,
+    OSError,
+    TimeoutError,
+)
 
 
 async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: bytes) -> None:
@@ -46,15 +65,29 @@ async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: b
     t_req = request_id_ctx.set(str(uuid4()))
     try:
         etkilenen: tuple[int, ...] = ()
-        async with sm() as session, session.begin():
-            tenant = await tenant_bul(session, slug)
-            if tenant is None or not tenant.aktif:
-                logger.warning("bilinmeyen/pasif tenant, düşürüldü: slug=%s", slug)
-                isci_sonuc(ISCI, "dusuruldu")
-                return
-            await search_path_ayarla(session, slug)
-            sonuc = await olcum_yaz_toplu(session, cihaz_kod=cihaz_kod, paketler=[paket])
-            etkilenen = sonuc.etkilenen_makineler
+        for deneme, bekle in enumerate((*YENIDEN_DENEME_SN, None)):
+            try:
+                async with sm() as session, session.begin():
+                    tenant = await tenant_bul(session, slug)
+                    if tenant is None or not tenant.aktif:
+                        logger.warning("bilinmeyen/pasif tenant, düşürüldü: slug=%s", slug)
+                        isci_sonuc(ISCI, "dusuruldu")
+                        return
+                    await search_path_ayarla(session, slug)
+                    sonuc = await olcum_yaz_toplu(session, cihaz_kod=cihaz_kod, paketler=[paket])
+                    etkilenen = sonuc.etkilenen_makineler
+                break
+            except GECICI_HATALAR:
+                if bekle is None:
+                    raise
+                logger.warning(
+                    "veritabanı geçici yok, yeniden denenecek (%d. deneme, %.1f sn): topic=%s",
+                    deneme + 1,
+                    bekle,
+                    topic,
+                )
+                isci_sonuc(ISCI, "yeniden_deneme")
+                await asyncio.sleep(bekle)
         for makine_id in etkilenen:
             await yayinla(slug, {"tur": "uretim.eklendi", "makine_id": makine_id, "kaynak": "saha"})
         isci_sonuc(ISCI, "islendi")
@@ -67,16 +100,46 @@ async def mesaj_ele(sm: async_sessionmaker[AsyncSession], topic: str, payload: b
         request_id_ctx.reset(t_req)
 
 
+async def dinle(
+    sm: async_sessionmaker[AsyncSession],
+    *,
+    broker_host: str,
+    broker_port: int,
+    dur: asyncio.Event | None = None,
+    istemci_fabrikasi: type[aiomqtt.Client] = aiomqtt.Client,
+) -> None:
+    """Broker'a bağlanır; koparsa üstel geri çekilmeyle yeniden bağlanır (``dur`` verilene dek)."""
+    bekle = 1.0
+    while dur is None or not dur.is_set():
+        try:
+            async with istemci_fabrikasi(
+                broker_host, port=broker_port, identifier=ISTEMCI_KIMLIGI, clean_session=False
+            ) as client:
+                await client.subscribe(TOPIC, qos=1)
+                logger.info("broker'a bağlanıldı: %s:%s", broker_host, broker_port)
+                bekle = 1.0
+                async for message in client.messages:
+                    await mesaj_ele(sm, str(message.topic), message.payload)
+                    if dur is not None and dur.is_set():
+                        return
+        except aiomqtt.MqttError as exc:
+            logger.warning("broker bağlantısı yok/koptu (%s); %.0f sn sonra yeniden", exc, bekle)
+            isci_sonuc(ISCI, "baglanti_koptu")
+            if dur is not None:
+                with contextlib.suppress(TimeoutError):
+                    await asyncio.wait_for(dur.wait(), timeout=bekle)
+            else:
+                await asyncio.sleep(bekle)
+            bekle = min(bekle * 2, 30.0)
+
+
 async def calistir(*, broker_host: str, broker_port: int, db_url: str) -> None:
-    """MQTT'ye bağlanır ve süresiz dinler."""
+    """MQTT'ye bağlanır ve süresiz dinler (kopmada kendiliğinden yeniden bağlanır)."""
     engine = create_async_engine(db_url, poolclass=NullPool)
     sm = async_sessionmaker(engine, expire_on_commit=False)
     logger.info("ingestion worker başlıyor: broker=%s:%s", broker_host, broker_port)
     try:
-        async with aiomqtt.Client(broker_host, port=broker_port) as client:
-            await client.subscribe(TOPIC)
-            async for message in client.messages:
-                await mesaj_ele(sm, str(message.topic), message.payload)
+        await dinle(sm, broker_host=broker_host, broker_port=broker_port)
     finally:
         await engine.dispose()
 

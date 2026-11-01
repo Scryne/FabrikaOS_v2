@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from httpx import AsyncClient
 
-from tests.conftest import ALFA
+from tests.conftest import ALFA, onayci_basliklari
 
 KIMLIK = "/api/v1/kimlik"
 
@@ -45,7 +45,10 @@ async def test_fazla_mesai_olustur_onayla(kurulu_istemci: AsyncClient) -> None:
     m = r.json()["data"]
     assert m["saat"] == 3.5
     assert m["onayli"] is False
-    o = await kurulu_istemci.post(f"/api/v1/fazla-mesailer/{m['id']}/onayla", headers=h)
+    kendi = await kurulu_istemci.post(f"/api/v1/fazla-mesailer/{m['id']}/onayla", headers=h)
+    assert kendi.status_code == 403, kendi.text  # giren onaylayamaz (görev ayrımı)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
+    o = await kurulu_istemci.post(f"/api/v1/fazla-mesailer/{m['id']}/onayla", headers=onayci)
     assert o.status_code == 200, o.text
     assert o.json()["data"]["onayli"] is True
 

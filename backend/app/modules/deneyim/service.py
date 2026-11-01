@@ -48,7 +48,8 @@ class OnayKalemi:
 @dataclass
 class OnayKutusu:
     kalemler: list[OnayKalemi] = field(default_factory=list)
-    kendi_sayimlarim: int = 0
+    # Görev ayrımı: kullanıcının kendi açtığı, onayını bekleyen kayıtlar (listede değil).
+    kendi_kayitlarim: int = 0
 
 
 async def _ad(db: AsyncSession, kullanici_id: int | None) -> str | None:
@@ -73,6 +74,9 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
             )
         ).scalars()
         for t in talepler:
+            if t.talep_eden_kullanici_id == kullanici.id:
+                kutu.kendi_kayitlarim += 1
+                continue
             kutu.kalemler.append(
                 OnayKalemi(
                     tur="satinalma_talebi",
@@ -98,6 +102,9 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
             )
         ).all()
         for i, p in izinler:
+            if i.talep_eden_kullanici_id == kullanici.id:
+                kutu.kendi_kayitlarim += 1
+                continue
             kutu.kalemler.append(
                 OnayKalemi(
                     tur="izin_talebi",
@@ -125,6 +132,9 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
             )
         ).all()
         for m, p in mesailer:
+            if m.olusturan_kullanici_id == kullanici.id:
+                kutu.kendi_kayitlarim += 1
+                continue
             kutu.kalemler.append(
                 OnayKalemi(
                     tur="fazla_mesai",
@@ -150,7 +160,7 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
         ).scalars()
         for s in sayimlar:
             if s.olusturan_kullanici_id == kullanici.id:
-                kutu.kendi_sayimlarim += 1  # görev ayrımı: kendi sayımını onaylayamaz
+                kutu.kendi_kayitlarim += 1
                 continue
             kutu.kalemler.append(
                 OnayKalemi(

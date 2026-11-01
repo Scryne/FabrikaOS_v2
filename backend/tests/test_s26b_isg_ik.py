@@ -10,7 +10,7 @@ from datetime import timedelta
 from httpx import AsyncClient
 
 from app.core.zaman import is_gunu
-from tests.conftest import ALFA, BETA
+from tests.conftest import ALFA, BETA, onayci_basliklari
 from tests.test_s16_entitlement import _giris
 from tests.test_s25_depo_sayim import _kullanici
 
@@ -63,12 +63,13 @@ async def test_izin_bakiyesi_onayda_dusulur_asim_409(kurulu_istemci: AsyncClient
     b = (await kurulu_istemci.get(f"{API}/personeller/{pid}/izin-bakiyesi", headers=h)).json()
     assert (b["data"]["hakedilen"], b["data"]["bakiye"], b["data"]["kidem_yili"]) == (14, 14, 1)
 
+    onayci = await onayci_basliklari(kurulu_istemci, h)
     ilk = await _yillik(kurulu_istemci, h, pid, 10)
     assert (
-        await kurulu_istemci.post(f"{API}/izin-talepleri/{ilk}/onayla", headers=h)
+        await kurulu_istemci.post(f"{API}/izin-talepleri/{ilk}/onayla", headers=onayci)
     ).status_code == 200
     ikinci = await _yillik(kurulu_istemci, h, pid, 5)  # kalan 4 < 5
-    r = await kurulu_istemci.post(f"{API}/izin-talepleri/{ikinci}/onayla", headers=h)
+    r = await kurulu_istemci.post(f"{API}/izin-talepleri/{ikinci}/onayla", headers=onayci)
     assert r.status_code == 409, r.text
     assert r.json()["hata_kodu"] == "IZIN_BAKIYE_YETERSIZ"
     b = (await kurulu_istemci.get(f"{API}/personeller/{pid}/izin-bakiyesi", headers=h)).json()
@@ -78,7 +79,7 @@ async def test_izin_bakiyesi_onayda_dusulur_asim_409(kurulu_istemci: AsyncClient
     tarihsiz = await _personel(kurulu_istemci, h)
     iid = await _yillik(kurulu_istemci, h, tarihsiz, 3)
     assert (
-        await kurulu_istemci.post(f"{API}/izin-talepleri/{iid}/onayla", headers=h)
+        await kurulu_istemci.post(f"{API}/izin-talepleri/{iid}/onayla", headers=onayci)
     ).status_code == 200
 
 
@@ -86,9 +87,10 @@ async def test_esanli_onaylar_bakiyeyi_asamaz(kurulu_istemci: AsyncClient) -> No
     h = await _giris(kurulu_istemci, ALFA)
     pid = await _personel(kurulu_istemci, h, gun_once=400)
     a, b = await _yillik(kurulu_istemci, h, pid, 8), await _yillik(kurulu_istemci, h, pid, 8)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
     sonuc = await asyncio.gather(
-        kurulu_istemci.post(f"{API}/izin-talepleri/{a}/onayla", headers=h),
-        kurulu_istemci.post(f"{API}/izin-talepleri/{b}/onayla", headers=h),
+        kurulu_istemci.post(f"{API}/izin-talepleri/{a}/onayla", headers=onayci),
+        kurulu_istemci.post(f"{API}/izin-talepleri/{b}/onayla", headers=onayci),
     )
     assert sorted(r.status_code for r in sonuc) == [200, 409]
 

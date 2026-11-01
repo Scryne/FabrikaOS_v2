@@ -43,8 +43,8 @@ Definition of Done (DoD).
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ✅ ADR-0024 |
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ✅ ADR-0025, ADR-0044 |
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ✅ ADR-0045, ADR-0046 |
-| | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
-| **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ⬜ |
+| | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ✅ ADR-0047 |
+| **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ▶ |
 | | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ⬜ |
 | | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ⬜ |
 | | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ⬜ |
@@ -557,7 +557,21 @@ gidilir (RBAC dışı sonuç sızmaz — test); dışa aktarma büyük veri seti
 yaşamaz (async 202 deseni); Lighthouse erişilebilirlik ≥95; tüm FE/BE test + codegen yeşil.
 ADR-0026.
 
-#### ⬜ S28 — Kurumsal Güvence & Sürdürülebilirlik
+#### ✅ S28 — Kurumsal Güvence & Sürdürülebilirlik
+> **Durum (2026-11-01):** ✅ (ADR-0047). Mutasyon testi (kendi AST koşucusu; mutmut Windows'ta
+> çalışmıyor) dokuz saf çekirdekte %93,4, CI eşiği %90. Schemathesis sertleştirme taraması ilk
+> koşuda 88 uçta 500 buldu (aralık dışı tamsayı, NUL baytı, olmayan referans, yeniden adlandırma
+> çakışması, PATCH'te `null`, bozuk/UTF-8 olmayan CSV) → merkezi SQLSTATE sınıflaması; 277 uç,
+> 13.098 örnek, 0 sunucu hatası, CI `sertlestirme` işi. Dayanıklılık: Redis/MinIO/MQTT/DB kesintisi
+> 6 testle (503 + yedek oran sınırı + kalıcı MQTT oturumu, veri kaybı yok). TOTP sırrı ve webhook
+> imza anahtarı Fernet ile alan düzeyinde şifreli (döndürmeli anahtar, göç up/down testli). Kılavuz
+> iddiaları koddan doğrulanırken iki kusur daha: görev ayrımı yalnız roldeydi (kendi talebini
+> onaylama → artık 403) ve rapor hazır bildirimi hiç üretilmiyordu. SBOM (CycloneDX) her build'de,
+> Dependabot, gitleaks pre-commit. Doküman: olay müdahale, nöbet, tatbikat takvimi, sertleştirme
+> raporu, kullanıcı el kitabı, yönetici kılavuzu, API portalı (`docs/api/`, CI denetimli), sürüm
+> notları betiği, ISO 27001 güncel + ISO 9001 eşlemesi. **Bilerek ertelenen:** imaj imzalama
+> (yayın hattı/kayıt defteri yok; ADR-0047 §7), OIDC client secret şifrelemesi, k6 profillerinin
+> NFR başına genişletilmesi (NFR-01 profili S22'de var).
 **Test derinliği:** mutation testing (mutmut/Stryker) kritik çekirdekte (OEE, durum
 makineleri, tenancy) skor eşiğiyle; schemathesis kapsam genişletme; **dayanıklılık
 senaryoları** — Redis/MinIO/MQTT kesintisinde davranış (zarif bozulma + kurtarma + veri
@@ -572,7 +586,7 @@ otomasyonu (Conventional Commits → CHANGELOG); ISO 27001/9001 kontrol eşlemes
 veri, eşzamanlılık) — bulunanlar bu sprintte kapatılır.
 **Kabul:** Mutation skoru eşiği CI'da; üç kesinti senaryosu da testli ve veri kaybı yok;
 SBOM her build'de üretilir; doküman seti yayınlanmış ve sürüm treniyle güncellenebilir;
-sertleştirme pası bulguları kapatılmış. ADR-0027.
+sertleştirme pası bulguları kapatılmış. ADR-0047 (numara Faz 5'te kaydı).
 
 > **🚦 Faz 6 Kapısı (Kurumsal Olgunluk):** Modüller sektör-standart derinlikte (vardiya/
 > duruş/BOM/izlenebilirlik + depo/sayım/PO + SPC/kalibrasyon + hakediş/org) + kurumsal

@@ -2110,7 +2110,7 @@
     "toplam": "Pending",
     "hepsi": "All",
     "bos": "Nothing is waiting for your approval.",
-    "kendi_sayim": "{{adet}} stock counts you opened are waiting; separation of duties requires another approver.",
+    "kendi_kayit": "{{adet}} records you opened are waiting; separation of duties requires another approver.",
     "neden_zorunlu": "Reason (required, shared with the requester)",
     "neden_istege": "Reason (optional)",
     "tur_satinalma_talebi": "Purchasing",

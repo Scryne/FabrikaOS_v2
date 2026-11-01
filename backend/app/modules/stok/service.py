@@ -14,7 +14,7 @@ from decimal import Decimal
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, YetkiHatasi
 from app.core.olaylar import olay_yayinla
 from app.kimlik.models import Kullanici
 from app.modules.stok import depo_service, talep_durum
@@ -136,7 +136,14 @@ async def talep_durum_gecisi(
     - Tanımsız hedef → 422; makineye aykırı geçiş → 409.
     - ``reddedildi`` ``red_nedeni`` gerektirir → 422.
     - ``onaylandi``/``reddedildi`` onaylayan + onay tarihini yazar.
+    - Talebi açan kişi kendi talebini onaylayamaz (görev ayrımı, S28) → 403.
     """
+    if (
+        hedef == "onaylandi"
+        and onaylayan is not None
+        and talep.talep_eden_kullanici_id == onaylayan.id
+    ):
+        raise YetkiHatasi("Talebi açan kullanıcı kendi talebini onaylayamaz (görev ayrımı)")
     if hedef not in talep_durum.DURUMLAR:
         raise DogrulamaHatasi(
             "Geçersiz durum",

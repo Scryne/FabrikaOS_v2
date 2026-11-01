@@ -57,6 +57,9 @@ jobs:
       - name: mypy (tip kontrolü)
         run: mypy
 
+      - name: API portalı güncel mi (docs/api, S28)
+        run: python backend/scripts/api_portali.py --kontrol
+
       - name: pytest (birim + entegrasyon)
         run: pytest
 
@@ -121,6 +124,96 @@ jobs:
 
       - name: Bağımlılık güvenliği (npm audit, yüksek/kritik)
         run: npm audit --audit-level=high
+
+  # S28 (ADR-0047): kritik saf çekirdekte mutasyon skoru eşiği. Veritabanı gerekmez (birim testler).
+  mutasyon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Bağımlılıkları kur
+        run: pip install -e ".[dev]"
+      - name: Mutasyon testi (eşik %90)
+        run: python backend/scripts/mutasyon.py --isci 4 --esik 90
+
+  # S28 (ADR-0047): OpenAPI tabanlı sertleştirme — schemathesis tüm uçlarda 5xx arar (stateful dahil).
+  sertlestirme:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: timescale/timescaledb:latest-pg16
+        env:
+          POSTGRES_USER: fabrikaos
+          POSTGRES_PASSWORD: fabrikaos
+          POSTGRES_DB: fabrikaos
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fabrikaos"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Bağımlılıkları kur
+        run: pip install -e ".[dev]"
+      - name: Schemathesis taraması (5xx yok)
+        run: >-
+          python backend/scripts/sertlestirme.py
+          --db-url postgresql+asyncpg://fabrikaos:fabrikaos@localhost:5432/fabrikaos_sertlik
+          --redis-url redis://localhost:6379/3
+          --rapor sertlestirme-junit.xml
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: sertlestirme-raporu
+          path: sertlestirme-junit.xml
+          if-no-files-found: ignore
+
+  # S28 (ADR-0047): her build'de CycloneDX SBOM (backend ortamı + ön yüz üretim bağımlılıkları).
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Backend ortamını kur
+        run: pip install -e . cyclonedx-bom==7.2.1
+      - name: Backend SBOM
+        run: cyclonedx-py environment --output-format JSON --output-file sbom-backend.json
+      - name: Ön yüz SBOM
+        working-directory: frontend
+        run: |
+          npm ci
+          npx --yes @cyclonedx/cyclonedx-npm@2.1.0 --omit dev --output-file ../sbom-frontend.json
+      - uses: actions/upload-artifact@v5
+        with:
+          name: sbom-${{ github.sha }}
+          path: sbom-*.json
+          retention-days: 90
 
   # NOT: Playwright E2E (çalışan yığın + seed'li tenant ister) ve deploy adımları CI'da yok;
   # E2E yerelde `npm run test:e2e` ile koşar.

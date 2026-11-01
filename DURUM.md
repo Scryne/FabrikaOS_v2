@@ -22,6 +22,24 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S28 kurumsal güvence (ADR-0047)
+
+- Backend 791 test yeşil (S28: +44), ön yüz 230. ruff, mypy temiz; gitleaks çalışma ağacı ve geçmiş temiz.
+- Mutasyon testi 9 saf çekirdekte %93,4 (başlangıç %57,7); CI eşiği %90.
+- Schemathesis: ilk koşu 88 uçta 500 (76 GET + 12 yazma). Merkezi SQLSTATE sınıflamasından sonra
+  277 uç, 13.098 örnek, 0 sunucu hatası (`backend/scripts/sertlestirme.py`, CI `sertlestirme` işi).
+- Dayanıklılık: Redis, MinIO, MQTT ve DB kesintisi 6 testle; düzeltmeler geri alınınca 4/4 düşüyor.
+  Depo yokken belge yüklemesi 21 sn → 503 (SDK varsayılan yeniden denemeleri × 7 sn DNS); bağlantı
+  denemesi bire indirildi.
+- TOTP sırrı ve webhook imza anahtarı veritabanında Fernet ile şifreli; göç up/down testli; dev veritabanı
+  göçe getirildi.
+- Kılavuz iddiaları koddan doğrulanırken iki kusur: kişi kendi satınalma/izin/mesai talebini onaylayabiliyordu
+  (artık 403; 13 test ve demo tohumu onaycıya taşındı) ve rapor hazır bildirimi hiç üretilmiyordu. Demo tohumu
+  taze bir tenant'a baştan sona basıldı (çıkış 0).
+- Doküman: olay müdahale, nöbet, tatbikat takvimi, sertleştirme raporu, kullanıcı el kitabı, yönetici
+  kılavuzu, API portalı, ISO 27001 güncel + ISO 9001. Bilerek ertelenen: imaj imzalama, OIDC client
+  secret şifrelemesi.
+
 ## 2026-11-01 — S27-B dışa aktarma, sipariş PDF'i, yazdırma, erişilebilirlik (ADR-0046)
 
 - Ön yüz 229 test yeşil (dışa aktarma çekirdeği 4: CSV biçimi, formül etkisizleştirme, sütun

@@ -18,7 +18,12 @@ from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.exceptions import (
+    CakismaHatasi,
+    DogrulamaHatasi,
+    KaynakBulunamadi,
+    YetkiHatasi,
+)
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
 from app.core.zaman import is_gunu
@@ -527,6 +532,8 @@ async def mesai_onayla(
     mesai = await repository.mesai_getir(db, mesai_id)
     if mesai is None:
         raise KaynakBulunamadi("Fazla mesai bulunamadı")
+    if mesai.olusturan_kullanici_id == kullanici.id:  # görev ayrımı (S28)
+        raise YetkiHatasi("Fazla mesaiyi giren kullanıcı onaylayamaz (görev ayrımı)")
     mesai.onayli = True
     await db.flush()
     await denetim_yaz(

@@ -22,6 +22,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
+from app.core.security.sifreleme import SifreliMetin
 
 # --- n–n bağlantı tabloları ---
 kullanici_rol = Table(
@@ -109,9 +110,9 @@ class Kullanici(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     firma_id: Mapped[int | None] = mapped_column(
         BigInteger, ForeignKey("firmalar.id", ondelete="SET NULL"), index=True, nullable=True
     )
-    # TOTP 2FA (S23): sır base32 saklanır (tenant-izole DB; şifreleme ADR-0022
-    # ertelenmiş-iş). ``iki_asama_aktif`` yalnız doğrulanmış kurulumla True olur.
-    totp_sirri: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    # TOTP 2FA (S23): sır veritabanında şifreli (S28, ``SifreliMetin``; ORM'e şeffaf).
+    # ``iki_asama_aktif`` yalnız doğrulanmış kurulumla True olur.
+    totp_sirri: Mapped[str | None] = mapped_column(SifreliMetin(255), nullable=True)
     iki_asama_aktif: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     roller: Mapped[list[Rol]] = relationship(

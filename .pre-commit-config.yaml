@@ -31,3 +31,9 @@ repos:
           - "pyjwt>=2.9"
           - "argon2-cffi>=23.1"
         files: ^backend/app/
+
+  # S28 (ADR-0047): commit'e sır girmesin (anahtar, parola, bağlantı dizesi).
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks

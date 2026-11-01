@@ -92,6 +92,21 @@ sunucuda yılda en az iki kez.
 | 2026-10-31 | Tenant (demo, 67 tablo / 1.927 satır) | Başarılı | 1,9 sn | [kayıt](tatbikatlar/2026-10-31-demo.md) |
 | 2026-10-31 | PITR (yerel küme) | Başarılı, hedef an doğru | 0,8 sn | [kayıt](tatbikatlar/2026-10-31-pitr.md) |
 
+## Anahtarlar yedeğin parçasıdır (S28)
+
+TOTP sırları veritabanında şifreli durur (`app/core/security/sifreleme.py`). Anahtar
+`VERI_SIFRELEME_ANAHTARLARI`, verilmemişse `SECRET_KEY`'den türetilir. Tenant yedeği başka bir
+kuruluma ya da yeni bir sunucuya geri yüklenecekse **aynı anahtar** de taşınmalıdır; yoksa
+2FA'lı kullanıcılar giriş yapamaz (uygulama "şifreli alan çözülemedi" hatası verir). Anahtarlar
+veritabanı yedeğiyle aynı yere değil, ayrı bir sır kasasına yedeklenir.
+
+**Anahtar döndürme:** yeni anahtarı listenin başına ekle (`yeni,eski`), dağıt; kayıtlar okunurken
+eski anahtar çalışmaya devam eder. Eski anahtarı listeden çıkarmadan önce tüm kayıtları birincil
+anahtarla yeniden yaz (`sifreleme.yeniden_sifrele`).
+
+**Dikkat — `SECRET_KEY` döndürme:** ayrı anahtar verilmemiş kurulumda şifreleme anahtarı `SECRET_KEY`'den türetilir; `SECRET_KEY` değişirse mevcut şifreli sırlar okunamaz. Önce eski `SECRET_KEY`'den türetilen anahtarı açıkça `VERI_SIFRELEME_ANAHTARLARI`'na koy (ya da yeni bir Fernet anahtarı ekleyip kayıtları yeniden şifrele), sonra `SECRET_KEY`'i değiştir. Üretimde baştan ayrı bir anahtar vermek bu adımı ortadan kaldırır. Staging kopyası (§4) TOTP sırlarını
+silerek anonimleştirdiği için anahtar gerektirmez.
+
 ## Açık
 - WAL arşivi ve yedek birimi aynı sunucuda: disk kaybında ikisi birlikte gider. İlk prod
   kurulumunda arşiv nesne deposuna / başka bölgeye kopyalanmalı (ör. WAL-G → S3/MinIO).

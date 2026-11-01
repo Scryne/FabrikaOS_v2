@@ -12,6 +12,7 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import DBAPIError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("app.exceptions")
@@ -71,6 +72,17 @@ class SureDoldu(AppError):
     hata_kodu = "SURE_DOLDU"
 
 
+class HizmetKullanilamaz(AppError):
+    """Bağımlı bir altyapı (Redis, nesne deposu) geçici olarak yok (503, S28 / ADR-0047).
+
+    500'den ayrılır: istemci "kalıcı hata" değil "geçici, birazdan yeniden dene" bilgisi alır;
+    işlem yarım kalmamıştır (yazma yapılmadan reddedilir).
+    """
+
+    durum_kodu = 503
+    hata_kodu = "HIZMET_KULLANILAMAZ"
+
+
 class DogrulamaHatasi(AppError):
     durum_kodu = 422
     hata_kodu = "DOGRULAMA"
@@ -109,6 +121,71 @@ async def _validation_handler(request: Request, exc: Exception) -> JSONResponse:
     return _hata_yaniti(422, "Doğrulama hatası", "DOGRULAMA", detaylar)
 
 
+# Girdinin kendisinden doğan veritabanı veri hataları (S28 sertleştirme, ADR-0047). Schemathesis
+# taraması 76 uçta 500 buldu: sınırsız ``int`` parametresi (2**63) sürücüde, metindeki NUL baytı
+# PostgreSQL'de reddediliyordu. Bunlar istemci hatasıdır → 422. Liste bilerek dar: sınıf 22'nin geri
+# kalanı (ör. 22012 sıfıra bölme) sunucu kusurudur ve 500 olarak kalır.
+_GIRDI_SQLSTATE = {
+    "22003",  # numeric_value_out_of_range (int32/int64 sütun sınırı)
+    "22021",  # character_not_in_repertoire (metinde NUL baytı)
+    "22P02",  # invalid_text_representation
+    "22P05",  # untranslatable_character (JSONB içinde \u0000)
+}
+
+
+def _girdi_veri_hatasi_mi(exc: DBAPIError) -> bool:
+    kok = exc.orig.__cause__ if exc.orig is not None else None
+    if kok is None:
+        return False
+    # asyncpg'nin istemci taraflı hatası: bağlanan parametre kodlanamadı, sorgu sunucuya hiç
+    # gitmedi (ör. 2**63 bir BIGINT'e). Genel 22000 koduyla ve bu mesajla gelir.
+    if str(kok).startswith("invalid input for query argument"):
+        return True
+    return getattr(kok, "sqlstate", None) in _GIRDI_SQLSTATE
+
+
+def _butunluk_yaniti(exc: DBAPIError) -> JSONResponse | None:
+    """Servis katmanının önceden yakalamadığı bütünlük ihlalleri (S28 yazma taraması).
+
+    Hepsi istemcinin gönderdiği değerden doğar: var olmayan kayda referans, PATCH ile var olan bir
+    ada yeniden adlandırma, zorunlu alana açık ``null``. Sunucu kusuru sayılmaz, 500 dönmez.
+    """
+    kok = exc.orig.__cause__ if exc.orig is not None else None
+    kod = getattr(kok, "sqlstate", None)
+    sutun = getattr(kok, "column_name", None)
+    if kod == "23503":
+        if str(kok).startswith("update or delete"):  # silinen kayda başka kayıtlar bağlı
+            return _hata_yaniti(
+                409, "Bu kayda bağlı başka kayıtlar var; önce onları kaldırın", "BAGLI_KAYIT", []
+            )
+        return _hata_yaniti(
+            422, "Seçilen ilişkili kayıtlardan biri bulunamadı", "GECERSIZ_REFERANS", []
+        )
+    if kod == "23505":
+        return _hata_yaniti(409, "Bu değerle başka bir kayıt zaten var", "CAKISMA", [])
+    if kod == "23502":
+        detay = [{"alan": sutun, "mesaj": "Bu alan boş bırakılamaz"}] if sutun else []
+        return _hata_yaniti(422, "Zorunlu bir alan boş gönderildi", "DOGRULAMA", detay)
+    return None
+
+
+async def _db_veri_handler(request: Request, exc: Exception) -> JSONResponse:
+    assert isinstance(exc, DBAPIError)
+    butunluk = _butunluk_yaniti(exc)
+    if butunluk is not None:
+        logger.warning("Bütünlük ihlali (istemci girdisi): %s %s", request.url.path, exc.orig)
+        return butunluk
+    if not _girdi_veri_hatasi_mi(exc):
+        return await _beklenmeyen_handler(request, exc)
+    logger.warning("Geçersiz girdi değeri (DB): %s %s", request.url.path, exc.orig)
+    return _hata_yaniti(
+        422,
+        "Girilen değerlerden biri geçerli aralıkta ya da biçimde değil",
+        "GECERSIZ_DEGER",
+        [],
+    )
+
+
 async def _beklenmeyen_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("Beklenmeyen hata: %s", exc)
     return _hata_yaniti(500, "Sunucu hatası", "SUNUCU", [])
@@ -118,4 +195,5 @@ def hata_handlerlari_kaydet(app: FastAPI) -> None:
     app.add_exception_handler(AppError, _app_error_handler)
     app.add_exception_handler(StarletteHTTPException, _http_exception_handler)
     app.add_exception_handler(RequestValidationError, _validation_handler)
+    app.add_exception_handler(DBAPIError, _db_veri_handler)
     app.add_exception_handler(Exception, _beklenmeyen_handler)

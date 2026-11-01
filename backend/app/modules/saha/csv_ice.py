@@ -24,7 +24,15 @@ class CsvGecersiz(Exception):
 
 
 def csv_satirlari_coz(metin: str, *, cihaz_kod: str) -> list[OlcumPaketi]:
-    okuyucu = csv.DictReader(io.StringIO(metin))
+    # newline="": tırnaklı alandaki satır sonu csv modülüne bırakılır (yoksa csv.Error).
+    okuyucu = csv.DictReader(io.StringIO(metin, newline=""))
+    try:
+        return _coz(okuyucu, cihaz_kod=cihaz_kod)
+    except csv.Error as exc:  # bozuk tırnak/satır yapısı: istemci hatası, 500 değil (S28)
+        raise CsvGecersiz(f"CSV okunamadı: {exc}") from exc
+
+
+def _coz(okuyucu: csv.DictReader[str], *, cihaz_kod: str) -> list[OlcumPaketi]:
     if okuyucu.fieldnames is None or "makine_kod" not in okuyucu.fieldnames:
         raise CsvGecersiz("CSV başlığı eksik veya 'makine_kod' kolonu yok")
     paketler: list[OlcumPaketi] = []

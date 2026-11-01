@@ -143,12 +143,12 @@ export function Onaylarim() {
           })),
         ]}
       />
-      {(data?.kendi_sayimlarim ?? 0) > 0 && (
+      {(data?.kendi_kayitlarim ?? 0) > 0 && (
         <Alert
           type="info"
           showIcon
           style={{ marginTop: 16 }}
-          message={t('onay.kendi_sayim', { adet: data?.kendi_sayimlarim })}
+          message={t('onay.kendi_kayit', { adet: data?.kendi_kayitlarim })}
         />
       )}
       <Card style={{ marginTop: 16 }}>

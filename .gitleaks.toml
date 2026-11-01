@@ -1,0 +1,13 @@
+# S28 (ADR-0047): gitleaks varsayılan kurallarının üstüne yalnız doğrulanmış yanlış pozitifler.
+title = "FabrikaOS gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Yanlış pozitifler (2026-11-01 taraması, elle incelendi)"
+regexTarget = "line"
+# TanStack Query anahtar sabitleri (queryKey: ISG26_ANAHTAR.egitimler) "api key" kalıbına benziyor.
+regexes = ['''queryKey:\s*[A-Z][A-Z0-9_]*\.''']
+# Üçüncü taraf ve üretilmiş dizinler (kripto kütüphanelerinin kendi test anahtarları).
+paths = ['''(^|/)\.venv/''', '''(^|/)node_modules/''', '''__pycache__/''']

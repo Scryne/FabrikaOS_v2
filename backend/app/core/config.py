@@ -33,6 +33,9 @@ class Settings(BaseSettings):
 
     # Üretimde MUTLAKA override edilir (bkz. _guvenlik_dogrula).
     secret_key: str = VARSAYILAN_SECRET
+    # Alan şifrelemesi (S28, TOTP sırrı): virgülle ayrılmış Fernet anahtarları, ilki yazım için.
+    # Boşsa secret_key'den türetilir (app/core/security/sifreleme.py).
+    veri_sifreleme_anahtarlari: str = ""
 
     cors_origins: list[str] = Field(default_factory=list)
 

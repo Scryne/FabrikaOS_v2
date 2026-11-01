@@ -25069,15 +25069,15 @@
             "type": "array",
             "title": "Kalemler"
           },
-          "kendi_sayimlarim": {
+          "kendi_kayitlarim": {
             "type": "integer",
-            "title": "Kendi Sayimlarim"
+            "title": "Kendi Kayitlarim"
           }
         },
         "type": "object",
         "required": [
           "kalemler",
-          "kendi_sayimlarim"
+          "kendi_kayitlarim"
         ],
         "title": "OnayKutusuDTO"
       },

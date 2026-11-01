@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from httpx import AsyncClient
 
-from tests.conftest import ALFA, BETA
+from tests.conftest import ALFA, BETA, onayci_basliklari
 
 KIMLIK = "/api/v1/kimlik"
 
@@ -106,7 +106,10 @@ async def test_izin_akis_gonder_onayla(kurulu_istemci: AsyncClient) -> None:
     d = await _izin(kurulu_istemci, h, pid)
     g = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/gonder", headers=h)
     assert g.json()["data"]["durum"] == "onay_bekliyor"
-    o = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/onayla", headers=h)
+    kendi = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/onayla", headers=h)
+    assert kendi.status_code == 403, kendi.text  # giren onaylayamaz (görev ayrımı)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
+    o = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/onayla", headers=onayci)
     assert o.status_code == 200, o.text
     veri = o.json()["data"]
     assert veri["durum"] == "onaylandi"
@@ -118,7 +121,8 @@ async def test_izin_gecersiz_gecis_409(kurulu_istemci: AsyncClient) -> None:
     pid = await _personel_id(kurulu_istemci, h, "IZ-P5")
     d = await _izin(kurulu_istemci, h, pid)
     # taslak'ten doğrudan onaylandi yasak (önce gönder gerekli)
-    r = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/onayla", headers=h)
+    onayci = await onayci_basliklari(kurulu_istemci, h)
+    r = await kurulu_istemci.post(f"/api/v1/izin-talepleri/{d['id']}/onayla", headers=onayci)
     assert r.status_code == 409, r.text
 
 

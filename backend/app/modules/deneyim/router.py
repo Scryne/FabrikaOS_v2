@@ -41,7 +41,7 @@ class OnayKalemiDTO(BaseModel):
 
 class OnayKutusuDTO(BaseModel):
     kalemler: list[OnayKalemiDTO]
-    kendi_sayimlarim: int
+    kendi_kayitlarim: int
 
 
 class AramaKaydiDTO(BaseModel):
@@ -62,7 +62,7 @@ async def onaylarim(k: Kullanicim, db: Db, tenant: TenantDep) -> dict[str, Any]:
     return basari(
         OnayKutusuDTO(
             kalemler=[OnayKalemiDTO(**vars(x)) for x in kutu.kalemler],
-            kendi_sayimlarim=kutu.kendi_sayimlarim,
+            kendi_kayitlarim=kutu.kendi_kayitlarim,
         ).model_dump(),
         mesaj="Onay kutusu",
     )

@@ -19,6 +19,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.db.base import KimlikMixin, TenantBase, ZamanDamgaliMixin
+from app.core.security.sifreleme import SifreliMetin
 
 # Teslimat yaşam döngüsü: beklemede → basarili | yeniden_denenecek → ... → basarisiz.
 TESLIMAT_DURUMLARI = frozenset({"beklemede", "basarili", "yeniden_denenecek", "basarisiz"})
@@ -31,7 +32,8 @@ class WebhookAboneligi(KimlikMixin, ZamanDamgaliMixin, TenantBase):
 
     ad: Mapped[str] = mapped_column(String(120), nullable=False)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
-    gizli_anahtar: Mapped[str] = mapped_column(String(120), nullable=False)
+    # HMAC imzası için düz hâli gerekir (özetlenemez): veritabanında şifreli (S28).
+    gizli_anahtar: Mapped[str] = mapped_column(SifreliMetin(255), nullable=False)
     # Katalogdan alt küme; boş liste = tüm olay türleri.
     olay_turleri: Mapped[list[str]] = mapped_column(JSONB, default=list, nullable=False)
     aktif: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

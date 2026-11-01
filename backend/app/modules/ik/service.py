@@ -11,7 +11,7 @@ from datetime import UTC, date, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, YetkiHatasi
 from app.kimlik.models import Kullanici
 from app.modules.ik import izin_durum
 from app.modules.ik.models import IzinTalebi
@@ -55,7 +55,14 @@ async def izin_durum_gecisi(
     - Tanımsız hedef → 422; makineye aykırı geçiş → 409.
     - ``reddedildi`` ``red_nedeni`` gerektirir → 422.
     - ``onaylandi``/``reddedildi`` onaylayan + onay tarihini yazar (``ik:onay`` router'da).
+    - Talebi giren kişi onaylayamaz (görev ayrımı, S28) → 403.
     """
+    if (
+        hedef == "onaylandi"
+        and onaylayan is not None
+        and izin.talep_eden_kullanici_id == onaylayan.id
+    ):
+        raise YetkiHatasi("İzin talebini giren kullanıcı onaylayamaz (görev ayrımı)")
     if hedef not in izin_durum.DURUMLAR:
         raise DogrulamaHatasi(
             "Geçersiz durum",

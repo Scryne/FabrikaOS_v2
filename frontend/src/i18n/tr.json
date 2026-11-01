@@ -2110,7 +2110,7 @@
     "toplam": "Bekleyen",
     "hepsi": "Hepsi",
     "bos": "Onay bekleyen işiniz yok.",
-    "kendi_sayim": "Açtığınız {{adet}} sayım onay bekliyor; görev ayrımı gereği başka bir yetkili onaylamalı.",
+    "kendi_kayit": "Açtığınız {{adet}} kayıt onay bekliyor; görev ayrımı gereği başka bir yetkili onaylamalı.",
     "neden_zorunlu": "Red nedeni (zorunlu, talep sahibine iletilir)",
     "neden_istege": "Red nedeni (isteğe bağlı)",
     "tur_satinalma_talebi": "Satınalma",

@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
+import uuid
 from collections.abc import AsyncIterator, Iterator
 
 import asyncpg
@@ -50,6 +51,29 @@ ASYNCPG_URL = f"{_SUNUCU}/{_TEST_DB}"
 
 ALFA = {"slug": "alfa", "ad": "Alfa Fabrika", "eposta": "admin@alfa.test", "parola": "Alfa12345!"}
 BETA = {"slug": "beta", "ad": "Beta Fabrika", "eposta": "admin@beta.test", "parola": "Beta12345!"}
+
+
+async def onayci_basliklari(
+    istemci: AsyncClient,
+    admin_h: dict[str, str],
+    roller: tuple[str, ...] = ("satinalma-onaylayan", "ik-onaylayan"),
+) -> dict[str, str]:
+    """Kaydı açandan ayrı bir onaylayıcı (görev ayrımı, S28): yeni kullanıcı + oturum başlıkları."""
+    slug = admin_h["X-Tenant"]
+    eposta, parola = f"onayci-{uuid.uuid4().hex[:8]}@{slug}.test", "Onayci12345!"
+    r = await istemci.post(
+        "/api/v1/kullanicilar",
+        json={"eposta": eposta, "parola": parola, "ad_soyad": "Onaycı", "roller": list(roller)},
+        headers=admin_h,
+    )
+    assert r.status_code == 201, r.text
+    t = await istemci.post(
+        "/api/v1/kimlik/token",
+        data={"username": eposta, "password": parola},
+        headers={"X-Tenant": slug},
+    )
+    assert t.status_code == 200, t.text
+    return {"X-Tenant": slug, "Authorization": f"Bearer {t.json()['data']['access_token']}"}
 
 
 # --- Hafif fixture'lar (mevcut, DB'siz) ---

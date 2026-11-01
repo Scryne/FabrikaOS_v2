@@ -1,0 +1,29 @@
+# S28 (ADR-0047): bağımlılık güncellemeleri haftalık, gruplu; güvenlik güncellemeleri ayrıca anında gelir.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      python-kucuk:
+        update-types: [minor, patch]
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      npm-kucuk:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+  - package-ecosystem: docker
+    directory: "/backend"
+    schedule:
+      interval: monthly
