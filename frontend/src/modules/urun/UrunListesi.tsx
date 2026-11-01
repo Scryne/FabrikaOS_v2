@@ -10,6 +10,7 @@ import { PartitionOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input, Modal, Select, Switch, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
@@ -145,6 +146,11 @@ export function UrunListesi() {
       />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Urun>
+          disaAktar={{
+            yol: '/urunler',
+            dosya: 'urunler',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

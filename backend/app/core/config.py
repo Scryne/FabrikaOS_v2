@@ -21,6 +21,8 @@ class Settings(BaseSettings):
         extra="ignore",
         case_sensitive=False,
     )
+    # Takvim günü gerektiren iş kuralları için yerel gün (core.zaman.is_gunu).
+    is_saat_dilimi: str = "Europe/Istanbul"
 
     # --- Uygulama ---
     app_env: str = "dev"  # dev | staging | prod

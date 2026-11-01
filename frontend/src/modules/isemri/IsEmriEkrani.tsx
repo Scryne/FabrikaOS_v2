@@ -15,6 +15,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Card, Col, Row, Space } from 'antd';
 
+import { useDerinKayit } from '@/modules/ortak/useDerinKayit';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { donutSecenek } from '@/components/grafik/grafikSecenek';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
@@ -53,7 +54,7 @@ export function IsEmriEkrani() {
   const { t } = useTranslation();
   const yazabilir = useAuthStore((s) => s.izinVar('isemri:yaz'));
   const [gorunum, setGorunum] = useState<Gorunum>('liste');
-  const [seciliId, setSeciliId] = useState<number | null>(null);
+  const [seciliId, setSeciliId, detayKapat] = useDerinKayit();
   const [formAcik, setFormAcik] = useState(false);
   const { data: pano } = useIsEmriPano();
 
@@ -151,7 +152,7 @@ export function IsEmriEkrani() {
         </Row>
       )}
 
-      <IsEmriDetay id={seciliId} kapat={() => setSeciliId(null)} />
+      <IsEmriDetay id={seciliId} kapat={detayKapat} />
       <IsEmriFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

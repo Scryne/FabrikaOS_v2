@@ -17,6 +17,8 @@ import { Button, Card, Empty, Skeleton, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
+import { useDerinKayit } from '@/modules/ortak/useDerinKayit';
 import { pimUret } from '@/components/DurumPim';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
@@ -51,7 +53,7 @@ export function SatinalmaTalepListesi() {
   const yazabilir = useAuthStore((s) => s.izinVar('satinalma:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const [gorunum, setGorunum] = useState<Gorunum>('liste');
-  const [detayId, setDetayId] = useState<number | null>(null);
+  const [detayId, setDetayId, detayKapat] = useDerinKayit();
   const [formAcik, setFormAcik] = useState(false);
 
   const { data, isPending, isError } = useTalepler(param);
@@ -141,6 +143,11 @@ export function SatinalmaTalepListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<SatinalmaTalebi>
+            disaAktar={{
+              yol: '/satinalma-talepleri',
+              dosya: 'satinalma-talepleri',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}
@@ -182,7 +189,7 @@ export function SatinalmaTalepListesi() {
         />
       )}
 
-      <SatinalmaTalepDetay id={detayId} kapat={() => setDetayId(null)} />
+      <SatinalmaTalepDetay id={detayId} kapat={detayKapat} />
       <SatinalmaTalepFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

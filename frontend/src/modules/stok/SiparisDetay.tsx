@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
+  FilePdfOutlined,
   InboxOutlined,
   RollbackOutlined,
   StopOutlined,
@@ -50,6 +51,7 @@ import {
   useSiparis,
   useSiparisAksiyon,
   useTeslimAl,
+  siparisPdfAc,
 } from './siparisHooks';
 
 function tarih(v: string | null, saat = false): string {
@@ -71,6 +73,7 @@ export function SiparisDetay() {
   const iade = useIade(id);
   const aksiyon = useSiparisAksiyon(id);
   const [teslimAcik, setTeslimAcik] = useState(false);
+  const [pdfYukleniyor, setPdfYukleniyor] = useState(false);
   const [iadeTeslim, setIadeTeslim] = useState<Teslim | null>(null);
   const [kapatAcik, setKapatAcik] = useState(false);
 
@@ -134,6 +137,7 @@ export function SiparisDetay() {
             percent={Math.min(100, Math.round((k.teslim_alinan_miktar / k.miktar) * 100))}
             size="small"
             showInfo={false}
+            aria-label={t('siparis.teslim_ilerleme', { kod: k.malzeme_kod })}
             strokeColor={k.kalan_miktar === 0 ? RENKLER.basari : RENKLER.mavi}
           />
         </div>
@@ -227,6 +231,18 @@ export function SiparisDetay() {
         sag={
           s && (
             <Space wrap>
+              <Button
+                icon={<FilePdfOutlined />}
+                loading={pdfYukleniyor}
+                onClick={() => {
+                  setPdfYukleniyor(true);
+                  siparisPdfAc(s.id, s.kod)
+                    .catch(() => message.error(t('siparis.pdf_hata')))
+                    .finally(() => setPdfYukleniyor(false));
+                }}
+              >
+                {t('siparis.pdf')}
+              </Button>
               {s.durum === 'acik' && satinalmaci && s.teslimler.length === 0 && (
                 <Popconfirm
                   title={t('siparis.iptal_soru')}

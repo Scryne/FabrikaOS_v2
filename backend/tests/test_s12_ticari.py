@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from httpx import AsyncClient
 
+from app.core.zaman import is_gunu
 from tests.conftest import ALFA, BETA
 
 KIMLIK = "/api/v1/kimlik"
@@ -30,7 +31,7 @@ async def test_ticari_ozet_sayaclar(kurulu_istemci: AsyncClient) -> None:
     # firma + yaklaşan aktif sözleşme + açık talep + yayınlı duyuru
     fr = await kurulu_istemci.post("/api/v1/firmalar", json={"ad": "Ozet Firma"}, headers=h)
     fid = fr.json()["data"]["id"]
-    yakin = (datetime.now(UTC).date() + timedelta(days=15)).isoformat()
+    yakin = (is_gunu() + timedelta(days=15)).isoformat()
     sr = await kurulu_istemci.post(
         "/api/v1/sozlesmeler",
         json={

@@ -5,7 +5,7 @@ Tüm uçlar tenant-kapsamlı + RBAC. Okuma ``sozlesme:oku``, yazma/durum/tara ``
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -19,6 +19,7 @@ from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.crm import repository as crm_repo
 from app.modules.sozlesme import repository, service
@@ -139,7 +140,7 @@ async def sozlesme_yaklasan(
     esik_gun: int = 30,
 ) -> dict[str, Any]:
     esik_gun = min(max(esik_gun, 1), 365)
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     sinir = bugun + timedelta(days=esik_gun)
     kayitlar = await repository.yaklasan_listele(db, bugun=bugun, sinir=sinir)
     return basari([_cevap(s) for s in kayitlar], mesaj="Yaklaşan sözleşmeler")
@@ -247,7 +248,7 @@ async def sozlesme_ozet(
     for d, adet in durum_sonuc.all():
         sayac[d] = int(adet)
 
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     sinir = bugun + timedelta(days=30)
     yaklasan = (
         await db.scalar(

@@ -25,6 +25,7 @@ from sqlalchemy.orm import selectinload
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import olay_yayinla
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.kalite import spc
 from app.modules.kalite.models import (
@@ -75,7 +76,7 @@ async def kalibrasyon_ekle(
     belge_id: int | None,
     kullanici: Kullanici,
 ) -> KalibrasyonKaydi:
-    if tarih > datetime.now(UTC).date():
+    if tarih > is_gunu():
         raise DogrulamaHatasi(
             "Kalibrasyon tarihi gelecekte olamaz",
             detaylar=[{"alan": "tarih", "mesaj": tarih.isoformat()}],
@@ -114,7 +115,7 @@ async def kalibrasyon_tara(
     db: AsyncSession, *, tenant_slug: str, esik_gun: int = 30, bugun: date | None = None
 ) -> int:
     """Kalibrasyonu ``esik_gun`` içinde dolacak (ya da dolmuş) aktif cihazlar için bir kez olay."""
-    bugun = bugun or datetime.now(UTC).date()
+    bugun = bugun or is_gunu()
     adaylar = (
         (
             await db.execute(
@@ -295,7 +296,7 @@ async def olcum_ekle(
         cihaz = await db.get(OlcumCihazi, cihaz_id)
         if cihaz is None:
             raise KaynakBulunamadi("Ölçüm cihazı bulunamadı")
-        if not cihaz_gecerli_mi(cihaz, datetime.now(UTC).date()):
+        if not cihaz_gecerli_mi(cihaz, is_gunu()):
             raise DogrulamaHatasi(
                 f"{cihaz.kod} cihazının kalibrasyonu geçerli değil; ölçüm kalite kanıtı sayılmaz",
                 hata_kodu="KALIBRASYON_GECERSIZ",

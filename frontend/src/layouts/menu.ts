@@ -25,6 +25,12 @@ export type MenuOgesi = {
 export const MENU: MenuOgesi[] = [
   { anahtar: 'pano', etiketAnahtari: 'menu.pano', bolum: 'menu.bolum_genel', yol: '/pano' },
   {
+    anahtar: 'onaylarim',
+    etiketAnahtari: 'menu.onaylarim',
+    bolum: 'menu.bolum_genel',
+    yol: '/onaylarim',
+  },
+  {
     anahtar: 'makineler',
     etiketAnahtari: 'menu.makineler',
     bolum: 'menu.bolum_uretim',

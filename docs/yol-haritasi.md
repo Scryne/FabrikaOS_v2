@@ -42,13 +42,13 @@ Definition of Done (DoD).
 | | S24 | Üretim & bakım derinleşmesi (vardiya, duruş, ürün/BOM, izlenebilirlik, MTBF/MTTR) | ✅ ADR-0023 |
 | | S25 | Tedarik zinciri derinleşmesi (depo/lokasyon, sayım, barkod, satınalma siparişi, tedarikçi skoru) | ✅ ADR-0024 |
 | | S26 | Kalite/İSG/İK kurumsal tamamlama (kontrol planı+SPC, kalibrasyon, İSG eğitim, izin hakediş, org şeması) | ✅ ADR-0025, ADR-0044 |
-| | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ⬜ |
+| | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ✅ ADR-0045, ADR-0046 |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ⬜ |
 | **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ⬜ |
 | | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ⬜ |
 | | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ⬜ |
 | | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ⬜ |
-| **8 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⬜ |
+| **8 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⏸ kapsam dışı (Scryne, 2026-11-01) |
 
 İşaretler: ✅ tamam · ▶ sıradaki · ⬜ planlı.
 
@@ -530,7 +530,14 @@ aşım 409); vardiya planlama = S24 `Vardiya` + personel atama; organizasyon şe
 bir-kez; izin onayı bakiye düşer + bakiye aşımı 409 + `ik:onay` görev ayrımı korunur;
 kaza→CAPA köprüsü izolasyon/RBAC testli; migration fan-out up/down. ADR-0025.
 
-#### ⬜ S27 — Platform Deneyimi: Bildirim, Onay Kutusu & UI Master Planı
+#### ✅ S27 — Platform Deneyimi: Bildirim, Onay Kutusu & UI Master Planı
+> **Durum (2026-11-01):** **S27-A ✅** (ADR-0045): `GET /onaylarim` birleşik onay kutusu (satınalma,
+> izin, fazla mesai, sayım; izin + modül süzgeçli, görev ayrımı görünür), `GET /ara` içerik araması
+> ⌘K paletinde (6 kaynak, RBAC ve kiracı izolasyonu testli), `?kayit=` derin bağlantı, rota düzeyi
+> code-split (ana parça 863 → 246 kB). Bildirim merkezi S-VB'de. **S27-B ✅** (ADR-0046): 23 listede
+> CSV/Excel dışa aktarma (Türk Excel biçimi, formül enjeksiyonu koruması, 5.000 satır sınırı açıkça
+> bildirilir), satınalma siparişi PDF'i, yazdırma stil sayfası, axe-core WCAG 2.1 AA pası (11 ekran
+> temiz; `mavi-metin`/`hata-metin` token'ları).
 **Bildirim merkezi:** `Bildirim` (kişi-hedefli, tenant içi) — outbox olaylarından üretim
 (stok.kritik, sozlesme.yaklasiyor, anomali.tespit, rapor.hazir, kalite.spc_ihlal...);
 zil → gerçek panel (okundu yönetimi, tümünü okundu say), **tercih ekranı** (olay türü

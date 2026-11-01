@@ -4,19 +4,20 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 import asyncpg
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker
 
+from app.core.zaman import is_gunu
 from app.modules.bildirim.zamanli import tenant_zamanli_taramalar
 from tests.conftest import ALFA, ASYNCPG_URL
 from tests.test_s16_entitlement import _giris
 from tests.test_s25_depo_sayim import _kullanici
 
 API = "/api/v1"
-BUGUN = datetime.now(UTC).date()
+BUGUN = is_gunu()
 # Kararlı süreç: ortalama 10, küçük ama sıfır olmayan aralık; deterministik.
 KARARLI = [
     [10.02, 9.98, 10.01, 9.99, 10.00],

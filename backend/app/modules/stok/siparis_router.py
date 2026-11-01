@@ -37,6 +37,7 @@ from app.modules.stok.models import (
     TeslimAlma,
     TeslimAlmaKalemi,
 )
+from app.modules.stok.siparis_pdf import PdfFirma, PdfKalem, siparis_pdf
 
 router = APIRouter(tags=["Satınalma Siparişi"], dependencies=[Depends(modul_gerekli("stok"))])
 
@@ -267,6 +268,74 @@ async def siparis_detay(siparis_id: int, _k: Oku, db: Oturum) -> dict[str, Any]:
     if s is None:
         raise KaynakBulunamadi("Sipariş bulunamadı")
     return basari(await _detay(db, s))
+
+
+@router.get(
+    "/satinalma-siparisleri/{siparis_id}/pdf",
+    summary="Sipariş formu (PDF, tedarikçiye gönderilir)",
+    response_class=Response,
+)
+async def siparis_pdf_indir(siparis_id: int, k: Oku, db: Oturum, tenant: TenantDep) -> Response:
+    s = await db.get(SatinalmaSiparisi, siparis_id)
+    if s is None:
+        raise KaynakBulunamadi("Sipariş bulunamadı")
+    kalemler = (
+        (
+            await db.execute(
+                select(SatinalmaSiparisiKalemi)
+                .where(SatinalmaSiparisiKalemi.siparis_id == s.id)
+                .order_by(SatinalmaSiparisiKalemi.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    malzemeler = {
+        m.id: m
+        for m in (
+            await db.execute(
+                select(Malzeme).where(Malzeme.id.in_([x.malzeme_id for x in kalemler] or [0]))
+            )
+        ).scalars()
+    }
+    firma = await db.get(Firma, s.tedarikci_firma_id)
+    talep = await db.get(SatinalmaTalebi, s.talep_id)
+    icerik = siparis_pdf(
+        kod=s.kod,
+        tarih=s.olusturma_tarihi,
+        beklenen_teslim=s.beklenen_teslim_tarihi,
+        para_birimi=s.para_birimi,
+        aciklama=s.aciklama,
+        talep_kodu=talep.kod if talep else None,
+        alici=PdfFirma(ad=tenant.ad),
+        tedarikci=PdfFirma(
+            ad=firma.ad if firma else "—",
+            vergi_dairesi=firma.vergi_dairesi if firma else "",
+            vergi_no=firma.vergi_no if firma else "",
+            adres=firma.adres if firma else "",
+            il=firma.il if firma else "",
+            telefon=firma.telefon if firma else "",
+            eposta=firma.eposta if firma else "",
+        ),
+        kalemler=[
+            PdfKalem(
+                malzeme_kod=malzemeler[x.malzeme_id].kod if x.malzeme_id in malzemeler else "?",
+                malzeme_ad=malzemeler[x.malzeme_id].ad if x.malzeme_id in malzemeler else "",
+                miktar=x.miktar,
+                birim=malzemeler[x.malzeme_id].birim if x.malzeme_id in malzemeler else "",
+                birim_fiyat=x.birim_fiyat,
+            )
+            for x in kalemler
+        ],
+    )
+    await denetim_yaz(
+        db, eylem="disa_aktar", kaynak="satinalma_siparisi", kaynak_id=str(s.id), kullanici=k
+    )
+    return Response(
+        content=icerik,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'inline; filename="{s.kod}.pdf"'},
+    )
 
 
 @router.post("/satinalma-siparisleri", status_code=201, summary="Onaylı talepten sipariş aç")

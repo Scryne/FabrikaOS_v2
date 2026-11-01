@@ -12,6 +12,7 @@ import { Button, Card, Empty, Skeleton, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { pimUret } from '@/components/DurumPim';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
@@ -142,6 +143,11 @@ export function TalepListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<Talep>
+            disaAktar={{
+              yol: '/talepler',
+              dosya: 'talepler',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}

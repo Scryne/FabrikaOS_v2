@@ -7,7 +7,7 @@ KVKK: personel yanıtlarında TC kimlik ``tc_maskele`` ile maskelenir.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -21,6 +21,7 @@ from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.ik import repository, service
 from app.modules.ik.birimler import IZIN_TURLERI
@@ -617,7 +618,7 @@ async def zimmet_iade(
     if zimmet.durum == "iade_edildi":
         raise CakismaHatasi("Zimmet zaten iade edilmiş")
     zimmet.durum = "iade_edildi"
-    zimmet.iade_tarihi = datetime.now(UTC).date()
+    zimmet.iade_tarihi = is_gunu()
     await db.flush()
     await denetim_yaz(
         db, eylem="iade", kaynak="zimmet", kaynak_id=str(zimmet.id), kullanici=kullanici
@@ -696,7 +697,7 @@ async def ik_ozet(
     db: Annotated[AsyncSession, Depends(get_session)],
     _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     sinir = bugun + timedelta(days=30)
 
     toplam = await db.scalar(select(func.count()).select_from(Personel)) or 0

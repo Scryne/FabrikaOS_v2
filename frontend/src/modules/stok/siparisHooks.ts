@@ -279,3 +279,19 @@ export async function etiketIndir(malzemeId: number, kod: string, adet = 1): Pro
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+/** Sipariş formunu (PDF) yeni sekmede açar; tarayıcı engellerse indirir (S27-B, ADR-0046). */
+export async function siparisPdfAc(siparisId: number, kod: string): Promise<void> {
+  const { blob } = await istekIndir(`${PREFIX}/satinalma-siparisleri/${siparisId}/pdf`);
+  const url = URL.createObjectURL(blob);
+  const pencere = window.open(url, '_blank', 'noopener');
+  if (!pencere) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${kod}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}

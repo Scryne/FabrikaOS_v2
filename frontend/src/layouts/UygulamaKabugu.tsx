@@ -4,7 +4,7 @@
  * içerik (Outlet). Modül ikonları/renkleri tek kaynaktan: tema/modulKimlik.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -18,6 +18,7 @@ import { Avatar, Dropdown, Layout, Menu } from 'antd';
 import type { CSSProperties } from 'react';
 import type { MenuProps } from 'antd';
 
+import { SayfaYukleniyor } from '@/components/SayfaYukleniyor';
 import { cikisYap } from '@/api/kimlik';
 import { cozumleTenant } from '@/api/tenant';
 import { KomutPaleti } from '@/components/KomutPaleti';
@@ -169,7 +170,7 @@ export function UygulamaKabugu() {
           >
             <LogoIsareti boyut={26} />
             <span style={{ fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--metin)' }}>
-              Fabrika<span style={{ color: 'var(--mavi)' }}>OS</span>
+              Fabrika<span style={{ color: 'var(--mavi-metin)' }}>OS</span>
             </span>
           </div>
 
@@ -213,7 +214,7 @@ export function UygulamaKabugu() {
                     borderRadius: 9,
                     background: 'rgba(59,110,246,0.14)',
                     border: '1px solid rgba(59,110,246,0.28)',
-                    color: 'var(--mavi)',
+                    color: 'var(--mavi-metin)',
                     fontSize: 12,
                     fontWeight: 700,
                     textTransform: 'uppercase',
@@ -296,7 +297,7 @@ export function UygulamaKabugu() {
             <button type="button" className="kullanici-cip">
               <Avatar
                 size={32}
-                style={{ backgroundColor: 'rgba(59,110,246,0.18)', color: 'var(--mavi)' }}
+                style={{ backgroundColor: 'rgba(59,110,246,0.18)', color: 'var(--mavi-metin)' }}
                 icon={kullanici ? undefined : <UserOutlined />}
               >
                 {kullanici ? basharfler(kullanici.ad_soyad || kullanici.eposta) : null}
@@ -335,7 +336,9 @@ export function UygulamaKabugu() {
 
         <Layout.Content className="icerik-alani">
           <div className="icerik-acilis">
-            <Outlet />
+            <Suspense fallback={<SayfaYukleniyor />}>
+              <Outlet />
+            </Suspense>
           </div>
         </Layout.Content>
       </Layout>

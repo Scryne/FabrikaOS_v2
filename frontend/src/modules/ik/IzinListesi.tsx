@@ -17,6 +17,8 @@ import { Button, Card, Empty, Select, Skeleton, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
+import { useDerinKayit } from '@/modules/ortak/useDerinKayit';
 import { pimUret } from '@/components/DurumPim';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
@@ -53,7 +55,7 @@ export function IzinListesi() {
   const yazabilir = useAuthStore((s) => s.izinVar('ik:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const [gorunum, setGorunum] = useState<Gorunum>('liste');
-  const [detayId, setDetayId] = useState<number | null>(null);
+  const [detayId, setDetayId, detayKapat] = useDerinKayit();
   const [formAcik, setFormAcik] = useState(false);
 
   const { data, isPending, isError } = useIzinler(param);
@@ -167,6 +169,11 @@ export function IzinListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<IzinTalebi>
+            disaAktar={{
+              yol: '/izin-talepleri',
+              dosya: 'izin-talepleri',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}
@@ -217,7 +224,7 @@ export function IzinListesi() {
         />
       )}
 
-      <IzinDetay id={detayId} kapat={() => setDetayId(null)} />
+      <IzinDetay id={detayId} kapat={detayKapat} />
       <IzinFormu acik={formAcik} kapat={() => setFormAcik(false)} />
     </SayfaKapsayici>
   );

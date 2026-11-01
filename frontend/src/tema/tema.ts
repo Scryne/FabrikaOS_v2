@@ -17,11 +17,15 @@ export const RENKLER = {
   metin: '#f4f4f6',
   metinSoluk: '#8c8c92',
   mavi: '#3b6ef6',
+  /** Koyu zeminde metin olarak mavi (AA); dolgu ve çizgi için ``mavi``. */
+  maviMetin: '#6b8ff8',
   maviKoyu: '#315fd6',
   cyan: '#38bdf8',
   basari: '#22c55e',
   uyari: '#f59e0b',
   hata: '#ef4444',
+  /** Koyu zeminde metin olarak kırmızı (AA). */
+  hataMetin: '#f26b6b',
   mor: '#8b5cf6',
 } as const;
 
@@ -89,7 +93,7 @@ export const tema: ThemeConfig = {
       itemHeight: 40,
       itemMarginBlock: 2,
       iconSize: 17,
-      groupTitleColor: '#6d6d74',
+      groupTitleColor: RENKLER.metinSoluk,
     },
     Card: {
       colorBgContainer: RENKLER.yuzey,
@@ -101,6 +105,9 @@ export const tema: ThemeConfig = {
       primaryShadow: 'none',
       defaultShadow: 'none',
       dangerShadow: 'none',
+      // Koyu zeminde tehlike düğmesi METNİ AA 4.5:1 (algoritmanın #ce3d3d'i 3.75'te kalıyordu, S27-B).
+      colorError: RENKLER.hataMetin,
+      colorErrorHover: '#f58a87',
       fontWeight: 600,
       controlHeight: 40,
     },
@@ -133,6 +140,9 @@ export const tema: ThemeConfig = {
     Tabs: {
       itemColor: RENKLER.metinSoluk,
       itemHoverColor: RENKLER.metin,
+      // Seçili sekme metni: --mavi koyu zeminde 4.44:1; metin tonu AA (S27-B).
+      itemSelectedColor: RENKLER.maviMetin,
+      itemActiveColor: RENKLER.maviMetin,
       inkBarColor: RENKLER.mavi,
       horizontalMargin: '0 0 20px 0',
     },

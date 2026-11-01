@@ -165,14 +165,14 @@ export function SpcKarti() {
         <div className="spc-kartlar">
           <Card title={t('spc.xbar_karti')} loading={kart.isPending}>
             {secenekler ? (
-              <EGrafik secenek={secenekler.xbar} yukseklik={260} />
+              <EGrafik secenek={secenekler.xbar} yukseklik={260} etiket={t('spc.xbar_karti')} />
             ) : (
               <p className="varlik-alt">{t('spc.veri_yetersiz')}</p>
             )}
           </Card>
           <Card title={t('spc.r_karti')} loading={kart.isPending}>
             {secenekler ? (
-              <EGrafik secenek={secenekler.r} yukseklik={200} />
+              <EGrafik secenek={secenekler.r} yukseklik={200} etiket={t('spc.r_karti')} />
             ) : (
               <p className="varlik-alt">{t('spc.veri_yetersiz')}</p>
             )}

@@ -22,6 +22,30 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S27-B dışa aktarma, sipariş PDF'i, yazdırma, erişilebilirlik (ADR-0046)
+
+- Ön yüz 229 test yeşil (dışa aktarma çekirdeği 4: CSV biçimi, formül etkisizleştirme, sütun
+  türetme, kimlik sütunu). Backend: sipariş PDF'i 3 test (biçim, eksik fiyat, uç yetkisi + denetim).
+- Canlı: malzeme listesinden Excel ve CSV gerçekten indirildi ve açıldı (12 kayıt + başlık;
+  "Ad;Kod;Mevcut;Kritik eşik;Durum"). İlk denemede "Ad" sütunu kodu gösteriyordu → kimlik kuralı.
+  Sipariş PDF'i görüntüye çevrilip incelendi (Türkçe karakter, toplam, eksik fiyat dipnotu).
+  Yazdırma: ilk baskıda başlık ve KPI'lar beyaz kâğıtta görünmüyordu → renk değişkenleri baskıda
+  yeniden tanımlandı.
+- axe-core (WCAG 2.1 AA) 11 ekran: önce her sayfada 12+ kontrast, adsız grafik/seçici/ilerleme;
+  sonra 11/11 temiz.
+- Bulunan kusur: takvim günü 14 yerde UTC'den alınıyordu (TR 00:00–03:00 arası bugünün tarihli
+  kalibrasyonu "gelecek tarih" sayılıyordu). `core.zaman.is_gunu()` (Europe/Istanbul) ile düzeltildi.
+
+## 2026-11-01 — S27-A onay kutusu, içerik araması, code-split (ADR-0045)
+
+- Backend: onay kutusu ve arama testleri 2 yeni (izin/modül süzgeci, görev ayrımı, kalemdeki ucun
+  çalışması, RBAC, kiracı izolasyonu, joker kaçışı); iki mutasyon yakalandı.
+- Ön yüz: Onaylarım (2) ve ⌘K içerik araması (1) bileşen testi; menü testleri yeni izinsiz girdiye
+  göre güncellendi. Ana JS parçası 863 kB → 246 kB (gzip 226 → 78 kB), 66 sayfa ayrı parçada.
+- Canlı (demo): Onaylarım 5 kalem (1440/390 taşma 0), ⌘K "rulman" → malzeme + iş emri grupları,
+  `?kayit=1` çekmeceyi açıyor ve kapanınca URL'den siliniyor.
+- Mobil uygulama (M0–M5) Scryne'ın kararıyla kapsam dışı (2026-11-01).
+
 ## 2026-11-01 — S26-B İSG + İK kurumsal tamamlama (ADR-0044)
 
 - Backend 741 test yeşil (MQTT hariç): S26-B birim 7 (hakediş tablosu, artık gün, yaş alt sınırı,

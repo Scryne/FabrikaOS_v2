@@ -5,16 +5,17 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 from httpx import AsyncClient
 
+from app.core.zaman import is_gunu
 from tests.conftest import ALFA, BETA
 from tests.test_s16_entitlement import _giris
 from tests.test_s25_depo_sayim import _kullanici
 
 API = "/api/v1"
-BUGUN = datetime.now(UTC).date()
+BUGUN = is_gunu()
 
 
 def _ek() -> str:

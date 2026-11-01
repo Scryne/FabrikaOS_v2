@@ -17,6 +17,7 @@ import { Button, Card } from 'antd';
 import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
@@ -134,6 +135,11 @@ export function FirmaListesi() {
       <div style={{ height: 20 }} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Firma>
+          disaAktar={{
+            yol: '/firmalar',
+            dosya: 'firmalar',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

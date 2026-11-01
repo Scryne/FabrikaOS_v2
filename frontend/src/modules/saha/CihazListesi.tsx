@@ -11,6 +11,7 @@ import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim } from '@/components/DurumPim';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -132,6 +133,11 @@ export function CihazListesi() {
       <div style={{ height: 20 }} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Cihaz>
+          disaAktar={{
+            yol: '/saha/cihazlar',
+            dosya: 'saha-cihazlari',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

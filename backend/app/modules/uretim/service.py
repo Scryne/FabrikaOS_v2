@@ -19,6 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import GidenOlay, olay_yayinla
+from app.core.zaman import is_gunu
 from app.modules.durus import repository as durus_repository
 from app.modules.uretim import repository
 from app.modules.uretim.models import Makine
@@ -117,7 +118,7 @@ async def dusuk_oee_tara(
     deseninin durumsuz eşdeğeri). Üretim verisi olmayan makineler atlanır (OEE'si 0
     görünür ama "veri yok" ≠ "düştü"). İşlenen makine sayısını döner.
     """
-    bugun = bugun or datetime.now(UTC).date()
+    bugun = bugun or is_gunu()
     baslangic = datetime(bugun.year, bugun.month, bugun.day, tzinfo=UTC)
     satirlar = await oee_ozet(db, baslangic=baslangic, bitis=baslangic + timedelta(days=1))
     hedefler = {

@@ -14,6 +14,7 @@ import { Input, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { SortOrder } from 'antd/es/table/interface';
 
+import { type DisaAktarAyar, DisaAktarMenu } from '@/components/DisaAktarMenu';
 import type { SayfaMeta } from '@/api/client';
 import type { SayfaParam } from '@/api/sayfalama';
 import { BosDurum } from '@/components/BosDurum';
@@ -70,6 +71,7 @@ export function SunucuTablo<T extends object>({
   araclar,
   aramaYer,
   bosMetin,
+  disaAktar,
 }: {
   kolonlar: ColumnsType<T>;
   veri: T[];
@@ -83,6 +85,8 @@ export function SunucuTablo<T extends object>({
   araclar?: ReactNode;
   aramaYer?: string;
   bosMetin?: ReactNode;
+  /** S27-B: ekrandaki süzgeçle tüm kayıtları CSV/Excel indirir (ADR-0046). */
+  disaAktar?: DisaAktarAyar<T>;
 }) {
   const { t } = useTranslation();
 
@@ -97,7 +101,7 @@ export function SunucuTablo<T extends object>({
     return { ...k, sortOrder };
   });
 
-  const aracCubuguVar = Boolean(baslik || aramaYer || araclar);
+  const aracCubuguVar = Boolean(baslik || aramaYer || araclar || disaAktar);
 
   // Boş durum: düz metin sakin öğretici bloğa sarılır; hazır ReactNode ise aynen kullanılır.
   const bosGovde =
@@ -132,6 +136,7 @@ export function SunucuTablo<T extends object>({
             <AramaKutusu baslangic={param.arama ?? ''} yer={aramaYer} araDegisti={araDegisti} />
           )}
           {araclar}
+          {disaAktar && <DisaAktarMenu ayar={disaAktar} param={param} />}
         </div>
       )}
 

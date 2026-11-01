@@ -20,6 +20,7 @@ from app.modules.analitik.router import router as analitik_router
 from app.modules.bakim.router import router as bakim_router
 from app.modules.bildirim.router import router as bildirim_router
 from app.modules.crm.router import router as crm_router
+from app.modules.deneyim.router import router as deneyim_router
 from app.modules.dis.router import router as dis_router
 from app.modules.durus.router import router as durus_router
 from app.modules.duyuru.router import router as duyuru_router
@@ -91,5 +92,6 @@ api_router.include_router(rapor_router)
 api_router.include_router(ws_router)
 api_router.include_router(aktarim_router)
 api_router.include_router(kalite_spc_router)
+api_router.include_router(deneyim_router)
 api_router.include_router(ik_olgunluk_router)
 api_router.include_router(isg_olgunluk_router)

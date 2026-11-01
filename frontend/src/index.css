@@ -16,6 +16,8 @@
 
   /* Vurgu + semantik */
   --mavi: #3b6ef6;
+  /* Koyu zeminde METİN olarak mavi (AA 4.5:1); dolgu/çizgi için --mavi (S27-B). */
+  --mavi-metin: #6b8ff8;
   --mavi-koyu: #315fd6;
   --cyan: #38bdf8;
   --basari: #22c55e;
@@ -1334,4 +1336,94 @@ a.varlik-ad:hover {
 .isg26-sure {
   display: flex;
   gap: 8px;
+}
+
+/* S27-A komut paleti: kayıt grubu başlığı. */
+.komut-grup {
+  padding: 10px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--metin-soluk);
+}
+
+/* S27-B dışa aktarma düğmesi: dar ekranda yalnız ikon. */
+@media (max-width: 575px) {
+  .disa-etiket {
+    display: none;
+  }
+}
+
+/* S27-B yazdırma (ADR-0046): kabuk, gezinme ve eylem düğmeleri gizlenir; içerik beyaz zeminde,
+   tablolar satır ortasından bölünmez. Her liste ve detay ekranı Ctrl+P ile kâğıda uygun çıkar. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+  :root {
+    color-scheme: light;
+    --zemin: #fff;
+    --yuzey: #fff;
+    --yuzey-2: #fff;
+    --yuzey-ust: #f3f4f6;
+    --kenarlik: #d1d5db;
+    --metin: #111;
+    --metin-soluk: #4b5563;
+  }
+  /* Koyu temanın açık metinleri kâğıtta görünmez: tüm metin koyuya, ikincil metin griye. */
+  body * {
+    color: #111 !important;
+    text-shadow: none !important;
+  }
+  .varlik-alt,
+  .ant-table-thead > tr > th,
+  .kayit-sayaci {
+    color: #4b5563 !important;
+  }
+  html,
+  body,
+  .ant-layout,
+  .ant-layout-content,
+  .icerik-alani,
+  .ant-card,
+  .ant-table,
+  .ant-table-container,
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    background: #fff !important;
+    color: #111 !important;
+    box-shadow: none !important;
+  }
+  .ant-layout-sider,
+  .ust-bar,
+  .ant-btn,
+  .ant-pagination,
+  .ant-input-affix-wrapper,
+  .ant-select,
+  .ant-segmented,
+  .ant-drawer-mask,
+  .komut-tetik,
+  .hat-serit,
+  [role='switch'] {
+    display: none !important;
+  }
+  .ant-card {
+    border: 1px solid #d1d5db !important;
+  }
+  .ant-table-tbody > tr {
+    break-inside: avoid;
+  }
+  .ant-table-thead {
+    display: table-header-group;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+  .icerik-alani {
+    padding: 0 !important;
+    margin: 0 !important;
+  }
 }

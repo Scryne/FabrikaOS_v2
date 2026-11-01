@@ -69,7 +69,7 @@ export function UretimPaneli() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div className="widget-split">
             <div className="widget-gorsel">
-              <EGrafik secenek={gauge} yukseklik={150} />
+              <EGrafik secenek={gauge} yukseklik={150} etiket={t('pano.filo_oee')} />
               <p
                 style={{
                   textAlign: 'center',
@@ -122,7 +122,7 @@ export function UretimPaneli() {
           {makineVar && (
             <div>
               <AltBaslik>{t('pano.makine_oee')}</AltBaslik>
-              <EGrafik secenek={makineBar} yukseklik={148} />
+              <EGrafik secenek={makineBar} yukseklik={148} etiket={t('pano.makine_oee')} />
             </div>
           )}
         </div>

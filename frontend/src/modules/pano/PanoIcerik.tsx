@@ -180,7 +180,7 @@ export function PanoIcerik({
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} xl={9}>
           <Card title={t('pano.filo_oee')} style={{ height: '100%' }}>
-            <EGrafik secenek={gauge} yukseklik={200} />
+            <EGrafik secenek={gauge} yukseklik={200} etiket={t('pano.filo_oee')} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 4 }}>
               <OranSatiri
                 etiket={t('pano.kullanilabilirlik')}
@@ -203,7 +203,7 @@ export function PanoIcerik({
             style={{ height: '100%' }}
           >
             {makineOee.length > 0 ? (
-              <EGrafik secenek={bar} yukseklik={280} />
+              <EGrafik secenek={bar} yukseklik={280} etiket={t('pano.makine_oee')} />
             ) : (
               <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('pano.uretim_yok')} />
             )}
@@ -214,7 +214,7 @@ export function PanoIcerik({
       <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
         <Col xs={24} xl={9}>
           <Card title={t('pano.durum_dagilimi')} style={{ height: '100%' }}>
-            <EGrafik secenek={donut} yukseklik={220} />
+            <EGrafik secenek={donut} yukseklik={220} etiket={t('pano.durum_dagilimi')} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 8 }}>
               {durumlar.map((d) => (
                 <span

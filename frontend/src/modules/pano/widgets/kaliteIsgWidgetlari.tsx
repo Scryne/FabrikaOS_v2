@@ -45,7 +45,7 @@ export function KalitePaneli() {
       {data && (
         <div className="widget-split">
           <div className="widget-gorsel">
-            <EGrafik secenek={gauge} yukseklik={150} />
+            <EGrafik secenek={gauge} yukseklik={150} etiket={t('pano.kalite')} />
             <p
               style={{
                 textAlign: 'center',

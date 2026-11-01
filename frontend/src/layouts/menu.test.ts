@@ -6,7 +6,12 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
   it('izin gerektirmeyen öğe (pano) her zaman görünür', () => {
     const gorunur = gorunurMenu(MENU, () => false);
     // Kişisel yüzeyler (bildirim tercihleri, güvenlik) izin istemez — oturum yeterli.
-    expect(gorunur.map((o) => o.anahtar)).toEqual(['pano', 'bildirim-tercihleri', 'guvenlik']);
+    expect(gorunur.map((o) => o.anahtar)).toEqual([
+      'pano',
+      'onaylarim',
+      'bildirim-tercihleri',
+      'guvenlik',
+    ]);
   });
 
   it('yalnız sahip olunan izinli öğeler görünür', () => {
@@ -14,6 +19,7 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
     const gorunur = gorunurMenu(MENU, (izin) => izinli.has(izin));
     expect(gorunur.map((o) => o.anahtar)).toEqual([
       'pano',
+      'onaylarim',
       'makineler',
       'uretim-verileri',
       'urunler',
@@ -68,6 +74,7 @@ describe('gorunurMenu (RBAC menü filtresi)', () => {
     // S23 uyum yüzeyleri de modülsüzdür (güvenlik/uyum satılabilir modül değil, çekirdek hak).
     expect(gorunur.map((o) => o.anahtar)).toEqual([
       'pano',
+      'onaylarim',
       'kullanicilar',
       'abonelik',
       'bildirim-tercihleri',

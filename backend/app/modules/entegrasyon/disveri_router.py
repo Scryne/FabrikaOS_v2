@@ -19,6 +19,7 @@ from sqlalchemy.orm import selectinload
 from app.core.db.session import get_session
 from app.core.deps import modul_gerekli
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import is_gunu
 from app.modules.entegrasyon.deps import api_izin_gerekli
 from app.modules.entegrasyon.models import ApiAnahtari
 from app.modules.entegrasyon.schemas import (
@@ -133,7 +134,7 @@ async def uretim_ozeti(
     gun: date | None = None,
 ) -> dict[str, Any]:
     """``gun`` (UTC, varsayılan bugün) için makine başına üretim/fire + OEE."""
-    gun = gun or datetime.now(UTC).date()
+    gun = gun or is_gunu()
     baslangic = datetime(gun.year, gun.month, gun.day, tzinfo=UTC)
     bitis = baslangic + timedelta(days=1)
     satirlar = await uretim_repository.oee_ozet(db, baslangic=baslangic, bitis=bitis)

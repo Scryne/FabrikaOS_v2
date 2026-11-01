@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import olay_yayinla
+from app.core.zaman import is_gunu
 from app.modules.sozlesme import durum as sdurum
 from app.modules.sozlesme import repository
 from app.modules.sozlesme.hesap import kalan_gun
@@ -54,7 +55,7 @@ async def yaklasan_tara(
     işlenir. Her biri için bir outbox olayı + best-effort gerçek-zaman sinyali; bayrak
     işaretlenir (bir daha üretilmez). İşlenen sözleşme sayısını döner.
     """
-    bugun = bugun or datetime.now(UTC).date()
+    bugun = bugun or is_gunu()
     sinir = bugun + timedelta(days=esik_gun)
     adaylar = await repository.yaklasan_bildirilmemis(db, bugun=bugun, sinir=sinir)
     for s in adaylar:

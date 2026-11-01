@@ -17,6 +17,7 @@ import { Button, Select, Skeleton, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { cubukSecenek } from '@/components/grafik/grafikSecenek';
 import { MiniBar } from '@/components/MiniBar';
@@ -211,6 +212,11 @@ export function UretimVerileri() {
 
       <PanelKart baslik={t('uretim.son_uretim')} renk={HAT}>
         <SunucuTablo<UretimVerisi>
+          disaAktar={{
+            yol: '/uretim-verileri',
+            dosya: 'uretim-verileri',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

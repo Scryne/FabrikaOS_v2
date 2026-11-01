@@ -20,6 +20,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.audit import denetim_yaz
 from app.core.exceptions import CakismaHatasi
 from app.core.olaylar import olay_yayinla
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.ik.models import Personel, Zimmet
 from app.modules.isg.egitim_matrisi import Katilim, matris
@@ -63,7 +64,7 @@ async def gereksinim_haritasi(db: AsyncSession, model: Any, alan: str) -> dict[s
 async def egitim_matrisi(
     db: AsyncSession, *, departman: str | None, bugun: date | None = None
 ) -> dict[str, Any]:
-    bugun = bugun or datetime.now(UTC).date()
+    bugun = bugun or is_gunu()
     sorgu = select(Personel).where(Personel.aktif.is_(True)).order_by(Personel.ad, Personel.soyad)
     if departman:
         sorgu = sorgu.where(Personel.departman == departman)

@@ -17,6 +17,7 @@ import {
 import { Avatar, Button, Card, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim } from '@/components/DurumPim';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -164,6 +165,11 @@ export function KullaniciListesi() {
       <div style={{ height: 20 }} />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Kullanici>
+          disaAktar={{
+            yol: '/kullanicilar',
+            dosya: 'kullanicilar',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

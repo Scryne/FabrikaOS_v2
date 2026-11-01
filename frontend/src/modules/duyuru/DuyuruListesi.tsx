@@ -9,6 +9,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Card } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim, pimUret } from '@/components/DurumPim';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
@@ -79,6 +80,11 @@ export function DuyuruListesi() {
       />
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<Duyuru>
+          disaAktar={{
+            yol: '/duyurular',
+            dosya: 'duyurular',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

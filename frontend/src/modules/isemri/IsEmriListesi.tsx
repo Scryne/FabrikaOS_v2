@@ -6,6 +6,7 @@ import { Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
@@ -64,6 +65,7 @@ export function IsEmriListesi({ ac }: { ac: (id: number) => void }) {
   const araclar = (
     <Select
       value={durumFiltre}
+      aria-label={t('isemri.durum')}
       onChange={(d) => paramDegistir({ filtreler: { durum: d || undefined } })}
       style={{ width: 170 }}
       options={[
@@ -75,6 +77,11 @@ export function IsEmriListesi({ ac }: { ac: (id: number) => void }) {
 
   return (
     <SunucuTablo<IsEmri>
+      disaAktar={{
+        yol: '/is-emirleri',
+        dosya: 'is-emirleri',
+        sutunlar: kolonlardanSutunlar(kolonlar),
+      }}
       kolonlar={kolonlar}
       veri={data?.veri ?? []}
       meta={data?.meta}

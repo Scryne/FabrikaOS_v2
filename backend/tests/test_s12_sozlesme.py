@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 
 import asyncpg
 from httpx import AsyncClient
 
+from app.core.zaman import is_gunu
 from tests.conftest import ALFA, BETA, TEST_URL
 
 KIMLIK = "/api/v1/kimlik"
@@ -136,7 +137,7 @@ async def _outbox_sayisi(slug: str) -> int:
 async def test_yaklasan_tara_kenar_tetik(kurulu_istemci: AsyncClient) -> None:
     h = _h("alfa", await _giris(kurulu_istemci, ALFA))
     fid = await _firma(kurulu_istemci, h, "Yaklaşan Firma")
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     yakin = (bugun + timedelta(days=10)).isoformat()
     s = await _sozlesme(kurulu_istemci, h, fid, baslangic_tarihi="2026-01-01", bitis_tarihi=yakin)
     # aktif olmalı ki yaklaşan sayılsın

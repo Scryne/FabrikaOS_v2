@@ -10,6 +10,7 @@ import { AlertOutlined, PlusOutlined, SafetyOutlined, WarningOutlined } from '@a
 import { Button, Card, Col, Row, Select, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { pimUret } from '@/components/DurumPim';
 import { MiniBar } from '@/components/MiniBar';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
@@ -159,6 +160,11 @@ export function RiskListesi() {
         <Col xs={24} lg={15}>
           <Card styles={{ body: { padding: 18 } }}>
             <SunucuTablo<RiskDegerlendirme>
+              disaAktar={{
+                yol: '/risk-degerlendirmeleri',
+                dosya: 'risk-degerlendirmeleri',
+                sutunlar: kolonlardanSutunlar(kolonlar),
+              }}
               kolonlar={kolonlar}
               veri={data?.veri ?? []}
               meta={data?.meta}

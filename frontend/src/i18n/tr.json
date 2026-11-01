@@ -46,9 +46,16 @@
     "analiz": "Analiz"
   },
   "komut": {
-    "yer": "Sayfa ara ya da git…",
+    "yer": "Sayfa ya da kayıt ara…",
     "bos": "Sonuç bulunamadı",
-    "ipucu": "hızlı geçiş"
+    "ipucu": "hızlı geçiş",
+    "araniyor": "Kayıtlar aranıyor…",
+    "tur_makine": "Makineler",
+    "tur_malzeme": "Malzemeler",
+    "tur_is_emri": "İş emirleri",
+    "tur_firma": "Firmalar",
+    "tur_belge": "Belgeler",
+    "tur_personel": "Personel"
   },
   "kimlik": {
     "giris_basligi": "Kontrol paneline giriş",
@@ -133,7 +140,8 @@
     "olcum_cihazlari": "Ölçüm cihazları",
     "isg_egitimleri": "Eğitim & KKD",
     "tatbikatlar": "Tatbikatlar",
-    "org_semasi": "Org şeması"
+    "org_semasi": "Org şeması",
+    "onaylarim": "Onaylarım"
   },
   "entegrasyon": {
     "alt": "Webhook abonelikleri, teslimat günlüğü ve 3. taraf API anahtarları",
@@ -1818,7 +1826,10 @@
     "tolerans_ipucu": "Kümülatif teslim, sipariş miktarını bu oranda aşabilir. Varsayılan 0: katı.",
     "acildi": "Sipariş {{kod}} açıldı",
     "talep_siparisi": "Sipariş",
-    "siparise_git": "Siparişe git"
+    "siparise_git": "Siparişe git",
+    "pdf": "Sipariş formu (PDF)",
+    "pdf_hata": "Sipariş formu oluşturulamadı.",
+    "teslim_ilerleme": "{{kod}} teslim ilerlemesi"
   },
   "aktarim": {
     "baslik": "Veri içe aktarma",
@@ -2084,5 +2095,42 @@
     "capa_soru": "Bu kazadan CAPA vakası açılsın mı?",
     "capa_aciklama": "Önem kaza ağırlığından gelir; vaka Uygunsuzluklar'da izlenir.",
     "capa_acildi": "{{kod}} açıldı"
+  },
+  "onay": {
+    "baslik": "Onaylarım",
+    "alt": "Onay yetkinizin olduğu bekleyen işler. Onay ve red, işin kendi modülünde de kayda geçer.",
+    "is": "İş",
+    "talep_eden": "Talep eden",
+    "bekliyor": "Bekliyor",
+    "gun": "{{gun}} gün",
+    "onayla": "Onayla",
+    "reddet": "Reddet",
+    "onaylandi": "Onaylandı",
+    "reddedildi": "Reddedildi",
+    "toplam": "Bekleyen",
+    "hepsi": "Hepsi",
+    "bos": "Onay bekleyen işiniz yok.",
+    "kendi_sayim": "Açtığınız {{adet}} sayım onay bekliyor; görev ayrımı gereği başka bir yetkili onaylamalı.",
+    "neden_zorunlu": "Red nedeni (zorunlu, talep sahibine iletilir)",
+    "neden_istege": "Red nedeni (isteğe bağlı)",
+    "tur_satinalma_talebi": "Satınalma",
+    "tur_izin_talebi": "İzin",
+    "tur_fazla_mesai": "Fazla mesai",
+    "tur_sayim": "Sayım"
+  },
+  "disa": {
+    "dugme": "Dışa aktar",
+    "excel": "Excel (.xlsx)",
+    "csv": "CSV (;)",
+    "tamam": "{{adet}} kayıt indirildi",
+    "sinir": "İlk {{sinir}} kayıt indirildi (toplam {{toplam}}). Hepsi için süzgeci daraltın.",
+    "hata": "Dışa aktarma yapılamadı. Bağlantıyı kontrol edip tekrar deneyin.",
+    "kod": "Kod",
+    "ad": "Ad",
+    "ad_soyad": "Ad soyad",
+    "baslik": "Başlık"
+  },
+  "grafik": {
+    "etiket": "Grafik"
   }
 }

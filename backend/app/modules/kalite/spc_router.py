@@ -17,6 +17,7 @@ from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, KaynakBulunamadi
 from app.core.responses import Zarf, basari
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.kalite import spc_service as servis
 from app.modules.kalite.models import (
@@ -159,7 +160,7 @@ class SabitleDTO(BaseModel):
 
 
 def _cihaz(c: OlcumCihazi) -> dict[str, Any]:
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     return OlcumCihaziDTO(
         id=c.id,
         kod=c.kod,

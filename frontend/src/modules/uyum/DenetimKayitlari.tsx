@@ -14,6 +14,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { DatePicker } from 'antd';
 import dayjs, { type Dayjs } from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
@@ -99,6 +100,11 @@ export function DenetimKayitlari() {
       <SayfaBaslik baslik={t('uyum.denetim_baslik')} alt={t('uyum.denetim_aciklama')} />
 
       <SunucuTablo<DenetimKaydi>
+        disaAktar={{
+          yol: '/denetim-kayitlari',
+          dosya: 'denetim-kayitlari',
+          sutunlar: kolonlardanSutunlar(kolonlar),
+        }}
         kolonlar={kolonlar}
         veri={data?.veri ?? []}
         meta={data?.meta}

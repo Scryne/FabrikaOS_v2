@@ -22,6 +22,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.ik.izin_hakedis import IzinBakiyesi, izin_bakiyesi
 from app.modules.ik.models import IzinTalebi, Personel, PersonelKontrolListesi, Zimmet
@@ -77,7 +78,7 @@ async def bakiye_hesapla(
     return izin_bakiyesi(
         ise_giris=personel.ise_giris_tarihi,
         dogum=personel.dogum_tarihi,
-        bugun=bugun or datetime.now(UTC).date(),
+        bugun=bugun or is_gunu(),
         kullanilan=await kullanilan_yillik(db, personel.id),
         sozlesme_hakki=personel.yillik_izin_hakki,
     )

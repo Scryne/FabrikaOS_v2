@@ -1759,6 +1759,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/satinalma-siparisleri/{siparis_id}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sipariş formu (PDF, tedarikçiye gönderilir) */
+        get: operations["siparis_pdf_indir_api_v1_satinalma_siparisleri__siparis_id__pdf_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/satinalma-siparisleri/{siparis_id}/iptal": {
         parameters: {
             query?: never;
@@ -3975,6 +3992,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/onaylarim": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Onay bekleyen işlerim */
+        get: operations["onaylarim_api_v1_onaylarim_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/ara": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** İçerik araması */
+        get: operations["ara_api_v1_ara_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/personeller/{personel_id}/izin-bakiyesi": {
         parameters: {
             query?: never;
@@ -4383,6 +4434,24 @@ export interface components {
             izinler: string[];
             /** Gecerlilik Tarihi */
             gecerlilik_tarihi?: string | null;
+        };
+        /** AramaGrubuDTO */
+        AramaGrubuDTO: {
+            /** Tur */
+            tur: string;
+            /** Kayitlar */
+            kayitlar: components["schemas"]["AramaKaydiDTO"][];
+        };
+        /** AramaKaydiDTO */
+        AramaKaydiDTO: {
+            /** Id */
+            id: number;
+            /** Baslik */
+            baslik: string;
+            /** Alt */
+            alt: string;
+            /** Yol */
+            yol: string;
         };
         /** BakimKpiDTO */
         BakimKpiDTO: {
@@ -7066,6 +7135,41 @@ export interface components {
             saglam_adet: number;
             /** Ideal Cevrim Sn */
             ideal_cevrim_sn: number;
+        };
+        /** OnayKalemiDTO */
+        OnayKalemiDTO: {
+            /** Tur */
+            tur: string;
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Baslik */
+            baslik: string;
+            /** Ozet */
+            ozet: string;
+            /** Talep Eden */
+            talep_eden: string | null;
+            /**
+             * Tarih
+             * Format: date-time
+             */
+            tarih: string;
+            /** Onay Yolu */
+            onay_yolu: string;
+            /** Red Yolu */
+            red_yolu: string | null;
+            /** Red Gerekce Zorunlu */
+            red_gerekce_zorunlu: boolean;
+            /** Detay Yolu */
+            detay_yolu: string;
+        };
+        /** OnayKutusuDTO */
+        OnayKutusuDTO: {
+            /** Kalemler */
+            kalemler: components["schemas"]["OnayKalemiDTO"][];
+            /** Kendi Sayimlarim */
+            kendi_sayimlarim: number;
         };
         /** OnizlemeDTO */
         OnizlemeDTO: {
@@ -10135,6 +10239,21 @@ export interface components {
             data?: components["schemas"]["OlcumCihaziDetayDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[OnayKutusuDTO] */
+        Zarf_OnayKutusuDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["OnayKutusuDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[OnizlemeDTO] */
         Zarf_OnizlemeDTO_: {
             /**
@@ -10804,6 +10923,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["ApiAnahtariCevapDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[AramaGrubuDTO]] */
+        Zarf_list_AramaGrubuDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["AramaGrubuDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[BakimPlaniCevapDTO]] */
@@ -15845,6 +15980,35 @@ export interface operations {
                         [key: string]: unknown;
                     };
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_pdf_indir_api_v1_satinalma_siparisleri__siparis_id__pdf_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -20984,6 +21148,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Zarf_dict_str__Any__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    onaylarim_api_v1_onaylarim_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_OnayKutusuDTO_"];
+                };
+            };
+        };
+    };
+    ara_api_v1_ara_get: {
+        parameters: {
+            query: {
+                q: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_AramaGrubuDTO__"];
                 };
             };
             /** @description Validation Error */

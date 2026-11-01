@@ -34,6 +34,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { paretoSecenek } from '@/components/grafik/grafikSecenek';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
@@ -379,6 +380,11 @@ export function DurusEkrani({ baslangicGorunum = 'kayitlar' }: { baslangicGorunu
       {gorunum === 'kayitlar' && (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<DurusKaydi>
+            disaAktar={{
+              yol: '/durus-kayitlari',
+              dosya: 'durus-kayitlari',
+              sutunlar: kolonlardanSutunlar(kayitKolonlari),
+            }}
             kolonlar={kayitKolonlari}
             veri={kayitlar?.veri ?? []}
             meta={kayitlar?.meta}

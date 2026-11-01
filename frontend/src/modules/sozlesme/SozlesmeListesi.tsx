@@ -19,6 +19,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim, pimUret } from '@/components/DurumPim';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
@@ -189,6 +190,11 @@ export function SozlesmeListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<Sozlesme>
+            disaAktar={{
+              yol: '/sozlesmeler',
+              dosya: 'sozlesmeler',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}

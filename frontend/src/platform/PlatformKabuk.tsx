@@ -4,7 +4,7 @@
  * yönetici kimliği. Turuncu "platform" hattı yalnız bu düzlemde kullanılır.
  */
 
-import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -17,6 +17,7 @@ import {
 import { Button, Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 
+import { SayfaYukleniyor } from '@/components/SayfaYukleniyor';
 import { LogoIsareti } from '@/components/Marka';
 
 import { platformCikisYap } from './kimlik';
@@ -113,7 +114,9 @@ export function PlatformKabuk() {
           </span>
         </Layout.Header>
         <Layout.Content style={{ padding: 24 }}>
-          <Outlet />
+          <Suspense fallback={<SayfaYukleniyor />}>
+            <Outlet />
+          </Suspense>
         </Layout.Content>
       </Layout>
     </Layout>

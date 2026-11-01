@@ -6,7 +6,7 @@ Tenant-kapsamlı + ``crm:oku`` korumalı.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timedelta
+from datetime import timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -16,6 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.responses import Zarf, basari
+from app.core.zaman import is_gunu
 from app.kimlik.models import Kullanici
 from app.modules.crm.models import Firma
 from app.modules.duyuru.models import Duyuru
@@ -42,7 +43,7 @@ async def ticari_ozet(
     db: Annotated[AsyncSession, Depends(get_session)],
     _tenant: Annotated[object, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
-    bugun = datetime.now(UTC).date()
+    bugun = is_gunu()
     sinir = bugun + timedelta(days=_YAKLASAN_ESIK_GUN)
 
     firma_sayisi = await db.scalar(select(func.count()).select_from(Firma)) or 0

@@ -6637,6 +6637,46 @@
         }
       }
     },
+    "/api/v1/satinalma-siparisleri/{siparis_id}/pdf": {
+      "get": {
+        "tags": [
+          "Satınalma Siparişi"
+        ],
+        "summary": "Sipariş formu (PDF, tedarikçiye gönderilir)",
+        "operationId": "siparis_pdf_indir_api_v1_satinalma_siparisleri__siparis_id__pdf_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/satinalma-siparisleri/{siparis_id}/iptal": {
       "post": {
         "tags": [
@@ -15755,6 +15795,93 @@
         }
       }
     },
+    "/api/v1/onaylarim": {
+      "get": {
+        "tags": [
+          "Platform deneyimi"
+        ],
+        "summary": "Onay bekleyen işlerim",
+        "operationId": "onaylarim_api_v1_onaylarim_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_OnayKutusuDTO_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/ara": {
+      "get": {
+        "tags": [
+          "Platform deneyimi"
+        ],
+        "summary": "İçerik araması",
+        "operationId": "ara_api_v1_ara_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 100,
+              "title": "Q"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "default": 5,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_AramaGrubuDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/personeller/{personel_id}/izin-bakiyesi": {
       "get": {
         "tags": [
@@ -17257,6 +17384,55 @@
           "izinler"
         ],
         "title": "ApiAnahtariOlusturDTO"
+      },
+      "AramaGrubuDTO": {
+        "properties": {
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "kayitlar": {
+            "items": {
+              "$ref": "#/components/schemas/AramaKaydiDTO"
+            },
+            "type": "array",
+            "title": "Kayitlar"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tur",
+          "kayitlar"
+        ],
+        "title": "AramaGrubuDTO"
+      },
+      "AramaKaydiDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "baslik": {
+            "type": "string",
+            "title": "Baslik"
+          },
+          "alt": {
+            "type": "string",
+            "title": "Alt"
+          },
+          "yol": {
+            "type": "string",
+            "title": "Yol"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "baslik",
+          "alt",
+          "yol"
+        ],
+        "title": "AramaKaydiDTO"
       },
       "BakimKpiDTO": {
         "properties": {
@@ -24805,6 +24981,105 @@
         ],
         "title": "OlcumPaketi",
         "description": "Bir makinenin tek aralık üretim özeti (UretimVerisi şekli + idempotency kimliği)."
+      },
+      "OnayKalemiDTO": {
+        "properties": {
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "baslik": {
+            "type": "string",
+            "title": "Baslik"
+          },
+          "ozet": {
+            "type": "string",
+            "title": "Ozet"
+          },
+          "talep_eden": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Talep Eden"
+          },
+          "tarih": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Tarih"
+          },
+          "onay_yolu": {
+            "type": "string",
+            "title": "Onay Yolu"
+          },
+          "red_yolu": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Red Yolu"
+          },
+          "red_gerekce_zorunlu": {
+            "type": "boolean",
+            "title": "Red Gerekce Zorunlu"
+          },
+          "detay_yolu": {
+            "type": "string",
+            "title": "Detay Yolu"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tur",
+          "id",
+          "kod",
+          "baslik",
+          "ozet",
+          "talep_eden",
+          "tarih",
+          "onay_yolu",
+          "red_yolu",
+          "red_gerekce_zorunlu",
+          "detay_yolu"
+        ],
+        "title": "OnayKalemiDTO"
+      },
+      "OnayKutusuDTO": {
+        "properties": {
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/OnayKalemiDTO"
+            },
+            "type": "array",
+            "title": "Kalemler"
+          },
+          "kendi_sayimlarim": {
+            "type": "integer",
+            "title": "Kendi Sayimlarim"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kalemler",
+          "kendi_sayimlarim"
+        ],
+        "title": "OnayKutusuDTO"
       },
       "OnizlemeDTO": {
         "properties": {
@@ -32995,6 +33270,42 @@
         "type": "object",
         "title": "Zarf[OlcumCihaziDetayDTO]"
       },
+      "Zarf_OnayKutusuDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OnayKutusuDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[OnayKutusuDTO]"
+      },
       "Zarf_OnizlemeDTO_": {
         "properties": {
           "success": {
@@ -34594,6 +34905,46 @@
         },
         "type": "object",
         "title": "Zarf[list[ApiAnahtariCevapDTO]]"
+      },
+      "Zarf_list_AramaGrubuDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/AramaGrubuDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[AramaGrubuDTO]]"
       },
       "Zarf_list_BakimPlaniCevapDTO__": {
         "properties": {

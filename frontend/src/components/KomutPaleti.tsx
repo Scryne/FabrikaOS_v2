@@ -1,19 +1,21 @@
 /**
  * Komut paleti (⌘K) — global gezinme. Menüden beslenir + RBAC süzgeçli (yalnız yetkili olduğun
  * sayfalar). Arama + klavye gezinmesi (↑/↓/Enter); satır başında modül hat rengi noktası. Kontrollü
- * (``acik``/``kapat``); ⌘K global kısayolu ve tetikleyici kabukta bağlanır. Faz 6/S27'de içerik
- * aramayla derinleşir (kayıt arama).
+ * (``acik``/``kapat``); ⌘K global kısayolu ve tetikleyici kabukta bağlanır. S27-A: 2+ karakterde
+ * içerik araması da yapılır (makine, malzeme, iş emri, firma, belge, personel); sunucu yalnız okuma
+ * izni ve modülü açık kaynakları döner. Sayfalar ve kayıtlar tek klavye listesindedir.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { SearchOutlined } from '@ant-design/icons';
+import { FileSearchOutlined, SearchOutlined } from '@ant-design/icons';
 import { Input, Modal } from 'antd';
 import type { InputRef } from 'antd';
 
 import { gorunurMenu, MENU } from '@/layouts/menu';
+import { useIcerikArama } from '@/modules/deneyim/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI, MENU_IKONLARI } from '@/tema/modulKimlik';
 
@@ -27,8 +29,15 @@ export function KomutPaleti({ acik, kapat }: { acik: boolean; kapat: () => void 
   const aktifRef = useRef<HTMLDivElement>(null);
 
   const gorunur = useMemo(() => gorunurMenu(MENU, (izin) => izinler.has(izin)), [izinler]);
+  // İçerik araması 250 ms sakinleşince istenir (her tuşta istek yok).
+  const [gecikmeli, setGecikmeli] = useState('');
+  useEffect(() => {
+    const z = setTimeout(() => setGecikmeli(sorgu), 250);
+    return () => clearTimeout(z);
+  }, [sorgu]);
+  const icerik = useIcerikArama(gecikmeli);
 
-  const sonuclar = useMemo(() => {
+  const sayfalar = useMemo(() => {
     const q = sorgu.trim().toLocaleLowerCase('tr');
     return gorunur
       .map((o) => ({
@@ -45,6 +54,25 @@ export function KomutPaleti({ acik, kapat }: { acik: boolean; kapat: () => void 
           o.bolumAd.toLocaleLowerCase('tr').includes(q),
       );
   }, [gorunur, sorgu, t]);
+
+  // Tek liste: önce sayfalar, sonra kayıt grupları (grup başlığı ilk öğesinde).
+  const sonuclar = useMemo(() => {
+    const kayitlar =
+      gecikmeli.trim().length >= 2
+        ? (icerik.data ?? []).flatMap((g) =>
+            g.kayitlar.map((k, i) => ({
+              anahtar: `${g.tur}-${k.id}`,
+              yol: k.yol,
+              bolum: '',
+              etiket: k.baslik,
+              bolumAd: k.alt,
+              grup: i === 0 ? t(`komut.tur_${g.tur}`) : undefined,
+              kayit: true,
+            })),
+          )
+        : [];
+    return [...sayfalar.map((s) => ({ ...s, grup: undefined, kayit: false })), ...kayitlar];
+  }, [sayfalar, icerik.data, gecikmeli, t]);
 
   // Palet her açılışta temizlenir + odak girişe düşer.
   useEffect(() => {
@@ -120,27 +148,38 @@ export function KomutPaleti({ acik, kapat }: { acik: boolean; kapat: () => void 
         style={{ maxHeight: 360, overflowY: 'auto', padding: 8 }}
       >
         {sonuclar.map((s, i) => (
-          <div
-            key={s.yol}
-            id={`komut-secenek-${i}`}
-            ref={i === aktif ? aktifRef : undefined}
-            role="option"
-            aria-selected={i === aktif}
-            className="komut-oge"
-            style={{ '--hat': BOLUM_RENGI[s.bolum] } as CSSProperties}
-            onMouseEnter={() => setAktif(i)}
-            onClick={() => git(s.yol)}
-          >
-            <span className="komut-hat" aria-hidden="true" />
-            <span style={{ display: 'inline-flex', width: 18, justifyContent: 'center' }}>
-              {MENU_IKONLARI[s.anahtar]}
-            </span>
-            <span style={{ color: 'var(--metin)' }}>{s.etiket}</span>
-            <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--metin-soluk)' }}>
-              {s.bolumAd}
-            </span>
+          <div key={s.anahtar}>
+            {s.grup && (
+              <div className="komut-grup" role="presentation">
+                {s.grup}
+              </div>
+            )}
+            <div
+              id={`komut-secenek-${i}`}
+              ref={i === aktif ? aktifRef : undefined}
+              role="option"
+              aria-selected={i === aktif}
+              className="komut-oge"
+              style={{ '--hat': BOLUM_RENGI[s.bolum] } as CSSProperties}
+              onMouseEnter={() => setAktif(i)}
+              onClick={() => git(s.yol)}
+            >
+              <span className="komut-hat" aria-hidden="true" />
+              <span style={{ display: 'inline-flex', width: 18, justifyContent: 'center' }}>
+                {s.kayit ? <FileSearchOutlined /> : MENU_IKONLARI[s.anahtar]}
+              </span>
+              <span style={{ color: 'var(--metin)' }}>{s.etiket}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--metin-soluk)' }}>
+                {s.bolumAd}
+              </span>
+            </div>
           </div>
         ))}
+        {icerik.isFetching && gecikmeli.trim().length >= 2 && (
+          <div style={{ padding: '8px 12px', color: 'var(--metin-soluk)', fontSize: 12 }}>
+            {t('komut.araniyor')}
+          </div>
+        )}
         {sonuclar.length === 0 && (
           <div style={{ padding: 20, textAlign: 'center', color: 'var(--metin-soluk)' }}>
             {t('komut.bos')}

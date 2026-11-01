@@ -15,6 +15,7 @@ import {
   AuditOutlined,
   BankOutlined,
   CalendarOutlined,
+  CheckSquareOutlined,
   ContainerOutlined,
   CreditCardOutlined,
   DashboardOutlined,
@@ -60,6 +61,7 @@ export const BOLUM_RENGI: Record<string, string> = {
 /** Menü anahtarı → modül ikonu (kenar çubuğu + sayfa başlığı plakası aynı dili konuşur). */
 export const MENU_IKONLARI: Record<string, ReactNode> = {
   pano: <DashboardOutlined />,
+  onaylarim: <CheckSquareOutlined />,
   makineler: <RobotOutlined />,
   'uretim-verileri': <LineChartOutlined />,
   'is-emirleri': <FileDoneOutlined />,

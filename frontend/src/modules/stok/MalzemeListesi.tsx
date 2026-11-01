@@ -20,6 +20,7 @@ import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim } from '@/components/DurumPim';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { donutSecenek } from '@/components/grafik/grafikSecenek';
@@ -228,6 +229,11 @@ export function MalzemeListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<Malzeme>
+            disaAktar={{
+              yol: '/malzemeler',
+              dosya: 'malzemeler',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}

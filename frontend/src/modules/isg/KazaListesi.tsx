@@ -16,6 +16,7 @@ import { Button, Card, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { pimUret } from '@/components/DurumPim';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -148,6 +149,11 @@ export function KazaListesi() {
 
       <Card styles={{ body: { padding: 18 } }}>
         <SunucuTablo<IsKazasi>
+          disaAktar={{
+            yol: '/is-kazalari',
+            dosya: 'is-kazalari',
+            sutunlar: kolonlardanSutunlar(kolonlar),
+          }}
           kolonlar={kolonlar}
           veri={data?.veri ?? []}
           meta={data?.meta}

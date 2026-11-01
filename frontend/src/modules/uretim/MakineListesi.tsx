@@ -20,6 +20,7 @@ import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumRozet, MAKINE_DURUMLARI } from '@/components/DurumRozet';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { cubukSecenek, donutSecenek, oeeRenk } from '@/components/grafik/grafikSecenek';
@@ -258,6 +259,11 @@ export function MakineListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<Makine>
+            disaAktar={{
+              yol: '/makineler',
+              dosya: 'makineler',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}

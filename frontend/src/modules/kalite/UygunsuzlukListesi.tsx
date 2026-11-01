@@ -18,6 +18,7 @@ import { Button, Card, Empty, Select, Skeleton, Space } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { pimUret } from '@/components/DurumPim';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
@@ -176,6 +177,11 @@ export function UygunsuzlukListesi() {
       {gorunum === 'liste' ? (
         <Card styles={{ body: { padding: 18 } }}>
           <SunucuTablo<Uygunsuzluk>
+            disaAktar={{
+              yol: '/uygunsuzluklar',
+              dosya: 'uygunsuzluklar',
+              sutunlar: kolonlardanSutunlar(kolonlar),
+            }}
             kolonlar={kolonlar}
             veri={data?.veri ?? []}
             meta={data?.meta}
@@ -190,6 +196,7 @@ export function UygunsuzlukListesi() {
                 <Select
                   allowClear
                   placeholder={t('kalite.durum')}
+                  aria-label={t('kalite.durum')}
                   style={{ width: 170 }}
                   value={param.filtreler?.durum as string | undefined}
                   onChange={(v) => paramDegistir({ filtreler: { durum: v } })}
@@ -198,6 +205,7 @@ export function UygunsuzlukListesi() {
                 <Select
                   allowClear
                   placeholder={t('kalite.onem')}
+                  aria-label={t('kalite.onem')}
                   style={{ width: 140 }}
                   value={param.filtreler?.onem as string | undefined}
                   onChange={(v) => paramDegistir({ filtreler: { onem: v } })}
