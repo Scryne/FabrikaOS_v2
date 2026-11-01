@@ -4544,6 +4544,196 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/planlama/cizelge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sonlu kapasite çizelgesi */
+        get: operations["planlama_cizelge_api_v1_planlama_cizelge_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/is-emirleri/{is_emri_id}/plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** İş emri plan girdisi (elle süre / elle sıra) */
+        put: operations["plan_girdisi_api_v1_is_emirleri__is_emri_id__plan_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis-siparisleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Siparişleri listele */
+        get: operations["siparis_listele_api_v1_satis_siparisleri_get"];
+        put?: never;
+        /** Satış siparişi hazırla (taslak) */
+        post: operations["siparis_olustur_api_v1_satis_siparisleri_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Satış özeti */
+        get: operations["satis_ozet_api_v1_satis_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis-siparisleri/{siparis_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sipariş detayı */
+        get: operations["siparis_detay_api_v1_satis_siparisleri__siparis_id__get"];
+        /** Taslak siparişi düzenle */
+        put: operations["siparis_guncelle_api_v1_satis_siparisleri__siparis_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis-siparisleri/{siparis_id}/mrp": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Malzeme ihtiyaç planı (önizleme) */
+        get: operations["siparis_mrp_api_v1_satis_siparisleri__siparis_id__mrp_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis-siparisleri/{siparis_id}/onayla": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Siparişi onayla: MRP iş emri + satınalma talebi açar */
+        post: operations["siparis_onayla_api_v1_satis_siparisleri__siparis_id__onayla_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/satis-siparisleri/{siparis_id}/durum": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sevk / kapat / iptal */
+        post: operations["siparis_durum_api_v1_satis_siparisleri__siparis_id__durum_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/esg/ozet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dönemsel emisyon ve yoğunluk */
+        get: operations["esg_ozet_api_v1_esg_ozet_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/esg/faktorler": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Etkin faktörler */
+        get: operations["faktor_listele_api_v1_esg_faktorler_get"];
+        put?: never;
+        /** Faktör ekle */
+        post: operations["faktor_ekle_api_v1_esg_faktorler_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/esg/faktorler/{faktor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Faktör sil */
+        delete: operations["faktor_sil_api_v1_esg_faktorler__faktor_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5158,6 +5348,72 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
+        /** CizelgeDTO */
+        CizelgeDTO: {
+            /**
+             * Baslangic
+             * Format: date-time
+             */
+            baslangic: string;
+            /**
+             * Bitis
+             * Format: date-time
+             */
+            bitis: string;
+            /** Varsayilan Vardiya */
+            varsayilan_vardiya: boolean;
+            /** Pencereler */
+            pencereler: components["schemas"]["ZamanAraligiDTO"][];
+            /** Makineler */
+            makineler: components["schemas"]["MakineCizelgesiDTO"][];
+            ozet: components["schemas"]["CizelgeOzetDTO"];
+        };
+        /** CizelgeIsiDTO */
+        CizelgeIsiDTO: {
+            /** Is Emri Id */
+            is_emri_id: number;
+            /** Kod */
+            kod: string;
+            /** Baslik */
+            baslik: string;
+            /** Durum */
+            durum: string;
+            /** Oncelik */
+            oncelik: string;
+            /** Hedef Tarih */
+            hedef_tarih: string | null;
+            /** Sure Dk */
+            sure_dk: number;
+            /** Sure Kaynagi */
+            sure_kaynagi: string;
+            /** Elle Sira */
+            elle_sira: number | null;
+            /** Baslangic */
+            baslangic: string | null;
+            /** Bitis */
+            bitis: string | null;
+            /** Parcalar */
+            parcalar: components["schemas"]["ZamanAraligiDTO"][];
+            /** Gecikme Dk */
+            gecikme_dk: number;
+            /** Sigmadi */
+            sigmadi: boolean;
+            /** Kapasite Asimi */
+            kapasite_asimi: boolean;
+            /** Sira Kaynakli Gecikme */
+            sira_kaynakli_gecikme: boolean;
+        };
+        /** CizelgeOzetDTO */
+        CizelgeOzetDTO: {
+            /** Is Sayisi */
+            is_sayisi: number;
+            /** Geciken */
+            geciken: number;
+            /** Kapasite Asimi */
+            kapasite_asimi: number;
+            /** Varsayilan Sure */
+            varsayilan_sure: number;
+        };
         /** ConsentCevapDTO */
         ConsentCevapDTO: {
             /** Id */
@@ -5686,6 +5942,121 @@ export interface components {
             /** Adet */
             adet: number;
         };
+        /** EsgDonemDTO */
+        EsgDonemDTO: {
+            /**
+             * Donem
+             * Format: date
+             */
+            donem: string;
+            /** Kapsam1 Kg */
+            kapsam1_kg: number;
+            /** Kapsam2 Kg */
+            kapsam2_kg: number;
+            /** Toplam Kg */
+            toplam_kg: number;
+            /** Elektrik Kwh */
+            elektrik_kwh: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Kg Adet */
+            kg_adet: number | null;
+            /** Kwh Adet */
+            kwh_adet: number | null;
+        };
+        /** EsgOzetDTO */
+        EsgOzetDTO: {
+            /**
+             * Baslangic
+             * Format: date
+             */
+            baslangic: string;
+            /**
+             * Bitis
+             * Format: date
+             */
+            bitis: string;
+            /** Donem */
+            donem: string;
+            /** Kapsam1 Ton */
+            kapsam1_ton: number;
+            /** Kapsam2 Ton */
+            kapsam2_ton: number;
+            /** Toplam Ton */
+            toplam_ton: number;
+            /** Saglam Adet */
+            saglam_adet: number;
+            /** Kg Adet */
+            kg_adet: number | null;
+            /** Kwh Adet */
+            kwh_adet: number | null;
+            /** Donemler */
+            donemler: components["schemas"]["EsgDonemDTO"][];
+            /** Turler */
+            turler: components["schemas"]["EsgTurDTO"][];
+            /** Faktorsuz */
+            faktorsuz: components["schemas"]["EsgTurDTO"][];
+        };
+        /** EsgTurDTO */
+        EsgTurDTO: {
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Birim */
+            birim: string;
+            /** Miktar */
+            miktar: number;
+            /** Emisyon Kg */
+            emisyon_kg: number | null;
+            /** Kapsam */
+            kapsam: string | null;
+            /** Faktor */
+            faktor: number | null;
+            /** Faktor Kaynagi */
+            faktor_kaynagi: string | null;
+        };
+        /** FaktorDTO */
+        FaktorDTO: {
+            /** Id */
+            id: number | null;
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Birim */
+            birim: string;
+            /** Deger */
+            deger: number;
+            /** Kapsam */
+            kapsam: string;
+            /**
+             * Gecerlilik
+             * Format: date
+             */
+            gecerlilik: string;
+            /** Kaynak */
+            kaynak: string;
+            /** Koken */
+            koken: string;
+        };
+        /** FaktorOlusturDTO */
+        FaktorOlusturDTO: {
+            /** Enerji Turu */
+            enerji_turu: string;
+            /** Birim */
+            birim: string;
+            /** Deger */
+            deger: number | string;
+            /**
+             * Kapsam
+             * @enum {string}
+             */
+            kapsam: "kapsam1" | "kapsam2";
+            /**
+             * Gecerlilik
+             * Format: date
+             */
+            gecerlilik: string;
+            /** Kaynak */
+            kaynak: string;
+        };
         /** FaturaCevapDTO */
         FaturaCevapDTO: {
             /** Id */
@@ -6047,6 +6418,18 @@ export interface components {
         GibDurumDTO: {
             /** Gib Durumu */
             gib_durumu: string;
+        };
+        /** GunlukYukDTO */
+        GunlukYukDTO: {
+            /**
+             * Gun
+             * Format: date
+             */
+            gun: string;
+            /** Plan Dk */
+            plan_dk: number;
+            /** Kapasite Dk */
+            kapasite_dk: number;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -7239,6 +7622,19 @@ export interface components {
             /** Boylam */
             boylam?: number | null;
         };
+        /** MakineCizelgesiDTO */
+        MakineCizelgesiDTO: {
+            /** Makine Id */
+            makine_id: number;
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
+            /** Isler */
+            isler: components["schemas"]["CizelgeIsiDTO"][];
+            /** Gunluk Yuk */
+            gunluk_yuk: components["schemas"]["GunlukYukDTO"][];
+        };
         /** MakineDurumDTO */
         MakineDurumDTO: {
             /** Durum */
@@ -7482,6 +7878,40 @@ export interface components {
             moduller: components["schemas"]["ModulDurumDTO"][];
             /** Ozellikler */
             ozellikler: components["schemas"]["OzellikDurumDTO"][];
+        };
+        /** MrpIhtiyacDTO */
+        MrpIhtiyacDTO: {
+            /** Malzeme Id */
+            malzeme_id: number;
+            /** Malzeme Kod */
+            malzeme_kod: string | null;
+            /** Malzeme Ad */
+            malzeme_ad: string | null;
+            /** Birim */
+            birim: string | null;
+            /** Brut */
+            brut: number;
+            /** Eldeki */
+            eldeki: number;
+            /** Acik Tedarik */
+            acik_tedarik: number;
+            /** Ayrilmis */
+            ayrilmis: number;
+            /** Kullanilabilir */
+            kullanilabilir: number;
+            /** Net */
+            net: number;
+        };
+        /** MrpTetikDTO */
+        MrpTetikDTO: {
+            /** Tur */
+            tur: string;
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string | null;
+            /** Durum */
+            durum: string | null;
         };
         /**
          * MtbfMttrCevapDTO
@@ -8127,6 +8557,15 @@ export interface components {
              */
             aktif: boolean;
         };
+        /** PlanCevapDTO */
+        PlanCevapDTO: {
+            /** Is Emri Id */
+            is_emri_id: number;
+            /** Sure Dk */
+            sure_dk: number | null;
+            /** Elle Sira */
+            elle_sira: number | null;
+        };
         /** PlanDTO */
         PlanDTO: {
             /** Kod */
@@ -8135,6 +8574,16 @@ export interface components {
             ad: string;
             /** Koltuk Limiti */
             koltuk_limiti: number | null;
+        };
+        /**
+         * PlanGirdisiDTO
+         * @description İkisi de boşsa plan girdisi silinir (süre tahmine, sıra EDD'ye döner).
+         */
+        PlanGirdisiDTO: {
+            /** Sure Dk */
+            sure_dk?: number | null;
+            /** Elle Sira */
+            elle_sira?: number | null;
         };
         /** PlanSatirDTO */
         PlanSatirDTO: {
@@ -8658,6 +9107,150 @@ export interface components {
             hatalar: components["schemas"]["SatirHatasiDTO"][];
             /** Degisen */
             degisen: string[];
+        };
+        /** SatisDurumDTO */
+        SatisDurumDTO: {
+            /** Durum */
+            durum: string;
+        };
+        /** SatisKalemCevapDTO */
+        SatisKalemCevapDTO: {
+            /** Id */
+            id: number;
+            /** Sira */
+            sira: number;
+            /** Urun Id */
+            urun_id: number;
+            /** Urun Kod */
+            urun_kod: string | null;
+            /** Urun Ad */
+            urun_ad: string | null;
+            /** Miktar */
+            miktar: number;
+            /** Birim Fiyat */
+            birim_fiyat: number | null;
+        };
+        /** SatisKalemGirdiDTO */
+        SatisKalemGirdiDTO: {
+            /** Urun Id */
+            urun_id: number;
+            /** Miktar */
+            miktar: number | string;
+            /** Birim Fiyat */
+            birim_fiyat?: number | string | null;
+        };
+        /** SatisMrpDTO */
+        SatisMrpDTO: {
+            /** Siparis Id */
+            siparis_id: number;
+            /** Ihtiyaclar */
+            ihtiyaclar: components["schemas"]["MrpIhtiyacDTO"][];
+            /** Eksik Sayisi */
+            eksik_sayisi: number;
+            /** Recetesiz Urunler */
+            recetesiz_urunler: number[];
+        };
+        /** SatisOnayDTO */
+        SatisOnayDTO: {
+            /** Makine Id */
+            makine_id?: number | null;
+        };
+        /** SatisOzetDTO */
+        SatisOzetDTO: {
+            /** Taslak */
+            taslak: number;
+            /** Onaylandi */
+            onaylandi: number;
+            /** Sevk Edildi */
+            sevk_edildi: number;
+            /** Kapandi */
+            kapandi: number;
+            /** Geciken */
+            geciken: number;
+        };
+        /** SatisSiparisCevapDTO */
+        SatisSiparisCevapDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Firma Id */
+            firma_id: number;
+            /** Firma Ad */
+            firma_ad: string | null;
+            /** Talep Id */
+            talep_id: number | null;
+            /** Makine Id */
+            makine_id: number | null;
+            /** Makine Kod */
+            makine_kod: string | null;
+            /** Durum */
+            durum: string;
+            /**
+             * Teslim Tarihi
+             * Format: date
+             */
+            teslim_tarihi: string;
+            /** Gecikti */
+            gecikti: boolean;
+            /** Para Birimi */
+            para_birimi: string;
+            /** Aciklama */
+            aciklama: string;
+            /** Tutar */
+            tutar: number | null;
+            /** Olusturan Kullanici Id */
+            olusturan_kullanici_id: number | null;
+            /** Onaylayan Kullanici Id */
+            onaylayan_kullanici_id: number | null;
+            /**
+             * Olusturma Tarihi
+             * Format: date-time
+             */
+            olusturma_tarihi: string;
+            /** Gecerli Hedefler */
+            gecerli_hedefler: string[];
+            /** Kalemler */
+            kalemler: components["schemas"]["SatisKalemCevapDTO"][];
+            /** Tetikler */
+            tetikler: components["schemas"]["MrpTetikDTO"][];
+        };
+        /** SatisSiparisGuncelleDTO */
+        SatisSiparisGuncelleDTO: {
+            /** Teslim Tarihi */
+            teslim_tarihi?: string | null;
+            /** Kalemler */
+            kalemler?: components["schemas"]["SatisKalemGirdiDTO"][] | null;
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Aciklama */
+            aciklama?: string | null;
+        };
+        /** SatisSiparisOlusturDTO */
+        SatisSiparisOlusturDTO: {
+            /** Firma Id */
+            firma_id: number;
+            /**
+             * Teslim Tarihi
+             * Format: date
+             */
+            teslim_tarihi: string;
+            /** Kalemler */
+            kalemler: components["schemas"]["SatisKalemGirdiDTO"][];
+            /** Makine Id */
+            makine_id?: number | null;
+            /** Talep Id */
+            talep_id?: number | null;
+            /**
+             * Para Birimi
+             * @default TRY
+             */
+            para_birimi: string;
+            /**
+             * Aciklama
+             * @default
+             */
+            aciklama: string;
         };
         /** SayfaMeta */
         SayfaMeta: {
@@ -10073,6 +10666,19 @@ export interface components {
             /** Metin */
             metin: string;
         };
+        /** ZamanAraligiDTO */
+        ZamanAraligiDTO: {
+            /**
+             * Baslangic
+             * Format: date-time
+             */
+            baslangic: string;
+            /**
+             * Bitis
+             * Format: date-time
+             */
+            bitis: string;
+        };
         /** Zarf[AbonelikCevapDTO] */
         Zarf_AbonelikCevapDTO_: {
             /**
@@ -10238,6 +10844,21 @@ export interface components {
             data?: components["schemas"]["CihazCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[CizelgeDTO] */
+        Zarf_CizelgeDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["CizelgeDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[ConsentCevapDTO] */
         Zarf_ConsentCevapDTO_: {
             /**
@@ -10386,6 +11007,36 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["EnerjiOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[EsgOzetDTO] */
+        Zarf_EsgOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["EsgOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[FaktorDTO] */
+        Zarf_FaktorDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["FaktorDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[FaturaCevapDTO] */
@@ -11034,6 +11685,21 @@ export interface components {
             data?: components["schemas"]["PersonelCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[PlanCevapDTO] */
+        Zarf_PlanCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["PlanCevapDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[PlatformBenCevapDTO] */
         Zarf_PlatformBenCevapDTO_: {
             /**
@@ -11167,6 +11833,51 @@ export interface components {
              */
             message: string;
             data?: components["schemas"]["SatinalmaTalebiDetayDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[SatisMrpDTO] */
+        Zarf_SatisMrpDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SatisMrpDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[SatisOzetDTO] */
+        Zarf_SatisOzetDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SatisOzetDTO"] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[SatisSiparisCevapDTO] */
+        Zarf_SatisSiparisCevapDTO_: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            data?: components["schemas"]["SatisSiparisCevapDTO"] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[SertifikaCevapDTO] */
@@ -11963,6 +12674,22 @@ export interface components {
             data?: components["schemas"]["EnerjiTrendNoktaDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[FaktorDTO]] */
+        Zarf_list_FaktorDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["FaktorDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[FaturaCevapDTO]] */
         Zarf_list_FaturaCevapDTO__: {
             /**
@@ -12553,6 +13280,22 @@ export interface components {
             message: string;
             /** Data */
             data?: components["schemas"]["SatinalmaTalebiDisDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
+        /** Zarf[list[SatisSiparisCevapDTO]] */
+        Zarf_list_SatisSiparisCevapDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["SatisSiparisCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
         /** Zarf[list[SertifikaCevapDTO]] */
@@ -23252,6 +23995,447 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Zarf_list_EFaturaDisDTO__"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    planlama_cizelge_api_v1_planlama_cizelge_get: {
+        parameters: {
+            query?: {
+                baslangic?: string | null;
+                gun?: number;
+                makine_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_CizelgeDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    plan_girdisi_api_v1_is_emirleri__is_emri_id__plan_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                is_emri_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanGirdisiDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_PlanCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_listele_api_v1_satis_siparisleri_get: {
+        parameters: {
+            query?: {
+                sayfa?: number;
+                adet?: number;
+                durum?: string | null;
+                firma_id?: number | null;
+                geciken?: boolean;
+                arama?: string | null;
+                siralama?: string | null;
+                yon?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_SatisSiparisCevapDTO__"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_olustur_api_v1_satis_siparisleri_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SatisSiparisOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisSiparisCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    satis_ozet_api_v1_satis_ozet_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisOzetDTO_"];
+                };
+            };
+        };
+    };
+    siparis_detay_api_v1_satis_siparisleri__siparis_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisSiparisCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_guncelle_api_v1_satis_siparisleri__siparis_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SatisSiparisGuncelleDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisSiparisCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_mrp_api_v1_satis_siparisleri__siparis_id__mrp_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisMrpDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_onayla_api_v1_satis_siparisleri__siparis_id__onayla_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SatisOnayDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisSiparisCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    siparis_durum_api_v1_satis_siparisleri__siparis_id__durum_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                siparis_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SatisDurumDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_SatisSiparisCevapDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    esg_ozet_api_v1_esg_ozet_get: {
+        parameters: {
+            query?: {
+                baslangic?: string | null;
+                bitis?: string | null;
+                donem?: "gun" | "ay";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_EsgOzetDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    faktor_listele_api_v1_esg_faktorler_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_FaktorDTO__"];
+                };
+            };
+        };
+    };
+    faktor_ekle_api_v1_esg_faktorler_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FaktorOlusturDTO"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_FaktorDTO_"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    faktor_sil_api_v1_esg_faktorler__faktor_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                faktor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

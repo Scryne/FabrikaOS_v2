@@ -29,6 +29,10 @@ Varsayılan roller ve verdikleri izinler:
 | `uyum` | Denetim kayıtları ve KVKK işlemleri |
 | `finans` | Fatura hazırlama ve tahsilat; fatura kesemez |
 | `finans-onaylayan` | Fatura kesme/iade/iptal, firmaya ödeme |
+| `planlamaci` | Üretim planı: iş emri süresi ve sırası; iş emrinin kendisini değiştirmez |
+| `satis` | Satış siparişi hazırlama, sevk ve kapatma; onaylayamaz |
+| `satis-onaylayan` | Sipariş onayı (üretim emri + satınalma talebi açar) ve onaylı siparişi iptal |
+| `esg` | Emisyon ve yoğunluk göstergeleri, emisyon faktörleri, ESG raporu |
 | `kiosk` | Atölye ekranı: yalnız üretim okuma |
 | `saha-cihaz` | Ağ geçidi hesabı: ölçüm gönderme (`edge`); insan kullanıcıya verilmez |
 | `dis-panel` | Dış portal: bağlı olduğu firmanın kayıtlarını görür (müşteri/tedarikçi kullanıcısı) |

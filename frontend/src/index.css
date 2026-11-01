@@ -1497,3 +1497,311 @@ a.varlik-ad:hover {
 .finans-tablo .sayisal {
   white-space: nowrap;
 }
+
+/* ── Üretim planı / Gantt (S30) ────────────────────────────────────────────── */
+.gantt-kaydir {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.gantt {
+  --gantt-sol: 200px;
+  font-size: 12px;
+}
+.gantt-satir {
+  display: grid;
+  grid-template-columns: var(--gantt-sol) minmax(0, 1fr);
+  min-height: 52px;
+  border-bottom: 1px solid var(--kenarlik);
+}
+.gantt-satir:last-child {
+  border-bottom: 0;
+}
+.gantt-ust {
+  min-height: 40px;
+  background: var(--yuzey-2);
+  color: var(--metin-soluk);
+}
+.gantt-sol {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 14px;
+  background: var(--yuzey);
+  border-right: 1px solid var(--kenarlik);
+  min-width: 0;
+}
+.gantt-ust .gantt-sol {
+  background: var(--yuzey-2);
+  font-weight: 500;
+}
+.gantt-kod {
+  color: var(--metin);
+  font-weight: 600;
+}
+.gantt-ad {
+  color: var(--metin-soluk);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gantt-yuk {
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.gantt-iz {
+  position: relative;
+  overflow: hidden;
+}
+.gantt-gun {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8px;
+  border-left: 1px solid var(--kenarlik);
+  text-transform: capitalize;
+  line-height: 1.25;
+}
+.gantt-gun:first-child {
+  border-left: 0;
+}
+.gantt-gun.bugun {
+  color: var(--cyan);
+}
+.gantt-vardiya {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: rgba(56, 189, 248, 0.05);
+}
+.gantt-ayrac {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--kenarlik);
+}
+.gantt-simdi {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--cyan);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+.gantt-cubuk {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-width: 3px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #04121b;
+  font: 600 11px/1 var(--font-mono);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    filter var(--gecis),
+    transform var(--gecis);
+}
+.gantt-cubuk span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gantt-cubuk:hover {
+  filter: brightness(1.12);
+}
+.gantt-cubuk:focus-visible {
+  outline: 2px solid var(--metin);
+  outline-offset: 2px;
+}
+.gantt-cubuk.devam {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+.durum-zamaninda {
+  background: var(--hat-uretim);
+}
+.durum-sira_gecikmesi {
+  background: var(--uyari);
+}
+.durum-kapasite_asimi,
+.durum-sigmadi {
+  background: var(--hata);
+  color: #fff;
+}
+.gantt-cubuk.durum-sigmadi {
+  background: repeating-linear-gradient(135deg, var(--hata) 0 6px, #b91c1c 6px 12px);
+}
+.gantt-ipucu {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+}
+.gantt-lejant {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--metin-soluk);
+}
+.gantt-lejant li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.gantt-lejant-renk {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+.gantt-lejant-renk.vardiya {
+  background: rgba(56, 189, 248, 0.18);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+.ton-bos,
+.ton-yok {
+  color: var(--metin-soluk);
+}
+.ton-normal {
+  color: var(--metin);
+}
+.ton-yogun {
+  color: var(--uyari);
+}
+.ton-dolu {
+  color: var(--hata-metin, #f26b6b);
+}
+.yuk-izgara {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.yuk-izgara th,
+.yuk-izgara td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--kenarlik);
+  text-align: center;
+  white-space: nowrap;
+}
+.yuk-izgara thead th {
+  color: var(--metin-soluk);
+  font-weight: 500;
+  background: var(--yuzey-2);
+  text-transform: capitalize;
+}
+.yuk-izgara tbody th {
+  text-align: left;
+  color: var(--metin);
+}
+.yuk-izgara td.ton-normal {
+  background: rgba(56, 189, 248, 0.06);
+}
+.yuk-izgara td.ton-yogun {
+  background: rgba(245, 158, 11, 0.1);
+}
+.yuk-izgara td.ton-dolu {
+  background: rgba(239, 68, 68, 0.12);
+}
+.yuk-izgara tbody tr:last-child th,
+.yuk-izgara tbody tr:last-child td {
+  border-bottom: 0;
+}
+@media (max-width: 760px) {
+  .gantt {
+    --gantt-sol: 120px;
+  }
+  .gantt-ad {
+    display: none;
+  }
+  .gantt-lejant {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gantt-cubuk {
+    transition: none;
+  }
+}
+
+/* ── Satış siparişi (S31) ─────────────────────────────────────────────────── */
+.siparis-kalem {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr) minmax(0, 1.2fr) 32px;
+  gap: 8px;
+  align-items: start;
+}
+.siparis-kalem .ant-form-item {
+  margin-bottom: 8px;
+}
+.tetik-listesi {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tetik-listesi li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--kenarlik);
+  border-radius: 10px;
+  background: var(--yuzey-ust);
+}
+.tetik-listesi li > .varlik-alt {
+  min-width: 128px;
+}
+.form-etiket {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--metin-soluk);
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .siparis-kalem {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 32px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--kenarlik);
+  }
+  .siparis-kalem > :first-child {
+    grid-column: 1 / -1;
+  }
+  .siparis-kalem .fatura-kalem-baslik,
+  .siparis-kalem.fatura-kalem-baslik {
+    display: none;
+  }
+  .tetik-listesi li > .varlik-alt {
+    min-width: 0;
+  }
+}
+
+/* ── ESG (S32) ───────────────────────────────────────────────────────────── */
+.esg-kaynak {
+  display: block;
+  max-width: 520px;
+  margin-top: 4px;
+  white-space: normal;
+  font-size: 12px;
+  line-height: 1.45;
+}

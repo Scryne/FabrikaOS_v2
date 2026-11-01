@@ -55,6 +55,14 @@ export const MENU: MenuOgesi[] = [
     modul: 'isemri',
   },
   {
+    anahtar: 'uretim-plani',
+    etiketAnahtari: 'menu.uretim_plani',
+    bolum: 'menu.bolum_uretim',
+    yol: '/uretim-plani',
+    izin: 'planlama:oku',
+    modul: 'planlama',
+  },
+  {
     anahtar: 'urunler',
     etiketAnahtari: 'menu.urunler',
     bolum: 'menu.bolum_uretim',
@@ -191,6 +199,14 @@ export const MENU: MenuOgesi[] = [
     modul: 'enerji',
   },
   {
+    anahtar: 'esg',
+    etiketAnahtari: 'menu.esg',
+    bolum: 'menu.bolum_kalite',
+    yol: '/esg',
+    izin: 'esg:oku',
+    modul: 'esg',
+  },
+  {
     anahtar: 'is-kazalari',
     etiketAnahtari: 'menu.is_kazalari',
     bolum: 'menu.bolum_isg_ik',
@@ -277,6 +293,14 @@ export const MENU: MenuOgesi[] = [
     yol: '/talepler',
     izin: 'talep:oku',
     modul: 'talep',
+  },
+  {
+    anahtar: 'satis-siparisleri',
+    etiketAnahtari: 'menu.satis_siparisleri',
+    bolum: 'menu.bolum_ticari',
+    yol: '/satis-siparisleri',
+    izin: 'satis:oku',
+    modul: 'satis',
   },
   {
     anahtar: 'belgeler',

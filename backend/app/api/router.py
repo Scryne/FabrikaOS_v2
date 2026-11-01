@@ -29,6 +29,7 @@ from app.modules.enerji.router import router as enerji_router
 from app.modules.entegrasyon.anahtar_router import router as api_anahtar_router
 from app.modules.entegrasyon.disveri_router import router as disveri_router
 from app.modules.entegrasyon.router import router as entegrasyon_router
+from app.modules.esg.router import router as esg_router
 from app.modules.finans.router import entegrator_router as efatura_router
 from app.modules.finans.router import router as finans_router
 from app.modules.ik.olgunluk_router import router as ik_olgunluk_router
@@ -39,8 +40,10 @@ from app.modules.isg.olgunluk_router import router as isg_olgunluk_router
 from app.modules.isg.router import router as isg_router
 from app.modules.kalite.router import router as kalite_router
 from app.modules.kalite.spc_router import router as kalite_spc_router
+from app.modules.planlama.router import router as planlama_router
 from app.modules.rapor.router import router as rapor_router
 from app.modules.saha.router import router as saha_router
+from app.modules.satis.router import router as satis_router
 from app.modules.sozlesme.router import router as sozlesme_router
 from app.modules.stok.depo_router import router as depo_router
 from app.modules.stok.router import router as stok_router
@@ -99,3 +102,6 @@ api_router.include_router(ik_olgunluk_router)
 api_router.include_router(isg_olgunluk_router)
 api_router.include_router(finans_router)
 api_router.include_router(efatura_router)
+api_router.include_router(planlama_router)
+api_router.include_router(satis_router)
+api_router.include_router(esg_router)

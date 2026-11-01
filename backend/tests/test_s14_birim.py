@@ -6,7 +6,9 @@ from app.modules.rapor import birimler
 
 
 def test_rapor_turleri() -> None:
-    assert frozenset({"uretim", "stok", "kalite", "enerji", "isemri"}) == birimler.RAPOR_TURLERI
+    assert (
+        frozenset({"uretim", "stok", "kalite", "enerji", "isemri", "esg"}) == birimler.RAPOR_TURLERI
+    )
 
 
 def test_rapor_bicimleri() -> None:

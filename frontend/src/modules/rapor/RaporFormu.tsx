@@ -3,6 +3,8 @@
 import { useTranslation } from 'react-i18next';
 import { Form, Modal, Radio, Segmented, Select } from 'antd';
 
+import { useAuthStore } from '@/store/authStore';
+
 import { useRaporOlustur } from './hooks';
 import { RAPOR_BICIMLERI, RAPOR_TURLERI, type RaporOlustur } from './sunum';
 
@@ -10,6 +12,8 @@ export function RaporFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
   const { t } = useTranslation();
   const [form] = Form.useForm<RaporOlustur>();
   const olustur = useRaporOlustur();
+  // ESG raporu ayrı modülün verisi: esg:oku olmayana seçenek gösterilmez (sunucu da 403 verir).
+  const esgOkur = useAuthStore((s) => s.izinVar('esg:oku'));
 
   const gonder = (degerler: RaporOlustur) => {
     olustur.mutate(degerler, {
@@ -39,7 +43,7 @@ export function RaporFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
       >
         <Form.Item name="tur" label={t('rapor.tur')} rules={[{ required: true }]}>
           <Select
-            options={RAPOR_TURLERI.map((tur) => ({
+            options={RAPOR_TURLERI.filter((tur) => tur !== 'esg' || esgOkur).map((tur) => ({
               value: tur,
               label: t(`rapor.tur_${tur}`),
             }))}

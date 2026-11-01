@@ -107,6 +107,12 @@ def _onayci(c: Istemci, eposta: str) -> Istemci:
 # ---------------------------------------------------------------- modüller
 
 
+SATIS_KULLANICILARI = [
+    ("satis@demo.test", "Burak Öztürk", ["satis"]),
+    ("satis.onay@demo.test", "Ceren Tan", ["satis-onaylayan"]),
+]
+
+
 def kullanicilar(c: Istemci) -> None:
     for eposta, ad, roller in [
         ("uretim.sefi@demo.test", "Mehmet Yılmaz", ["izleyici"]),
@@ -118,12 +124,13 @@ def kullanicilar(c: Istemci) -> None:
         ("crm@demo.test", "Deniz Aydın", ["crm"]),
         ("finans@demo.test", "Selin Kaya", ["finans"]),
         ("mali.isler@demo.test", "Okan Yurt", ["finans-onaylayan"]),
+        *SATIS_KULLANICILARI,
     ]:
         c.post(
             "/api/v1/kullanicilar",
             {"eposta": eposta, "parola": "Demo1234!", "ad_soyad": ad, "roller": roller},
         )
-    print("  kullanıcılar: 9")
+    print("  kullanıcılar: 11")
 
 
 # Gerçekçi metal işleme hattı — soldan sağa akış (Kesim → Büküm → Talaşlı İmalat →
@@ -969,6 +976,109 @@ def urun_recete_uretim(c: Istemci, makineler: list[dict], admin_id: int) -> None
     print(f"  ürün + reçete + lotlu üretim emri: {len(URUNLER)}")
 
 
+# S30 planlama demosu: "şimdi"ye göreli teslimler (saat), tohum hangi saatte koşarsa koşsun
+# aynı üç durum oluşur. LAZER-1: iki iş 30 saat sürüyor, ikincisinin teslimi 24 saat sonra →
+# hiçbir sırayla yetişmez (kapasite aşımı). MONTAJ-1: acil iş (20 sa sonra teslim) elle sırayla
+# ikinci sıraya itilir → sıra kaynaklı gecikme. Diğerleri miktar × çevrim süresinden tahminle.
+PLAN_ISLERI = [
+    # (başlık, makine, öncelik, teslim_saat, miktar, ürün_kod | None, elle_süre_dk, elle_sıra)
+    ("Sipariş kesimi: KBN-608 yan panel × 400", "LAZER-1", "yuksek", 20, 400, "KBN-608", 600, None),
+    (
+        "Sipariş kesimi: BRK-120 sac açınım × 1500",
+        *("LAZER-1", "orta", 24, 1500, "BRK-120", 1200, None),
+    ),
+    (
+        "Pano kabini montajı × 60 (acil sevkiyat)",
+        *("MONTAJ-1", "kritik", 20, 60, "KBN-608", 1000, None),
+    ),
+    ("Braket alt montajı × 800", "MONTAJ-1", "orta", 72, 800, "BRK-120", 1000, 1),
+    ("Büküm: BRK-120 × 600", "ABKANT-1", "orta", 40, 600, "BRK-120", None, None),
+    ("Büküm: KBN-608 kapak × 120", "ABKANT-1", "orta", 64, 120, "KBN-608", None, None),
+    ("Toz boya: pano gövdesi × 60", "BOYA-1", "yuksek", 48, 60, "KBN-608", None, None),
+    ("Mil işleme × 240", "CNC-1", "orta", 30, 240, None, None, None),
+    ("Flanş delik delme × 180", "CNC-1", "dusuk", 56, 180, None, None, None),
+]
+
+
+def planlama(c: Istemci, makineler: list[dict]) -> None:
+    # İş başına idempotent: yarıda kalan bir koşu tekrarlanınca eksikler tamamlanır.
+    mevcut = {ie["baslik"]: ie for ie in _liste(c, "/api/v1/is-emirleri?sayfa=1&adet=100")}
+    makine = {m["kod"]: m for m in makineler}
+    simdi = datetime.now(UTC).replace(second=0, microsecond=0)
+    yeni = 0
+    for baslik, mkod, oncelik, saat, miktar, ukod, sure, sira in PLAN_ISLERI:
+        if baslik in mevcut:
+            continue
+        yeni += 1
+        govde: dict[str, Any] = {
+            "baslik": baslik,
+            "makine_id": makine[mkod]["id"],
+            "oncelik": oncelik,
+            "aciklama": "Demo üretim emri — planlama çizelgesi.",
+            "miktar": miktar,
+            "hedef_tarih": (simdi + timedelta(hours=saat)).isoformat(),
+        }
+        # Operasyon işi (kesim/büküm/boya): ürün bağlanmaz. S24'te ürün + miktar taşıyan iş emri
+        # kapanırken reçeteyi stoktan düşer; aynı ürünün her operasyonu düşerse tüketim katlanır
+        # (S31 MRP'de "ayrılmış" da katlanıyordu, 2026-11-01). Ürün yalnız açıklamada anılır.
+        if ukod:
+            govde["aciklama"] = f"Demo operasyon işi ({ukod}) — planlama çizelgesi."
+        ie = c.post("/api/v1/is-emirleri", govde)
+        if sure is not None or sira is not None:
+            c.put(f"/api/v1/is-emirleri/{ie['id']}/plan", {"sure_dk": sure, "elle_sira": sira})
+    if yeni:
+        print(f"  planlama: {yeni} üretim emri")
+
+
+def satis(c: Istemci, makineler: list[dict]) -> None:
+    """S31: satış temsilcisi sipariş açar, satış onaylayan onaylar (görev ayrımı) → MRP üretim
+    emri ve eksik malzeme için satınalma talebi açar. Bir sipariş taslak kalır (MRP önizlemesi)."""
+    if _liste(c, "/api/v1/satis-siparisleri?sayfa=1&adet=1"):
+        return
+    for eposta, ad, roller in SATIS_KULLANICILARI:  # var olan tenant: kullanıcılar eksikse aç
+        try:
+            c.post(
+                "/api/v1/kullanicilar",
+                {"eposta": eposta, "parola": "Demo1234!", "ad_soyad": ad, "roller": roller},
+            )
+        except RuntimeError as e:
+            if "409" not in str(e):
+                raise
+    firmalar = _liste(c, "/api/v1/firmalar?sayfa=1&adet=100")
+    musteriler = [f for f in firmalar if f["tip"] in ("musteri", "her_ikisi")]
+    urun = {u["kod"]: u for u in _liste(c, "/api/v1/urunler?sayfa=1&adet=100")}
+    makine = {m["kod"]: m for m in makineler}
+    if len(musteriler) < 2 or not {"BRK-120", "KBN-608"} <= set(urun):
+        print("  satış: müşteri/ürün eksik, atlandı")
+        return
+    temsilci, onayci = _onayci(c, "satis@demo.test"), _onayci(c, "satis.onay@demo.test")
+    s1 = temsilci.post(
+        "/api/v1/satis-siparisleri",
+        {
+            "firma_id": musteriler[0]["id"],
+            "teslim_tarihi": _tarih(-10),
+            "makine_id": makine["MONTAJ-1"]["id"],
+            "aciklama": "Pano kabini çerçeve sözleşmesi, 1. çağrı.",
+            "kalemler": [{"urun_id": urun["KBN-608"]["id"], "miktar": "40", "birim_fiyat": "4850"}],
+        },
+    )
+    onayci.post(f"/api/v1/satis-siparisleri/{s1['id']}/onayla", {})
+    temsilci.post(
+        "/api/v1/satis-siparisleri",
+        {
+            "firma_id": musteriler[1]["id"],
+            "teslim_tarihi": _tarih(-21),
+            "makine_id": makine["ABKANT-1"]["id"],
+            "aciklama": "Beyaz eşya montaj braketi, çeyrek siparişi.",
+            "kalemler": [
+                {"urun_id": urun["BRK-120"]["id"], "miktar": "1200", "birim_fiyat": "38.5"},
+                {"urun_id": urun["KBN-608"]["id"], "miktar": "15", "birim_fiyat": "4850"},
+            ],
+        },
+    )
+    print("  satış: 2 sipariş (1 onaylı → MRP tetiği, 1 taslak)")
+
+
 # Demo fabrikanın iki tesisi (coğrafi site haritası, S-VB): kesim/büküm/talaşlı imalat
 # Bursa'da, kaynak/pres/montaj/boya Gebze'de. Aynı tesisteki makineler küçük ofsetle dağılır.
 TESISLER = {
@@ -1660,6 +1770,8 @@ def tamamla(c: Istemci, ben: dict) -> None:
     tazele(c, m)
     vardiya_durus(c, m)
     urun_recete_uretim(c, m, ben["id"])
+    planlama(c, m)
+    satis(c, m)
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, m)
     tedarik_zinciri(c)
@@ -1726,6 +1838,8 @@ def main() -> int:
     yonetici_adi(c, ben)
     vardiya_durus(c, _makineler_profilli(c))
     urun_recete_uretim(c, m, ben["id"])
+    planlama(c, m)
+    satis(c, _makineler_profilli(c))
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, _makineler_profilli(c))
     tedarik_zinciri(c)

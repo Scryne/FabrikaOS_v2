@@ -18,7 +18,7 @@ from app.control_plane.models import Tenant
 from app.core.audit import denetim_yaz
 from app.core.db.session import get_session
 from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
-from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
+from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi, YetkiHatasi
 from app.core.responses import Zarf, basari, sayfali
 from app.kimlik.models import Kullanici
 from app.modules.rapor import repository, service
@@ -62,6 +62,14 @@ async def rapor_olustur(
     db: Annotated[AsyncSession, Depends(get_session)],
     tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
+    if govde.tur == "esg":
+        # ESG raporu ayrı satılabilir modülün verisidir (S32): modül ve okuma izni ayrıca gerekir.
+        from app.control_plane import entitlement_service
+
+        if not await entitlement_service.tenant_modul_acik_mi(db, tenant, "esg"):
+            raise YetkiHatasi("Bu modül aboneliğinizde kapalı: esg", hata_kodu="MODUL_KAPALI")
+        if not kullanici.izin_var("esg:oku"):
+            raise YetkiHatasi("ESG raporu için esg:oku izni gerekir")
     kayit = await service.rapor_olustur(
         db, tur=govde.tur, bicim=govde.bicim, gun=govde.gun, kullanici_id=kullanici.id
     )

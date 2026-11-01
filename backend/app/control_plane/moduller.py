@@ -36,6 +36,9 @@ MODUL_KATALOGU: dict[str, str] = {
     "dis-portal": "Dış Portal (müşteri self-servis)",
     # S29 (Faz 7, ADR-0048): yeni satılabilir modül — yalnız deneme/kurumsal planlarında.
     "finans": "Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet)",
+    "planlama": "Üretim Planlama & Çizelgeleme (sonlu kapasite, Gantt)",
+    "satis": "Satış & Sipariş → MRP (müşteri siparişi, malzeme ihtiyacı, üretim/satınalma tetiği)",
+    "esg": "ESG & Sürdürülebilirlik (Kapsam 1/2 emisyon, enerji ve karbon yoğunluğu)",
 }
 
 

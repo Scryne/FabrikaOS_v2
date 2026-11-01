@@ -60,6 +60,15 @@ edilen iş emri yeniden açılmaz. Ürünü reçeteli bir iş emri **kapanırken
 üretilen adet kadar stoktan düşülür; stok yetmezse kapanış reddedilir ve eksik malzeme
 yazılır. Lot numarası verilen iş emri izlenebilirlik zincirine girer.
 
+**Üretim planı** (`planlama:oku`, düzeltmek için `planlama:yaz`): açık iş emirleri makine başına
+vardiya saatlerine, teslim tarihi en yakın olan önce gelecek şekilde yerleştirilir (devam eden iş
+her zaman başta). Çubuk rengi durumu söyler: mavi zamanında, amber **sıra kaynaklı gecikme**
+(elle verdiğiniz sıra yüzünden geç; sırayı kaldırırsanız yetişir), kırmızı **kapasite aşımı**
+(hiçbir sırayla yetişmez: fazla mesai, başka makine ya da yeni teslim tarihi gerekir). Bir çubuğa
+tıklayıp süreyi (dakika) ya da sırayı elle girin; **Otomatiğe döndür** ikisini de siler. Süre
+girilmemişse miktar × makinenin son çevrim süresinden tahmin edilir; veri yoksa 60 dk varsayılır
+ve sarı **varsayılan** etiketi çıkar. **Günlük yük** her makinenin günlük doluluğunu gösterir.
+
 **Ürünler & Reçete:** ürün kartı ve reçetesi (BOM: ürün başına bir reçete, satırları malzeme ve
 birim başına miktar; alt reçete yoktur).
 
@@ -116,6 +125,13 @@ olabilir. İş kazası ekranından **CAPA aç** tek tıkla bağlı vaka açar (k
 
 **Enerji** (`enerji:oku`): sayaç tüketimleri ve dönem trendi.
 
+**Sürdürülebilirlik (ESG)** (`esg:oku`; faktör eklemek için `esg:yaz`): seçilen aralıkta Kapsam 1
+(tesiste yakılan doğalgaz) ve Kapsam 2 (şebeke elektriği) emisyonu, günlük ya da aylık. **Karbon
+yoğunluğu** sağlam ürün başına kg CO₂e'dir. Emisyon faktörü olmayan tüketim (ör. basınçlı hava) 0
+sayılmaz, sarı uyarıda miktarıyla görünür. Varsayılan faktörler resmî kaynaklıdır (ETKB, IPCC);
+fabrikanıza özgü faktörü kaynağıyla girdiğinizde o tarihten itibaren o kullanılır ve geçmiş dönemler
+de yeniden hesaplanır. **ESG raporu** PDF olarak Raporlar ekranında hazırlanır.
+
 ## 6. İSG & İK
 
 **İş kazaları** (`isg:oku`): kaza bildirimi, yaralanma bilgisi, kök neden; ilgili makine ve
@@ -146,6 +162,15 @@ yaklaşan sözleşme için sahibine bildirim gider.
 **Talepler** (`talep:oku`): müşteri talepleri ve şikâyetleri; akış
 `açık → inceleniyor → çözüldü → kapandı` (müşteri itiraz ederse çözüldüden incelemeye döner).
 SLA süresi yaklaşan ya da geçen talep işaretlenir.
+
+**Satış siparişleri** (`satis:oku`; hazırlamak için `satis:yaz`, onay için `satis:onay`): müşteri
+siparişi taslak olarak açılır (ürün × miktar, teslim tarihi, üretim hattı). Detaydaki **Malzeme
+ihtiyacı** tablosu her malzeme için gerekeni, kullanılabiliri (stok + gelmekte olan − açık iş
+emirlerine ayrılmış) ve eksiği gösterir. **Onayla** her kalem için seçilen hatta bir üretim emri ve
+eksik malzemeler için tek bir satınalma talebi açar; talep satınalma onayına düşer. Siparişi açan
+kişi onaylayamaz. Aynı sipariş ikinci kez onaylanamaz; açılan işler **Açılan işler** listesinden
+izlenir. Akış `taslak → onaylandı → sevk edildi → kapandı`; onaylı sipariş iptal edilirse açılan
+üretim emirleri ve talep ayrıca kapatılmalıdır.
 
 ## 8. Doküman & Duyuru
 

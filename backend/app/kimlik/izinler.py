@@ -64,6 +64,16 @@ IZIN_KATALOGU: dict[str, str] = {
     "finans:oku": "Cari, fatura ve ödemeleri görüntüleme",
     "finans:yaz": "Fatura hazırlama ve tahsilat kaydı",
     "finans:onay": "Fatura kesme/iptal ve firmaya ödeme kaydı",
+    # S30 (ADR-0049): üretim planlama.
+    "planlama:oku": "Üretim çizelgesini görüntüleme",
+    "planlama:yaz": "İş emri süre ve sırası planlama",
+    # S31 (ADR-0050): satış siparişi ve MRP.
+    "satis:oku": "Satış siparişlerini ve malzeme ihtiyacını görüntüleme",
+    "satis:yaz": "Sipariş hazırlama, sevk ve kapatma",
+    "satis:onay": "Siparişi onaylama (üretim/satınalma tetiği) ve onaylı siparişi iptal",
+    # S32 (ADR-0051): ESG.
+    "esg:oku": "Emisyon ve sürdürülebilirlik göstergelerini görüntüleme",
+    "esg:yaz": "Emisyon faktörlerini yönetme",
     # S23 (ADR-0022) — güvenlik & uyum çekirdek yüzeyi (modül kapısı YOK: satılabilir
     # yetenek değil, her tenant'ın hakkı; yalnız izinle korunur).
     "denetim:oku": "Denetim kayıtlarını (audit trail) görüntüleme",
@@ -127,4 +137,15 @@ VARSAYILAN_ROLLER: dict[str, frozenset[str]] = {
     "finans": frozenset({"finans:oku", "finans:yaz", "crm:oku"}),
     # Finans onaylayan (mali işler yöneticisi): faturayı keser/iptal eder, ödeme kaydeder.
     "finans-onaylayan": frozenset({"finans:oku", "finans:yaz", "finans:onay", "crm:oku"}),
+    # Üretim planlamacısı (S30): çizelgeyi görür, süre/sıra girer; iş emrinin kendisini değiştirmez.
+    "planlamaci": frozenset({"planlama:oku", "planlama:yaz", "isemri:oku", "uretim:oku"}),
+    # Satış temsilcisi (S31): sipariş hazırlar ve sevk eder; onaylayamaz.
+    # uretim:oku: sipariş/onayda üretim hattı (makine) seçmek için.
+    "satis": frozenset({"satis:oku", "satis:yaz", "crm:oku", "stok:oku", "uretim:oku"}),
+    # Satış onaylayan: onay MRP'yi tetikler (iş emri + satınalma talebi açar).
+    # Sürdürülebilirlik sorumlusu (S32): emisyonu görür, faktörleri yönetir, ESG raporu üretir.
+    "esg": frozenset({"esg:oku", "esg:yaz", "enerji:oku", "uretim:oku", "rapor:oku", "rapor:yaz"}),
+    "satis-onaylayan": frozenset(
+        {"satis:oku", "satis:yaz", "satis:onay", "crm:oku", "stok:oku", "uretim:oku"}
+    ),
 }

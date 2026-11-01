@@ -53,6 +53,7 @@ _TUR_BASLIKLARI: dict[str, str] = {
     "kalite": "Kalite Raporu",
     "enerji": "Enerji Raporu",
     "isemri": "İş Emri Raporu",
+    "esg": "Sürdürülebilirlik (ESG) Raporu",
 }
 
 _oturum_fabrikasi: async_sessionmaker[AsyncSession] | None = None
@@ -310,6 +311,9 @@ async def _icerik_hazirla(db: AsyncSession, slug: str, kayit: Rapor) -> RaporIce
             ozet=[f"Gün×tür kaydı: {len(satirlar)}"],
         )
 
+    if kayit.tur == "esg":
+        return await _esg_icerik(db, kayit, baslik, alt_baslik, esik)
+
     # isemri (tur_dogrula'dan geçmiş olmalı)
     ham = await repository.isemri_satirlari(db, esik=esik)
     satirlar = [
@@ -345,3 +349,61 @@ async def rapor_icerik_indir(kayit: Rapor) -> bytes:
     """Hazır raporun baytlarını nesne deposundan okur."""
     depo = nesne_depo_al()
     return await asyncio.to_thread(depo.indir, kayit.nesne_anahtari)
+
+
+async def _esg_icerik(
+    db: AsyncSession, kayit: Rapor, baslik: str, alt_baslik: str, esik: datetime
+) -> RaporIcerik:
+    """Dönemsel emisyon (S32): 62 güne kadar günlük, üstü aylık kırılım; faktörler kaynağıyla."""
+    from app.core.zaman import is_gunu, is_saat_dilimi
+    from app.modules.esg import service as esg
+
+    bitis = is_gunu()
+    baslangic = esik.astimezone(is_saat_dilimi()).date()
+    donem: esg.Donem = "gun" if (bitis - baslangic).days <= 62 else "ay"
+    r = await esg.hesapla(db, baslangic=baslangic, bitis=bitis, donem=donem)
+    satirlar = [
+        [
+            f"{x['donem']:%Y-%m-%d}" if donem == "gun" else f"{x['donem']:%Y-%m}",
+            x["kapsam1_kg"],
+            x["kapsam2_kg"],
+            x["toplam_kg"],
+            x["elektrik_kwh"],
+            x["saglam_adet"],
+            # Yoğunluk küçük sayıdır: rapor üreticisinin 2 basamak yuvarlaması bilgiyi siler.
+            f"{x['kg_adet']:.4f}" if x["kg_adet"] is not None else "—",
+            f"{x['kwh_adet']:.4f}" if x["kwh_adet"] is not None else "—",
+        ]
+        for x in esg.ozet_satirlari(r)
+    ]
+    s = r.sonuc
+    ozet = [
+        f"Kapsam 1: {esg.kg_ton(s.kapsam1)} t CO2e",
+        f"Kapsam 2: {esg.kg_ton(s.kapsam2)} t CO2e",
+        f"Toplam: {esg.kg_ton(s.toplam)} t CO2e, sağlam adet {r.toplam_adet}",
+    ]
+    ozet += [
+        f"Faktör — {t.enerji_turu} ({t.birim}): {t.faktor.deger} kg CO2e, {t.faktor.kaynak}"
+        for t in s.turler
+        if t.faktor is not None
+    ]
+    ozet += [
+        f"Faktörsüz (emisyona girmedi): {t.enerji_turu} {round(float(t.miktar), 3)} {t.birim}"
+        for t in s.faktorsuz
+    ]
+    return RaporIcerik(
+        baslik=baslik,
+        alt_baslik=alt_baslik,
+        kolonlar=[
+            "Dönem",
+            "Kapsam 1 (kg)",
+            "Kapsam 2 (kg)",
+            "Toplam (kg CO2e)",
+            "Elektrik (kWh)",
+            "Sağlam adet",
+            "kg CO2e/adet",
+            "kWh/adet",
+        ],
+        satirlar=satirlar,
+        ozet=ozet,
+    )

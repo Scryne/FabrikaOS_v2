@@ -25,7 +25,9 @@ async def test_moduller_temel_planda_dogru_harita(
     assert durum["uretim"]["kaynak"] == "plan"
     assert durum["ai"]["acik"] is False  # temel planda kapalı
     assert durum["ai"]["kaynak"] == "plan"
-    assert len(durum) == 20  # S18: +entegrasyon +dis-portal; S29: +finans
+    assert (
+        len(durum) == 23
+    )  # S18: +entegrasyon +dis-portal; S29: +finans; S30: +planlama; S31: +satis; S32: +esg
 
     ozellik = {o["kod"]: o for o in veri["ozellikler"]}
     assert ozellik["mobil-api"]["acik"] is False  # temel planda özellik yok
@@ -72,7 +74,9 @@ async def test_abonelik_ozeti_plan_koltuk_ve_matris(
     assert veri["durum"] == "deneme"
     assert veri["koltuk"]["limit"] == 10
     assert veri["koltuk"]["kullanilan"] >= 1  # en az provizyon admini
-    assert len(veri["moduller"]) == 20  # S18: +entegrasyon +dis-portal; S29: +finans
+    assert (
+        len(veri["moduller"]) == 23
+    )  # S18: +entegrasyon +dis-portal; S29: +finans; S30: +planlama; S31: +satis; S32: +esg
     assert any(o["deneysel"] for o in veri["ozellikler"])
 
 

@@ -18028,6 +18028,826 @@
           }
         }
       }
+    },
+    "/api/v1/planlama/cizelge": {
+      "get": {
+        "tags": [
+          "Planlama"
+        ],
+        "summary": "Sonlu kapasite çizelgesi",
+        "operationId": "planlama_cizelge_api_v1_planlama_cizelge_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "baslangic",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Baslangic"
+            }
+          },
+          {
+            "name": "gun",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 31,
+              "minimum": 1,
+              "default": 7,
+              "title": "Gun"
+            }
+          },
+          {
+            "name": "makine_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 9223372036854775807,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Makine Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_CizelgeDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/is-emirleri/{is_emri_id}/plan": {
+      "put": {
+        "tags": [
+          "Planlama"
+        ],
+        "summary": "İş emri plan girdisi (elle süre / elle sıra)",
+        "operationId": "plan_girdisi_api_v1_is_emirleri__is_emri_id__plan_put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "is_emri_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Is Emri Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanGirdisiDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_PlanCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/satis-siparisleri": {
+      "get": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Siparişleri listele",
+        "operationId": "siparis_listele_api_v1_satis_siparisleri_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sayfa",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1,
+              "title": "Sayfa"
+            }
+          },
+          {
+            "name": "adet",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Adet"
+            }
+          },
+          {
+            "name": "durum",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Durum"
+            }
+          },
+          {
+            "name": "firma_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Firma Id"
+            }
+          },
+          {
+            "name": "geciken",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Geciken"
+            }
+          },
+          {
+            "name": "arama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Arama"
+            }
+          },
+          {
+            "name": "siralama",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Siralama"
+            }
+          },
+          {
+            "name": "yon",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Yon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_SatisSiparisCevapDTO__"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Satış siparişi hazırla (taslak)",
+        "operationId": "siparis_olustur_api_v1_satis_siparisleri_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatisSiparisOlusturDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisSiparisCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/satis/ozet": {
+      "get": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Satış özeti",
+        "operationId": "satis_ozet_api_v1_satis_ozet_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisOzetDTO_"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/satis-siparisleri/{siparis_id}": {
+      "get": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Sipariş detayı",
+        "operationId": "siparis_detay_api_v1_satis_siparisleri__siparis_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisSiparisCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Taslak siparişi düzenle",
+        "operationId": "siparis_guncelle_api_v1_satis_siparisleri__siparis_id__put",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatisSiparisGuncelleDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisSiparisCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/satis-siparisleri/{siparis_id}/mrp": {
+      "get": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Malzeme ihtiyaç planı (önizleme)",
+        "operationId": "siparis_mrp_api_v1_satis_siparisleri__siparis_id__mrp_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisMrpDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/satis-siparisleri/{siparis_id}/onayla": {
+      "post": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Siparişi onayla: MRP iş emri + satınalma talebi açar",
+        "operationId": "siparis_onayla_api_v1_satis_siparisleri__siparis_id__onayla_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatisOnayDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisSiparisCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/satis-siparisleri/{siparis_id}/durum": {
+      "post": {
+        "tags": [
+          "Satış"
+        ],
+        "summary": "Sevk / kapat / iptal",
+        "operationId": "siparis_durum_api_v1_satis_siparisleri__siparis_id__durum_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "siparis_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Siparis Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SatisDurumDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_SatisSiparisCevapDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/esg/ozet": {
+      "get": {
+        "tags": [
+          "ESG"
+        ],
+        "summary": "Dönemsel emisyon ve yoğunluk",
+        "operationId": "esg_ozet_api_v1_esg_ozet_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "baslangic",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Baslangic"
+            }
+          },
+          {
+            "name": "bitis",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bitis"
+            }
+          },
+          {
+            "name": "donem",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "gun",
+                "ay"
+              ],
+              "type": "string",
+              "default": "gun",
+              "title": "Donem"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_EsgOzetDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/esg/faktorler": {
+      "get": {
+        "tags": [
+          "ESG"
+        ],
+        "summary": "Etkin faktörler",
+        "operationId": "faktor_listele_api_v1_esg_faktorler_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_FaktorDTO__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "ESG"
+        ],
+        "summary": "Faktör ekle",
+        "operationId": "faktor_ekle_api_v1_esg_faktorler_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FaktorOlusturDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_FaktorDTO_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/esg/faktorler/{faktor_id}": {
+      "delete": {
+        "tags": [
+          "ESG"
+        ],
+        "summary": "Faktör sil",
+        "operationId": "faktor_sil_api_v1_esg_faktorler__faktor_id__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "faktor_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Faktor Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -19815,6 +20635,201 @@
         ],
         "title": "CikisGirdiDTO"
       },
+      "CizelgeDTO": {
+        "properties": {
+          "baslangic": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Baslangic"
+          },
+          "bitis": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Bitis"
+          },
+          "varsayilan_vardiya": {
+            "type": "boolean",
+            "title": "Varsayilan Vardiya"
+          },
+          "pencereler": {
+            "items": {
+              "$ref": "#/components/schemas/ZamanAraligiDTO"
+            },
+            "type": "array",
+            "title": "Pencereler"
+          },
+          "makineler": {
+            "items": {
+              "$ref": "#/components/schemas/MakineCizelgesiDTO"
+            },
+            "type": "array",
+            "title": "Makineler"
+          },
+          "ozet": {
+            "$ref": "#/components/schemas/CizelgeOzetDTO"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baslangic",
+          "bitis",
+          "varsayilan_vardiya",
+          "pencereler",
+          "makineler",
+          "ozet"
+        ],
+        "title": "CizelgeDTO"
+      },
+      "CizelgeIsiDTO": {
+        "properties": {
+          "is_emri_id": {
+            "type": "integer",
+            "title": "Is Emri Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "baslik": {
+            "type": "string",
+            "title": "Baslik"
+          },
+          "durum": {
+            "type": "string",
+            "title": "Durum"
+          },
+          "oncelik": {
+            "type": "string",
+            "title": "Oncelik"
+          },
+          "hedef_tarih": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hedef Tarih"
+          },
+          "sure_dk": {
+            "type": "number",
+            "title": "Sure Dk"
+          },
+          "sure_kaynagi": {
+            "type": "string",
+            "title": "Sure Kaynagi"
+          },
+          "elle_sira": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elle Sira"
+          },
+          "baslangic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baslangic"
+          },
+          "bitis": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bitis"
+          },
+          "parcalar": {
+            "items": {
+              "$ref": "#/components/schemas/ZamanAraligiDTO"
+            },
+            "type": "array",
+            "title": "Parcalar"
+          },
+          "gecikme_dk": {
+            "type": "number",
+            "title": "Gecikme Dk"
+          },
+          "sigmadi": {
+            "type": "boolean",
+            "title": "Sigmadi"
+          },
+          "kapasite_asimi": {
+            "type": "boolean",
+            "title": "Kapasite Asimi"
+          },
+          "sira_kaynakli_gecikme": {
+            "type": "boolean",
+            "title": "Sira Kaynakli Gecikme"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_emri_id",
+          "kod",
+          "baslik",
+          "durum",
+          "oncelik",
+          "hedef_tarih",
+          "sure_dk",
+          "sure_kaynagi",
+          "elle_sira",
+          "baslangic",
+          "bitis",
+          "parcalar",
+          "gecikme_dk",
+          "sigmadi",
+          "kapasite_asimi",
+          "sira_kaynakli_gecikme"
+        ],
+        "title": "CizelgeIsiDTO"
+      },
+      "CizelgeOzetDTO": {
+        "properties": {
+          "is_sayisi": {
+            "type": "integer",
+            "title": "Is Sayisi"
+          },
+          "geciken": {
+            "type": "integer",
+            "title": "Geciken"
+          },
+          "kapasite_asimi": {
+            "type": "integer",
+            "title": "Kapasite Asimi"
+          },
+          "varsayilan_sure": {
+            "type": "integer",
+            "title": "Varsayilan Sure"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_sayisi",
+          "geciken",
+          "kapasite_asimi",
+          "varsayilan_sure"
+        ],
+        "title": "CizelgeOzetDTO"
+      },
       "ConsentCevapDTO": {
         "properties": {
           "id": {
@@ -21147,6 +22162,347 @@
         ],
         "title": "EnerjiTrendNoktaDTO"
       },
+      "EsgDonemDTO": {
+        "properties": {
+          "donem": {
+            "type": "string",
+            "format": "date",
+            "title": "Donem"
+          },
+          "kapsam1_kg": {
+            "type": "number",
+            "title": "Kapsam1 Kg"
+          },
+          "kapsam2_kg": {
+            "type": "number",
+            "title": "Kapsam2 Kg"
+          },
+          "toplam_kg": {
+            "type": "number",
+            "title": "Toplam Kg"
+          },
+          "elektrik_kwh": {
+            "type": "number",
+            "title": "Elektrik Kwh"
+          },
+          "saglam_adet": {
+            "type": "integer",
+            "title": "Saglam Adet"
+          },
+          "kg_adet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kg Adet"
+          },
+          "kwh_adet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kwh Adet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "donem",
+          "kapsam1_kg",
+          "kapsam2_kg",
+          "toplam_kg",
+          "elektrik_kwh",
+          "saglam_adet",
+          "kg_adet",
+          "kwh_adet"
+        ],
+        "title": "EsgDonemDTO"
+      },
+      "EsgOzetDTO": {
+        "properties": {
+          "baslangic": {
+            "type": "string",
+            "format": "date",
+            "title": "Baslangic"
+          },
+          "bitis": {
+            "type": "string",
+            "format": "date",
+            "title": "Bitis"
+          },
+          "donem": {
+            "type": "string",
+            "title": "Donem"
+          },
+          "kapsam1_ton": {
+            "type": "number",
+            "title": "Kapsam1 Ton"
+          },
+          "kapsam2_ton": {
+            "type": "number",
+            "title": "Kapsam2 Ton"
+          },
+          "toplam_ton": {
+            "type": "number",
+            "title": "Toplam Ton"
+          },
+          "saglam_adet": {
+            "type": "integer",
+            "title": "Saglam Adet"
+          },
+          "kg_adet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kg Adet"
+          },
+          "kwh_adet": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kwh Adet"
+          },
+          "donemler": {
+            "items": {
+              "$ref": "#/components/schemas/EsgDonemDTO"
+            },
+            "type": "array",
+            "title": "Donemler"
+          },
+          "turler": {
+            "items": {
+              "$ref": "#/components/schemas/EsgTurDTO"
+            },
+            "type": "array",
+            "title": "Turler"
+          },
+          "faktorsuz": {
+            "items": {
+              "$ref": "#/components/schemas/EsgTurDTO"
+            },
+            "type": "array",
+            "title": "Faktorsuz"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baslangic",
+          "bitis",
+          "donem",
+          "kapsam1_ton",
+          "kapsam2_ton",
+          "toplam_ton",
+          "saglam_adet",
+          "kg_adet",
+          "kwh_adet",
+          "donemler",
+          "turler",
+          "faktorsuz"
+        ],
+        "title": "EsgOzetDTO"
+      },
+      "EsgTurDTO": {
+        "properties": {
+          "enerji_turu": {
+            "type": "string",
+            "title": "Enerji Turu"
+          },
+          "birim": {
+            "type": "string",
+            "title": "Birim"
+          },
+          "miktar": {
+            "type": "number",
+            "title": "Miktar"
+          },
+          "emisyon_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emisyon Kg"
+          },
+          "kapsam": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kapsam"
+          },
+          "faktor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faktor"
+          },
+          "faktor_kaynagi": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Faktor Kaynagi"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enerji_turu",
+          "birim",
+          "miktar",
+          "emisyon_kg",
+          "kapsam",
+          "faktor",
+          "faktor_kaynagi"
+        ],
+        "title": "EsgTurDTO"
+      },
+      "FaktorDTO": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id"
+          },
+          "enerji_turu": {
+            "type": "string",
+            "title": "Enerji Turu"
+          },
+          "birim": {
+            "type": "string",
+            "title": "Birim"
+          },
+          "deger": {
+            "type": "number",
+            "title": "Deger"
+          },
+          "kapsam": {
+            "type": "string",
+            "title": "Kapsam"
+          },
+          "gecerlilik": {
+            "type": "string",
+            "format": "date",
+            "title": "Gecerlilik"
+          },
+          "kaynak": {
+            "type": "string",
+            "title": "Kaynak"
+          },
+          "koken": {
+            "type": "string",
+            "title": "Koken"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "enerji_turu",
+          "birim",
+          "deger",
+          "kapsam",
+          "gecerlilik",
+          "kaynak",
+          "koken"
+        ],
+        "title": "FaktorDTO"
+      },
+      "FaktorOlusturDTO": {
+        "properties": {
+          "enerji_turu": {
+            "type": "string",
+            "maxLength": 20,
+            "title": "Enerji Turu"
+          },
+          "birim": {
+            "type": "string",
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Birim"
+          },
+          "deger": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,8}|(?=[\\d.]{1,15}0*$)\\d{0,8}\\.\\d{0,6}0*$)"
+              }
+            ],
+            "title": "Deger"
+          },
+          "kapsam": {
+            "type": "string",
+            "enum": [
+              "kapsam1",
+              "kapsam2"
+            ],
+            "title": "Kapsam"
+          },
+          "gecerlilik": {
+            "type": "string",
+            "format": "date",
+            "title": "Gecerlilik"
+          },
+          "kaynak": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Kaynak"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enerji_turu",
+          "birim",
+          "deger",
+          "kapsam",
+          "gecerlilik",
+          "kaynak"
+        ],
+        "title": "FaktorOlusturDTO"
+      },
       "FaturaCevapDTO": {
         "properties": {
           "id": {
@@ -22132,6 +23488,30 @@
           "gib_durumu"
         ],
         "title": "GibDurumDTO"
+      },
+      "GunlukYukDTO": {
+        "properties": {
+          "gun": {
+            "type": "string",
+            "format": "date",
+            "title": "Gun"
+          },
+          "plan_dk": {
+            "type": "number",
+            "title": "Plan Dk"
+          },
+          "kapasite_dk": {
+            "type": "number",
+            "title": "Kapasite Dk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "gun",
+          "plan_dk",
+          "kapasite_dk"
+        ],
+        "title": "GunlukYukDTO"
       },
       "HTTPValidationError": {
         "properties": {
@@ -25573,6 +26953,45 @@
         ],
         "title": "MakineCevapDTO"
       },
+      "MakineCizelgesiDTO": {
+        "properties": {
+          "makine_id": {
+            "type": "integer",
+            "title": "Makine Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "ad": {
+            "type": "string",
+            "title": "Ad"
+          },
+          "isler": {
+            "items": {
+              "$ref": "#/components/schemas/CizelgeIsiDTO"
+            },
+            "type": "array",
+            "title": "Isler"
+          },
+          "gunluk_yuk": {
+            "items": {
+              "$ref": "#/components/schemas/GunlukYukDTO"
+            },
+            "type": "array",
+            "title": "Gunluk Yuk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "makine_id",
+          "kod",
+          "ad",
+          "isler",
+          "gunluk_yuk"
+        ],
+        "title": "MakineCizelgesiDTO"
+      },
       "MakineDurumDTO": {
         "properties": {
           "durum": {
@@ -26344,6 +27763,127 @@
         ],
         "title": "ModullerCevapDTO",
         "description": "`GET /moduller` yanıtı — menü süzgeci için hafif görünürlük verisi."
+      },
+      "MrpIhtiyacDTO": {
+        "properties": {
+          "malzeme_id": {
+            "type": "integer",
+            "title": "Malzeme Id"
+          },
+          "malzeme_kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Malzeme Kod"
+          },
+          "malzeme_ad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Malzeme Ad"
+          },
+          "birim": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birim"
+          },
+          "brut": {
+            "type": "number",
+            "title": "Brut"
+          },
+          "eldeki": {
+            "type": "number",
+            "title": "Eldeki"
+          },
+          "acik_tedarik": {
+            "type": "number",
+            "title": "Acik Tedarik"
+          },
+          "ayrilmis": {
+            "type": "number",
+            "title": "Ayrilmis"
+          },
+          "kullanilabilir": {
+            "type": "number",
+            "title": "Kullanilabilir"
+          },
+          "net": {
+            "type": "number",
+            "title": "Net"
+          }
+        },
+        "type": "object",
+        "required": [
+          "malzeme_id",
+          "malzeme_kod",
+          "malzeme_ad",
+          "birim",
+          "brut",
+          "eldeki",
+          "acik_tedarik",
+          "ayrilmis",
+          "kullanilabilir",
+          "net"
+        ],
+        "title": "MrpIhtiyacDTO"
+      },
+      "MrpTetikDTO": {
+        "properties": {
+          "tur": {
+            "type": "string",
+            "title": "Tur"
+          },
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kod"
+          },
+          "durum": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tur",
+          "id",
+          "kod",
+          "durum"
+        ],
+        "title": "MrpTetikDTO"
       },
       "MtbfMttrCevapDTO": {
         "properties": {
@@ -28143,6 +29683,43 @@
         ],
         "title": "PersonelOlusturDTO"
       },
+      "PlanCevapDTO": {
+        "properties": {
+          "is_emri_id": {
+            "type": "integer",
+            "title": "Is Emri Id"
+          },
+          "sure_dk": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sure Dk"
+          },
+          "elle_sira": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elle Sira"
+          }
+        },
+        "type": "object",
+        "required": [
+          "is_emri_id",
+          "sure_dk",
+          "elle_sira"
+        ],
+        "title": "PlanCevapDTO"
+      },
       "PlanDTO": {
         "properties": {
           "kod": {
@@ -28172,6 +29749,39 @@
           "koltuk_limiti"
         ],
         "title": "PlanDTO"
+      },
+      "PlanGirdisiDTO": {
+        "properties": {
+          "sure_dk": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 86400.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sure Dk"
+          },
+          "elle_sira": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elle Sira"
+          }
+        },
+        "type": "object",
+        "title": "PlanGirdisiDTO",
+        "description": "İkisi de boşsa plan girdisi silinir (süre tahmine, sıra EDD'ye döner)."
       },
       "PlanSatirDTO": {
         "properties": {
@@ -29687,6 +31297,500 @@
           "degisen"
         ],
         "title": "SatirSonucuDTO"
+      },
+      "SatisDurumDTO": {
+        "properties": {
+          "durum": {
+            "type": "string",
+            "title": "Durum"
+          }
+        },
+        "type": "object",
+        "required": [
+          "durum"
+        ],
+        "title": "SatisDurumDTO"
+      },
+      "SatisKalemCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "sira": {
+            "type": "integer",
+            "title": "Sira"
+          },
+          "urun_id": {
+            "type": "integer",
+            "title": "Urun Id"
+          },
+          "urun_kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Urun Kod"
+          },
+          "urun_ad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Urun Ad"
+          },
+          "miktar": {
+            "type": "number",
+            "title": "Miktar"
+          },
+          "birim_fiyat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birim Fiyat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "sira",
+          "urun_id",
+          "urun_kod",
+          "urun_ad",
+          "miktar",
+          "birim_fiyat"
+        ],
+        "title": "SatisKalemCevapDTO"
+      },
+      "SatisKalemGirdiDTO": {
+        "properties": {
+          "urun_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Urun Id"
+          },
+          "miktar": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1000000.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,15}|(?=[\\d.]{1,19}0*$)\\d{0,15}\\.\\d{0,3}0*$)"
+              }
+            ],
+            "title": "Miktar"
+          },
+          "birim_fiyat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "string",
+                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,19}0*$)\\d{0,14}\\.\\d{0,4}0*$)"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Birim Fiyat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "urun_id",
+          "miktar"
+        ],
+        "title": "SatisKalemGirdiDTO"
+      },
+      "SatisMrpDTO": {
+        "properties": {
+          "siparis_id": {
+            "type": "integer",
+            "title": "Siparis Id"
+          },
+          "ihtiyaclar": {
+            "items": {
+              "$ref": "#/components/schemas/MrpIhtiyacDTO"
+            },
+            "type": "array",
+            "title": "Ihtiyaclar"
+          },
+          "eksik_sayisi": {
+            "type": "integer",
+            "title": "Eksik Sayisi"
+          },
+          "recetesiz_urunler": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Recetesiz Urunler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "siparis_id",
+          "ihtiyaclar",
+          "eksik_sayisi",
+          "recetesiz_urunler"
+        ],
+        "title": "SatisMrpDTO"
+      },
+      "SatisOnayDTO": {
+        "properties": {
+          "makine_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Id"
+          }
+        },
+        "type": "object",
+        "title": "SatisOnayDTO"
+      },
+      "SatisOzetDTO": {
+        "properties": {
+          "taslak": {
+            "type": "integer",
+            "title": "Taslak"
+          },
+          "onaylandi": {
+            "type": "integer",
+            "title": "Onaylandi"
+          },
+          "sevk_edildi": {
+            "type": "integer",
+            "title": "Sevk Edildi"
+          },
+          "kapandi": {
+            "type": "integer",
+            "title": "Kapandi"
+          },
+          "geciken": {
+            "type": "integer",
+            "title": "Geciken"
+          }
+        },
+        "type": "object",
+        "required": [
+          "taslak",
+          "onaylandi",
+          "sevk_edildi",
+          "kapandi",
+          "geciken"
+        ],
+        "title": "SatisOzetDTO"
+      },
+      "SatisSiparisCevapDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "firma_id": {
+            "type": "integer",
+            "title": "Firma Id"
+          },
+          "firma_ad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firma Ad"
+          },
+          "talep_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Talep Id"
+          },
+          "makine_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Id"
+          },
+          "makine_kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Kod"
+          },
+          "durum": {
+            "type": "string",
+            "title": "Durum"
+          },
+          "teslim_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Teslim Tarihi"
+          },
+          "gecikti": {
+            "type": "boolean",
+            "title": "Gecikti"
+          },
+          "para_birimi": {
+            "type": "string",
+            "title": "Para Birimi"
+          },
+          "aciklama": {
+            "type": "string",
+            "title": "Aciklama"
+          },
+          "tutar": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tutar"
+          },
+          "olusturan_kullanici_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Olusturan Kullanici Id"
+          },
+          "onaylayan_kullanici_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Onaylayan Kullanici Id"
+          },
+          "olusturma_tarihi": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Olusturma Tarihi"
+          },
+          "gecerli_hedefler": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Gecerli Hedefler"
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/SatisKalemCevapDTO"
+            },
+            "type": "array",
+            "title": "Kalemler"
+          },
+          "tetikler": {
+            "items": {
+              "$ref": "#/components/schemas/MrpTetikDTO"
+            },
+            "type": "array",
+            "title": "Tetikler"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kod",
+          "firma_id",
+          "firma_ad",
+          "talep_id",
+          "makine_id",
+          "makine_kod",
+          "durum",
+          "teslim_tarihi",
+          "gecikti",
+          "para_birimi",
+          "aciklama",
+          "tutar",
+          "olusturan_kullanici_id",
+          "onaylayan_kullanici_id",
+          "olusturma_tarihi",
+          "gecerli_hedefler",
+          "kalemler",
+          "tetikler"
+        ],
+        "title": "SatisSiparisCevapDTO"
+      },
+      "SatisSiparisGuncelleDTO": {
+        "properties": {
+          "teslim_tarihi": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Teslim Tarihi"
+          },
+          "kalemler": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SatisKalemGirdiDTO"
+                },
+                "type": "array",
+                "maxItems": 100,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kalemler"
+          },
+          "makine_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Id"
+          },
+          "aciklama": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aciklama"
+          }
+        },
+        "type": "object",
+        "title": "SatisSiparisGuncelleDTO"
+      },
+      "SatisSiparisOlusturDTO": {
+        "properties": {
+          "firma_id": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Firma Id"
+          },
+          "teslim_tarihi": {
+            "type": "string",
+            "format": "date",
+            "title": "Teslim Tarihi"
+          },
+          "kalemler": {
+            "items": {
+              "$ref": "#/components/schemas/SatisKalemGirdiDTO"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Kalemler"
+          },
+          "makine_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Id"
+          },
+          "talep_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Talep Id"
+          },
+          "para_birimi": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "title": "Para Birimi",
+            "default": "TRY"
+          },
+          "aciklama": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Aciklama",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "firma_id",
+          "teslim_tarihi",
+          "kalemler"
+        ],
+        "title": "SatisSiparisOlusturDTO"
       },
       "SayfaMeta": {
         "properties": {
@@ -33545,6 +35649,26 @@
         ],
         "title": "YorumOlusturDTO"
       },
+      "ZamanAraligiDTO": {
+        "properties": {
+          "baslangic": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Baslangic"
+          },
+          "bitis": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Bitis"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baslangic",
+          "bitis"
+        ],
+        "title": "ZamanAraligiDTO"
+      },
       "Zarf_AbonelikCevapDTO_": {
         "properties": {
           "success": {
@@ -33941,6 +36065,42 @@
         "type": "object",
         "title": "Zarf[CihazCevapDTO]"
       },
+      "Zarf_CizelgeDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CizelgeDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[CizelgeDTO]"
+      },
       "Zarf_ConsentCevapDTO_": {
         "properties": {
           "success": {
@@ -34300,6 +36460,78 @@
         },
         "type": "object",
         "title": "Zarf[EnerjiOzetDTO]"
+      },
+      "Zarf_EsgOzetDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EsgOzetDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[EsgOzetDTO]"
+      },
+      "Zarf_FaktorDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FaktorDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[FaktorDTO]"
       },
       "Zarf_FaturaCevapDTO_": {
         "properties": {
@@ -35843,6 +38075,42 @@
         "type": "object",
         "title": "Zarf[PersonelCevapDTO]"
       },
+      "Zarf_PlanCevapDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PlanCevapDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[PlanCevapDTO]"
+      },
       "Zarf_PlatformBenCevapDTO_": {
         "properties": {
           "success": {
@@ -36166,6 +38434,114 @@
         },
         "type": "object",
         "title": "Zarf[SatinalmaTalebiDetayDTO]"
+      },
+      "Zarf_SatisMrpDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SatisMrpDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[SatisMrpDTO]"
+      },
+      "Zarf_SatisOzetDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SatisOzetDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[SatisOzetDTO]"
+      },
+      "Zarf_SatisSiparisCevapDTO_": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SatisSiparisCevapDTO"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[SatisSiparisCevapDTO]"
       },
       "Zarf_SertifikaCevapDTO_": {
         "properties": {
@@ -38091,6 +40467,46 @@
         "type": "object",
         "title": "Zarf[list[EnerjiTrendNoktaDTO]]"
       },
+      "Zarf_list_FaktorDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/FaktorDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[FaktorDTO]]"
+      },
       "Zarf_list_FaturaCevapDTO__": {
         "properties": {
           "success": {
@@ -39570,6 +41986,46 @@
         },
         "type": "object",
         "title": "Zarf[list[SatinalmaTalebiDisDTO]]"
+      },
+      "Zarf_list_SatisSiparisCevapDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/SatisSiparisCevapDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[SatisSiparisCevapDTO]]"
       },
       "Zarf_list_SertifikaCevapDTO__": {
         "properties": {

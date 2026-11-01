@@ -5,7 +5,7 @@ import { boyutMetni, DURUM_RENK, indirilebilir, RAPOR_BICIMLERI, RAPOR_TURLERI }
 describe('rapor sunum yardımcıları (backend birimler.py aynası)', () => {
   it('tür ve biçim beyaz-listeleri backend ile aynı', () => {
     expect([...RAPOR_TURLERI].sort()).toEqual(
-      ['enerji', 'isemri', 'kalite', 'stok', 'uretim'].sort(),
+      ['enerji', 'esg', 'isemri', 'kalite', 'stok', 'uretim'].sort(),
     );
     expect([...RAPOR_BICIMLERI]).toEqual(['pdf', 'xlsx']);
   });

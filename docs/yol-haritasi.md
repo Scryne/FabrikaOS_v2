@@ -45,9 +45,9 @@ Definition of Done (DoD).
 | | S27 | Platform deneyimi (bildirim merkezi, birleşik onay kutusu, global arama, UI Master Planı uygulaması) | ✅ ADR-0045, ADR-0046 |
 | | S28 | Kurumsal güvence (mutation/dayanıklılık testleri, SBOM, SLO, dokümantasyon seti) | ✅ ADR-0047 |
 | **7 — Kurumsal Uygulama Genişlemesi** (yeni satılabilir modüller; v2.x) | S29 | Finans & Muhasebe (cari, fatura, tahsilat/ödeme, maliyet) | ✅ ADR-0048 |
-| | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ▶ |
-| | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ⬜ |
-| | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ⬜ |
+| | S30 | Üretim Planlama & Çizelgeleme (APS; sonlu kapasite, Gantt) | ✅ ADR-0049 |
+| | S31 | Satış & Sipariş → MRP (müşteri siparişi → malzeme ihtiyaç → tetik) | ✅ ADR-0050 |
+| | S32 | ESG & Sürdürülebilirlik (karbon/emisyon, enerji verimliliği) | ✅ ADR-0051 |
 | **8 — Mobil Saha** (tüm fazlar sonrası) | M0–M5 | **"FabrikaOS Saha"** çalışan mobil uygulaması — ayrı master plan: `mobilplani.md` | ⏸ kapsam dışı (Scryne, 2026-11-01) |
 
 İşaretler: ✅ tamam · ▶ sıradaki · ⬜ planlı.
@@ -625,14 +625,31 @@ olaylar `fatura.kesildi` / `odeme.alindi` → webhook (S18) + Bildirim (S-VB). e
 **Kabul:** cari bakiye eşzamanlılık-güvenli (çift hareket çift saymaz); fatura durum geçişi + geçersiz
 409; RBAC 403 + tenant izolasyon; migration fan-out up/down. ADR-0028.
 
-#### ⬜ S30 — Üretim Planlama & Çizelgeleme (APS)
+#### ✅ S30 — Üretim Planlama & Çizelgeleme (APS)
+> **Durum (2026-11-01):** ✅ (ADR-0049). Modül `planlama` (deneme + kurumsal): makine başına sonlu
+> kapasite çizelgesi, saklanmaz, her istekte açık iş emirleri + vardiyalardan kurulur. Sıra: devam eden →
+> elle sıra → EDD → öncelik → id. Süre: elle → miktar × son çevrim ÷ OEE hedefi → 60 dk (kaynağı
+> döner). Kapasite aşımı saf EDD çizelgesinden (Jackson): EDD'de de geç olan iş hiçbir sırayla
+> yetişmez; elle sıradan doğan gecikme ayrı işaretlenir. Plan girdisi `PUT /is-emirleri/{id}/plan`
+> (`planlama:yaz`, rol `planlamaci`). FE `/uretim-plani`: HTML Gantt (klavyeyle erişilir çubuklar,
+> vardiya bantları, şimdi çizgisi), günlük yük ızgarası, iş sırası tablosu, plan çekmecesi.
+> 13 birim + 3 entegrasyon/göç testi, 6 FE birim testi; çizelge çekirdeği mutasyon %84,6.
+> Demo tohumu 9 üretim emriyle üç durumu da (zamanında / sıra kaynaklı / kapasite aşımı) üretir.
 Modül `planlama`. Üretim emri **sıralama** + **sonlu kapasite** (makine/vardiya bazlı yük) + **Gantt
 board** (FE); iş emrine plan bağlama; kapasite aşımı tespiti (saf hesap fonksiyonu, birim testli).
 → Reuse: `oee_hesapla` saf çekirdeği, iş emri durum makinesi, S24 `Vardiya`.
 **Kabul:** kapasite aşımı deterministik tespit; sıralama tekrarlanabilir; FE Gantt; RBAC/izolasyon;
 migration fan-out up/down. ADR-0029.
 
-#### ⬜ S31 — Satış & Sipariş → MRP
+#### ✅ S31 — Satış & Sipariş → MRP
+> **Durum (2026-11-01):** ✅ (ADR-0050). Modül `satis` (deneme + kurumsal): sipariş `SP-` (müşteri ya da
+> "her ikisi" tipi firma; portal talebi tek siparişe bağlanır), saf MRP (brüt − (stok + açık tedarik −
+> açık iş emri tüketimi), siparişin kendi tetikleri hariç), onay → kalem başına üretim iş emri (S30
+> çizelgesine girer) + eksikler için tek satınalma talebi (onay bekliyor). Tetikler `mrp_tetikleri.kaynak`
+> tekil anahtarıyla: yeniden çalışma yeni iş açmaz; sipariş satırı FOR UPDATE; açan onaylayamaz. Outbox
+> `satis.siparis_onaylandi` + kenar-tetikli `mrp.tetiklendi`. FE: Satış siparişleri (liste, detay: kalemler,
+> MRP tablosu, açılan işler; form). 18 birim + 6 entegrasyon; mrp/durum mutasyon %100; tekillik, görev
+> ayrımı, kendi-tetik hariç tutma sökülünce testler düşüyor (3/3).
 Modül `satis`. Müşteri **siparişi** (oto kod `SP-`, CRM `Firma`) → **malzeme ihtiyaç planlama** (BOM
 patlatma, S24 reçete) → satınalma talebi / iş emri **tetikleme** (idempotent, kenar-tetikli outbox).
 S18 dış portal talebini gerçek siparişe bağlar (uçtan uca tedarik zinciri). → Reuse: S9 satınalma,
@@ -640,14 +657,20 @@ S24 BOM, S4 iş emri, outbox.
 **Kabul:** sipariş→MRP→tetik zinciri idempotent (çift üretim yok) + tenant izole; RBAC 403;
 migration fan-out up/down. ADR-0030.
 
-#### ⬜ S32 — ESG & Sürdürülebilirlik
+#### ✅ S32 — ESG & Sürdürülebilirlik
+> **Durum (2026-11-01):** ✅ (ADR-0051). Modül `esg` (deneme + kurumsal): Kapsam 1/2 emisyon ham enerji
+> tüketiminden hesaplanır (saklanmaz), dönem sınırı İstanbul saati; faktör tür + birim + geçerlilik tarihiyle
+> seçilir; kaynaklı varsayılanlar (ETKB 2023 elektrik 0,469 kg/kWh, doğalgaz 1,928 kg/Sm³) tenant faktörüyle
+> ezilir; faktörsüz tüketim 0 sayılmaz, ayrıca listelenir; kg CO2e/adet ve kWh/adet. ESG raporu rapor modülünün
+> async akışından (202). FE: Sürdürülebilirlik ekranı. 10 birim + 4 entegrasyon; hesap mutasyon %100; İstanbul
+> kovalaması, faktörsüz ≠ 0 ve tarihli faktör seçimi sökülünce testler düşüyor (3/3).
 Modül `esg`. **Karbon/emisyon** takibi (enerji + üretim verisinden faktörlü hesap) + **enerji
 verimliliği** raporu; dönemsel toplulaştırma. Rol `esg`. → Reuse: S10 enerji hypertable + continuous
 aggregate, S14 async rapor deseni, `/ozet` toplulaştırma.
 **Kabul:** emisyon toplulaştırma bilinen seriyle doğru; rapor async (202) MinIO'ya yazılır/indirilir;
 tenant izolasyon + RBAC; migration fan-out up/down. ADR-0031.
 
-> **🚦 Faz 7 Kapısı:** 4 yeni modül (`finans`/`planlama`/`satis`/`esg`) entitlement'lı satılabilir +
+> **🚦 Faz 7 Kapısı — ✅ 2026-11-01** (katalog 23 modül, S29–S32 tam takım yeşil). 4 yeni modül (`finans`/`planlama`/`satis`/`esg`) entitlement'lı satılabilir +
 > izole + test yeşil → katalog 23 modül; ürün **tam ERP/MES kapsamına** yaklaşır.
 
 ---

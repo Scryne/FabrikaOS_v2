@@ -74,6 +74,15 @@ _Commit geçmişinden üretildi (`pre-s25`'ten bu yana); elle düzenlemeyin._
   yoklaması, SLO yanma hızı alarmları, Grafana panosu.
 
 ### Faz 7 — Kurumsal uygulama genişlemesi
+- **S32 ESG & sürdürülebilirlik (ADR-0051):** yeni `esg` modülü — Kapsam 1/2 emisyon (kaynaklı varsayılan
+  faktörler + tenant faktörü, tarihe göre), faktörsüz tüketim ayrı, karbon ve enerji yoğunluğu, ESG raporu;
+  Sürdürülebilirlik ekranı.
+- **S31 satış & sipariş → MRP (ADR-0050):** yeni `satis` modülü — müşteri siparişi, tek seviyeli BOM ile
+  malzeme ihtiyacı (açık tedarik ve açık iş emri tüketimi hesaba katılarak), onayda üretim iş emri ve
+  eksik malzeme için satınalma talebi (idempotent, görev ayrımlı); Satış siparişleri ekranı.
+- **S30 üretim planlama (ADR-0049):** yeni `planlama` modülü — makine başına sonlu kapasiteli
+  çizelge (vardiya pencereleri, EDD, devam eden önce), elle süre/sıra girdisi, kapasite aşımı ile
+  sıra kaynaklı gecikmenin ayrımı, günlük yük; Üretim planı ekranı (Gantt + yük ızgarası + iş sırası).
 - **S29 finans & muhasebe (ADR-0048):** yeni `finans` modülü — cari hesap (kilitli tutulan bakiye,
   çift sayımsız), satış/alış faturası (hazırla → onay → kes → kapandı; hazırlayan kesemez),
   tahsilat/ödeme (Idempotency-Key), yaşlandırma, ekstre, üretim malzeme maliyeti, fatura PDF'i,

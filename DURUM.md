@@ -22,6 +22,45 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-01 — S32 ESG & sürdürülebilirlik (ADR-0051)
+
+- Kapsam 1/2 emisyon ham enerji tüketiminden, İstanbul saatine göre dönemlere; faktörsüz tüketim ayrı. 10 birim +
+  4 entegrasyon testi (bilinen seri: pencere ortasında faktör değişimi, gece yarısı sınırı, aylık dönem başı
+  faktörü); `hesap.py` mutasyon %100; üç koruma sökülünce testler düşüyor (3/3).
+- Varsayılan faktörler araştırmayla birincil kaynaktan (ETKB 2023 tüketim noktası 0,469 kg CO2e/kWh; IPCC ×
+  ETKB alt ısıl değer → doğalgaz 1,928 kg CO2e/Sm³); belirsizlikler ADR-0051 §2'de.
+- Canlı (dev demo): 30 gün 2,657 t CO2e, elle doğrulandı (2.958,4 kWh × 0,469; 658,3 m³ × 1,928); basınçlı hava
+  faktörsüz uyarıda. PDF önizlemesi Türkçe karakterli; yoğunluk sütunu ilk turda 2 basamağa yuvarlanıp
+  0,0261 → 0,03 oluyordu → 4 basamak. Dev'de MinIO yok: rapor yükleme adımı bütün türlerde başarısız (bilinen).
+
+## 2026-11-01 — S31 satış & sipariş → MRP (ADR-0050)
+
+- Sipariş → MRP → üretim iş emri + satınalma talebi zinciri: 18 birim + 6 entegrasyon testi; `mrp.py` ve
+  `durum.py` mutasyon %100. Tetik tekilliği, görev ayrımı ve "siparişin kendi tetiklerini hesaptan
+  çıkarma" tek tek sökülünce testler düşüyor (3/3).
+- Canlı (dev, demo tenant, gerçek tarayıcı): satış temsilcisi formdan sipariş açtı (onay düğmesi yok);
+  satış onaylayan onayladı → 2 üretim emri + 4 eksik malzemelik satınalma talebi, "Açılan işler"de
+  bağlantılı. İkinci siparişin MRP'si ilkinin ayırdığı 560 kg sacı ve açtığı talebi doğru gösteriyor.
+  1440/390 taşmasız.
+- Bulunup düzeltilen: (1) MRP, onaydan sonra siparişin kendi iş emrini "ayrılmış", kendi talebini "açık
+  tedarik" sayıyordu (ihtiyaç iki kez düşerdi); (2) firma tipi `her_ikisi` olan müşteri reddediliyordu;
+  (3) satış rolleri üretim hattını seçemiyordu (`uretim:oku` eksikti, seçici ham id gösteriyordu);
+  (4) S30 demo tohumu operasyon işlerine (kesim/büküm/boya) ürün bağlıyordu — S24'te her biri
+  kapanışta reçeteyi ayrıca düşerdi; MRP'de "ayrılmış" 10 kat şişiyordu. Ürün bağı kaldırıldı.
+
+## 2026-11-01 — S30 üretim planlama & çizelgeleme (ADR-0049)
+
+- Makine başına sonlu kapasite çizelgesi (vardiya pencereleri, EDD, devam eden önce, elle süre/sıra);
+  kapasite aşımı saf EDD çizelgesinden (Jackson) ayrılır, elle sıradan doğan gecikme ayrı işaretlenir.
+  13 birim + 3 entegrasyon testi (+6 ön yüz); çizelge çekirdeği mutasyon %84,6 (kalan 10 mutant eşdeğer: sıralama
+  anahtarı sabit kaydırmaları, 1e-9 toleransı).
+- Canlı: Üretim planı ekranı 3 durumu gösteriyor (LAZER-1 kapasite aşımı 6 sa, MONTAJ-1 sıra kaynaklı
+  13 sa, diğerleri zamanında); çekmeceden sıra kaldırılınca acil iş öne geçip zamanında oldu. Gün adları
+  ilk turda İngilizceydi (dayjs yerel ayarı yok) → `Intl.DateTimeFormat(i18n.language)`.
+- Tam takım yerelde ilk iki koşuda bir testte kilitlendi: `REDIS_URL` verilmemişti, bildirim testleri
+  çalışmayan 6379'u bekliyordu. Doğru adresle 852/852 (S31 öncesi). Redis yokken takılmak yerine hızlı
+  düşmesi ayrı bir iyileştirme.
+
 ## 2026-11-01 — S29 finans & muhasebe (ADR-0048)
 
 - Backend 819 test yeşil (S29: 11 entegrasyon + 17 birim), ön yüz 236. ruff, mypy, tsc, eslint temiz.

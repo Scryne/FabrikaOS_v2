@@ -9,7 +9,7 @@ import type { components } from '@/api/types.gen';
 export type Rapor = components['schemas']['RaporCevapDTO'];
 export type RaporOlustur = components['schemas']['RaporOlusturDTO'];
 
-export const RAPOR_TURLERI = ['uretim', 'stok', 'kalite', 'enerji', 'isemri'] as const;
+export const RAPOR_TURLERI = ['uretim', 'stok', 'kalite', 'enerji', 'isemri', 'esg'] as const;
 export type RaporTuru = (typeof RAPOR_TURLERI)[number];
 
 export const RAPOR_BICIMLERI = ['pdf', 'xlsx'] as const;

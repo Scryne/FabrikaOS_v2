@@ -49,6 +49,9 @@ BILDIRIM_OLAYLARI: dict[str, HedefKurali] = {
     # S29: fatura ve tahsilat finans ekibine.
     "fatura.kesildi": HedefKurali(onem="bilgi", izin_kodu="finans:oku"),
     "odeme.alindi": HedefKurali(onem="bilgi", izin_kodu="finans:oku"),
+    # S31: onaylanan sipariş satışa, MRP tetiği satınalmaya (yeni talep onay bekliyor).
+    "satis.siparis_onaylandi": HedefKurali(onem="bilgi", izin_kodu="satis:oku"),
+    "mrp.tetiklendi": HedefKurali(onem="bilgi", izin_kodu="satinalma:onay"),
 }
 
 # ``sla.asildi`` kaynak türü -> ilgili modülün okuma izni (sorumluya ek hedef kümesi).
@@ -149,6 +152,14 @@ def bildirim_metni(olay_turu: str, govde: dict[str, Any]) -> tuple[str, str]:
             f"Tahsilat alındı: {kod}",
             "Firmadan gelen tahsilat cari hesaba işlendi.",
         ),
+        "satis.siparis_onaylandi": (
+            f"Sipariş onaylandı: {kod}",
+            "Üretim emirleri açıldı; eksik malzeme varsa satınalma talebi onay bekliyor.",
+        ),
+        "mrp.tetiklendi": (
+            f"MRP tetiği: {kod}",
+            "Siparişin malzeme ihtiyacı için satınalma talebi açıldı, onayınızı bekliyor.",
+        ),
     }
     return metinler.get(olay_turu, (olay_turu, ""))
 
@@ -167,6 +178,8 @@ def bildirim_verisi(olay_turu: str, govde: dict[str, Any]) -> dict[str, Any]:
         "kalibrasyon.yaklasiyor": "olcum_cihazi",
         "fatura.kesildi": "fatura",
         "odeme.alindi": "odeme",
+        "satis.siparis_onaylandi": "satis_siparisi",
+        "mrp.tetiklendi": "satis_siparisi",
     }
     kaynak_tur = str(govde.get("kaynak_tur") or varsayilan_kaynak.get(olay_turu, ""))
     kaynak_id = govde.get("kaynak_id") or govde.get("id")

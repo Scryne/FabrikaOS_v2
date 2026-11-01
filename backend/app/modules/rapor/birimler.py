@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 # Desteklenen rapor türleri (beyaz-liste; DTO/router doğrulamasında kullanılır).
-RAPOR_TURLERI: frozenset[str] = frozenset({"uretim", "stok", "kalite", "enerji", "isemri"})
+# S32: "esg" — dönemsel emisyon ve yoğunluk (esg modülü açık olmalı; router denetler).
+RAPOR_TURLERI: frozenset[str] = frozenset({"uretim", "stok", "kalite", "enerji", "isemri", "esg"})
 
 # Desteklenen çıktı biçimleri.
 RAPOR_BICIMLERI: frozenset[str] = frozenset({"pdf", "xlsx"})

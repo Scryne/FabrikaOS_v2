@@ -35,6 +35,13 @@ const CariHesaplar = lazy(() =>
 const Odemeler = lazy(() =>
   import('@/modules/finans/Odemeler').then((m) => ({ default: m.Odemeler })),
 );
+const EsgPano = lazy(() => import('@/modules/esg/EsgPano').then((m) => ({ default: m.EsgPano })));
+const SatisSiparisListesi = lazy(() =>
+  import('@/modules/satis/SiparisListesi').then((m) => ({ default: m.SatisSiparisListesi })),
+);
+const UretimPlani = lazy(() =>
+  import('@/modules/planlama/UretimPlani').then((m) => ({ default: m.UretimPlani })),
+);
 const Onaylarim = lazy(() =>
   import('@/modules/deneyim/Onaylarim').then((m) => ({ default: m.Onaylarim })),
 );
@@ -262,6 +269,13 @@ function OnizlemeOturum() {
         'saha:yaz',
         'isemri:oku',
         'isemri:yaz',
+        'planlama:oku',
+        'planlama:yaz',
+        'satis:oku',
+        'satis:yaz',
+        'satis:onay',
+        'esg:oku',
+        'esg:yaz',
         'bakim:oku',
         'bakim:yaz',
         'stok:oku',
@@ -449,6 +463,24 @@ export function App() {
               element={
                 <IzinKapisi izin="isemri:oku" modul="isemri">
                   <IsEmriEkrani />
+                </IzinKapisi>
+              }
+            />
+            {/* S31 — satış siparişi → MRP → iş emri + satınalma talebi. */}
+            <Route
+              path="satis-siparisleri"
+              element={
+                <IzinKapisi izin="satis:oku" modul="satis">
+                  <SatisSiparisListesi />
+                </IzinKapisi>
+              }
+            />
+            {/* S30 — üretim planlama: sonlu kapasite çizelgesi (Gantt). */}
+            <Route
+              path="uretim-plani"
+              element={
+                <IzinKapisi izin="planlama:oku" modul="planlama">
+                  <UretimPlani />
                 </IzinKapisi>
               }
             />
@@ -646,6 +678,15 @@ export function App() {
               element={
                 <IzinKapisi izin="enerji:oku" modul="enerji">
                   <EnerjiTuketimListesi />
+                </IzinKapisi>
+              }
+            />
+            {/* S32 — ESG & sürdürülebilirlik: Kapsam 1/2 emisyon, yoğunluk, faktörler. */}
+            <Route
+              path="esg"
+              element={
+                <IzinKapisi izin="esg:oku" modul="esg">
+                  <EsgPano />
                 </IzinKapisi>
               }
             />

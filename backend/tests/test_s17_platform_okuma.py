@@ -59,7 +59,9 @@ async def test_tenant_detayi_matris_ve_koltuk(
     veri = r.json()["data"]
     assert veri["slug"] == "alfa"
     assert veri["plan_kodu"] == "kurumsal"
-    assert len(veri["moduller"]) == 20  # S18: +entegrasyon +dis-portal; S29: +finans
+    assert (
+        len(veri["moduller"]) == 23
+    )  # S18: +entegrasyon +dis-portal; S29: +finans; S30: +planlama; S31: +satis; S32: +esg
     assert all(m["kaynak"] == "plan" for m in veri["moduller"])  # override yok
     assert len(veri["ozellikler"]) == 2
     assert veri["koltuk_kullanilan"] >= 1

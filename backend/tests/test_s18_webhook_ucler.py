@@ -131,6 +131,8 @@ async def test_olay_turleri_katalogu(kurulu_istemci: AsyncClient, alfa_h: dict[s
         "fatura.kesildi",  # S29 / ADR-0048 — katalog 11 → 14
         "odeme.alindi",
         "odeme.yapildi",
+        "satis.siparis_onaylandi",  # S31 / ADR-0050 — katalog 14 → 16
+        "mrp.tetiklendi",
     } == kodlar
 
 

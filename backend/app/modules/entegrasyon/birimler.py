@@ -23,6 +23,8 @@ OLAY_TURU_KATALOGU: dict[str, str] = {
     "fatura.kesildi": "Fatura kesildi",
     "odeme.alindi": "Tahsilat alındı",
     "odeme.yapildi": "Firmaya ödeme yapıldı",
+    "satis.siparis_onaylandi": "Satış siparişi onaylandı",
+    "mrp.tetiklendi": "MRP üretim/satınalma tetiği açtı",
 }
 
 # API anahtarı kapsam beyaz-listesi: dış veri uçlarının istediği okuma izinleri.
