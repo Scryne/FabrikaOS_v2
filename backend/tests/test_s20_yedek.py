@@ -289,7 +289,7 @@ PII = {
     "ad": "Ayşegül",
     "soyad": "Kocabıyık",
     "personel_eposta": "aysegul.kocabiyik@ornekfabrika.com.tr",
-    "telefon": "+90 532 000 11 22",
+    "telefon": "+90 500 000 00 01",
     "ortak": "Mehmet Demirkıran",
     "ortak_eposta": "mehmet@tedarikci-ornek.com.tr",
     "firma": "Demirkıran Hırdavat (şahıs)",
