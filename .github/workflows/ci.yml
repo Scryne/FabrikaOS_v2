@@ -179,7 +179,7 @@ jobs:
           --db-url postgresql+asyncpg://fabrikaos:fabrikaos@localhost:5432/fabrikaos_sertlik
           --redis-url redis://localhost:6379/3
           --rapor sertlestirme-junit.xml
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: sertlestirme-raporu
@@ -209,7 +209,7 @@ jobs:
         run: |
           npm ci
           npx --yes @cyclonedx/cyclonedx-npm@2.1.0 --omit dev --output-file ../sbom-frontend.json
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-${{ github.sha }}
           path: sbom-*.json
