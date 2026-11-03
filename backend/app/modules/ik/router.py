@@ -198,11 +198,12 @@ async def personel_guncelle(
 
 
 # --- İzin talebi (onay akışı: gönder → onayla/reddet; onay ik:onay ister) ---
-def _izin_cevap(i: IzinTalebi) -> dict[str, Any]:
+def _izin_cevap(i: IzinTalebi, adlar: dict[int, str]) -> dict[str, Any]:
     return IzinTalebiCevapDTO(
         id=i.id,
         kod=i.kod,
         personel_id=i.personel_id,
+        personel_ad=adlar.get(i.personel_id),
         izin_turu=i.izin_turu,
         baslangic_tarihi=i.baslangic_tarihi,
         bitis_tarihi=i.bitis_tarihi,
@@ -215,6 +216,11 @@ def _izin_cevap(i: IzinTalebi) -> dict[str, Any]:
         red_nedeni=i.red_nedeni,
         olusturma_tarihi=i.olusturma_tarihi,
     ).model_dump()
+
+
+async def _izin_tek_cevap(db: AsyncSession, i: IzinTalebi) -> dict[str, Any]:
+    """Tek kayıt yanıtı: personel adı tek sorguyla (izin okuyan zaten ``ik:oku`` taşır)."""
+    return _izin_cevap(i, await repository.personel_ad_haritasi(db, [i.personel_id]))
 
 
 @router.post(
@@ -260,7 +266,7 @@ async def izin_olustur(
         db, eylem="olustur", kaynak="izin_talebi", kaynak_id=str(izin.id), kullanici=kullanici
     )
     await yayinla(tenant.slug, {"tur": "ik.izin", "id": izin.id, "durum": izin.durum})
-    return basari(_izin_cevap(izin), mesaj="İzin talebi oluşturuldu")
+    return basari(await _izin_tek_cevap(db, izin), mesaj="İzin talebi oluşturuldu")
 
 
 @router.get(
@@ -292,7 +298,9 @@ async def izin_listele(
         siralama=siralama,
         yon=yon,
     )
-    return sayfali([_izin_cevap(i) for i in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+    # Sayfadaki tüm personel adları tek sorguda (satır başına sorgu yok).
+    adlar = await repository.personel_ad_haritasi(db, (i.personel_id for i in kayitlar))
+    return sayfali([_izin_cevap(i, adlar) for i in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
 
 
 @router.get(
@@ -309,7 +317,7 @@ async def izin_detay(
     izin = await repository.izin_getir(db, izin_id)
     if izin is None:
         raise KaynakBulunamadi("İzin talebi bulunamadı")
-    return basari(_izin_cevap(izin), mesaj="İzin talebi detayı")
+    return basari(await _izin_tek_cevap(db, izin), mesaj="İzin talebi detayı")
 
 
 @router.patch(
@@ -355,7 +363,7 @@ async def izin_guncelle(
     await denetim_yaz(
         db, eylem="guncelle", kaynak="izin_talebi", kaynak_id=str(izin.id), kullanici=kullanici
     )
-    return basari(_izin_cevap(izin), mesaj="İzin talebi güncellendi")
+    return basari(await _izin_tek_cevap(db, izin), mesaj="İzin talebi güncellendi")
 
 
 async def _izin_gecis(
@@ -383,7 +391,7 @@ async def _izin_gecis(
         detay={"durum": izin.durum},
     )
     await yayinla(tenant.slug, {"tur": "ik.izin", "id": izin.id, "durum": izin.durum})
-    return basari(_izin_cevap(izin), mesaj="Durum güncellendi")
+    return basari(await _izin_tek_cevap(db, izin), mesaj="Durum güncellendi")
 
 
 @router.post(

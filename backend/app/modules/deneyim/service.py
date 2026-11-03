@@ -25,6 +25,7 @@ from app.kimlik.models import Kullanici
 from app.modules.crm.models import Firma
 from app.modules.dys.models import Belge
 from app.modules.finans.models import Fatura
+from app.modules.ik.birimler import IZIN_TURU_ETIKETLERI
 from app.modules.ik.models import FazlaMesai, IzinTalebi, Personel
 from app.modules.isemri.models import IsEmri
 from app.modules.stok.models import Malzeme, SatinalmaTalebi, SayimOturumu
@@ -104,6 +105,7 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
             )
         ).all()
         for i, p in izinler:
+            tur_etiketi = IZIN_TURU_ETIKETLERI.get(i.izin_turu, i.izin_turu)
             if i.talep_eden_kullanici_id == kullanici.id:
                 kutu.kendi_kayitlarim += 1
                 continue
@@ -112,7 +114,7 @@ async def onay_kutusu(db: AsyncSession, tenant: Tenant, kullanici: Kullanici) ->
                     tur="izin_talebi",
                     id=i.id,
                     kod=i.kod,
-                    baslik=f"{p.ad} {p.soyad} · {i.izin_turu}",
+                    baslik=f"{p.ad} {p.soyad} · {tur_etiketi}",
                     ozet=(
                         f"{i.baslangic_tarihi:%d.%m.%Y} – {i.bitis_tarihi:%d.%m.%Y}"
                         f" · {i.gun_sayisi} gün"

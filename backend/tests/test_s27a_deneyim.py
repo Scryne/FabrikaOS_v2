@@ -96,6 +96,8 @@ async def test_onay_kutusu_izin_ve_gorev_ayrimi(kurulu_istemci: AsyncClient) -> 
     assert kutu["kendi_kayitlarim"] >= 2
     izin = next(k for k in kutu["kalemler"] if k["tur"] == "izin_talebi" and k["id"] == iid)
     assert izin["red_gerekce_zorunlu"] is True
+    # Başlık okunur: personel adı + izin türü etiketi (ham enum ``mazeret`` değil).
+    assert izin["baslik"] == "Kaan Ateş · mazeret izni"
     assert izin["onay_yolu"] == f"/izin-talepleri/{iid}/onayla"
 
     # Kalemin gösterdiği uç gerçekten çalışır ve onaylanan kalem kutudan düşer.

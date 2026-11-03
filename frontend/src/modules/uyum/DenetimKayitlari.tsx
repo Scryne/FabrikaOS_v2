@@ -45,6 +45,10 @@ export function DenetimKayitlari() {
   const { data, isPending } = useDenetimKayitlari(param);
   const { data: kaynaklar } = useDenetimKaynaklari();
   const [secili, setSecili] = useState<DenetimKaydi | null>(null);
+  // Kod → okunur ad. Bilinmeyen (yeni eklenmiş) kod olduğu gibi görünür: denetim izinde hiçbir
+  // kayıt etiket bulunamadı diye gizlenmez. Dışa aktarım ham kodu taşır (makine-okur iz).
+  const eylemAdi = (e: string) => t(`uyum.eylem_ad.${e}`, { defaultValue: e });
+  const kaynakAdi = (k: string) => t(`uyum.kaynak_ad.${k}`, { defaultValue: k });
 
   const kolonlar: ColumnsType<DenetimKaydi> = [
     {
@@ -65,12 +69,15 @@ export function DenetimKayitlari() {
       title: t('uyum.eylem'),
       dataIndex: 'eylem',
       width: 160,
-      render: (eylem: string) => <Tag color={EYLEM_RENK[eylem] ?? 'default'}>{eylem}</Tag>,
+      render: (eylem: string) => (
+        <Tag color={EYLEM_RENK[eylem] ?? 'default'}>{eylemAdi(eylem)}</Tag>
+      ),
     },
     {
       title: t('uyum.kaynak'),
       dataIndex: 'kaynak',
-      width: 150,
+      width: 170,
+      render: (kaynak: string) => kaynakAdi(kaynak),
     },
     {
       title: t('uyum.kaynak_id'),
@@ -121,7 +128,7 @@ export function DenetimKayitlari() {
               allowClear
               placeholder={t('uyum.kaynak')}
               style={{ minWidth: 170 }}
-              options={(kaynaklar ?? []).map((k) => ({ value: k, label: k }))}
+              options={(kaynaklar ?? []).map((k) => ({ value: k, label: kaynakAdi(k) }))}
               onChange={(deger?: string) => paramDegistir({ filtreler: { kaynak: deger } })}
             />
             <DatePicker.RangePicker
@@ -156,12 +163,16 @@ export function DenetimKayitlari() {
                 {secili.kullanici_eposta ?? '—'}
               </Descriptions.Item>
               <Descriptions.Item label={t('uyum.eylem')}>
-                <Tag color={EYLEM_RENK[secili.eylem] ?? 'default'}>{secili.eylem}</Tag>
+                <Tag color={EYLEM_RENK[secili.eylem] ?? 'default'}>{eylemAdi(secili.eylem)}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label={t('uyum.kaynak')}>
-                {secili.kaynak}
-                {secili.kaynak_id ? ` #${secili.kaynak_id}` : ''}
+                {kaynakAdi(secili.kaynak)}
               </Descriptions.Item>
+              {secili.kaynak_id && (
+                <Descriptions.Item label={t('uyum.kaynak_id')}>
+                  <span className="sayisal">{secili.kaynak_id}</span>
+                </Descriptions.Item>
+              )}
               <Descriptions.Item label={t('uyum.ip')}>
                 <span className="sayisal">{secili.ip_adresi ?? '—'}</span>
               </Descriptions.Item>

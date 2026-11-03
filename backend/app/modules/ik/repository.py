@@ -6,7 +6,7 @@ Kilit gereken izin talebi durum geçişleri ``izin_getir_kilitli`` (``FOR UPDATE
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 from sqlalchemy import func, or_, select
@@ -98,6 +98,21 @@ async def izin_ekle(db: AsyncSession, izin: IzinTalebi) -> IzinTalebi:
     db.add(izin)
     await db.flush()
     return izin
+
+
+async def personel_ad_haritasi(db: AsyncSession, kimlikler: Iterable[int]) -> dict[int, str]:
+    """personel id -> "Ad Soyad" — liste başına TEK sorgu (satır başına sorgu yok, N+1 yok).
+
+    Yalnız ad/soyad okunur; TC/telefon/e-posta gibi KVKK alanları seçilmez. KVKK
+    anonimleştirmesi ad/soyad'ı kayıtta maskelediği için maskeli değer olduğu gibi döner.
+    """
+    idler = set(kimlikler)
+    if not idler:
+        return {}
+    sonuc = await db.execute(
+        select(Personel.id, Personel.ad, Personel.soyad).where(Personel.id.in_(idler))
+    )
+    return {pid: f"{ad} {soyad}".strip() for pid, ad, soyad in sonuc.all()}
 
 
 async def izin_getir(db: AsyncSession, izin_id: int) -> IzinTalebi | None:

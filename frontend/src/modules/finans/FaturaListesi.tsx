@@ -22,6 +22,7 @@ import { OzetSerit } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
+import { useFirma } from '@/modules/crm/hooks';
 import { useDerinKayit } from '@/modules/ortak/useDerinKayit';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { useAuthStore } from '@/store/authStore';
@@ -49,6 +50,17 @@ export function FaturaListesi() {
   const { data, isPending, isError } = useFaturalar(param);
   const ozet = useFinansOzet();
   const filtre = param.filtreler ?? {};
+  // Süzgeç etiketi firmanın adını gösterir: satırlardan, satır yoksa (o firmanın bu süzgeçte
+  // faturası yok) firma kaydından — ``crm:oku`` ile (finans rolleri taşır), tek istek.
+  const crmOku = useAuthStore((s) => s.izinVar('crm:oku'));
+  const suzgecFirmaId = Number(filtre.firma_id) || 0;
+  const satirFirmaAd = data?.veri[0]?.firma_ad;
+  const suzgecFirma = useFirma(crmOku && data && !satirFirmaAd ? suzgecFirmaId : 0);
+  // Ad çözülürken numara yanıp sönmesin: yüklenirken yer tutucu, çözülemezse kayıt numarası.
+  const suzgecEtiketi =
+    satirFirmaAd ??
+    suzgecFirma.data?.ad ??
+    (!data || suzgecFirma.isFetching ? '…' : `#${String(filtre.firma_id)}`);
   const filtreYaz = (yama: Record<string, string | number | boolean | undefined>) =>
     paramDegistir({ sayfa: 1, filtreler: { ...filtre, ...yama } });
 
@@ -191,8 +203,7 @@ export function FaturaListesi() {
             <Space wrap>
               {filtre.firma_id != null && (
                 <Tag closable onClose={() => filtreYaz({ firma_id: undefined })}>
-                  {t('finans.firma_suzgeci')}:{' '}
-                  {data?.veri[0]?.firma_ad ?? `#${String(filtre.firma_id)}`}
+                  {t('finans.firma_suzgeci')}: {suzgecEtiketi}
                 </Tag>
               )}
               <Segmented

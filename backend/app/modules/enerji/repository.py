@@ -8,7 +8,7 @@ Trend, ``enerji_tuketim_saatlik`` CAGG'inden okur. Real-time aggregation açık
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from datetime import datetime
 from typing import Any
 
@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.sorgu import siralama_uygula
 from app.modules.enerji.models import EnerjiTuketim
+from app.modules.uretim.models import Makine
 
 _OLCUM_SIRALAMA = {
     "id": EnerjiTuketim.id,
@@ -109,3 +110,12 @@ async def trend(
     return [
         {"zaman": r.zaman, "toplam": float(r.toplam or 0), "adet": int(r.adet or 0)} for r in sonuc
     ]
+
+
+async def makine_kod_haritasi(db: AsyncSession, kimlikler: Iterable[int]) -> dict[int, str]:
+    """makine id -> kod — liste başına TEK sorgu (satır başına sorgu yok, N+1 yok)."""
+    idler = set(kimlikler)
+    if not idler:
+        return {}
+    sonuc = await db.execute(select(Makine.id, Makine.kod).where(Makine.id.in_(idler)))
+    return {int(mid): str(kod) for mid, kod in sonuc.all()}

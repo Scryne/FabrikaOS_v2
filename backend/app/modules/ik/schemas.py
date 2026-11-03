@@ -83,6 +83,8 @@ class IzinTalebiCevapDTO(BaseModel):
     id: int
     kod: str
     personel_id: int
+    # "Ad Soyad" (yalnız ad/soyad; TC vb. KVKK alanı taşımaz). Personel silinmişse None.
+    personel_ad: str | None = None
     izin_turu: str
     baslangic_tarihi: date
     bitis_tarihi: date

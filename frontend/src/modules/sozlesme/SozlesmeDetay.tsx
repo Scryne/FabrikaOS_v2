@@ -11,6 +11,7 @@ import { Button, Descriptions, Drawer, Space } from 'antd';
 import dayjs from 'dayjs';
 
 import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
+import { useFirma } from '@/modules/crm/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI } from '@/tema/modulKimlik';
 import { RENKLER } from '@/tema/tema';
@@ -28,6 +29,9 @@ export function SozlesmeDetay({ id, kapat }: { id: number | null; kapat: () => v
   const { data: sozlesme } = useSozlesme(id ?? 0);
   const durumMut = useSozlesmeDurum();
   const yazabilir = useAuthStore((s) => s.izinVar('sozlesme:yaz'));
+  // Firma adı firma kaydından ``crm:oku`` ile (yeni yetki açılmaz); izin yoksa kayıt numarası.
+  const crmOku = useAuthStore((s) => s.izinVar('crm:oku'));
+  const firmaSorgu = useFirma(crmOku ? (sozlesme?.firma_id ?? 0) : 0);
   const [duzenle, setDuzenle] = useState(false);
 
   const hedefler = sozlesme && yazabilir ? gecerliHedefler(sozlesme.durum) : [];
@@ -121,7 +125,9 @@ export function SozlesmeDetay({ id, kapat }: { id: number | null; kapat: () => v
             <Descriptions.Item label={t('sozlesme.tur')}>
               {t(`sozlesme.tur_${sozlesme.tur}`)}
             </Descriptions.Item>
-            <Descriptions.Item label={t('sozlesme.firma')}>#{sozlesme.firma_id}</Descriptions.Item>
+            <Descriptions.Item label={t('sozlesme.firma')}>
+              {firmaSorgu.data?.ad ?? (firmaSorgu.isFetching ? '…' : `#${sozlesme.firma_id}`)}
+            </Descriptions.Item>
             <Descriptions.Item label={t('sozlesme.baslangic')}>
               <span className="sayisal">
                 {dayjs(sozlesme.baslangic_tarihi).format('DD.MM.YYYY')}

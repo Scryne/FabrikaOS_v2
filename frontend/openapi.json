@@ -22022,6 +22022,17 @@
             ],
             "title": "Makine Id"
           },
+          "makine_kod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Makine Kod"
+          },
           "enerji_turu": {
             "type": "string",
             "title": "Enerji Turu"
@@ -25079,6 +25090,17 @@
           "personel_id": {
             "type": "integer",
             "title": "Personel Id"
+          },
+          "personel_ad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personel Ad"
           },
           "izin_turu": {
             "type": "string",
