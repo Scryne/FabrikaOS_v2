@@ -22,6 +22,28 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
 
+## 2026-11-03 — Kabuk yüksekliği + okunur adlar (arayüz düzeltmesi)
+
+- **Kabuk:** yan menü uzunluğu (≈2777 px) her sayfanın belge yüksekliğini o boya çekiyordu; kısa
+  sayfalarda altı boş bir kaydırma çıkıyordu. Menü artık görünüm yüksekliğine yapışık ve kendi içinde
+  kayıyor; seçili öğe menüde görünüme getiriliyor. Ölçüm (demo, 1440 px): izin talepleri 2777 → 900 px,
+  pano 2777 → 1875 px. 390 px çekmece, `lg` altı daraltma ve kiosk (kabuksuz) değişmedi. Yerleşim
+  jsdom'da ölçülemediği için `e2e/kabuk.spec.ts` (4 test; düzeltme geri alınınca 4'ü de düşüyor).
+- **Ham id / ham enum taraması** (52 menü ekranı × ilk 3 satırın çekmecesi × sekmeler × pano görünümü,
+  1440 ve 390 px, admin + İK + İK onaylayan + CRM rolleri). Düzeltilen: izin talebi personeli `#6`
+  (liste, pano kartı, çekmece; backend `personel_ad`, sayfa başına tek sorgu), talep ve sözleşme
+  çekmecesinde firma/atanan `#id`, iş emri kanbanında atanan `#id`, fatura firma süzgecinde `#id`
+  titremesi, enerji tablosunda çıplak makine id'si (backend `makine_kod`, tek sorgu), malzeme
+  hareketlerinde `transfer_giris/transfer_cikis` (eksik çeviri), bildirim tercihlerinde 4 olayın eksik
+  çevirisi, denetim kayıtlarında kaynak/eylem kodları, onay kutusunda izin türü (`yillik`).
+- **Korunan:** adlar mevcut izin kapılarından gelir (personel adı `ik:oku`'lu izin uçlarında; kullanıcı
+  adı `kullanici:oku`, firma adı `crm:oku` ile ön yüzde). İzin yoksa kayıt numarası görünür, yeni yetki
+  açılmadı. İzin yanıtı yalnız ad/soyad taşır (TC hiçbir biçimde dönmez; test). N+1 testi: satır sayısı
+  5 katına çıkınca SQL sayısı değişmiyor; satır başına sorguya çevrilince test düşüyor.
+- **Bilinçli bırakılan:** denetim kaydındaki kayıt no ve ham JSON gövdesi (adli iz), KVKK ihracındaki
+  kişi no (veri minimizasyonu; uyum rolü ad görmez), bildirim tercihlerinde olayın teknik kodu (alt
+  satır), içe aktarma şablonunun CSV sütun adları, webhook olay kodları (geliştirici sözleşmesi).
+
 ## 2026-11-01 — S32 ESG & sürdürülebilirlik (ADR-0051)
 
 - Kapsam 1/2 emisyon ham enerji tüketiminden, İstanbul saatine göre dönemlere; faktörsüz tüketim ayrı. 10 birim +

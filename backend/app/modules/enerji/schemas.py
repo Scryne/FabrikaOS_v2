@@ -22,6 +22,8 @@ class EnerjiOlcumOlusturDTO(BaseModel):
 class EnerjiOlcumCevapDTO(BaseModel):
     id: int
     makine_id: int | None = None
+    # Okunur makine kodu (ör. LAZER-1); ölçüm makineye bağlı değilse ya da makine silinmişse None.
+    makine_kod: str | None = None
     enerji_turu: str
     tuketim: float
     birim: str

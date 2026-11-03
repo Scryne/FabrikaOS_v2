@@ -36,10 +36,11 @@ router = APIRouter(tags=["Enerji"], dependencies=[Depends(modul_gerekli("enerji"
 _ARALIKLAR = frozenset({"saat", "gun"})
 
 
-def _olcum_cevap(o: EnerjiTuketim) -> dict[str, Any]:
+def _olcum_cevap(o: EnerjiTuketim, kodlar: dict[int, str] | None = None) -> dict[str, Any]:
     return EnerjiOlcumCevapDTO(
         id=o.id,
         makine_id=o.makine_id,
+        makine_kod=(kodlar or {}).get(o.makine_id) if o.makine_id is not None else None,
         enerji_turu=o.enerji_turu,
         tuketim=float(o.tuketim),
         birim=o.birim,
@@ -78,7 +79,10 @@ async def olcum_olustur(
         db, eylem="olustur", kaynak="enerji_tuketim", kaynak_id=str(olcum.id), kullanici=kullanici
     )
     await yayinla(tenant.slug, {"tur": "enerji.olcum", "makine_id": olcum.makine_id})
-    return basari(_olcum_cevap(olcum), mesaj="Enerji ölçümü eklendi")
+    kodlar = await repository.makine_kod_haritasi(
+        db, [olcum.makine_id] if olcum.makine_id is not None else []
+    )
+    return basari(_olcum_cevap(olcum, kodlar), mesaj="Enerji ölçümü eklendi")
 
 
 @router.get(
@@ -112,7 +116,13 @@ async def olcum_listele(
         siralama=siralama,
         yon=yon,
     )
-    return sayfali([_olcum_cevap(o) for o in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam)
+    # Sayfadaki makine kodları tek sorguda (satır başına sorgu yok).
+    kodlar = await repository.makine_kod_haritasi(
+        db, (o.makine_id for o in kayitlar if o.makine_id is not None)
+    )
+    return sayfali(
+        [_olcum_cevap(o, kodlar) for o in kayitlar], sayfa=sayfa, adet=adet, toplam=toplam
+    )
 
 
 @router.get(

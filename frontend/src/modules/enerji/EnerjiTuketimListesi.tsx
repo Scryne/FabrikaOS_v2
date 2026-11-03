@@ -95,9 +95,12 @@ export function EnerjiTuketimListesi() {
     },
     {
       title: t('enerji.makine'),
-      dataIndex: 'makine_id',
-      key: 'makine_id',
-      render: (v: number | null) => <span className="sayisal">{v ?? '—'}</span>,
+      dataIndex: 'makine_kod',
+      key: 'makine_kod',
+      // Kod backend'den (sayfa başına tek sorgu). Makine kaydı silinmişse kayıt numarası.
+      render: (kod: string | null, m) => (
+        <span className="sayisal">{kod ?? (m.makine_id != null ? `#${m.makine_id}` : '—')}</span>
+      ),
     },
   ];
 

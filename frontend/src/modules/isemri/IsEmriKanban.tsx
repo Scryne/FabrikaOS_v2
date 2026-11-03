@@ -12,11 +12,12 @@ import { Empty, Skeleton } from 'antd';
 import { KanbanPano, type KanbanKolon } from '@/components/KanbanPano';
 import { VeriKart } from '@/components/VeriKart';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useAuthStore } from '@/store/authStore';
 import { RENKLER } from '@/tema/tema';
 
 import { KANBAN_DURUMLARI } from './durum';
 import { DurumGecis } from './DurumGecis';
-import { type IsEmri, useIsEmriPano } from './hooks';
+import { type IsEmri, useIsEmriPano, useKullaniciSecenekleri } from './hooks';
 import { OncelikRozet } from './rozetler';
 
 /** Kolon başlığı durum rengi (nokta + etiket birlikte anlam taşır). */
@@ -32,6 +33,14 @@ export function IsEmriKanban({ ac }: { ac: (id: number) => void }) {
   const { data, isPending, isError } = useIsEmriPano();
   const { data: makineler } = useMakineSecenekleri();
   const makineHarita = useMemo(() => new Map((makineler ?? []).map((m) => [m.id, m])), [makineler]);
+  // Atanan kişinin adı detay çekmecesindekiyle aynı kaynaktan (``kullanici:oku`` kapılı, tek istek;
+  // kart başına istek yok). İzin yoksa kayıt numarası gösterilir.
+  const kullaniciOku = useAuthStore((s) => s.izinVar('kullanici:oku'));
+  const { data: kullanicilar } = useKullaniciSecenekleri(kullaniciOku);
+  const kullaniciHarita = useMemo(
+    () => new Map((kullanicilar ?? []).map((k) => [k.id, k])),
+    [kullanicilar],
+  );
 
   if (isPending) return <Skeleton active paragraph={{ rows: 8 }} />;
   if (isError) return <Empty description={t('ortak.hata_baslik')} />;
@@ -61,7 +70,9 @@ export function IsEmriKanban({ ac }: { ac: (id: number) => void }) {
               </span>
               {e.atanan_kullanici_id != null && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                  <UserOutlined /> #{e.atanan_kullanici_id}
+                  <UserOutlined />{' '}
+                  {kullaniciHarita.get(e.atanan_kullanici_id)?.ad_soyad ||
+                    `#${e.atanan_kullanici_id}`}
                 </span>
               )}
             </>

@@ -4,7 +4,7 @@
  * içerik (Outlet). Modül ikonları/renkleri tek kaynaktan: tema/modulKimlik.
  */
 
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import { Avatar, Dropdown, Layout, Menu } from 'antd';
 import type { CSSProperties } from 'react';
-import type { MenuProps } from 'antd';
+import type { MenuProps, MenuRef } from 'antd';
 
 import { SayfaYukleniyor } from '@/components/SayfaYukleniyor';
 import { cikisYap } from '@/api/kimlik';
@@ -127,6 +127,15 @@ export function UygulamaKabugu() {
       .filter((y) => konum.pathname === y || (y !== '/' && konum.pathname.startsWith(y)))
       .sort((a, b) => b.length - a.length)[0] ?? '/';
 
+  // Menü artık kendi içinde kaydığı için seçili öğe (ör. derin bağlantı, sayfa yenileme ya da
+  // komut paletiyle gelinen alt bölüm) görünür alanın dışında kalabilir: görünüme getir.
+  const menuRef = useRef<MenuRef>(null);
+  useEffect(() => {
+    const kok = menuRef.current?.menu?.list;
+    const secili = kok?.querySelector<HTMLElement>('.ant-menu-item-selected');
+    secili?.scrollIntoView?.({ block: 'nearest' });
+  }, [seciliYol]);
+
   const dilMenusu: MenuProps['items'] = Object.entries(DILLER).map(([kod, ad]) => ({
     key: kod,
     label: ad,
@@ -149,13 +158,17 @@ export function UygulamaKabugu() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {/* Yan menü görünüm yüksekliğine sabitlenir ve kendi içinde kayar (`.kabuk-yan`); belge
+          yüksekliğini içerik belirler. Önceden menü uzunluğu (≈2777 px) her sayfayı o boya
+          çekiyordu: kısa sayfalarda altı boş bir kaydırma çıkıyordu (2026-11-03 ölçümü). */}
       <Layout.Sider
+        className="kabuk-yan"
         breakpoint="lg"
         collapsedWidth="0"
         width={248}
         style={{ borderRight: '1px solid var(--kenarlik)' }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="kabuk-yan-ic">
           {/* Marka */}
           <div
             style={{
@@ -176,16 +189,13 @@ export function UygulamaKabugu() {
 
           {/* Bölümlü menü */}
           <Menu
+            ref={menuRef}
             mode="inline"
             selectedKeys={[seciliYol]}
             items={menuOgeleri}
             onClick={({ key }) => navigate(key)}
-            style={{
-              borderInlineEnd: 'none',
-              flex: 1,
-              padding: '6px 12px 12px',
-              overflowY: 'auto',
-            }}
+            className="kabuk-yan-menu"
+            style={{ borderInlineEnd: 'none', padding: '6px 12px 12px' }}
           />
 
           {/* Alt: tenant (çalışma alanı) kartı */}

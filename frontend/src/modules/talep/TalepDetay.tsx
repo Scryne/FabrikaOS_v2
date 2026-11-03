@@ -1,14 +1,20 @@
 /**
  * Talep detayı (Drawer) — KPI şeridi (öncelik / tür / atanan) + künye (Descriptions) +
  * **durum zaman çizelgesi** (açık→inceleniyor→çözüldü→kapandı; iptal olumsuz terminal) +
- * atama (InputNumber, ``talep:yaz``) + durum geçiş butonları (``gecerliHedefler`` ∩ ``talep:yaz``).
+ * atama (``talep:yaz``) + durum geçiş butonları (``gecerliHedefler`` ∩ ``talep:yaz``).
+ *
+ * Okunur adlar mevcut izin kapılarından çözülür (yeni yetki açılmaz): atanan kişi
+ * ``kullanici:oku`` ile kullanıcı listesinden, firma ``crm:oku`` ile firma kaydından. İzin yoksa
+ * kayıt numarası gösterilir ve atama sayısal kullanıcı numarasıyla yapılır (önceki davranış).
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Descriptions, Drawer, InputNumber, Space } from 'antd';
+import { Button, Descriptions, Drawer, InputNumber, Select, Space } from 'antd';
 
 import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
+import { useFirma } from '@/modules/crm/hooks';
+import { useKullaniciSecenekleri } from '@/modules/isemri/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { RENKLER } from '@/tema/tema';
 
@@ -29,7 +35,23 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
   const durumMut = useTalepDurum();
   const guncelle = useTalepGuncelle();
   const yazabilir = useAuthStore((s) => s.izinVar('talep:yaz'));
+  const kullaniciOku = useAuthStore((s) => s.izinVar('kullanici:oku'));
+  const crmOku = useAuthStore((s) => s.izinVar('crm:oku'));
+  const kullaniciSorgu = useKullaniciSecenekleri(kullaniciOku && id != null);
+  const kullanicilar = kullaniciSorgu.data;
+  const firmaSorgu = useFirma(crmOku ? (talep?.firma_id ?? 0) : 0);
   const [atanan, setAtanan] = useState<number | null>(null);
+
+  const kullaniciHarita = useMemo(
+    () => new Map((kullanicilar ?? []).map((k) => [k.id, k])),
+    [kullanicilar],
+  );
+  const kullaniciAdi = (kid: number) => {
+    const k = kullaniciHarita.get(kid);
+    // Ad çözülürken numara yanıp sönmesin; çözülemezse (izin yok/kayıt yok) kayıt numarası.
+    if (!k && kullaniciSorgu.isFetching) return '…';
+    return k?.ad_soyad || k?.eposta || `#${kid}`;
+  };
 
   const hedefler = talep && yazabilir ? gecerliHedefler(talep.durum) : [];
 
@@ -63,7 +85,7 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
               { anahtar: 'tur', deger: t(`talep.tur_${talep.tur}`), etiket: t('talep.tur') },
               {
                 anahtar: 'atanan',
-                deger: talep.atanan_kullanici_id ? `#${talep.atanan_kullanici_id}` : '—',
+                deger: talep.atanan_kullanici_id ? kullaniciAdi(talep.atanan_kullanici_id) : '—',
                 etiket: t('talep.atanan'),
               },
             ]}
@@ -74,7 +96,9 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
               <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
               <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
                 {talep.firma_id && (
-                  <Descriptions.Item label={t('talep.firma')}>#{talep.firma_id}</Descriptions.Item>
+                  <Descriptions.Item label={t('talep.firma')}>
+                    {firmaSorgu.data?.ad ?? (firmaSorgu.isFetching ? '…' : `#${talep.firma_id}`)}
+                  </Descriptions.Item>
                 )}
                 {talep.aciklama && (
                   <Descriptions.Item label={t('talep.aciklama')}>
@@ -94,12 +118,27 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
 
           {yazabilir && (
             <Space style={{ marginTop: 20 }} wrap>
-              <InputNumber
-                min={1}
-                value={atanan ?? undefined}
-                onChange={(v) => setAtanan(v)}
-                placeholder={t('talep.atanan_id')}
-              />
+              {kullaniciOku ? (
+                <Select
+                  showSearch
+                  optionFilterProp="label"
+                  style={{ minWidth: 220 }}
+                  value={atanan ?? undefined}
+                  onChange={(v: number) => setAtanan(v)}
+                  placeholder={t('talep.atanan')}
+                  aria-label={t('talep.atanan')}
+                  options={(kullanicilar ?? [])
+                    .filter((k) => k.aktif)
+                    .map((k) => ({ value: k.id, label: k.ad_soyad || k.eposta }))}
+                />
+              ) : (
+                <InputNumber
+                  min={1}
+                  value={atanan ?? undefined}
+                  onChange={(v) => setAtanan(v)}
+                  placeholder={t('talep.atanan_id')}
+                />
+              )}
               <Button
                 loading={guncelle.isPending}
                 onClick={() => void ata()}

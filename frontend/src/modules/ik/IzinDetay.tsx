@@ -14,6 +14,7 @@ import { useAuthStore } from '@/store/authStore';
 
 import { useIzin, useIzinDurumAksiyon } from './hooks';
 import { gecerliHedefler } from './izinDurum';
+import { personelAdi } from './sunum';
 import { IzinDurumEtiketi, IzinTuruEtiketi } from './rozetler';
 
 type Aksiyon = { aksiyon: string; izin: string; etiket: string };
@@ -89,7 +90,7 @@ export function IzinDetay({ id, kapat }: { id: number | null; kapat: () => void 
               },
               {
                 anahtar: 'personel',
-                deger: `#${izin.personel_id}`,
+                deger: personelAdi(izin),
                 etiket: t('ik.personel'),
               },
             ]}

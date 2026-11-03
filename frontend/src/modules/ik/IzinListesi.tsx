@@ -35,6 +35,7 @@ import { RENKLER } from '@/tema/tema';
 import { type IzinTalebi, useIzinPano, useIzinler } from './hooks';
 import { IzinDetay } from './IzinDetay';
 import { IzinFormu } from './IzinFormu';
+import { personelAdi } from './sunum';
 import { IzinTuruEtiketi } from './rozetler';
 
 const HAT = BOLUM_RENGI['menu.bolum_isg_ik'];
@@ -107,9 +108,9 @@ export function IzinListesi() {
     },
     {
       title: t('ik.personel'),
-      dataIndex: 'personel_id',
-      key: 'personel_id',
-      render: (v: number) => <span className="sayisal">#{v}</span>,
+      dataIndex: 'personel_ad',
+      key: 'personel_ad',
+      render: (_v: string | null, kayit) => personelAdi(kayit),
     },
     {
       title: t('ik.izin_turu'),
@@ -214,7 +215,7 @@ export function IzinListesi() {
             <VeriKart
               ustSol={x.kod}
               ustSag={<IzinTuruEtiketi tur={x.izin_turu} />}
-              baslik={`#${x.personel_id} · ${x.gun_sayisi} ${t('ik.gun_sayisi').toLocaleLowerCase('tr')}`}
+              baslik={`${personelAdi(x)} · ${x.gun_sayisi} ${t('ik.gun_sayisi').toLocaleLowerCase('tr')}`}
               meta={
                 <span className="sayisal">{dayjs(x.baslangic_tarihi).format('DD.MM.YYYY')}</span>
               }

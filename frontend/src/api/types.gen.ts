@@ -5891,6 +5891,8 @@ export interface components {
             id: number;
             /** Makine Id */
             makine_id?: number | null;
+            /** Makine Kod */
+            makine_kod?: string | null;
             /** Enerji Turu */
             enerji_turu: string;
             /** Tuketim */
@@ -6964,6 +6966,8 @@ export interface components {
             kod: string;
             /** Personel Id */
             personel_id: number;
+            /** Personel Ad */
+            personel_ad?: string | null;
             /** Izin Turu */
             izin_turu: string;
             /**

@@ -53,6 +53,10 @@ const TUR_RENK: Record<string, string> = {
   giris: RENKLER.basari,
   cikis: RENKLER.hata,
   duzeltme: RENKLER.uyari,
+  // Depolar arası transfer toplam stoğu değiştirmez (iki bacaklı kayıt); sayım farkı düzeltmedir.
+  transfer_giris: RENKLER.mavi,
+  transfer_cikis: RENKLER.mavi,
+  sayim_duzeltme: RENKLER.uyari,
 };
 
 /** Stok seviyesi barı — mevcut miktarı 0..tavan aralığında; kritik & min eşikleri işaretli. */
@@ -196,7 +200,7 @@ export function MalzemeDetay() {
     const turMap = new Map<string, number>();
     for (const h of seri) turMap.set(h.tur, (turMap.get(h.tur) ?? 0) + h.miktar);
     const turSeg = [...turMap.entries()].map(([tur, deger]) => ({
-      ad: t(`stok.${tur}`),
+      ad: t(`stok.${tur}`, { defaultValue: tur }),
       deger,
       renk: TUR_RENK[tur] ?? RENKLER.metinSoluk,
     }));
@@ -225,7 +229,10 @@ export function MalzemeDetay() {
       dataIndex: 'tur',
       key: 'tur',
       render: (v: string) => (
-        <DurumPim renk={TUR_RENK[v] ?? RENKLER.metinSoluk} etiket={t(`stok.${v}`)} />
+        <DurumPim
+          renk={TUR_RENK[v] ?? RENKLER.metinSoluk}
+          etiket={t(`stok.${v}`, { defaultValue: v })}
+        />
       ),
     },
     {
