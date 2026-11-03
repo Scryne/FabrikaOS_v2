@@ -10,7 +10,17 @@ on:
 
 jobs:
   backend:
+    # API imajı (backend/Dockerfile) python:3.15-slim; testler aynı sürümde koşar.
+    # 3.12 kalır: pyproject `requires-python = ">=3.12"` ve ruff/mypy hedefi py312 —
+    # ilan edilen taban sürüm test edilmezse 3.13+ çalışma zamanı davranışı fark edilmeden
+    # sızar. Taban yükseltilirse (requires-python + ruff/mypy hedefi) 3.12 buradan düşer.
+    # Mutasyon işi bilerek matrise katılmadı (uzun sürüyor).
+    name: backend (py${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.15"]
     services:
       # Entegrasyon testleri gerçek bir veritabanına bağlanır (conftest localhost:5432).
       # create_hypertable için TimescaleDB imajı şart; eklenti template1'e kurulur, böylece
@@ -42,20 +52,26 @@ jobs:
 
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: pip
+
+      - name: Yorumlayıcı sürümü
+        run: python -VV
 
       - name: Bağımlılıkları kur
         run: pip install -e ".[dev]"
 
+      # Ruff sürümden bağımsız (hedef pyproject'te py312); iki kez koşturmak dakika harcar.
       - name: Ruff (lint)
+        if: matrix.python-version == '3.15'
         run: ruff check backend
 
       - name: Ruff (format kontrolü)
+        if: matrix.python-version == '3.15'
         run: ruff format --check backend
 
       - name: mypy (tip kontrolü)
-        run: mypy
+        run: mypy --python-version ${{ matrix.python-version }}
 
       - name: API portalı güncel mi (docs/api, S28)
         run: python backend/scripts/api_portali.py --kontrol
