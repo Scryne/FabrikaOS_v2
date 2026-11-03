@@ -11,6 +11,14 @@ vi.mock('./olgunlukHooks', () => ({
   useKazadanCapa: () => ({ mutate: vi.fn(), isPending: false }),
 }));
 
+// Kaza formunun seçenek sorguları: form kapalıyken ağa çıkmaz.
+vi.mock('@/modules/ik/olgunlukHooks', () => ({
+  usePersonelSecenekleri: () => ({ data: [], isPending: false }),
+}));
+vi.mock('@/modules/uretim/hooks', () => ({
+  useMakineSecenekleri: () => ({ data: [], isPending: false }),
+}));
+
 vi.mock('./hooks', () => {
   const sahteMutasyon = () => ({ mutateAsync: vi.fn(), isPending: false });
   return {

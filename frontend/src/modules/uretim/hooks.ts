@@ -44,11 +44,12 @@ export function useUretimOzet() {
 }
 
 /** Filtreler/seçim için hafif makine sözlüğü (id → makine); büyük sayfa, tek istek. */
-export function useMakineSecenekleri() {
+export function useMakineSecenekleri(etkin = true) {
   return useQuery({
     queryKey: [...URETIM_ANAHTAR.makineler, 'secenek'],
     queryFn: () =>
       istek<Makine[]>('GET', `${PREFIX}/makineler?sayfa=1&adet=100&siralama=kod&yon=asc`),
+    enabled: etkin,
   });
 }
 

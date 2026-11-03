@@ -7,6 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 import type { Dayjs } from 'dayjs';
 
+import { KayitSecici } from '@/components/KayitSecici';
+import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useAuthStore } from '@/store/authStore';
+
 import { useOlcumEkle } from './hooks';
 
 type Alanlar = {
@@ -23,6 +27,8 @@ export function EnerjiGirisFormu({ acik, kapat }: { acik: boolean; kapat: () => 
   const { t } = useTranslation();
   const [form] = Form.useForm<Alanlar>();
   const olcumEkle = useOlcumEkle();
+  const makineOku = useAuthStore((s) => s.izinVar('uretim:oku'));
+  const makineler = useMakineSecenekleri(acik && makineOku);
 
   const gonder = async () => {
     const v = await form.validateFields();
@@ -70,7 +76,14 @@ export function EnerjiGirisFormu({ acik, kapat }: { acik: boolean; kapat: () => 
           <Input />
         </Form.Item>
         <Form.Item name="makine_id" label={t('enerji.makine')}>
-          <InputNumber min={1} style={{ width: '100%' }} />
+          <KayitSecici
+            izinli={makineOku}
+            yukleniyor={makineler.isPending}
+            secenekler={(makineler.data ?? []).map((m) => ({
+              value: m.id,
+              label: `${m.kod} · ${m.ad}`,
+            }))}
+          />
         </Form.Item>
         <Form.Item name="zaman" label={t('enerji.zaman')}>
           <DatePicker showTime style={{ width: '100%' }} />

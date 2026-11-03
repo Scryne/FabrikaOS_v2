@@ -7,6 +7,11 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd';
 
+import { KayitSecici } from '@/components/KayitSecici';
+import { usePersonelSecenekleri } from '@/modules/ik/olgunlukHooks';
+import { useMakineSecenekleri } from '@/modules/uretim/hooks';
+import { useAuthStore } from '@/store/authStore';
+
 import { useKazaOlustur } from './hooks';
 
 const TURLER = ['kaza', 'ramak_kala', 'meslek_hastaligi'];
@@ -16,6 +21,10 @@ export function KazaFormu({ acik, kapat }: { acik: boolean; kapat: () => void })
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const olustur = useKazaOlustur();
+  const personelOku = useAuthStore((s) => s.izinVar('ik:oku'));
+  const makineOku = useAuthStore((s) => s.izinVar('uretim:oku'));
+  const personeller = usePersonelSecenekleri(acik && personelOku);
+  const makineler = useMakineSecenekleri(acik && makineOku);
 
   useEffect(() => {
     if (acik) form.setFieldsValue({ tur: 'kaza', agirlik: 'hafif', kaybedilen_gun: 0 });
@@ -64,10 +73,23 @@ export function KazaFormu({ acik, kapat }: { acik: boolean; kapat: () => void })
           <InputNumber min={0} style={{ width: '100%' }} />
         </Form.Item>
         <Form.Item name="personel_id" label={t('isg.personel')}>
-          <InputNumber min={1} style={{ width: '100%' }} />
+          <KayitSecici
+            izinli={personelOku}
+            yukleniyor={personeller.isPending}
+            secenekler={(personeller.data ?? [])
+              .filter((p) => p.aktif)
+              .map((p) => ({ value: p.id, label: `${p.ad} ${p.soyad}` }))}
+          />
         </Form.Item>
         <Form.Item name="makine_id" label={t('isg.makine')}>
-          <InputNumber min={1} style={{ width: '100%' }} />
+          <KayitSecici
+            izinli={makineOku}
+            yukleniyor={makineler.isPending}
+            secenekler={(makineler.data ?? []).map((m) => ({
+              value: m.id,
+              label: `${m.kod} · ${m.ad}`,
+            }))}
+          />
         </Form.Item>
         <Form.Item name="aciklama" label={t('isg.aciklama')}>
           <Input.TextArea rows={3} maxLength={2000} />
