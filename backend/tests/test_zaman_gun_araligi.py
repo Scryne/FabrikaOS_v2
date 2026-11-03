@@ -30,3 +30,9 @@ def test_gun_siniri_is_saat_diliminde() -> None:
 def test_an_kendi_is_gununun_penceresinde(an: datetime) -> None:
     bas, bit = gun_araligi(is_gunu(an))
     assert bas <= an < bit
+
+
+def test_varsayilan_bugunun_penceresi() -> None:
+    bas, bit = gun_araligi()
+    assert (bas, bit) == gun_araligi(is_gunu())
+    assert bas <= datetime.now(UTC) < bit

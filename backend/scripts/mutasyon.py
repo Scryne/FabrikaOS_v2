@@ -25,9 +25,11 @@ import argparse
 import ast
 import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,7 +56,10 @@ HEDEFLER: dict[str, tuple[str, list[str]]] = {
         "app/modules/isg/egitim_matrisi.py",
         ["tests/test_s26b_birim.py", "tests/test_s28_cekirdek_derin.py"],
     ),
-    "zaman": ("app/core/zaman.py", ["tests/test_s27_is_gunu.py"]),
+    "zaman": (
+        "app/core/zaman.py",
+        ["tests/test_s27_is_gunu.py", "tests/test_zaman_gun_araligi.py"],
+    ),
     "finans_hesap": ("app/modules/finans/hesap.py", ["tests/test_s29_finans_birim.py"]),
     "fatura_durum": ("app/modules/finans/durum.py", ["tests/test_s29_finans_birim.py"]),
     "cizelge": ("app/modules/planlama/cizelge.py", ["tests/test_s30_cizelge_birim.py"]),
@@ -209,8 +214,22 @@ def main() -> int:
         )
         kopyalar.put(hedef)
 
+    # CI'da iş 5-6. dakikada SIGTERM (143) ile kesildi; hangi mutantlar koşuyordu görünsün.
+    suren: dict[tuple[str, int], float] = {}
+    biten = [0]
+
+    def kesildi(numara: int, _kare: object) -> None:
+        simdi = time.monotonic()
+        print(f"\nSİNYAL {numara}: {biten[0]}/{len(gorevler)} bitti; koşanlar:", flush=True)
+        for (h, sira), bas in list(suren.items()):
+            print(f"  {h}#{sira} {simdi - bas:.0f} sn", flush=True)
+        raise SystemExit(128 + numara)
+
+    signal.signal(signal.SIGTERM, kesildi)
+
     def koş(m: Mutant) -> tuple[Mutant, bool]:
         kok = kopyalar.get()
+        suren[(m.hedef, m.sira)] = time.monotonic()
         try:
             kaynak_yolu = kok / HEDEFLER[m.hedef][0]
             yeni, satir, aciklama = mutasyonlu_kaynak(kaynaklar[m.hedef], m.sira)
@@ -223,6 +242,10 @@ def main() -> int:
                 kaynak_yolu.write_text(kaynaklar[m.hedef], encoding="utf-8")
             return Mutant(m.hedef, m.sira, satir, aciklama), oldu
         finally:
+            suren.pop((m.hedef, m.sira), None)
+            biten[0] += 1
+            if biten[0] % 25 == 0:
+                print(f"{biten[0]}/{len(gorevler)} mutant", flush=True)
             kopyalar.put(kok)
 
     try:
