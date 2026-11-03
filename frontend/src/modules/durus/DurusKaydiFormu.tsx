@@ -51,7 +51,7 @@ export function DurusKaydiFormu({ acik, kapat }: { acik: boolean; kapat: () => v
         kapat();
       }}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional" preserve={false}>
         <Form.Item name="makine_id" label={t('durus.makine')} rules={[{ required: true }]}>

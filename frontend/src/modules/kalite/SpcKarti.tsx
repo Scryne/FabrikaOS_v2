@@ -158,7 +158,7 @@ export function SpcKarti() {
       )}
 
       {(k?.uyarilar ?? []).map((u) => (
-        <Alert key={u} type="info" showIcon className="aktarim-uyari" message={u} />
+        <Alert key={u} type="info" showIcon className="aktarim-uyari" title={u} />
       ))}
 
       <div className="spc-duzen">

@@ -52,7 +52,7 @@ export function SatinalmaTalepFormu({ acik, kapat }: { acik: boolean; kapat: () 
       width={720}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form
         form={form}

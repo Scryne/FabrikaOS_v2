@@ -45,7 +45,7 @@ export function TicariPano() {
       key: 'kalan_gun',
       align: 'right',
       render: (v: number) => (
-        <Tag color={v <= 7 ? 'error' : 'warning'} bordered={false}>
+        <Tag color={v <= 7 ? 'error' : 'warning'} variant="filled">
           {t('sozlesme.kalan_gun', { gun: v })}
         </Tag>
       ),
@@ -126,7 +126,7 @@ export function TicariPano() {
                     title={d.baslik}
                     description={<span className="sayisal">{d.kod}</span>}
                   />
-                  <Tag color={ONEM_RENK[d.onem] ?? 'default'} bordered={false}>
+                  <Tag color={ONEM_RENK[d.onem] ?? 'default'} variant="filled">
                     {t(`duyuru.onem_${d.onem}`)}
                   </Tag>
                 </List.Item>

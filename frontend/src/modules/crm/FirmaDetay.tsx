@@ -54,7 +54,7 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={620}
+      size={620}
       destroyOnHidden
       title={firma?.ad}
       extra={firma && <FirmaTipEtiketi tip={firma.tip} />}
@@ -107,7 +107,7 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
                       .map((s) => t(`crm.skor_${s}`))
                       .join(', ')}`}
                   >
-                    <Tag bordered={false} style={{ marginLeft: 8 }}>
+                    <Tag variant="filled" style={{ marginLeft: 8 }}>
                       {t('crm.skor_yetersiz')}
                     </Tag>
                   </Tooltip>
@@ -198,7 +198,7 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
                     <span>
                       {o.ad_soyad}{' '}
                       {o.birincil && (
-                        <Tag color="blue" bordered={false}>
+                        <Tag color="blue" variant="filled">
                           {t('crm.birincil')}
                         </Tag>
                       )}

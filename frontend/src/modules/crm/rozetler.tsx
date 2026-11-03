@@ -12,7 +12,7 @@ const TIP_RENK: Record<string, string> = {
 export function FirmaTipEtiketi({ tip }: { tip: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={TIP_RENK[tip] ?? 'default'} bordered={false}>
+    <Tag color={TIP_RENK[tip] ?? 'default'} variant="filled">
       {t(`crm.tip_${tip}`)}
     </Tag>
   );

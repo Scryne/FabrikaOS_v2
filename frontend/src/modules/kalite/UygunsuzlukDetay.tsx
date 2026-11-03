@@ -87,7 +87,7 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={640}
+      size={640}
       title={u?.kod}
       extra={u && <UygunsuzlukDurumEtiketi durum={u.durum} />}
     >
@@ -213,10 +213,10 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
                 <List.Item.Meta
                   title={
                     <Space>
-                      <Tag bordered={false}>{t(`kalite.aksiyon_${a.tur}`)}</Tag>
+                      <Tag variant="filled">{t(`kalite.aksiyon_${a.tur}`)}</Tag>
                       <Tag
                         color={a.durum === 'tamamlandi' ? 'success' : 'default'}
-                        bordered={false}
+                        variant="filled"
                       >
                         {t(`kalite.aksiyon_durum_${a.durum}`)}
                       </Tag>

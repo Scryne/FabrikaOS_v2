@@ -117,7 +117,7 @@ function EgitimFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
       onOk={() => void gonder()}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form
         form={form}
@@ -193,13 +193,7 @@ function EgitimCekmecesi({ id, kapat }: { id: number | null; kapat: () => void }
   const personeller = usePersonelSecenekleri(!!id && yazabilir);
 
   return (
-    <Drawer
-      open={id !== null}
-      onClose={kapat}
-      width={480}
-      title={e ? e.baslik : ''}
-      destroyOnHidden
-    >
+    <Drawer open={id !== null} onClose={kapat} size={480} title={e ? e.baslik : ''} destroyOnHidden>
       {e && (
         <>
           <p className="varlik-alt sayisal">
@@ -348,7 +342,7 @@ function MatrisSekmesi({ departman }: { departman?: string }) {
                 : t('isg26.katilim_yok')
             }
           >
-            <Tag color={DURUM_RENK[h.durum]} bordered={false}>
+            <Tag color={DURUM_RENK[h.durum]} variant="filled">
               {t(`isg26.durum_${h.durum}`)}
             </Tag>
           </Tooltip>
@@ -443,7 +437,7 @@ function KkdSekmesi({ departman }: { departman?: string }) {
             render: (_v, s) => (
               <Space size={[4, 4]} wrap>
                 {s.gerekli.map((k) => (
-                  <Tag key={k} color={s.eksik.includes(k) ? 'red' : 'green'} bordered={false}>
+                  <Tag key={k} color={s.eksik.includes(k) ? 'red' : 'green'} variant="filled">
                     {k}
                   </Tag>
                 ))}
@@ -545,7 +539,7 @@ function GereksinimListesi({ tur, departmanlar }: { tur: GereksinimTuru; departm
             }
           >
             <span>{tur === 'egitim' ? konuEtiketi(g.ad) : g.ad}</span>
-            <Tag bordered={false}>{g.departman || t('isg26.herkes')}</Tag>
+            <Tag variant="filled">{g.departman || t('isg26.herkes')}</Tag>
           </List.Item>
         )}
       />

@@ -36,11 +36,11 @@ export function BirKezModal({
       }
       okText={t('ortak.tamam')}
       cancelButtonProps={{ style: { display: 'none' } }}
-      maskClosable={false}
+      mask={{ closable: false }}
       destroyOnHidden
     >
-      <Space direction="vertical" size={14} style={{ width: '100%' }}>
-        <Alert type="warning" showIcon message={t('entegrasyon.bir_kez_aciklama')} />
+      <Space orientation="vertical" size={14} style={{ width: '100%' }}>
+        <Alert type="warning" showIcon title={t('entegrasyon.bir_kez_aciklama')} />
         <Space.Compact style={{ width: '100%' }}>
           <Input readOnly value={deger ?? ''} className="sayisal" />
           <Button icon={<CopyOutlined />} onClick={() => void kopyala()}>

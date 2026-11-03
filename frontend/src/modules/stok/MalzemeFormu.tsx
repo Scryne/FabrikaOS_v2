@@ -60,7 +60,7 @@ export function MalzemeFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending || guncelle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         {!duzenleme && (

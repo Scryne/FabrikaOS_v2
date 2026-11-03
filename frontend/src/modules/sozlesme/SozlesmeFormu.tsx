@@ -66,7 +66,7 @@ export function SozlesmeFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending || guncelle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="firma_id" label={t('sozlesme.firma')} rules={[{ required: true }]}>

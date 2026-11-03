@@ -28,11 +28,11 @@ export function useModuller() {
 /** `kod -> açık?` sorgulayıcısı; veri yokken herkese açık sayar (fail-open). */
 export function useModulAcik(): (kod?: string) => boolean {
   const { data } = useModuller();
+  const moduller = data?.moduller;
   return useMemo(() => {
-    if (!data) return () => true;
-    const harita = new Map(data.moduller.map((m) => [m.kod, m.acik]));
+    const harita = new Map((moduller ?? []).map((m) => [m.kod, m.acik]));
     return (kod?: string) => (kod === undefined ? true : (harita.get(kod) ?? true));
-  }, [data]);
+  }, [moduller]);
 }
 
 export function useAbonelik() {

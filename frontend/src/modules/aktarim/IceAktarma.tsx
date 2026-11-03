@@ -220,7 +220,7 @@ export function IceAktarma() {
                   showIcon
                   closable
                   onClose={() => setSonuc(null)}
-                  message={t('aktarim.uygulandi', {
+                  title={t('aktarim.uygulandi', {
                     yeni: sonuc.yeni,
                     guncelle: sonuc.guncelle,
                     ayni: sonuc.ayni,
@@ -281,7 +281,7 @@ export function IceAktarma() {
                     type="error"
                     showIcon
                     className="aktarim-uyari"
-                    message={t('aktarim.eksik_kolon', {
+                    title={t('aktarim.eksik_kolon', {
                       kolonlar: onizleme.eksik_kolonlar.join(', '),
                     })}
                   />
@@ -291,7 +291,7 @@ export function IceAktarma() {
                     type="warning"
                     showIcon
                     className="aktarim-uyari"
-                    message={t('aktarim.bilinmeyen_kolon', {
+                    title={t('aktarim.bilinmeyen_kolon', {
                       kolonlar: onizleme.bilinmeyen_kolonlar.join(', '),
                     })}
                   />
@@ -339,7 +339,7 @@ export function IceAktarma() {
             )}
           </div>
         ) : (
-          !turler.isLoading && <Alert type="info" showIcon message={t('aktarim.hic_yetki')} />
+          !turler.isLoading && <Alert type="info" showIcon title={t('aktarim.hic_yetki')} />
         )}
       </div>
     </SayfaKapsayici>

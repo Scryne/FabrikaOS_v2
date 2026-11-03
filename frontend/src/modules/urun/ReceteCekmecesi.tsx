@@ -4,7 +4,7 @@
  * seçenek listesinden eklenmiş malzemeler düşürülerek yapısal önlenir).
  */
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Drawer, Empty, InputNumber, Select, Space, Table, Typography } from 'antd';
@@ -35,8 +35,11 @@ export function ReceteCekmecesi({ urun, kapat }: { urun: Urun | null; kapat: () 
   const [kalemler, setKalemler] = useState<KalemSatiri[]>([]);
   const [seciliMalzeme, setSeciliMalzeme] = useState<number | undefined>();
 
-  // Sunucudaki reçete yüklendiğinde yerel düzenleme durumunu eşitle.
-  useEffect(() => {
+  // Sunucudaki reçete (yeniden) yüklendiğinde yerel düzenleme durumunu eşitle. Efekt yerine
+  // render'da, önceki cevapla karşılaştırarak: efektte setState ikinci bir çizim turu doğurur.
+  const [esitlenenRecete, setEsitlenenRecete] = useState<typeof recete | null>(null);
+  if (recete !== esitlenenRecete) {
+    setEsitlenenRecete(recete);
     setKalemler(
       (recete?.kalemler ?? []).map((k) => ({
         malzeme_id: k.malzeme_id,
@@ -46,7 +49,7 @@ export function ReceteCekmecesi({ urun, kapat }: { urun: Urun | null; kapat: () 
         miktar: k.miktar,
       })),
     );
-  }, [recete]);
+  }
 
   const eklenebilir = (malzemeler ?? []).filter(
     (m) => !kalemler.some((k) => k.malzeme_id === m.id),
@@ -139,7 +142,7 @@ export function ReceteCekmecesi({ urun, kapat }: { urun: Urun | null; kapat: () 
     <Drawer
       open={urun !== null}
       onClose={kapat}
-      width={560}
+      size={560}
       title={
         urun ? (
           <span>

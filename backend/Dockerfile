@@ -1,7 +1,7 @@
 # FabrikaOS API imajı
 # NOT (S1): tek aşamalı, dev bağımlılıkları dahil (container içi test için).
 # Faz 5'te çok aşamalı/sertleştirilmiş prod imajına ayrılacak.
-FROM python:3.12-slim AS base
+FROM python:3.15-slim AS base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \

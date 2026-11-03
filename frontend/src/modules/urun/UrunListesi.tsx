@@ -50,7 +50,7 @@ function UrunFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
         kapat();
       }}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form
         form={form}

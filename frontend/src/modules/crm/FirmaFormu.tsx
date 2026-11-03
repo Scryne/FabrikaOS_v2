@@ -48,7 +48,7 @@ export function FirmaFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending || guncelle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="ad" label={t('crm.ad')} rules={[{ required: true }]}>

@@ -11,7 +11,7 @@ export function SayfaYukleniyor() {
       aria-live="polite"
       style={{ display: 'flex', justifyContent: 'center', padding: '64px 0' }}
     >
-      <Spin tip={t('ortak.yukleniyor')}>
+      <Spin description={t('ortak.yukleniyor')}>
         <div style={{ width: 120, height: 40 }} />
       </Spin>
     </div>

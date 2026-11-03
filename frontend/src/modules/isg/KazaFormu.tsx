@@ -42,7 +42,7 @@ export function KazaFormu({ acik, kapat }: { acik: boolean; kapat: () => void })
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="tur" label={t('isg.tur')} rules={[{ required: true }]}>

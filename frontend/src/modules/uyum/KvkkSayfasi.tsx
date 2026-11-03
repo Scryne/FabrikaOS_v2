@@ -167,9 +167,9 @@ export function KvkkSayfasi() {
     <SayfaKapsayici>
       <SayfaBaslik baslik={t('uyum.kvkk_baslik')} alt={t('uyum.kvkk_aciklama')} />
 
-      <Space direction="vertical" size={18} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={18} style={{ width: '100%' }}>
         <PanelKart baslik={t('uyum.ihrac_baslik')} ikon={<ExportOutlined />}>
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
               {t('uyum.ihrac_aciklama')}
             </Typography.Paragraph>
@@ -247,7 +247,7 @@ export function KvkkSayfasi() {
           ikon={<UserDeleteOutlined />}
           renk="var(--hata)"
         >
-          <Space direction="vertical" size={12} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={12} style={{ width: '100%' }}>
             <Typography.Paragraph type="danger" style={{ marginBottom: 0 }}>
               {t('uyum.anonim_uyari')}
             </Typography.Paragraph>

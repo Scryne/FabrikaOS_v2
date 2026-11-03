@@ -110,7 +110,9 @@ export function GirisSayfasi() {
   const [kod, setKod] = useState('');
   const [kodHatasi, setKodHatasi] = useState<string | null>(null);
   const [firmaKodu, setFirmaKodu] = useState('');
-  const [ssoVar, setSsoVar] = useState(false);
+  // SSO cevabı hangi tenant için sorulduğuyla birlikte tutulur: kod kısalınca ya da
+  // değişince eski tenant'ın cevabı gösterilmez (efektte sıfırlamaya gerek kalmaz).
+  const [ssoCevabi, setSsoCevabi] = useState<{ anahtar: string; acik: boolean } | null>(null);
   const [ssoHatasi, setSsoHatasi] = useState<string | null>(null);
 
   // Subdomain tenant'ı belirliyse firma kodu sorulmaz.
@@ -118,19 +120,19 @@ export function GirisSayfasi() {
 
   // Subdomain varsa tenant baştan bellidir → SSO düğmesi hemen sorgulanabilir. Firma kodu
   // ile giriliyorsa kullanıcı kodu yazana kadar beklenir (tenant çözülemeden sorulamaz).
+  const ssoSorulabilir = subdomainVar || firmaKodu.trim().length >= 2;
+  const ssoAnahtari = subdomainVar ? '' : firmaKodu;
+  const ssoVar = ssoSorulabilir && ssoCevabi?.anahtar === ssoAnahtari && ssoCevabi.acik;
   useEffect(() => {
-    if (!subdomainVar && firmaKodu.trim().length < 2) {
-      setSsoVar(false);
-      return;
-    }
+    if (!ssoSorulabilir) return;
     let iptal = false;
-    void ssoAcikMi(subdomainVar ? null : firmaKodu).then((acik) => {
-      if (!iptal) setSsoVar(acik);
+    void ssoAcikMi(subdomainVar ? null : ssoAnahtari).then((acik) => {
+      if (!iptal) setSsoCevabi({ anahtar: ssoAnahtari, acik });
     });
     return () => {
       iptal = true;
     };
-  }, [subdomainVar, firmaKodu]);
+  }, [ssoSorulabilir, subdomainVar, ssoAnahtari]);
 
   async function gonder(degerler: Alanlar) {
     setHata(false);
@@ -228,12 +230,12 @@ export function GirisSayfasi() {
                 <Alert
                   type="error"
                   showIcon
-                  message={t('kimlik.hatali_giris')}
+                  title={t('kimlik.hatali_giris')}
                   style={{ marginBottom: 16 }}
                 />
               )}
               {ssoHatasi && (
-                <Alert type="error" showIcon message={ssoHatasi} style={{ marginBottom: 16 }} />
+                <Alert type="error" showIcon title={ssoHatasi} style={{ marginBottom: 16 }} />
               )}
 
               <Form<Alanlar>
@@ -292,11 +294,11 @@ export function GirisSayfasi() {
           )}
 
           {asama.tur === '2fa' && (
-            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={14} style={{ width: '100%' }}>
               <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
                 {t('kimlik.iki_asama_aciklama')}
               </Typography.Paragraph>
-              {kodHatasi && <Alert type="error" showIcon message={kodHatasi} />}
+              {kodHatasi && <Alert type="error" showIcon title={kodHatasi} />}
               <Input
                 value={kod}
                 onChange={(e) => setKod(e.target.value)}
@@ -327,11 +329,11 @@ export function GirisSayfasi() {
           )}
 
           {asama.tur === '2fa-kurulum' && (
-            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={14} style={{ width: '100%' }}>
               <Alert
                 type="info"
                 showIcon
-                message={t('kimlik.zorunlu_2fa_baslik')}
+                title={t('kimlik.zorunlu_2fa_baslik')}
                 description={t('kimlik.zorunlu_2fa_aciklama')}
               />
               <IkiAsamaKurulum

@@ -47,7 +47,7 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
   };
 
   return (
-    <Drawer open={id != null} onClose={kapat} width={620} destroyOnHidden title={belge?.ad}>
+    <Drawer open={id != null} onClose={kapat} size={620} destroyOnHidden title={belge?.ad}>
       {belge && (
         <>
           <DetayIstatSira
@@ -74,7 +74,7 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
           </Descriptions>
 
           {yazabilir && (
-            <Space direction="vertical" style={{ marginTop: 16, width: '100%' }}>
+            <Space orientation="vertical" style={{ marginTop: 16, width: '100%' }}>
               <Upload
                 fileList={dosyaListe}
                 beforeUpload={(f) => {
@@ -131,7 +131,7 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
                         v{s.surum_no} · {s.dosya_adi}
                       </span>
                       {s.surum_no === belge.guncel_surum && (
-                        <Tag color="success" bordered={false}>
+                        <Tag color="success" variant="filled">
                           {t('dys.guncel')}
                         </Tag>
                       )}

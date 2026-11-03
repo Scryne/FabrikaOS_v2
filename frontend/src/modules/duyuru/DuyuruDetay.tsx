@@ -29,7 +29,7 @@ export function DuyuruDetay({ id, kapat }: { id: number | null; kapat: () => voi
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={560}
+      size={560}
       destroyOnHidden
       title={duyuru?.baslik}
       extra={duyuru && <DuyuruOnemEtiketi onem={duyuru.onem} />}

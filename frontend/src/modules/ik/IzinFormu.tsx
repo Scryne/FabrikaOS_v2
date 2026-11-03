@@ -48,7 +48,7 @@ function BakiyeIpucu({ form, personelId }: { form: FormInstance; personelId?: nu
       showIcon
       style={{ marginBottom: 16 }}
       type={asim ? 'warning' : 'info'}
-      message={
+      title={
         asim
           ? t('ik26.bakiye_asim', { kalan: bakiye.data.bakiye, talep: talepGun })
           : t('ik26.bakiye_bilgi', { kalan: bakiye.data.bakiye })
@@ -99,7 +99,7 @@ export function IzinFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         {personelId === undefined && <PersonelAlani />}

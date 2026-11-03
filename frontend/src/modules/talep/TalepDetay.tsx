@@ -43,7 +43,7 @@ export function TalepDetay({ id, kapat }: { id: number | null; kapat: () => void
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={620}
+      size={620}
       destroyOnHidden
       title={<span className="sayisal">{talep?.kod}</span>}
       extra={talep && <TalepDurumEtiketi durum={talep.durum} />}

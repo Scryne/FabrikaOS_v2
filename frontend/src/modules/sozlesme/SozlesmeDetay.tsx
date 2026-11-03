@@ -52,7 +52,7 @@ export function SozlesmeDetay({ id, kapat }: { id: number | null; kapat: () => v
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={620}
+      size={620}
       destroyOnHidden
       title={<span className="sayisal">{sozlesme?.kod}</span>}
       extra={sozlesme && <SozlesmeDurumEtiketi durum={sozlesme.durum} />}

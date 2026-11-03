@@ -28,7 +28,7 @@ const ZIMMET_DURUM_RENK: Record<string, string> = {
 export function IzinDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={IZIN_DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={IZIN_DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`ik.durum_${durum}`)}
     </Tag>
   );
@@ -37,7 +37,7 @@ export function IzinDurumEtiketi({ durum }: { durum: string }) {
 export function IzinTuruEtiketi({ tur }: { tur: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={IZIN_TUR_RENK[tur] ?? 'default'} bordered={false}>
+    <Tag color={IZIN_TUR_RENK[tur] ?? 'default'} variant="filled">
       {t(`ik.izin_turu_${tur}`)}
     </Tag>
   );
@@ -46,7 +46,7 @@ export function IzinTuruEtiketi({ tur }: { tur: string }) {
 export function ZimmetDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={ZIMMET_DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={ZIMMET_DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`ik.zimmet_durum_${durum}`)}
     </Tag>
   );

@@ -172,7 +172,7 @@ export function FinansPano() {
         v != null ? (
           <span className="sayisal">{paraBicim(v)}</span>
         ) : (
-          <Tag color="warning" bordered={false}>
+          <Tag color="warning" variant="filled">
             {t('finans.eksik_fiyat', { n: m.eksik_fiyat })}
           </Tag>
         ),
@@ -208,7 +208,7 @@ export function FinansPano() {
             {paraBicim(v)}
           </span>
         ) : (
-          <Tag color="warning" bordered={false}>
+          <Tag color="warning" variant="filled">
             {t('finans.fiyat_yok')}
           </Tag>
         ),
@@ -341,7 +341,7 @@ export function FinansPano() {
                 type="warning"
                 showIcon
                 style={{ marginBottom: 12 }}
-                message={t('finans.eksik_fiyat_uyari')}
+                title={t('finans.eksik_fiyat_uyari')}
               />
             )}
             <Table<IsEmriMaliyeti>

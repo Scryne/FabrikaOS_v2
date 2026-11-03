@@ -333,7 +333,7 @@ export function MalzemeDetay() {
             <span className="sayisal">{m.kod}</span>
             <span style={{ color: 'var(--metin-soluk)', fontWeight: 400 }}>{m.ad}</span>
             {m.kritik && (
-              <Tag color="red" bordered={false}>
+              <Tag color="red" variant="filled">
                 {t('stok.kritik_rozet')}
               </Tag>
             )}

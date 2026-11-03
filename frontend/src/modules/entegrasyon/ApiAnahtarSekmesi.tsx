@@ -62,7 +62,7 @@ export function ApiAnahtarSekmesi() {
       render: (izinler: string[]) => (
         <span style={{ display: 'inline-flex', gap: 4, flexWrap: 'wrap' }}>
           {izinler.map((k) => (
-            <Tag key={k} bordered={false}>
+            <Tag key={k} variant="filled">
               {k}
             </Tag>
           ))}
@@ -140,7 +140,7 @@ export function ApiAnahtarSekmesi() {
         cancelText={t('ortak.iptal')}
         confirmLoading={olustur.isPending}
         destroyOnHidden
-        maskClosable={false}
+        mask={{ closable: false }}
       >
         <Form form={form} layout="vertical" requiredMark="optional">
           <Form.Item name="ad" label={t('entegrasyon.ad')} rules={[{ required: true }]}>

@@ -68,7 +68,7 @@ export function IzinDetay({ id, kapat }: { id: number | null; kapat: () => void 
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={560}
+      size={560}
       destroyOnHidden
       title={<span className="sayisal">{izin?.kod}</span>}
       extra={izin && <IzinDurumEtiketi durum={izin.durum} />}

@@ -29,7 +29,7 @@ const SONUC_RENK: Record<string, string> = {
 export function UygunsuzlukDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`kalite.durum_${durum}`)}
     </Tag>
   );
@@ -38,7 +38,7 @@ export function UygunsuzlukDurumEtiketi({ durum }: { durum: string }) {
 export function OnemEtiketi({ onem }: { onem: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={ONEM_RENK[onem] ?? 'default'} bordered={false}>
+    <Tag color={ONEM_RENK[onem] ?? 'default'} variant="filled">
       {t(`kalite.onem_${onem}`)}
     </Tag>
   );
@@ -47,7 +47,7 @@ export function OnemEtiketi({ onem }: { onem: string }) {
 export function KontrolSonucEtiketi({ sonuc }: { sonuc: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={SONUC_RENK[sonuc] ?? 'default'} bordered={false}>
+    <Tag color={SONUC_RENK[sonuc] ?? 'default'} variant="filled">
       {t(`kalite.sonuc_${sonuc}`)}
     </Tag>
   );

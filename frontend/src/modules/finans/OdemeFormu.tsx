@@ -104,7 +104,7 @@ export function OdemeFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form<FormDeger>
         form={form}

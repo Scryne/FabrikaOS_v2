@@ -41,6 +41,7 @@ import { OzetSerit } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { DurumEtiketi, OncelikRozet } from '@/modules/isemri/rozetler';
+import { useSimdi } from '@/modules/ortak/useSimdi';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI } from '@/tema/modulKimlik';
@@ -65,6 +66,7 @@ function anMetni(v: string | null | undefined): string {
 
 export function UretimPlani() {
   const { t, i18n } = useTranslation();
+  const simdi = useSimdi();
   const izinVar = useAuthStore((s) => s.izinVar);
   const yaz = izinVar('planlama:yaz');
   const [ilkGun, setIlkGun] = useState<Dayjs>(() => dayjs().startOf('day'));
@@ -102,7 +104,6 @@ export function UretimPlani() {
       : t('planlama.durum_sira_gecikmesi', { sure: gecikme });
   };
 
-  const simdi = Date.now();
   const simdiKonum = yerlestir(simdi, simdi + 1, eksen.bas, eksen.bit, 0);
 
   const kolonlar: ColumnsType<Satir> = [
@@ -142,7 +143,7 @@ export function UretimPlani() {
           <span className="sayisal">{sureMetni(s.sure_dk)}</span>
           {s.sure_kaynagi !== 'tahmin' && (
             <Tag
-              bordered={false}
+              variant="filled"
               color={s.sure_kaynagi === 'varsayilan' ? 'warning' : 'blue'}
               style={{ marginLeft: 6, marginRight: 0 }}
             >
@@ -175,7 +176,7 @@ export function UretimPlani() {
       title: t('planlama.durum'),
       key: 'durum',
       render: (_v, s) => (
-        <Tag color={DURUM_RENK[isDurumu(s)]} bordered={false}>
+        <Tag color={DURUM_RENK[isDurumu(s)]} variant="filled">
           {durumMetni(s)}
         </Tag>
       ),
@@ -263,7 +264,7 @@ export function UretimPlani() {
           type="info"
           showIcon
           style={{ marginBottom: 16 }}
-          message={t('planlama.varsayilan_vardiya')}
+          title={t('planlama.varsayilan_vardiya')}
           description={<Link to="/vardiyalar">{t('planlama.vardiya_tanimla')}</Link>}
         />
       )}
@@ -272,7 +273,7 @@ export function UretimPlani() {
           type="error"
           showIcon
           style={{ marginBottom: 16 }}
-          message={t('planlama.asim_baslik', { n: o.kapasite_asimi })}
+          title={t('planlama.asim_baslik', { n: o.kapasite_asimi })}
           description={t('planlama.asim_aciklama')}
         />
       )}
@@ -533,7 +534,7 @@ function PlanCekmecesi({
     <Drawer
       open={satir !== null}
       onClose={kapat}
-      width={420}
+      size={420}
       title={satir ? `${satir.kod} · ${satir.baslik}` : ''}
       destroyOnHidden
       afterOpenChange={(acik) => {
@@ -577,7 +578,7 @@ function PlanCekmecesi({
               </span>
             </Descriptions.Item>
             <Descriptions.Item label={t('planlama.durum')}>
-              <Tag color={DURUM_RENK[isDurumu(satir)]} bordered={false}>
+              <Tag color={DURUM_RENK[isDurumu(satir)]} variant="filled">
                 {durumMetni(satir)}
               </Tag>
             </Descriptions.Item>
@@ -612,7 +613,7 @@ function PlanCekmecesi({
               </Space>
             </Form>
           ) : (
-            <Alert type="info" showIcon message={t('planlama.yalniz_okuma')} />
+            <Alert type="info" showIcon title={t('planlama.yalniz_okuma')} />
           )}
         </>
       )}
