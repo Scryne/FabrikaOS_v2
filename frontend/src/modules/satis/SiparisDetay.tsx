@@ -16,6 +16,7 @@ import {
 } from '@ant-design/icons';
 import {
   Alert,
+  App,
   Button,
   Drawer,
   Empty,
@@ -53,6 +54,9 @@ const sayi = (v: number) => v.toLocaleString('tr-TR', { maximumFractionDigits: 3
 
 export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => void }) {
   const { t } = useTranslation();
+  // Statik Modal.confirm React 19'da antd 5 ile çizilmez (kendi kökünü ReactDOM.render ile
+  // açar); bağlamdaki modal hem çalışır hem tema/dil sağlayıcısını devralır.
+  const { modal } = App.useApp();
   const { data: s } = useSiparis(id);
   const mrp = useMrp(id);
   const onayla = useSiparisOnayla();
@@ -274,7 +278,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
                 icon={<StopOutlined />}
                 loading={durum.isPending}
                 onClick={() =>
-                  Modal.confirm({
+                  modal.confirm({
                     title: t('satis.iptal_baslik', { kod: s.kod }),
                     content:
                       s.durum === 'onaylandi'
