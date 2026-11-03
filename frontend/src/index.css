@@ -304,6 +304,29 @@ body {
   min-width: 0;
 }
 
+/* Yan menü: geniş ekranda görünüm yüksekliğine yapışık (sticky), uzun menü kendi içinde kayar;
+   belge yüksekliğini içerik belirler. `overflow` sider'ın kendisine verilmez: daraltma tetiği
+   (zero-width trigger) sider'ın dışına taşarak konumlanır ve kırpılırdı. Dar ekranda aşağıdaki
+   medya sorgusu sider'ı zaten `position: fixed` çekmeceye çevirir (daha özgül seçici kazanır). */
+.kabuk-yan {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  height: 100dvh;
+}
+.kabuk-yan-ic {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.kabuk-yan-menu {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* Dar ekran (telefon, dar tablet): bar yalnız işlev taşır — saat, ayraç, kullanıcı adı ve
    kısayol ipucu gizlenir, arama ikona iner. Aksi halde bar ~630 px'e zorlanıp tüm sayfayı
    yatay kaydırıyordu (390 px'de +241 px taşma, 2026-09-26 ölçümü). */
