@@ -74,18 +74,16 @@ export function KomutPaleti({ acik, kapat }: { acik: boolean; kapat: () => void 
     return [...sayfalar.map((s) => ({ ...s, grup: undefined, kayit: false })), ...kayitlar];
   }, [sayfalar, icerik.data, gecikmeli, t]);
 
-  // Palet her açılışta temizlenir + odak girişe düşer.
-  useEffect(() => {
+  // Palet her açılışta temizlenir. Efekt yerine render'da: açılış anı önceki değerle
+  // karşılaştırılır (efektte setState ikinci, gereksiz bir çizim turu doğurur).
+  const [oncekiAcik, setOncekiAcik] = useState(acik);
+  if (acik !== oncekiAcik) {
+    setOncekiAcik(acik);
     if (acik) {
       setSorgu('');
       setAktif(0);
     }
-  }, [acik]);
-
-  // Arama değişince aktif seçim başa döner.
-  useEffect(() => {
-    setAktif(0);
-  }, [sorgu]);
+  }
 
   // Klavye gezinmesinde aktif öğe görünür alanda kalır (liste 360px'te kaydırmalı).
   useEffect(() => {
@@ -132,7 +130,11 @@ export function KomutPaleti({ acik, kapat }: { acik: boolean; kapat: () => void 
           prefix={<SearchOutlined style={{ color: 'var(--metin-soluk)' }} />}
           placeholder={t('komut.yer')}
           value={sorgu}
-          onChange={(e) => setSorgu(e.target.value)}
+          onChange={(e) => {
+            setSorgu(e.target.value);
+            // Arama değişince aktif seçim başa döner.
+            setAktif(0);
+          }}
           onKeyDown={tusIsle}
           allowClear
           role="combobox"

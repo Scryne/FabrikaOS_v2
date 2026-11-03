@@ -19,25 +19,24 @@ export function SsoDonusSayfasi() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [parametreler] = useSearchParams();
-  const [hata, setHata] = useState<string | null>(null);
+  const [tamamlaHatasi, setTamamlaHatasi] = useState<string | null>(null);
   const calisti = useRef(false);
 
+  const kod = parametreler.get('code');
+  const state = parametreler.get('state');
+  const idpHatasi = parametreler.get('error');
+  // Adresten okunabilen hatalar render'da türetilir; sunucuya gitmeye gerek yok.
+  const parametreHatasi = idpHatasi
+    ? (parametreler.get('error_description') ?? idpHatasi)
+    : !kod || !state
+      ? t('kimlik.sso_eksik_parametre')
+      : null;
+  const hata = parametreHatasi ?? tamamlaHatasi;
+
   useEffect(() => {
+    if (!kod || !state || idpHatasi) return;
     if (calisti.current) return;
     calisti.current = true;
-
-    const kod = parametreler.get('code');
-    const state = parametreler.get('state');
-    const idpHatasi = parametreler.get('error');
-
-    if (idpHatasi) {
-      setHata(parametreler.get('error_description') ?? idpHatasi);
-      return;
-    }
-    if (!kod || !state) {
-      setHata(t('kimlik.sso_eksik_parametre'));
-      return;
-    }
 
     void ssoTamamla(kod, state)
       .then((sonuc) => {
@@ -45,9 +44,9 @@ export function SsoDonusSayfasi() {
         navigate(sonuc.durum === 'tamam' ? '/pano' : '/giris', { replace: true });
       })
       .catch((e: unknown) => {
-        setHata(e instanceof ApiHata ? e.message : t('kimlik.sso_hatasi'));
+        setTamamlaHatasi(e instanceof ApiHata ? e.message : t('kimlik.sso_hatasi'));
       });
-  }, [parametreler, navigate, t]);
+  }, [kod, state, idpHatasi, navigate, t]);
 
   return (
     <div

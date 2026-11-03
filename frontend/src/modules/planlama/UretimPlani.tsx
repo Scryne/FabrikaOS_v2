@@ -41,6 +41,7 @@ import { OzetSerit } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { DurumEtiketi, OncelikRozet } from '@/modules/isemri/rozetler';
+import { useSimdi } from '@/modules/ortak/useSimdi';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI } from '@/tema/modulKimlik';
@@ -65,6 +66,7 @@ function anMetni(v: string | null | undefined): string {
 
 export function UretimPlani() {
   const { t, i18n } = useTranslation();
+  const simdi = useSimdi();
   const izinVar = useAuthStore((s) => s.izinVar);
   const yaz = izinVar('planlama:yaz');
   const [ilkGun, setIlkGun] = useState<Dayjs>(() => dayjs().startOf('day'));
@@ -102,7 +104,6 @@ export function UretimPlani() {
       : t('planlama.durum_sira_gecikmesi', { sure: gecikme });
   };
 
-  const simdi = Date.now();
   const simdiKonum = yerlestir(simdi, simdi + 1, eksen.bas, eksen.bit, 0);
 
   const kolonlar: ColumnsType<Satir> = [

@@ -8,7 +8,7 @@
  * kullanıcı "kaydettim" onayı vermeden sihirbaz kapanmaz.
  */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircleOutlined, CopyOutlined, SafetyOutlined } from '@ant-design/icons';
 import { Alert, Button, Checkbox, Input, QRCode, Space, Spin, Steps, Typography } from 'antd';
@@ -36,23 +36,34 @@ export function IkiAsamaKurulum({
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState<string | null>(null);
 
-  const kurulumBaslat = useCallback(async () => {
+  // Token değişirse kurulum baştan başlar: yükleniyor durumu render'da kurulur (efekt
+  // gövdesinde senkron setState ikinci bir çizim turu doğurur), istek efektte atılır.
+  const [kurulanToken, setKurulanToken] = useState(geciciToken);
+  if (kurulanToken !== geciciToken) {
+    setKurulanToken(geciciToken);
     setYukleniyor(true);
     setHata(null);
-    try {
-      const cevap = await ikiAsamaKur(geciciToken);
-      setSir(cevap.sir);
-      setUri(cevap.otpauth_uri);
-    } catch (e) {
-      setHata(e instanceof ApiHata ? e.message : t('guvenlik.kurulum_hatasi'));
-    } finally {
-      setYukleniyor(false);
-    }
-  }, [geciciToken, t]);
+  }
 
   useEffect(() => {
-    void kurulumBaslat();
-  }, [kurulumBaslat]);
+    // Yalnız son isteğin cevabı yazılır (StrictMode çift efekti, token değişimi).
+    let iptal = false;
+    ikiAsamaKur(geciciToken)
+      .then((cevap) => {
+        if (iptal) return;
+        setSir(cevap.sir);
+        setUri(cevap.otpauth_uri);
+      })
+      .catch((e: unknown) => {
+        if (!iptal) setHata(e instanceof ApiHata ? e.message : t('guvenlik.kurulum_hatasi'));
+      })
+      .finally(() => {
+        if (!iptal) setYukleniyor(false);
+      });
+    return () => {
+      iptal = true;
+    };
+  }, [geciciToken, t]);
 
   async function etkinlestir() {
     setHata(null);

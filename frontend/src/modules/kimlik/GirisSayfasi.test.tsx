@@ -104,4 +104,18 @@ describe('GirisSayfasi', () => {
 
     await waitFor(() => expect(ssoBaslat).toHaveBeenCalledWith('alfa'));
   });
+
+  it("firma kodu kısalınca önceki tenant'ın SSO cevabı gösterilmez", async () => {
+    vi.mocked(ssoAcikMi).mockResolvedValue(true);
+    const u = userEvent.setup();
+    ekranaBas();
+
+    const alan = screen.getByLabelText(/firma kodu/i);
+    await u.type(alan, 'alfa');
+    await screen.findByRole('button', { name: /kurumsal hesapla giriş/i });
+    await u.clear(alan);
+    await u.type(alan, 'a');
+
+    expect(screen.queryByRole('button', { name: /kurumsal hesapla giriş/i })).toBeNull();
+  });
 });

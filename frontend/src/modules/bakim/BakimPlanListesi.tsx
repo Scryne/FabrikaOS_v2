@@ -25,6 +25,7 @@ import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
+import { useSimdi } from '@/modules/ortak/useSimdi';
 import { useMakineSecenekleri } from '@/modules/uretim/hooks';
 import { useAuthStore } from '@/store/authStore';
 import { BOLUM_RENGI } from '@/tema/modulKimlik';
@@ -48,6 +49,7 @@ const TIP_RENK: Record<string, string> = {
 
 export function BakimPlanListesi() {
   const { t } = useTranslation();
+  const simdi = useSimdi();
   const yazabilir = useAuthStore((s) => s.izinVar('bakim:yaz'));
   const [param, paramDegistir] = useSayfaParam();
   const { data, isPending, isError } = useBakimPlanlari(param);
@@ -137,7 +139,7 @@ export function BakimPlanListesi() {
       sorter: true,
       render: (v: string | null, kayit) => {
         if (!v) return <span style={{ color: 'var(--metin-soluk)' }}>—</span>;
-        const gecikti = kayit.aktif && new Date(v).getTime() < Date.now();
+        const gecikti = kayit.aktif && new Date(v).getTime() < simdi;
         return (
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <span className="sayisal">{new Date(v).toLocaleDateString()}</span>

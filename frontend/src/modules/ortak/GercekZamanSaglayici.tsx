@@ -19,31 +19,31 @@ import { olayIsle } from './olayIsle';
 export function GercekZamanSaglayici({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
   const girisYapildi = useAuthStore((s) => s.girisYapildi);
-  const [bagli, setBagli] = useState(false);
+  // Token'ın kendisine değil varlığına abone olunur: yenilenen token soketi yeniden açtırmaz
+  // (bağlantı güncel token'ı ``tokenAl`` ile okur).
+  const tokenVar = useAuthStore((s) => s.access !== null && s.access !== '');
+  const onizleme = useAuthStore((s) => s.access === 'onizleme');
+  const [soketBagli, setSoketBagli] = useState(false);
   const tenant = cozumleTenant();
 
+  const oturum = girisYapildi && !!tenant && tokenVar;
+  const soketGerekli = oturum && !onizleme;
+  // Bağlantı durumu türetilir: oturum yoksa kapalı, önizlemede soket açılmadan canlı.
+  const bagli = !oturum ? false : onizleme ? true : soketBagli;
+
   useEffect(() => {
-    if (!girisYapildi || !tenant) {
-      setBagli(false);
-      return;
-    }
-    const access = useAuthStore.getState().access;
-    if (!access) {
-      setBagli(false);
-      return;
-    }
-    if (access === 'onizleme') {
-      setBagli(true);
-      return;
-    }
+    if (!soketGerekli || !tenant) return;
     const baglanti = gercekZamanBaglan({
       tokenAl: () => useAuthStore.getState().access,
       tenant,
-      onDurum: setBagli,
+      onDurum: setSoketBagli,
       onOlay: (olay) => olayIsle(qc, olay),
     });
-    return () => baglanti.kapat();
-  }, [girisYapildi, tenant, qc]);
+    return () => {
+      baglanti.kapat();
+      setSoketBagli(false);
+    };
+  }, [soketGerekli, tenant, qc]);
 
   return <GercekZamanBaglam.Provider value={{ bagli }}>{children}</GercekZamanBaglam.Provider>;
 }

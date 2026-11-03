@@ -60,4 +60,22 @@ describe('KomutPaleti', () => {
     expect(screen.getByText('Malzemeler')).toBeInTheDocument(); // grup başlığı
     expect(screen.getByText('MLZ-001')).toBeInTheDocument();
   });
+
+  it('yeniden açılınca arama temizlenir', async () => {
+    const u = userEvent.setup();
+    useAuthStore.setState({ izinler: new Set(['uretim:oku']) });
+    const agac = (acik: boolean) => (
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter>
+          <KomutPaleti acik={acik} kapat={() => {}} />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+    const { rerender } = render(agac(true));
+    await u.type(screen.getByPlaceholderText('Sayfa ya da kayıt ara…'), 'makine');
+    rerender(agac(false));
+    rerender(agac(true));
+    expect(screen.getByPlaceholderText('Sayfa ya da kayıt ara…')).toHaveValue('');
+    expect(screen.getByText('Pano')).toBeInTheDocument();
+  });
 });
