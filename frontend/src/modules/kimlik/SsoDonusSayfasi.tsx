@@ -62,8 +62,8 @@ export function SsoDonusSayfasi() {
     >
       <LogoIsareti boyut={40} />
       {hata ? (
-        <Space direction="vertical" align="center" size={16} style={{ maxWidth: 460 }}>
-          <Alert type="error" showIcon message={t('kimlik.sso_basarisiz')} description={hata} />
+        <Space orientation="vertical" align="center" size={16} style={{ maxWidth: 460 }}>
+          <Alert type="error" showIcon title={t('kimlik.sso_basarisiz')} description={hata} />
           <Button type="primary" onClick={() => navigate('/giris', { replace: true })}>
             {t('kimlik.giris_ekranina_don')}
           </Button>

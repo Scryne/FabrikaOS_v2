@@ -75,13 +75,13 @@ function WebhookAbonelikleri() {
         turler.length ? (
           <span style={{ display: 'inline-flex', gap: 4, flexWrap: 'wrap' }}>
             {turler.map((tur) => (
-              <Tag key={tur} bordered={false}>
+              <Tag key={tur} variant="filled">
                 {tur}
               </Tag>
             ))}
           </span>
         ) : (
-          <Tag bordered={false} color="blue">
+          <Tag variant="filled" color="blue">
             {t('entegrasyon.tum_olaylar')}
           </Tag>
         ),
@@ -169,7 +169,7 @@ function WebhookAbonelikleri() {
         cancelText={t('ortak.iptal')}
         confirmLoading={olustur.isPending}
         destroyOnHidden
-        maskClosable={false}
+        mask={{ closable: false }}
       >
         <Form form={form} layout="vertical" requiredMark="optional">
           <Form.Item name="ad" label={t('entegrasyon.ad')} rules={[{ required: true }]}>

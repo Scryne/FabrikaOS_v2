@@ -60,7 +60,7 @@ export function UretimGirisFormu({
         kapat();
       }}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form
         form={form}

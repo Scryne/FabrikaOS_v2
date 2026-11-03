@@ -74,7 +74,7 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
     <Drawer
       open={acik}
       onClose={kapat}
-      width={520}
+      size={520}
       destroyOnHidden
       title={
         isEmri ? (
@@ -228,7 +228,7 @@ export function IsEmriDetay({ id, kapat }: { id: number | null; kapat: () => voi
             olumsuz={{ anahtar: 'iptal', baslik: t('isemri.durum_iptal') }}
           />
 
-          <Divider orientation="left" plain>
+          <Divider titlePlacement="start" plain>
             {t('isemri.yorumlar')}
           </Divider>
 

@@ -66,7 +66,7 @@ export function OlcumCihaziDetay() {
             type="error"
             showIcon
             className="aktarim-uyari"
-            message={t('spc.kullanilamaz_uyari')}
+            title={t('spc.kullanilamaz_uyari')}
           />
         )}
       <Card loading={cihaz.isPending} style={{ marginTop: 16 }}>

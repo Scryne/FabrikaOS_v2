@@ -175,7 +175,7 @@ export function CariHesaplar() {
       <Drawer
         open={firmaId != null}
         onClose={() => setFirmaId(null)}
-        width={760}
+        size={760}
         title={e ? t('finans.ekstre_baslik', { firma: e.firma_ad }) : t('finans.ekstre')}
       >
         {e && (

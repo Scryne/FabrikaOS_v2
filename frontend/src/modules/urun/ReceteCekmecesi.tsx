@@ -142,7 +142,7 @@ export function ReceteCekmecesi({ urun, kapat }: { urun: Urun | null; kapat: () 
     <Drawer
       open={urun !== null}
       onClose={kapat}
-      width={560}
+      size={560}
       title={
         urun ? (
           <span>

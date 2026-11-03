@@ -58,7 +58,7 @@ export function PlatformGiris() {
           <Alert
             type="error"
             showIcon
-            message={t('kimlik.hatali_giris')}
+            title={t('kimlik.hatali_giris')}
             style={{ marginBottom: 16 }}
           />
         )}

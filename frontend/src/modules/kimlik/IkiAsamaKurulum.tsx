@@ -96,11 +96,11 @@ export function IkiAsamaKurulum({
         ]}
       />
 
-      {hata && <Alert type="error" showIcon message={hata} style={{ marginBottom: 16 }} />}
+      {hata && <Alert type="error" showIcon title={hata} style={{ marginBottom: 16 }} />}
 
       {adim === 0 && (
         <Spin spinning={yukleniyor}>
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={16} style={{ width: '100%' }}>
             <Typography.Paragraph style={{ marginBottom: 0 }}>
               {t('guvenlik.qr_aciklama')}
             </Typography.Paragraph>
@@ -128,7 +128,7 @@ export function IkiAsamaKurulum({
       )}
 
       {adim === 1 && (
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
           <Typography.Paragraph style={{ marginBottom: 0 }}>
             {t('guvenlik.kod_gir_aciklama')}
           </Typography.Paragraph>
@@ -160,11 +160,11 @@ export function IkiAsamaKurulum({
       )}
 
       {adim === 2 && (
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
           <Alert
             type="warning"
             showIcon
-            message={t('guvenlik.kurtarma_baslik')}
+            title={t('guvenlik.kurtarma_baslik')}
             description={t('guvenlik.kurtarma_aciklama')}
           />
           <div

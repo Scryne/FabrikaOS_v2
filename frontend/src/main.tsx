@@ -3,9 +3,6 @@
  * → QueryClient → Router → App. i18n yan etkiyle başlatılır.
  */
 
-// antd 5 statik yöntemleri ve dalga efekti kendi kökünü ReactDOM.render ile açar; React 19'da
-// bu API yok. Resmî yama createRoot'a bağlar (antd'den önce yüklenmeli).
-import '@ant-design/v5-patch-for-react-19';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';

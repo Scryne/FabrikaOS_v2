@@ -50,7 +50,7 @@ export function BakimPlaniFormu({ acik, kapat }: { acik: boolean; kapat: () => v
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="makine_id" label={t('bakim.makine')} rules={[{ required: true }]}>

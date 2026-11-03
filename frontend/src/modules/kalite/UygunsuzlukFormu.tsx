@@ -106,7 +106,7 @@ export function UygunsuzlukFormu({ acik, kapat }: { acik: boolean; kapat: () => 
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item

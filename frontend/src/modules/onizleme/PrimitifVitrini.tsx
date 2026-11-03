@@ -221,7 +221,7 @@ export function PrimitifVitrini() {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={8}>
           <PanelKart baslik="Uyarılar (UyariKarti)" renk={RENKLER.uyari}>
-            <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={12}>
               <UyariKarti
                 onem="kritik"
                 baslik="3 kalem kritik altında"
@@ -264,7 +264,7 @@ export function PrimitifVitrini() {
       <div style={{ height: 20 }} />
 
       <PanelKart baslik="Satır-içi görselleştirme (MiniBar + DurumPim)" renk={HAT}>
-        <Space direction="vertical" size={14} style={{ width: '100%' }}>
+        <Space orientation="vertical" size={14} style={{ width: '100%' }}>
           {[
             {
               ad: 'MAK-A1',

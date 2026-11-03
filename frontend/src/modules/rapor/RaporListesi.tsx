@@ -60,7 +60,7 @@ export function RaporListesi() {
       title: t('rapor.bicim'),
       dataIndex: 'bicim',
       key: 'bicim',
-      render: (v: string) => <Tag bordered={false}>{v.toUpperCase()}</Tag>,
+      render: (v: string) => <Tag variant="filled">{v.toUpperCase()}</Tag>,
     },
     {
       title: t('rapor.durum'),
@@ -68,7 +68,7 @@ export function RaporListesi() {
       key: 'durum',
       render: (v: string, kayit) => {
         const rozet = (
-          <Tag color={DURUM_RENK[v] ?? 'default'} bordered={false}>
+          <Tag color={DURUM_RENK[v] ?? 'default'} variant="filled">
             {t(`rapor.durum_${v}`)}
           </Tag>
         );

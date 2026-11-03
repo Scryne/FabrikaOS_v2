@@ -86,7 +86,7 @@ function ModelKarti({
         </span>
         <span style={{ fontWeight: 600 }}>{t(`ai.tur_${tur}`)}</span>
         <Tag
-          bordered={false}
+          variant="filled"
           color={durum ? (DURUM_RENK[durum] ?? 'default') : 'default'}
           style={{ marginLeft: 'auto', marginInlineEnd: 0 }}
         >
@@ -181,7 +181,7 @@ function BakimPaneli({ egitAksiyon }: { egitAksiyon: React.ReactNode }) {
       dataIndex: 'seviye',
       key: 'seviye',
       render: (v: string) => (
-        <Tag color={SEVIYE_RENK[v] ?? 'default'} bordered={false}>
+        <Tag color={SEVIYE_RENK[v] ?? 'default'} variant="filled">
           {t(`ai.seviye_${v}`)}
         </Tag>
       ),
@@ -353,7 +353,7 @@ function StokPaneli({ egitAksiyon }: { egitAksiyon: React.ReactNode }) {
       key: 'kalan_gun',
       align: 'right',
       render: (v: number) => (
-        <Tag color={kalanGunRenk(v)} bordered={false}>
+        <Tag color={kalanGunRenk(v)} variant="filled">
           {t('ai.kalan_gun_deger', { gun: v })}
         </Tag>
       ),

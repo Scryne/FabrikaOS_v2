@@ -106,7 +106,7 @@ export function SiparisFormu({
       width={760}
       confirmLoading={olustur.isPending || guncelle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form<FormDeger>
         form={form}

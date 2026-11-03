@@ -104,7 +104,7 @@ export function PanoIcerik({
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
           {t('pano.hosgeldin', { ad: kullaniciAdi })}
           {demo && (
-            <Tag color="warning" bordered={false}>
+            <Tag color="warning" variant="filled">
               {t('ortak.demo_veri')}
             </Tag>
           )}

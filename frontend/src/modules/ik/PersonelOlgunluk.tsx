@@ -28,7 +28,7 @@ export function IzinBakiyesiSekmesi({ personel }: { personel: Personel }) {
   const { data: b, isPending } = useIzinBakiyesi(personel.id);
 
   if (!personel.ise_giris_tarihi) {
-    return <Alert type="info" showIcon message={t('ik26.bakiye_tarihsiz')} />;
+    return <Alert type="info" showIcon title={t('ik26.bakiye_tarihsiz')} />;
   }
   return (
     <div className="ik26-bakiye">
@@ -152,7 +152,7 @@ function ListeKarti({ liste, personelId }: { liste: KontrolListesi; personelId: 
           type="warning"
           showIcon
           style={{ marginBottom: 8 }}
-          message={t('ik26.acik_zimmet_uyari', { adet: liste.acik_zimmet })}
+          title={t('ik26.acik_zimmet_uyari', { adet: liste.acik_zimmet })}
         />
       )}
       <ul className="ik26-maddeler">

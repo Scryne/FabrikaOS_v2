@@ -41,7 +41,7 @@ const ONCELIKLER = ['dusuk', 'orta', 'yuksek'] as const;
 function DurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag bordered={false} style={{ color: DURUM_RENGI[durum], fontWeight: 600 }}>
+    <Tag variant="filled" style={{ color: DURUM_RENGI[durum], fontWeight: 600 }}>
       {t(`dis.durum_${durum}`, durum)}
     </Tag>
   );
@@ -57,7 +57,7 @@ function TalepDetayCekmece({ talep, kapat }: { talep: DisTalep | null; kapat: ()
       open={talep !== null}
       onClose={kapat}
       title={talep ? `${talep.kod} · ${talep.baslik}` : ''}
-      width={440}
+      size={440}
     >
       {talep && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -69,12 +69,12 @@ function TalepDetayCekmece({ talep, kapat }: { talep: DisTalep | null; kapat: ()
           </div>
           {talep.aciklama && <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{talep.aciklama}</p>}
           {talep.durum === 'iptal' ? (
-            <Tag bordered={false} style={{ color: RENKLER.hata, alignSelf: 'flex-start' }}>
+            <Tag variant="filled" style={{ color: RENKLER.hata, alignSelf: 'flex-start' }}>
               {t('dis.durum_iptal')}
             </Tag>
           ) : (
             <Steps
-              direction="vertical"
+              orientation="vertical"
               size="small"
               current={indeks}
               items={DURUM_SIRASI.map((d) => ({ title: t(`dis.durum_${d}`) }))}
@@ -104,7 +104,7 @@ function Taleplerim() {
       title: t('dis.tur'),
       dataIndex: 'tur',
       key: 'tur',
-      render: (v: string) => <Tag bordered={false}>{t(`dis.tur_${v}`, v)}</Tag>,
+      render: (v: string) => <Tag variant="filled">{t(`dis.tur_${v}`, v)}</Tag>,
     },
     {
       title: t('dis.durum'),

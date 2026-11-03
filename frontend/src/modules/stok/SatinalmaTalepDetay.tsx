@@ -132,7 +132,7 @@ export function SatinalmaTalepDetay({ id, kapat }: { id: number | null; kapat: (
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={620}
+      size={620}
       title={talep?.kod}
       extra={talep && <TalepDurumEtiketi durum={talep.durum} />}
     >

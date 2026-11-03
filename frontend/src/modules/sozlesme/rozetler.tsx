@@ -14,7 +14,7 @@ const DURUM_RENK: Record<string, string> = {
 export function SozlesmeDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`sozlesme.durum_${durum}`)}
     </Tag>
   );

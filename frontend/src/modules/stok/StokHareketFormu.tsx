@@ -60,7 +60,7 @@ export function StokHareketFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={ekle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="tur" label={t('stok.tur')} rules={[{ required: true }]}>

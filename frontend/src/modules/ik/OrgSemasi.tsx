@@ -31,7 +31,7 @@ function agacKur(dugumler: OrgDugum[]): DataNode[] {
           <span className="varlik-ad">{d.ad_soyad}</span>
           {d.unvan && <span className="varlik-alt">{d.unvan}</span>}
           {d.departman && (
-            <Tag bordered={false} className="org-dep">
+            <Tag variant="filled" className="org-dep">
               {d.departman}
             </Tag>
           )}

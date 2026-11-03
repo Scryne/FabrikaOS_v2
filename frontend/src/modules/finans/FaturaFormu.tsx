@@ -135,14 +135,14 @@ export function FaturaFormu({
       width={860}
       confirmLoading={olustur.isPending || guncelle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       {duzenlenen?.iade_nedeni && (
         <Alert
           type="warning"
           showIcon
           style={{ marginBottom: 16 }}
-          message={t('finans.iade_edildi')}
+          title={t('finans.iade_edildi')}
           description={duzenlenen.iade_nedeni}
         />
       )}

@@ -118,7 +118,7 @@ export function KullaniciListesi() {
         roller.length ? (
           <span style={{ display: 'inline-flex', gap: 4, flexWrap: 'wrap' }}>
             {roller.map((r) => (
-              <Tag key={r} bordered={false}>
+              <Tag key={r} variant="filled">
                 {r}
               </Tag>
             ))}

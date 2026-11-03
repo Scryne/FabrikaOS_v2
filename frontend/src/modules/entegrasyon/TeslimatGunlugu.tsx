@@ -43,7 +43,7 @@ export function TeslimatGunlugu() {
       title: t('entegrasyon.olay'),
       dataIndex: 'olay_turu',
       key: 'olay_turu',
-      render: (v: string) => <Tag bordered={false}>{v}</Tag>,
+      render: (v: string) => <Tag variant="filled">{v}</Tag>,
     },
     {
       title: t('entegrasyon.durum'),
@@ -127,7 +127,7 @@ export function TeslimatGunlugu() {
         open={secili !== null}
         onClose={() => setSecili(null)}
         title={secili ? `${secili.olay_turu} · #${secili.id}` : ''}
-        width={480}
+        size={480}
       >
         {secili && (
           <>

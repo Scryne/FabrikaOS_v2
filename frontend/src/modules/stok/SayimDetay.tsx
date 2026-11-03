@@ -122,7 +122,7 @@ export function SayimDetay() {
       />
 
       {s?.durum === 'onay_bekliyor' && (
-        <Alert type="info" showIcon style={{ marginBottom: 16 }} message={t('sayim.delta_bilgi')} />
+        <Alert type="info" showIcon style={{ marginBottom: 16 }} title={t('sayim.delta_bilgi')} />
       )}
 
       {acik && yazabilir && (

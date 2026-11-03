@@ -107,7 +107,7 @@ export function BelgeListesi() {
       key: 'guncel_surum',
       align: 'right',
       render: (v: number) => (
-        <Tag bordered={false} color={v > 0 ? 'blue' : 'default'}>
+        <Tag variant="filled" color={v > 0 ? 'blue' : 'default'}>
           v{v}
         </Tag>
       ),

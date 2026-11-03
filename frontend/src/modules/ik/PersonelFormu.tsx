@@ -40,7 +40,7 @@ export function PersonelFormu({ acik, kapat }: { acik: boolean; kapat: () => voi
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="sicil_no" label={t('ik.sicil_no')} rules={[{ required: true }]}>

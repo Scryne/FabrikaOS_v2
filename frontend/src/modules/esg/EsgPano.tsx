@@ -140,7 +140,7 @@ export function EsgPano() {
       title: t('esg.kapsam'),
       dataIndex: 'kapsam',
       key: 'kapsam',
-      render: (v: string | null) => (v ? <Tag bordered={false}>{t(`esg.${v}`)}</Tag> : '—'),
+      render: (v: string | null) => (v ? <Tag variant="filled">{t(`esg.${v}`)}</Tag> : '—'),
     },
     {
       title: t('esg.emisyon'),
@@ -175,7 +175,7 @@ export function EsgPano() {
       title: t('esg.kapsam'),
       dataIndex: 'kapsam',
       key: 'kapsam',
-      render: (v: string) => <Tag bordered={false}>{t(`esg.${v}`)}</Tag>,
+      render: (v: string) => <Tag variant="filled">{t(`esg.${v}`)}</Tag>,
     },
     {
       title: t('esg.gecerlilik'),
@@ -194,7 +194,7 @@ export function EsgPano() {
       key: 'kaynak',
       render: (_v, f) => (
         <span>
-          <Tag bordered={false} color={f.koken === 'varsayilan' ? 'default' : 'blue'}>
+          <Tag variant="filled" color={f.koken === 'varsayilan' ? 'default' : 'blue'}>
             {t(`esg.koken_${f.koken}`)}
           </Tag>
           <span className="varlik-alt esg-kaynak">{f.kaynak}</span>
@@ -261,7 +261,7 @@ export function EsgPano() {
         }
       />
       {ozet.isError && (
-        <Alert type="error" showIcon message={t('esg.aralik_hata')} style={{ marginBottom: 16 }} />
+        <Alert type="error" showIcon title={t('esg.aralik_hata')} style={{ marginBottom: 16 }} />
       )}
       <OzetSerit
         renk={HAT}
@@ -314,7 +314,7 @@ export function EsgPano() {
           type="warning"
           showIcon
           style={{ marginBottom: 16 }}
-          message={t('esg.faktorsuz_baslik', { n: o.faktorsuz.length })}
+          title={t('esg.faktorsuz_baslik', { n: o.faktorsuz.length })}
           description={
             <>
               {o.faktorsuz
@@ -423,7 +423,7 @@ function FaktorFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
       cancelText={t('ortak.iptal')}
       confirmLoading={ekle.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form<FaktorDeger>
         form={form}

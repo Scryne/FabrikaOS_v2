@@ -12,7 +12,7 @@ const ONEM_RENK: Record<string, string> = {
 export function DuyuruOnemEtiketi({ onem }: { onem: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={ONEM_RENK[onem] ?? 'default'} bordered={false}>
+    <Tag color={ONEM_RENK[onem] ?? 'default'} variant="filled">
       {t(`duyuru.onem_${onem}`)}
     </Tag>
   );

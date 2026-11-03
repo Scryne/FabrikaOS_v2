@@ -40,7 +40,7 @@ export function OrtakFormu({
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="ad_soyad" label={t('crm.ad_soyad')} rules={[{ required: true }]}>

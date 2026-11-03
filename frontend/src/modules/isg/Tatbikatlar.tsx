@@ -75,7 +75,7 @@ function TatbikatFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
       onOk={() => void gonder()}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form
         form={form}
@@ -178,7 +178,7 @@ export function Tatbikatlar() {
       dataIndex: 'sonraki_tarih',
       render: (v: string | null) =>
         v ? (
-          <Tag color={dayjs(v).isBefore(bugun) ? 'red' : 'blue'} bordered={false}>
+          <Tag color={dayjs(v).isBefore(bugun) ? 'red' : 'blue'} variant="filled">
             {tarih(v)}
           </Tag>
         ) : (

@@ -67,7 +67,7 @@ function MesaiSekmesi({ personelId }: { personelId: number }) {
       key: 'onayli',
       render: (v: boolean, k) =>
         v ? (
-          <Tag color="success" bordered={false}>
+          <Tag color="success" variant="filled">
             {t('ik.onayli_evet')}
           </Tag>
         ) : onaylayabilir ? (
@@ -79,7 +79,7 @@ function MesaiSekmesi({ personelId }: { personelId: number }) {
             {t('ik.onayla')}
           </Button>
         ) : (
-          <Tag bordered={false}>{t('ik.onayli_hayir')}</Tag>
+          <Tag variant="filled">{t('ik.onayli_hayir')}</Tag>
         ),
     },
   ];
@@ -124,7 +124,7 @@ function ZimmetSekmesi({ personelId }: { personelId: number }) {
         <Space size={6}>
           {v}
           {z.kategori === 'kkd' && (
-            <Tag color="orange" bordered={false}>
+            <Tag color="orange" variant="filled">
               {t('ik26.kategori_kkd_kisa')}
             </Tag>
           )}
@@ -281,11 +281,11 @@ export function PersonelDetay() {
             />
             <span>{personel ? `${personel.ad} ${personel.soyad}` : t('menu.personeller')}</span>
             {personel?.unvan && (
-              <Tag bordered={false} style={{ fontWeight: 400 }}>
+              <Tag variant="filled" style={{ fontWeight: 400 }}>
                 {personel.unvan}
               </Tag>
             )}
-            {personel && !personel.aktif && <Tag bordered={false}>{t('ik.aktif_hayir')}</Tag>}
+            {personel && !personel.aktif && <Tag variant="filled">{t('ik.aktif_hayir')}</Tag>}
           </Space>
         }
         alt={personel?.sicil_no}
@@ -327,7 +327,7 @@ export function PersonelDetay() {
               {personel.ise_giris_tarihi ?? '—'}
             </Descriptions.Item>
             <Descriptions.Item label={t('ik.aktif')}>
-              <Tag color={personel.aktif ? 'success' : 'default'} bordered={false}>
+              <Tag color={personel.aktif ? 'success' : 'default'} variant="filled">
                 {personel.aktif ? t('ik.aktif_evet') : t('ik.aktif_hayir')}
               </Tag>
             </Descriptions.Item>

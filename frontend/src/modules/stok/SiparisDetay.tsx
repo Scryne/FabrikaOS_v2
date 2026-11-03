@@ -188,17 +188,17 @@ export function SiparisDetay() {
       render: (_v, k) => (
         <Space size={4} wrap style={{ justifyContent: 'flex-end' }}>
           {k.fazla_teslim && (
-            <Tag color="warning" bordered={false}>
+            <Tag color="warning" variant="filled">
               {t('siparis.fazla_teslim')}
             </Tag>
           )}
           {k.hizli_kabulden && (
-            <Tag color="blue" bordered={false}>
+            <Tag color="blue" variant="filled">
               {t('siparis.hizli_kabulden')}
             </Tag>
           )}
           {k.iade_edilen_miktar > 0 && (
-            <Tag bordered={false}>{t('siparis.iade_edildi_n', { n: k.iade_edilen_miktar })}</Tag>
+            <Tag variant="filled">{t('siparis.iade_edildi_n', { n: k.iade_edilen_miktar })}</Tag>
           )}
         </Space>
       ),
@@ -326,7 +326,7 @@ export function SiparisDetay() {
                 aciklama={t('siparis.teslim_yok_aciklama')}
               />
             ) : (
-              <Space direction="vertical" size={16} style={{ width: '100%' }}>
+              <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                 {[...s.teslimler].reverse().map((tk) => {
                   const iadeEdilebilir =
                     tk.tur === 'teslim' &&
@@ -341,15 +341,15 @@ export function SiparisDetay() {
                             {tk.irsaliye_no}
                           </span>
                           {tk.tur === 'iade' ? (
-                            <Tag color="error" bordered={false}>
+                            <Tag color="error" variant="filled">
                               {t('siparis.iade')}
                             </Tag>
                           ) : tk.zamaninda === false ? (
-                            <Tag color="warning" bordered={false}>
+                            <Tag color="warning" variant="filled">
                               {t('siparis.gec_teslim')}
                             </Tag>
                           ) : tk.zamaninda === true ? (
-                            <Tag color="success" bordered={false}>
+                            <Tag color="success" variant="filled">
                               {t('siparis.zamaninda')}
                             </Tag>
                           ) : null}

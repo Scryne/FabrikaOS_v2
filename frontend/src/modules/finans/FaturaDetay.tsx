@@ -110,7 +110,7 @@ export function FaturaDetay({ id, kapat }: { id: number | null; kapat: () => voi
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={760}
+      size={760}
       title={
         f && (
           <Space>
@@ -172,7 +172,7 @@ export function FaturaDetay({ id, kapat }: { id: number | null; kapat: () => voi
               type="warning"
               showIcon
               style={{ marginTop: 16 }}
-              message={t('finans.iade_edildi')}
+              title={t('finans.iade_edildi')}
               description={f.iade_nedeni}
             />
           )}
@@ -181,7 +181,7 @@ export function FaturaDetay({ id, kapat }: { id: number | null; kapat: () => voi
               type="error"
               showIcon
               style={{ marginTop: 16 }}
-              message={t('finans.iptal_nedeni')}
+              title={t('finans.iptal_nedeni')}
               description={f.iptal_nedeni}
             />
           )}

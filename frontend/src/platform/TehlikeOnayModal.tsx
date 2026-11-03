@@ -42,7 +42,7 @@ export function TehlikeOnayModal({
       afterClose={() => setMetin('')}
       destroyOnHidden
     >
-      <Alert type="warning" showIcon message={aciklama} style={{ marginBottom: 16 }} />
+      <Alert type="warning" showIcon title={aciklama} style={{ marginBottom: 16 }} />
       <p style={{ color: 'var(--metin-soluk)', fontSize: 13, marginBottom: 8 }}>
         {t('platform.onay_yaz', { slug })}
       </p>

@@ -20,7 +20,7 @@ const ONCELIK_RENK: Record<string, string> = {
 export function TalepDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`talep.durum_${durum}`)}
     </Tag>
   );
@@ -29,7 +29,7 @@ export function TalepDurumEtiketi({ durum }: { durum: string }) {
 export function TalepOncelikEtiketi({ oncelik }: { oncelik: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={ONCELIK_RENK[oncelik] ?? 'default'} bordered={false}>
+    <Tag color={ONCELIK_RENK[oncelik] ?? 'default'} variant="filled">
       {t(`talep.oncelik_${oncelik}`)}
     </Tag>
   );

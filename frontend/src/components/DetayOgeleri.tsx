@@ -13,7 +13,9 @@
 
 import type { CSSProperties, ReactNode } from 'react';
 import { Steps } from 'antd';
-import type { StepProps } from 'antd';
+import type { StepsProps } from 'antd';
+
+type StepProps = NonNullable<StepsProps['items']>[number];
 
 export type DetayIstat = {
   anahtar: string;
@@ -59,13 +61,13 @@ export function DurumZamanCizelgesi({
       ...adimlar.map((a) => ({ title: a.baslik, status: 'wait' as const })),
       { title: olumsuz.baslik, status: 'error' as const },
     ];
-    return <Steps direction="vertical" size="small" items={items} />;
+    return <Steps orientation="vertical" size="small" items={items} />;
   }
 
   const indeks = adimlar.findIndex((a) => a.anahtar === mevcut);
   return (
     <Steps
-      direction="vertical"
+      orientation="vertical"
       size="small"
       current={indeks < 0 ? 0 : indeks}
       items={adimlar.map((a) => ({ title: a.baslik }))}

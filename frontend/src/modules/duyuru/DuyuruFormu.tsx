@@ -34,7 +34,7 @@ export function DuyuruFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="baslik" label={t('duyuru.baslik')} rules={[{ required: true }]}>

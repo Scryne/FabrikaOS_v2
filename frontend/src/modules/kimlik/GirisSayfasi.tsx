@@ -230,12 +230,12 @@ export function GirisSayfasi() {
                 <Alert
                   type="error"
                   showIcon
-                  message={t('kimlik.hatali_giris')}
+                  title={t('kimlik.hatali_giris')}
                   style={{ marginBottom: 16 }}
                 />
               )}
               {ssoHatasi && (
-                <Alert type="error" showIcon message={ssoHatasi} style={{ marginBottom: 16 }} />
+                <Alert type="error" showIcon title={ssoHatasi} style={{ marginBottom: 16 }} />
               )}
 
               <Form<Alanlar>
@@ -294,11 +294,11 @@ export function GirisSayfasi() {
           )}
 
           {asama.tur === '2fa' && (
-            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={14} style={{ width: '100%' }}>
               <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
                 {t('kimlik.iki_asama_aciklama')}
               </Typography.Paragraph>
-              {kodHatasi && <Alert type="error" showIcon message={kodHatasi} />}
+              {kodHatasi && <Alert type="error" showIcon title={kodHatasi} />}
               <Input
                 value={kod}
                 onChange={(e) => setKod(e.target.value)}
@@ -329,11 +329,11 @@ export function GirisSayfasi() {
           )}
 
           {asama.tur === '2fa-kurulum' && (
-            <Space direction="vertical" size={14} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={14} style={{ width: '100%' }}>
               <Alert
                 type="info"
                 showIcon
-                message={t('kimlik.zorunlu_2fa_baslik')}
+                title={t('kimlik.zorunlu_2fa_baslik')}
                 description={t('kimlik.zorunlu_2fa_aciklama')}
               />
               <IkiAsamaKurulum

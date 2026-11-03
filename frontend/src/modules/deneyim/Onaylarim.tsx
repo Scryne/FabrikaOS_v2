@@ -52,7 +52,7 @@ export function Onaylarim() {
       render: (_v, k) => (
         <span>
           <Tag
-            bordered={false}
+            variant="filled"
             style={{
               color: TUR_RENK[k.tur],
               background: `color-mix(in srgb, ${TUR_RENK[k.tur]} 14%, transparent)`,
@@ -149,7 +149,7 @@ export function Onaylarim() {
           type="info"
           showIcon
           style={{ marginTop: 16 }}
-          message={t('onay.kendi_kayit', { adet: data?.kendi_kayitlarim })}
+          title={t('onay.kendi_kayit', { adet: data?.kendi_kayitlarim })}
         />
       )}
       <Card style={{ marginTop: 16 }}>

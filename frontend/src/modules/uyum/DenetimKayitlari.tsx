@@ -135,7 +135,7 @@ export function DenetimKayitlari() {
       <Drawer
         open={secili !== null}
         onClose={() => setSecili(null)}
-        width={520}
+        size={520}
         title={
           <Space>
             <FileSearchOutlined />
@@ -145,7 +145,7 @@ export function DenetimKayitlari() {
         destroyOnHidden
       >
         {secili && (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={16} style={{ width: '100%' }}>
             <Descriptions column={1} size="small" bordered>
               <Descriptions.Item label={t('uyum.zaman')}>
                 <span className="sayisal">

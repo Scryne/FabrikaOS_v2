@@ -32,7 +32,7 @@ const RISK_DURUM_RENK: Record<string, string> = {
 export function KazaTurEtiketi({ tur }: { tur: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={TUR_RENK[tur] ?? 'default'} bordered={false}>
+    <Tag color={TUR_RENK[tur] ?? 'default'} variant="filled">
       {t(`isg.tur_${tur}`)}
     </Tag>
   );
@@ -41,7 +41,7 @@ export function KazaTurEtiketi({ tur }: { tur: string }) {
 export function AgirlikEtiketi({ agirlik }: { agirlik: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={AGIRLIK_RENK[agirlik] ?? 'default'} bordered={false}>
+    <Tag color={AGIRLIK_RENK[agirlik] ?? 'default'} variant="filled">
       {t(`isg.agirlik_${agirlik}`)}
     </Tag>
   );
@@ -50,7 +50,7 @@ export function AgirlikEtiketi({ agirlik }: { agirlik: string }) {
 export function RiskSeviyeEtiketi({ seviye }: { seviye: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={SEVIYE_RENK[seviye] ?? 'default'} bordered={false}>
+    <Tag color={SEVIYE_RENK[seviye] ?? 'default'} variant="filled">
       {t(`isg.seviye_${seviye}`)}
     </Tag>
   );
@@ -59,7 +59,7 @@ export function RiskSeviyeEtiketi({ seviye }: { seviye: string }) {
 export function RiskDurumEtiketi({ durum }: { durum: string }) {
   const { t } = useTranslation();
   return (
-    <Tag color={RISK_DURUM_RENK[durum] ?? 'default'} bordered={false}>
+    <Tag color={RISK_DURUM_RENK[durum] ?? 'default'} variant="filled">
       {t(`isg.risk_durum_${durum}`)}
     </Tag>
   );

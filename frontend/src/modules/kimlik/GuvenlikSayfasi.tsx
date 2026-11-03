@@ -120,7 +120,7 @@ export function GuvenlikSayfasi() {
     <SayfaKapsayici enGenis={1000}>
       <SayfaBaslik baslik={t('guvenlik.baslik')} alt={t('guvenlik.aciklama')} />
 
-      <Space direction="vertical" size={18} style={{ width: '100%' }}>
+      <Space orientation="vertical" size={18} style={{ width: '100%' }}>
         <PanelKart
           baslik={t('guvenlik.iki_asama_baslik')}
           sag={
@@ -140,7 +140,7 @@ export function GuvenlikSayfasi() {
               onIptal={() => setKurulumAcik(false)}
             />
           ) : (
-            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+            <Space orientation="vertical" size={12} style={{ width: '100%' }}>
               <Typography.Paragraph style={{ marginBottom: 0, color: 'var(--metin-soluk)' }}>
                 {ikiAsamaAktif ? t('guvenlik.aktif_aciklama') : t('guvenlik.pasif_aciklama')}
               </Typography.Paragraph>

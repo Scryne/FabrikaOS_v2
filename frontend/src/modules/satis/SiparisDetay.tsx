@@ -151,7 +151,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
       align: 'right',
       render: (v: number) =>
         v > 0 ? (
-          <Tag color="error" bordered={false} style={{ marginRight: 0 }}>
+          <Tag color="error" variant="filled" style={{ marginRight: 0 }}>
             <span className="sayisal">{sayi(v)}</span>
           </Tag>
         ) : (
@@ -174,7 +174,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
     <Drawer
       open={id != null}
       onClose={kapat}
-      width={780}
+      size={780}
       title={
         s && (
           <Space>
@@ -314,7 +314,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
               type="warning"
               showIcon
               style={{ marginBottom: 12 }}
-              message={t('satis.recetesiz', { n: m.recetesiz_urunler.length })}
+              title={t('satis.recetesiz', { n: m.recetesiz_urunler.length })}
               description={t('satis.recetesiz_aciklama')}
             />
           )}
@@ -359,7 +359,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
                     {x.kod}
                   </Link>
                   {x.durum && (
-                    <Tag bordered={false}>
+                    <Tag variant="filled">
                       {t(
                         x.tur === 'is_emri'
                           ? `isemri.durum_${x.durum}`
@@ -388,7 +388,7 @@ export function SiparisDetay({ id, kapat }: { id: number | null; kapat: () => vo
                 type="info"
                 showIcon
                 style={{ marginBottom: 12 }}
-                message={t('satis.onay_talep_acilacak', { n: m.eksik_sayisi })}
+                title={t('satis.onay_talep_acilacak', { n: m.eksik_sayisi })}
               />
             )}
             <label className="form-etiket" htmlFor="onay-hat">

@@ -27,7 +27,7 @@ export function BelgeFormu({ acik, kapat }: { acik: boolean; kapat: () => void }
       cancelText={t('ortak.iptal')}
       confirmLoading={olustur.isPending}
       destroyOnHidden
-      maskClosable={false}
+      mask={{ closable: false }}
     >
       <Form form={form} layout="vertical" requiredMark="optional">
         <Form.Item name="ad" label={t('dys.ad')} rules={[{ required: true }]}>
