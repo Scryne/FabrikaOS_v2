@@ -12,14 +12,14 @@ sorguda yalnız üretim verisi duruşu sayılır — belgelenmiş sınır).
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import GidenOlay, olay_yayinla
-from app.core.zaman import is_gunu
+from app.core.zaman import gun_araligi, is_gunu
 from app.modules.durus import repository as durus_repository
 from app.modules.uretim import repository
 from app.modules.uretim.models import Makine
@@ -119,8 +119,8 @@ async def dusuk_oee_tara(
     görünür ama "veri yok" ≠ "düştü"). İşlenen makine sayısını döner.
     """
     bugun = bugun or is_gunu()
-    baslangic = datetime(bugun.year, bugun.month, bugun.day, tzinfo=UTC)
-    satirlar = await oee_ozet(db, baslangic=baslangic, bitis=baslangic + timedelta(days=1))
+    baslangic, bitis = gun_araligi(bugun)
+    satirlar = await oee_ozet(db, baslangic=baslangic, bitis=bitis)
     hedefler = {
         m.id: m.oee_hedefi
         for m in (await db.execute(select(Makine))).scalars()

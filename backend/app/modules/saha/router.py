@@ -20,6 +20,7 @@ from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import CakismaHatasi, DogrulamaHatasi, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import gun_araligi
 from app.ingestion.service import IngestSonuc, olcum_yaz_toplu
 from app.kimlik.models import Kullanici
 from app.modules.saha import repository
@@ -159,7 +160,7 @@ async def saha_ozet(
 ) -> dict[str, Any]:
     simdi = datetime.now(UTC)
     esik = simdi - timedelta(minutes=5)
-    gun_basi = simdi.replace(hour=0, minute=0, second=0, microsecond=0)
+    gun_basi, _ = gun_araligi()
 
     toplam = await db.scalar(select(func.count()).select_from(Cihaz)) or 0
     cevrimici = (

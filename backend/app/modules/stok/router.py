@@ -7,7 +7,7 @@ satınalma uçları sonraki task'larda eklenir.
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Header
@@ -26,6 +26,7 @@ from app.core.exceptions import (
 )
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import gun_araligi
 from app.kimlik.models import Kullanici
 from app.modules.stok import repository, service
 from app.modules.stok.birimler import BIRIMLER, STOK_HAREKET_TURLERI
@@ -692,7 +693,7 @@ async def stok_ozet(
         )
         or 0
     )
-    gun_basi = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    gun_basi, _ = gun_araligi()
     bugun_hareket = (
         await db.scalar(
             select(func.count())

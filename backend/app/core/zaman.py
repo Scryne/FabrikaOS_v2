@@ -8,7 +8,7 @@ Zaman damgaları UTC kalır; yalnız takvim günü gerektiren kararlar bu fonksi
 
 from __future__ import annotations
 
-from datetime import date, datetime
+from datetime import date, datetime, time, timedelta
 from functools import lru_cache
 from zoneinfo import ZoneInfo
 
@@ -23,3 +23,16 @@ def is_saat_dilimi() -> ZoneInfo:
 def is_gunu(an: datetime | None = None) -> date:
     """Verilen anın (yoksa şimdinin) iş saat dilimindeki takvim günü."""
     return (an or datetime.now(is_saat_dilimi())).astimezone(is_saat_dilimi()).date()
+
+
+def gun_araligi(gun: date | None = None) -> tuple[datetime, datetime]:
+    """İş gününün [başlangıç, bitiş) anları. Varsayılan bugün.
+
+    Gün sınırı iş saat dilimindedir: ``datetime(y, a, g, tzinfo=UTC)`` yazmak 00:00–03:00
+    arasında o anki kaydı pencerenin dışında bırakır.
+    """
+    gun = gun or is_gunu()
+    tz = is_saat_dilimi()
+    return datetime.combine(gun, time(0), tz), datetime.combine(
+        gun + timedelta(days=1), time(0), tz
+    )

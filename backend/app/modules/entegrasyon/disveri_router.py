@@ -8,7 +8,7 @@ etkilenmez). Sıkı modül kapısı ``modul_gerekli("entegrasyon")``.
 
 from __future__ import annotations
 
-from datetime import UTC, date, datetime, timedelta
+from datetime import date
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -19,7 +19,7 @@ from sqlalchemy.orm import selectinload
 from app.core.db.session import get_session
 from app.core.deps import modul_gerekli
 from app.core.responses import Zarf, basari, sayfali
-from app.core.zaman import is_gunu
+from app.core.zaman import gun_araligi, is_gunu
 from app.modules.entegrasyon.deps import api_izin_gerekli
 from app.modules.entegrasyon.models import ApiAnahtari
 from app.modules.entegrasyon.schemas import (
@@ -133,10 +133,9 @@ async def uretim_ozeti(
     db: Annotated[AsyncSession, Depends(get_session)],
     gun: date | None = None,
 ) -> dict[str, Any]:
-    """``gun`` (UTC, varsayılan bugün) için makine başına üretim/fire + OEE."""
+    """``gun`` (iş günü, varsayılan bugün) için makine başına üretim/fire + OEE."""
     gun = gun or is_gunu()
-    baslangic = datetime(gun.year, gun.month, gun.day, tzinfo=UTC)
-    bitis = baslangic + timedelta(days=1)
+    baslangic, bitis = gun_araligi(gun)
     satirlar = await uretim_repository.oee_ozet(db, baslangic=baslangic, bitis=bitis)
     veri: list[dict[str, Any]] = []
     for makine_id, kod, toplam in satirlar:

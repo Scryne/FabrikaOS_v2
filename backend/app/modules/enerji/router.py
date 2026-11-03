@@ -5,7 +5,7 @@ Tenant-kapsamlı + RBAC (``enerji:oku``/``enerji:yaz``); yazma audit'lenir.
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
@@ -19,6 +19,7 @@ from app.core.deps import izin_gerekli, modul_gerekli, tenant_cozumle
 from app.core.exceptions import DogrulamaHatasi
 from app.core.gercekzaman import yayinla
 from app.core.responses import Zarf, basari, sayfali
+from app.core.zaman import gun_araligi
 from app.kimlik.models import Kullanici
 from app.modules.enerji import repository, service
 from app.modules.enerji.birimler import ENERJI_TURLERI
@@ -159,7 +160,7 @@ async def enerji_ozet(
     db: Annotated[AsyncSession, Depends(get_session)],
     _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
 ) -> dict[str, Any]:
-    gun_basi = datetime.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+    gun_basi, _ = gun_araligi()
 
     toplam = await db.scalar(select(func.count()).select_from(EnerjiTuketim)) or 0
     bugun = (
