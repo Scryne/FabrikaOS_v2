@@ -13,7 +13,7 @@ authors = [{ name = "Scryne" }]
 dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
-    "pydantic>=2.9",
+    "pydantic>=2.14",  # docs/api şeması sürüme bağlı (Decimal deseni), bkz. api_portali.py
     "pydantic-settings>=2.6",
     # --- S2: cok kiracililik + kimlik/RBAC ---
     "sqlalchemy[asyncio]>=2.0",

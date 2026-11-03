@@ -8,6 +8,12 @@ Portalın başına kimlik doğrulama, tenant başlığı ve hata zarfı anlatım
 
     python backend/scripts/api_portali.py            # docs/api/index.html yazar
     python backend/scripts/api_portali.py --kontrol  # şema değiştiyse 1 döner (CI)
+
+Çıktı yalnız koddan değil, şemayı üreten kütüphanelerden de etkilenir: pydantic 2.14, ``Decimal``
+alanlarına eskiden kendiliğinden konan ``pattern``'i kaldırdı (eski desen geçerli üslü yazımı,
+ör. ``1E+2``, reddediyordu). Eski pydantic'li bir ortam bu yüzden aynı koddan farklı bir sayfa
+üretir; CI'nın temiz Linux kurulumu en yeni sürümü aldığı için fark "yalnız Linux'ta" görünüyordu.
+Bu yüzden betik sürüm tabanını kendisi denetler ve tabanın altındaki bir ortamda yazmayı reddeder.
 """
 
 # ruff: noqa: E501 — GIRIS ve SAYFA şablon metni (Markdown tablosu, HTML) satır kırılmadan durur
@@ -22,6 +28,8 @@ from pathlib import Path
 KOK = Path(__file__).resolve().parents[2]
 HEDEF = KOK / "docs" / "api"
 REDOC = "https://cdn.jsdelivr.net/npm/redoc@2.1.5/bundles/redoc.standalone.js"
+# Şema çıktısını değiştiren en son pydantic sürümü (Decimal deseni). pyproject.toml tabanıyla aynı.
+PYDANTIC_TABANI = (2, 14)
 
 GIRIS = """
 ## Başlarken
@@ -79,6 +87,19 @@ Redoc.init(JSON.parse(document.getElementById("sema").textContent), {{
 """
 
 
+def surumler() -> str:
+    from importlib.metadata import version
+
+    return ", ".join(f"{p} {version(p)}" for p in ("pydantic", "pydantic-core", "fastapi"))
+
+
+def surum_uygun() -> bool:
+    import pydantic
+
+    ana, alt = (int(x) for x in pydantic.VERSION.split(".")[:2])
+    return (ana, alt) >= PYDANTIC_TABANI
+
+
 def sema() -> dict[str, object]:
     sys.path.insert(0, str(KOK / "backend"))
     from app.main import create_app
@@ -94,6 +115,13 @@ def main() -> int:
     p = argparse.ArgumentParser(description="FabrikaOS API portalı")
     p.add_argument("--kontrol", action="store_true", help="yazmadan, güncel mi diye bak")
     a = p.parse_args()
+    if not surum_uygun():
+        taban = ".".join(map(str, PYDANTIC_TABANI))
+        print(
+            f"pydantic >= {taban} gerekli ({surumler()}); eski sürüm Decimal alanlarına farklı şema "
+            'üretir. Ortamı güncelleyin: pip install -e ".[dev]"'
+        )
+        return 2
     s = sema()
     metin = json.dumps(s, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
     # Şema sayfaya gömülür: file:// ile açılınca tarayıcı ayrı JSON'u getirmeyi reddeder.
@@ -102,6 +130,7 @@ def main() -> int:
     if a.kontrol:
         if not hedef.exists() or hedef.read_text(encoding="utf-8") != sayfa:
             print("docs/api/index.html güncel değil: python backend/scripts/api_portali.py")
+            print(f"Üreten ortam: {surumler()}")
             return 1
         return 0
     HEDEF.mkdir(parents=True, exist_ok=True)
