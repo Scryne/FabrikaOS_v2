@@ -87,7 +87,7 @@ async function hamIstek(
 }
 
 async function zarfOku<T>(cevap: Response): Promise<Zarf<T>> {
-  let zarf: Zarf<T> | null = null;
+  let zarf: Zarf<T> | null;
   try {
     zarf = (await cevap.json()) as Zarf<T>;
   } catch {
