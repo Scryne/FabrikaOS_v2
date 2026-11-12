@@ -159,27 +159,115 @@ def mutasyonlu_kaynak(kaynak: str, sira: int) -> tuple[str, int, str]:
     return ast.unparse(ast.fix_missing_locations(agac)), satir, aciklama
 
 
-def _pytest(kok: Path, testler: list[str]) -> int:
+# Bir mutant döngü koşulunu bozup sınırsız bellek ayırabilir: ``cizelge`` L121 ``and → or``
+# biten işi pencereye sıfır uzunluklu parça ekleyerek sonsuza dek döndürür (yerelde ~55 MB/sn).
+# Eskiden tek sınır 300 sn'lik süreydi; o sürede alt süreç runner'ın 16 GB belleğini doldurup
+# işi 5-6. dakikada SIGTERM (143) ya da "runner lost communication" ile düşürüyordu (2026-11-13
+# teşhisi). Artık her pytest alt sürecinin belleği tavanlı (aşınca MemoryError / ölüm = test
+# düştü = mutant öldü) ve süre sınırı hedefin temiz koşusundan türetiliyor.
+BELLEK_TAVANI = 4 * 1024**3  # POSIX'te sanal adres alanı (RLIMIT_AS), Windows'ta süreç belleği
+SURE_KATSAYI = 10
+SURE_TABAN = 60.0
+
+
+def _posix_bellek_tavani() -> None:  # pragma: no cover - yalnız POSIX alt süreçte koşar
+    if sys.platform != "win32":
+        import resource
+
+        resource.setrlimit(resource.RLIMIT_AS, (BELLEK_TAVANI, BELLEK_TAVANI))
+
+
+def _windows_tutamac_kapat(tutamac: int | None) -> None:  # pragma: no cover - yalnız Windows
+    if tutamac:
+        import ctypes
+
+        ctypes.WinDLL("kernel32").CloseHandle(ctypes.c_void_p(tutamac))
+
+
+def _windows_bellek_tavani(pid: int) -> int | None:  # pragma: no cover - yalnız Windows
+    """Süreci bellek sınırlı bir Job Object'e koyar; dönen iş tutamacı sonra kapatılır."""
+    import ctypes
+    from ctypes import wintypes
+
+    class Temel(ctypes.Structure):
+        _fields_ = [
+            ("PerProcessUserTimeLimit", ctypes.c_int64),
+            ("PerJobUserTimeLimit", ctypes.c_int64),
+            ("LimitFlags", wintypes.DWORD),
+            ("MinimumWorkingSetSize", ctypes.c_size_t),
+            ("MaximumWorkingSetSize", ctypes.c_size_t),
+            ("ActiveProcessLimit", wintypes.DWORD),
+            ("Affinity", ctypes.c_size_t),
+            ("PriorityClass", wintypes.DWORD),
+            ("SchedulingClass", wintypes.DWORD),
+        ]
+
+    class Genis(ctypes.Structure):
+        _fields_ = [
+            ("Temel", Temel),
+            ("IoSayac", ctypes.c_uint64 * 6),
+            ("ProcessMemoryLimit", ctypes.c_size_t),
+            ("JobMemoryLimit", ctypes.c_size_t),
+            ("PeakProcessMemoryUsed", ctypes.c_size_t),
+            ("PeakJobMemoryUsed", ctypes.c_size_t),
+        ]
+
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.CreateJobObjectW.restype = wintypes.HANDLE
+    k32.OpenProcess.restype = wintypes.HANDLE
+    is_ = k32.CreateJobObjectW(None, None)
+    bilgi = Genis()
+    bilgi.Temel.LimitFlags = 0x100  # JOB_OBJECT_LIMIT_PROCESS_MEMORY
+    bilgi.ProcessMemoryLimit = BELLEK_TAVANI
+    if not is_ or not k32.SetInformationJobObject(
+        wintypes.HANDLE(is_), 9, ctypes.byref(bilgi), ctypes.sizeof(bilgi)
+    ):
+        _windows_tutamac_kapat(is_)
+        return None
+    surec = k32.OpenProcess(0x0100 | 0x0001, False, pid)  # SET_QUOTA | TERMINATE
+    atandi = bool(surec) and k32.AssignProcessToJobObject(
+        wintypes.HANDLE(is_), wintypes.HANDLE(surec)
+    )
+    _windows_tutamac_kapat(surec)
+    if not atandi:
+        _windows_tutamac_kapat(is_)
+        return None
+    return int(is_)
+
+
+def _pytest(kok: Path, testler: list[str], sure: float = 300.0) -> int:
+    """Testleri koşar; çıkış kodu. Süre aşımında ``subprocess.TimeoutExpired`` yükselir."""
     ortam = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", PYTHONUTF8="1")
-    r = subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "pytest",
-            *testler,
-            "-x",
-            "-q",
-            "-p",
-            "no:cacheprovider",
-            "-W",
-            "ignore",
-        ],
+    komut = [
+        sys.executable,
+        "-m",
+        "pytest",
+        *testler,
+        "-x",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "-W",
+        "ignore",
+    ]
+    posix = os.name == "posix"
+    with subprocess.Popen(
+        komut,
         cwd=kok,
         env=ortam,
-        capture_output=True,
-        timeout=300,
-    )
-    return r.returncode
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        preexec_fn=_posix_bellek_tavani if posix else None,
+    ) as p:
+        is_tutamaci = None if posix else _windows_bellek_tavani(p.pid)
+        try:
+            return p.wait(timeout=sure)
+        except subprocess.TimeoutExpired:
+            p.kill()
+            p.wait()
+            raise
+        finally:
+            _windows_tutamac_kapat(is_tutamaci)
 
 
 def main() -> int:
@@ -199,11 +287,15 @@ def main() -> int:
         for i in range(len(noktalar(ast.parse(kaynak)))):
             gorevler.append(Mutant(h, i, 0, ""))
 
-    # Önce temiz koşu: testler mutantsız geçmeli, yoksa ölçüm anlamsız.
+    # Önce temiz koşu: testler mutantsız geçmeli, yoksa ölçüm anlamsız. Süresi, o hedefin
+    # mutantlarına tanınan süreyi belirler (sonsuz döngü 300 sn yerine bu sürede kesilir).
+    sure_siniri: dict[str, float] = {}
     for h in secim:
+        bas = time.monotonic()
         if _pytest(BACKEND, HEDEFLER[h][1]) != 0:
             print(f"HATA: {h} testleri mutantsız da düşüyor; önce onları düzeltin.")
             return 2
+        sure_siniri[h] = max(SURE_TABAN, SURE_KATSAYI * (time.monotonic() - bas))
 
     kopyalar: Queue[Path] = Queue()
     gecici = Path(tempfile.mkdtemp(prefix="mutasyon-"))
@@ -214,7 +306,7 @@ def main() -> int:
         )
         kopyalar.put(hedef)
 
-    # CI'da iş 5-6. dakikada SIGTERM (143) ile kesildi; hangi mutantlar koşuyordu görünsün.
+    # Dış sinyalle kesilirse hangi mutantların koştuğu görünsün (bkz. BELLEK_TAVANI notu).
     suren: dict[tuple[str, int], float] = {}
     biten = [0]
 
@@ -235,9 +327,11 @@ def main() -> int:
             yeni, satir, aciklama = mutasyonlu_kaynak(kaynaklar[m.hedef], m.sira)
             kaynak_yolu.write_text(yeni, encoding="utf-8")
             try:
-                oldu = _pytest(kok, HEDEFLER[m.hedef][1]) != 0
+                kod = _pytest(kok, HEDEFLER[m.hedef][1], sure_siniri[m.hedef])
+                oldu = kod != 0
             except subprocess.TimeoutExpired:
                 oldu = True  # sonsuz döngü de testin yakaladığı sayılır
+                print(f"  süre aşımı: {m.hedef}#{m.sira} {aciklama} (satır {satir})", flush=True)
             finally:
                 kaynak_yolu.write_text(kaynaklar[m.hedef], encoding="utf-8")
             return Mutant(m.hedef, m.sira, satir, aciklama), oldu

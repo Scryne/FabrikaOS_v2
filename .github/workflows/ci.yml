@@ -142,8 +142,12 @@ jobs:
         run: npm audit --audit-level=high
 
   # S28 (ADR-0047): kritik saf çekirdekte mutasyon skoru eşiği. Veritabanı gerekmez (birim testler).
+  # Kesintilerin kök nedeni (2026-11-13): bir cizelge mutantı sınırsız bellek ayırıp runner'ı
+  # 5-6. dakikada boğuyordu; betik artık her alt süreci bellek ve süreyle sınırlıyor. Normal
+  # koşu ~25 dk; tavan, bir gerileme 6 saatlik varsayılanı yemesin diye.
   mutasyon:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
