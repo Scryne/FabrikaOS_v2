@@ -32,15 +32,17 @@ def mosquitto() -> Iterator[tuple[str, int]]:
     from testcontainers.core.container import DockerContainer
     from testcontainers.core.waiting_utils import wait_for_logs
 
-    c = (
-        DockerContainer("eclipse-mosquitto:2")
-        .with_exposed_ports(1883)
-        .with_command(
-            'sh -c \'printf "listener 1883\\nallow_anonymous true\\n" > /m.conf '
-            "&& mosquitto -c /m.conf'"
-        )
-    )
+    # Docker istemcisi kurucuda oluşur: Docker kurulu ama kapalıysa hata start()'tan önce gelir.
+    # Kurucu da try içinde; yoksa "Docker yoksa atla" sözü tutulmaz ve test ERROR verir.
     try:
+        c = (
+            DockerContainer("eclipse-mosquitto:2")
+            .with_exposed_ports(1883)
+            .with_command(
+                'sh -c \'printf "listener 1883\\nallow_anonymous true\\n" > /m.conf '
+                "&& mosquitto -c /m.conf'"
+            )
+        )
         c.start()
     except Exception as exc:  # noqa: BLE001 — Docker yoksa atla
         pytest.skip(f"Docker/mosquitto yok: {exc}")
