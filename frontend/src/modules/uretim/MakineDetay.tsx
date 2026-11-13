@@ -304,16 +304,18 @@ export function MakineDetay() {
                   <Statistic
                     title={t('uretim.kayit_sayisi')}
                     value={oee.data?.kayit_sayisi ?? 0}
-                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 20 }}
+                    styles={{ content: { fontFamily: 'var(--font-mono)', fontSize: 20 } }}
                   />
                   <Statistic
                     title={t('uretim.oee_hedefi')}
                     value={m.oee_hedefi != null ? Math.round(m.oee_hedefi * 100) : '—'}
                     suffix={m.oee_hedefi != null ? '%' : ''}
-                    valueStyle={{
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 20,
-                      color: oeeRenk(yuzde),
+                    styles={{
+                      content: {
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 20,
+                        color: oeeRenk(yuzde),
+                      },
                     }}
                   />
                 </div>
@@ -415,24 +417,24 @@ export function MakineDetay() {
                     title={t('bakim.mtbf')}
                     value={metrikler.data?.mtbf_saat ?? '—'}
                     suffix={metrikler.data?.mtbf_saat != null ? t('bakim.saat') : ''}
-                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                    styles={{ content: { fontFamily: 'var(--font-mono)', fontSize: 22 } }}
                   />
                   <Statistic
                     title={t('bakim.mttr')}
                     value={metrikler.data?.mttr_saat ?? '—'}
                     suffix={metrikler.data?.mttr_saat != null ? t('bakim.saat') : ''}
-                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                    styles={{ content: { fontFamily: 'var(--font-mono)', fontSize: 22 } }}
                   />
                   <Statistic
                     title={t('bakim.ariza_sayisi')}
                     value={metrikler.data?.ariza_sayisi ?? 0}
-                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                    styles={{ content: { fontFamily: 'var(--font-mono)', fontSize: 22 } }}
                   />
                   <Statistic
                     title={t('bakim.toplam_ariza_saat')}
                     value={metrikler.data?.toplam_ariza_saat ?? 0}
                     suffix={t('bakim.saat')}
-                    valueStyle={{ fontFamily: 'var(--font-mono)', fontSize: 22 }}
+                    styles={{ content: { fontFamily: 'var(--font-mono)', fontSize: 22 } }}
                   />
                 </div>
               )}
