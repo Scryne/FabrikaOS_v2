@@ -16,3 +16,12 @@ export function sayiMetni(v: number | string | null | undefined, enCokBasamak = 
   const yerel = i18n.language === 'en' ? 'en-US' : 'tr-TR';
   return n.toLocaleString(yerel, { maximumFractionDigits: enCokBasamak });
 }
+
+/** Sabit ondalıklı ölçüm değeri (SPC limitleri, Cp/Cpk): "25,000" · EN "25.000". */
+export function sayiSabit(v: number, basamak: number): string {
+  const yerel = i18n.language === 'en' ? 'en-US' : 'tr-TR';
+  return v.toLocaleString(yerel, {
+    minimumFractionDigits: basamak,
+    maximumFractionDigits: basamak,
+  });
+}

@@ -7,7 +7,7 @@
 
 import type { EChartsOption } from 'echarts';
 
-import { sayiMetni } from '@/i18n/sayi';
+import { sayiMetni, sayiSabit } from '@/i18n/sayi';
 import { GRAFIK_PALETI, RENKLER } from '@/tema/tema';
 
 /** Değer ekseni etiketleri etkin dilin biçimiyle (echarts varsayılanı "1,200" yazar). */
@@ -451,7 +451,7 @@ export function kontrolKartiSecenek(girdi: {
     name: ad,
     lineStyle: { color: renk, type: kesikli ? ('dashed' as const) : ('solid' as const), width: 1 },
     label: {
-      formatter: `${ad} ${y.toFixed(ondalik)}`,
+      formatter: `${ad} ${sayiSabit(y, ondalik)}`,
       color: renk,
       fontFamily: MONO,
       fontSize: 10,
@@ -482,7 +482,7 @@ export function kontrolKartiSecenek(girdi: {
     grid: { left: 6, right: 16, top: 16, bottom: 4, containLabel: true },
     tooltip: {
       ...koyuIpucu('axis'),
-      valueFormatter: (v) => (typeof v === 'number' ? v.toFixed(ondalik) : String(v)),
+      valueFormatter: (v) => (typeof v === 'number' ? sayiSabit(v, ondalik) : String(v)),
     },
     xAxis: {
       type: 'category',

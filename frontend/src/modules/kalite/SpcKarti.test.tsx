@@ -65,7 +65,7 @@ describe('SpcKarti', () => {
     kur(['kalite:oku', 'kalite:yaz']);
     expect(screen.getByRole('heading', { name: 'Mil çapı' })).toBeInTheDocument();
     expect(screen.getAllByTestId('grafik')).toHaveLength(2);
-    expect(screen.getByText('1.11')).toBeInTheDocument();
+    expect(screen.getByText('1,11')).toBeInTheDocument();
     expect(screen.getByText('3σ dışında bir nokta')).toBeInTheDocument();
     // n = 3 → üç ölçüm girişi
     expect(screen.getByLabelText('3. ölçüm')).toBeInTheDocument();

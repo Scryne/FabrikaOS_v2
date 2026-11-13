@@ -15,6 +15,7 @@ import { Alert, App, Button, Card, Form, InputNumber, Popconfirm, Table, Tag } f
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { kontrolKartiSecenek } from '@/components/grafik/grafikSecenek';
 import { OzetSerit } from '@/components/OzetSerit';
+import { sayiSabit } from '@/i18n/sayi';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { useAuthStore } from '@/store/authStore';
@@ -22,7 +23,7 @@ import { useAuthStore } from '@/store/authStore';
 import { type SpcIhlal, useLimitSabitle, useOlcumGir, useSpcKart } from './spcHooks';
 
 const f = (v: number | null | undefined, d = 3) =>
-  v === null || v === undefined ? '—' : v.toFixed(d);
+  v === null || v === undefined ? '—' : sayiSabit(v, d);
 
 export function SpcKarti() {
   const { t } = useTranslation();
