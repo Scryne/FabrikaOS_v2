@@ -806,7 +806,7 @@ body {
 /* Onaylarım: iş özeti tek satır, okunur genişlikte kısaltılır (tamamı title'da). */
 .onay-ozet {
   display: block;
-  max-width: min(560px, 60vw);
+  max-width: min(560px, 40vw);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1969,4 +1969,18 @@ a.varlik-ad:hover {
   white-space: normal;
   font-size: 12px;
   line-height: 1.45;
+}
+
+/* Onaylarım dar ekran: özet iki satıra sarar, onay/red düğmeleri satırın altında. */
+@media (max-width: 991px) {
+  .onay-ozet {
+    max-width: none;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+}
+.onay-dar-eylem {
+  margin-top: 8px;
 }

@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { CheckOutlined, CloseOutlined, InboxOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Empty, Input, Modal, Segmented, Space, Table, Tag } from 'antd';
+import { Alert, Button, Card, Empty, Grid, Input, Modal, Segmented, Space, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -35,6 +35,8 @@ export function Onaylarim() {
   const [red, setRed] = useState<OnayKalemi | null>(null);
   const [neden, setNeden] = useState('');
 
+  // lg altında eylem sütunu yatay kaydırmanın dışına düşüyordu: düğmeler satırın altına iner.
+  const dar = !Grid.useBreakpoint().lg;
   const kalemler = useMemo(() => data?.kalemler ?? [], [data]);
   const sayac = useMemo(() => {
     const m: Record<string, number> = {};
@@ -44,6 +46,37 @@ export function Onaylarim() {
   const gorunen = tur === 'hepsi' ? kalemler : kalemler.filter((k) => k.tur === tur);
   const bekliyor = (k: OnayKalemi) =>
     eylem.isPending && eylem.variables?.kalem.tur === k.tur && eylem.variables.kalem.id === k.id;
+
+  const eylemler = (k: OnayKalemi) => (
+    <Space size={6} wrap>
+      <Button
+        type="primary"
+        size="small"
+        icon={<CheckOutlined />}
+        loading={bekliyor(k) && eylem.variables?.eylem === 'onay'}
+        disabled={eylem.isPending}
+        onClick={() => eylem.mutate({ kalem: k, eylem: 'onay' })}
+        aria-label={`${t('onay.onayla')}: ${k.kod}`}
+      >
+        {t('onay.onayla')}
+      </Button>
+      {k.red_yolu && (
+        <Button
+          size="small"
+          danger
+          icon={<CloseOutlined />}
+          disabled={eylem.isPending}
+          onClick={() => {
+            setNeden('');
+            setRed(k);
+          }}
+          aria-label={`${t('onay.reddet')}: ${k.kod}`}
+        >
+          {t('onay.reddet')}
+        </Button>
+      )}
+    </Space>
+  );
 
   const kolonlar: ColumnsType<OnayKalemi> = [
     {
@@ -69,6 +102,7 @@ export function Onaylarim() {
             <span className="sayisal">{k.kod}</span>
             {k.ozet ? ` · ${k.ozet}` : ''}
           </span>
+          {dar && <div className="onay-dar-eylem">{eylemler(k)}</div>}
         </span>
       ),
     },
@@ -88,42 +122,16 @@ export function Onaylarim() {
         </span>
       ),
     },
-    {
-      title: '',
-      key: 'eylem',
-      align: 'right',
-      fixed: 'right',
-      render: (_v, k) => (
-        <Space size={6} wrap>
-          <Button
-            type="primary"
-            size="small"
-            icon={<CheckOutlined />}
-            loading={bekliyor(k) && eylem.variables?.eylem === 'onay'}
-            disabled={eylem.isPending}
-            onClick={() => eylem.mutate({ kalem: k, eylem: 'onay' })}
-            aria-label={`${t('onay.onayla')}: ${k.kod}`}
-          >
-            {t('onay.onayla')}
-          </Button>
-          {k.red_yolu && (
-            <Button
-              size="small"
-              danger
-              icon={<CloseOutlined />}
-              disabled={eylem.isPending}
-              onClick={() => {
-                setNeden('');
-                setRed(k);
-              }}
-              aria-label={`${t('onay.reddet')}: ${k.kod}`}
-            >
-              {t('onay.reddet')}
-            </Button>
-          )}
-        </Space>
-      ),
-    },
+    ...(dar
+      ? []
+      : [
+          {
+            title: '',
+            key: 'eylem',
+            align: 'right' as const,
+            render: (_v: unknown, k: OnayKalemi) => eylemler(k),
+          },
+        ]),
   ];
 
   const nedenEksik = !!red?.red_gerekce_zorunlu && neden.trim().length === 0;
@@ -174,7 +182,7 @@ export function Onaylarim() {
           dataSource={gorunen}
           loading={isPending}
           pagination={{ pageSize: 25, hideOnSinglePage: true }}
-          scroll={{ x: 'max-content' }}
+          scroll={dar ? undefined : { x: 'max-content' }}
           locale={{
             emptyText: (
               <Empty
