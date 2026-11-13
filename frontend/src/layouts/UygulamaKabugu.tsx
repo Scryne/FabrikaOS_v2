@@ -127,6 +127,14 @@ export function UygulamaKabugu() {
       .filter((y) => konum.pathname === y || (y !== '/' && konum.pathname.startsWith(y)))
       .sort((a, b) => b.length - a.length)[0] ?? '/';
 
+  // Sekme başlığı etkin ekranın adını taşır ("Makineler · FabrikaOS"); birkaç sekme açıkken
+  // hepsi "FabrikaOS" yazıyordu. Menüde karşılığı olmayan yollar ürün adında kalır.
+  const seciliOge = gorunur.find((o) => o.yol === seciliYol);
+  const sekmeBasligi = seciliOge ? `${t(seciliOge.etiketAnahtari)} · FabrikaOS` : 'FabrikaOS';
+  useEffect(() => {
+    document.title = sekmeBasligi;
+  }, [sekmeBasligi]);
+
   // Menü artık kendi içinde kaydığı için seçili öğe (ör. derin bağlantı, sayfa yenileme ya da
   // komut paletiyle gelinen alt bölüm) görünür alanın dışında kalabilir: görünüme getir.
   const menuRef = useRef<MenuRef>(null);

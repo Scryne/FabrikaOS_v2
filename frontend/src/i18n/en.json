@@ -2589,5 +2589,11 @@
     "faktor_eklendi": "Factor added",
     "faktor_silindi": "Factor deleted",
     "rapor_ipucu": "The ESG report (PDF) is prepared in the background; download it from:"
+  },
+  "bulunamadi": {
+    "sekme": "Page not found",
+    "baslik": "This page could not be found",
+    "aciklama": "The address may be mistyped or the page may have been removed. No screen is registered at the address below.",
+    "ana_sayfa": "Home"
   }
 }

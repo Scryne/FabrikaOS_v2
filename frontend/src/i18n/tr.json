@@ -2589,5 +2589,11 @@
     "faktor_eklendi": "Faktör eklendi",
     "faktor_silindi": "Faktör silindi",
     "rapor_ipucu": "ESG raporu (PDF) arka planda hazırlanır; indirmek için:"
+  },
+  "bulunamadi": {
+    "sekme": "Sayfa bulunamadı",
+    "baslik": "Bu sayfa bulunamadı",
+    "aciklama": "Adres yanlış yazılmış ya da sayfa kaldırılmış olabilir. Aşağıdaki adreste kayıtlı bir ekran yok.",
+    "ana_sayfa": "Ana sayfa"
   }
 }

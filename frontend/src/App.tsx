@@ -13,6 +13,7 @@ import { Spin } from 'antd';
 import { oturumBaslat } from '@/api/kimlik';
 import { tenantSakla } from '@/api/tenant';
 import { LogoIsareti } from '@/components/Marka';
+import { SayfaBulunamadi } from '@/components/SayfaBulunamadi';
 import { UygulamaKabugu } from '@/layouts/UygulamaKabugu';
 import { sadeceDisKullanici } from '@/modules/dis/hooks';
 import { GercekZamanSaglayici } from '@/modules/ortak/GercekZamanSaglayici';
@@ -874,7 +875,7 @@ export function App() {
           </Route>
         )}
 
-        <Route path="*" element={<Navigate to="/pano" replace />} />
+        <Route path="*" element={<SayfaBulunamadi />} />
       </Routes>
     </Suspense>
   );
