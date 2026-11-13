@@ -27,24 +27,27 @@ const ara = (girdi: string, secenek?: { label?: unknown }) =>
 function IliskiAlanlari() {
   const { t } = useTranslation();
   const izinVar = useAuthStore((s) => s.izinVar);
-  const makineler = useMakineSecenekleri();
+  // Makine listesi uretim:oku ister; kalite rolünde yoksa alan gizlenir (403 ve boş seçici yerine).
+  const makineler = useMakineSecenekleri(izinVar('uretim:oku'));
   const firmalar = useFirmaSecenekleri(izinVar('crm:oku'));
   const kullanicilar = useKullaniciSecenekleri(izinVar('kullanici:oku'));
 
   return (
     <>
-      <Form.Item name="makine_id" label={t('kalite.makine')}>
-        <Select
-          allowClear
-          showSearch
-          filterOption={ara}
-          loading={makineler.isPending}
-          options={(makineler.data ?? []).map((m) => ({
-            value: m.id,
-            label: `${m.kod} · ${m.ad}`,
-          }))}
-        />
-      </Form.Item>
+      {izinVar('uretim:oku') && (
+        <Form.Item name="makine_id" label={t('kalite.makine')}>
+          <Select
+            allowClear
+            showSearch
+            filterOption={ara}
+            loading={makineler.isPending}
+            options={(makineler.data ?? []).map((m) => ({
+              value: m.id,
+              label: `${m.kod} · ${m.ad}`,
+            }))}
+          />
+        </Form.Item>
+      )}
       {izinVar('crm:oku') && (
         <Form.Item
           name="tedarikci_firma_id"
