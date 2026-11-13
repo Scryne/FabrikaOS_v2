@@ -690,6 +690,8 @@ body {
   border: 1px solid var(--kenarlik);
   border-radius: 6px;
   padding: 1px 6px;
+  /* Üst bar (antd Header) satır yüksekliği 64px'tir; miras alınırsa çerçeve barın dışına taşar. */
+  line-height: 1.5;
 }
 
 /* Üst bar palet tetikleyicisi — arama alanı görünümlü buton (⌘K ipucu sağda). */
@@ -701,6 +703,7 @@ body {
   width: 320px;
   max-width: 40vw;
   padding: 0 12px;
+  line-height: 1.5;
   border-radius: 10px;
   border: 1px solid var(--kenarlik);
   background: var(--yuzey-ust);
