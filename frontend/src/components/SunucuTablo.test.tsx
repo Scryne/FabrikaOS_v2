@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -64,7 +64,9 @@ describe('SunucuTablo', () => {
     const u = userEvent.setup();
     const { paramDegistir } = kur();
 
-    await u.click(screen.getByTitle('2'));
+    // antd 6.7 (rc-pagination 1.7): tıklama işleyicisi <li>'de değil, içindeki role=button
+    // bağlantıda; kullanıcının tıkladığı da o.
+    await u.click(within(screen.getByTitle('2')).getByRole('button'));
 
     expect(paramDegistir).toHaveBeenCalledWith(expect.objectContaining({ sayfa: 2 }));
   });
