@@ -63,8 +63,10 @@ export function Onaylarim() {
           <Link to={k.detay_yolu} className="varlik-ad">
             {k.baslik}
           </Link>
-          <span className="varlik-alt sayisal" style={{ display: 'block' }}>
-            {k.kod}
+          {/* Kod mono, özet gövde yazısıyla ve tek satırda kısaltılır: uzun MRP özeti sütunu
+              genişletip onay/red düğmelerini yatay kaydırmanın dışına itiyordu. */}
+          <span className="varlik-alt onay-ozet" title={k.ozet ?? undefined}>
+            <span className="sayisal">{k.kod}</span>
             {k.ozet ? ` · ${k.ozet}` : ''}
           </span>
         </span>
@@ -90,6 +92,7 @@ export function Onaylarim() {
       title: '',
       key: 'eylem',
       align: 'right',
+      fixed: 'right',
       render: (_v, k) => (
         <Space size={6} wrap>
           <Button
