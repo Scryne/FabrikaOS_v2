@@ -15,6 +15,7 @@ import {
 import { Button, Card, Select } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -89,7 +90,7 @@ export function EnerjiTuketimListesi() {
       align: 'right',
       render: (v: number, m) => (
         <span className="sayisal">
-          {v} {m.birim}
+          {sayiMetni(v)} {m.birim}
         </span>
       ),
     },

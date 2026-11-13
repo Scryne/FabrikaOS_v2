@@ -25,6 +25,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import type { DataNode } from 'antd/es/tree';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { BosDurum } from '@/components/BosDurum';
 import { OzetSerit } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -117,7 +118,7 @@ export function DepoBakiye() {
       align: 'right',
       render: (v: number, b) => (
         <span className="sayisal">
-          {v} {b.birim}
+          {sayiMetni(v)} {b.birim}
         </span>
       ),
     },
@@ -257,7 +258,7 @@ export function DepoBakiye() {
               <strong>{transferSatir.malzeme_ad}</strong> · {transferSatir.depo_kod} /{' '}
               {transferSatir.lokasyon_kod} ·{' '}
               <span className="sayisal">
-                {transferSatir.miktar} {transferSatir.birim}
+                {sayiMetni(transferSatir.miktar)} {transferSatir.birim}
               </span>
             </p>
             <Form.Item

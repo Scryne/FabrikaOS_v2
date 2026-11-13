@@ -17,7 +17,7 @@ vi.mock('./hooks', () => ({
           neden_id: 9,
           baslangic: '2026-07-15T08:00:00Z',
           bitis: '2026-07-15T08:30:00Z',
-          sure_dk: 30,
+          sure_dk: 47.5,
           aciklama: 'Fikstür ayarı',
           olusturma_tarihi: '2026-07-15T08:31:00Z',
         },
@@ -65,7 +65,8 @@ describe('DurusEkrani', () => {
     expect(screen.getByText('CNC-1')).toBeInTheDocument();
     // 'Ayar' hem KPI (en büyük neden) hem kayıt satırında görünür.
     expect(screen.getAllByText('Ayar').length).toBeGreaterThan(0);
-    expect(screen.getByText('30.0')).toBeInTheDocument();
+    // Süre etkin dilin ondalık ayıracıyla (TR: virgül) yazılır, ham '47.5' değil.
+    expect(screen.getByText('47,5')).toBeInTheDocument();
   });
 
   it('KPI şeridi pareto verisinden türetilir (plansız payı %0)', () => {

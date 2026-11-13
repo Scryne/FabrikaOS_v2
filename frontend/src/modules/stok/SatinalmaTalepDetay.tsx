@@ -26,6 +26,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import dayjs, { type Dayjs } from 'dayjs';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { useAuthStore } from '@/store/authStore';
 
 import { useTalep, useTalepDurumAksiyon } from './hooks';
@@ -124,7 +125,7 @@ export function SatinalmaTalepDetay({ id, kapat }: { id: number | null; kapat: (
       dataIndex: 'tahmini_birim_fiyat',
       key: 'tahmini_birim_fiyat',
       align: 'right',
-      render: (v: number | null) => <span className="sayisal">{v ?? '—'}</span>,
+      render: (v: number | null) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
   ];
 

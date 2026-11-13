@@ -23,6 +23,7 @@ import { App, Button, Result, Skeleton, Space, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { DurumPim } from '@/components/DurumPim';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { alanSecenek, donutSecenek } from '@/components/grafik/grafikSecenek';
@@ -246,7 +247,7 @@ export function MalzemeDetay() {
           style={{ color: r.tur === 'cikis' ? 'var(--hata)' : 'var(--metin)' }}
         >
           {r.tur === 'cikis' ? '−' : r.tur === 'giris' ? '+' : ''}
-          {v}
+          {sayiMetni(v)}
         </span>
       ),
     },
@@ -255,7 +256,7 @@ export function MalzemeDetay() {
       dataIndex: 'bakiye_sonrasi',
       key: 'bakiye_sonrasi',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     {
       title: t('stok.aciklama'),

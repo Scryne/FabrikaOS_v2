@@ -11,6 +11,7 @@ import { Button, Card, Table } from 'antd';
 import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { BosDurum } from '@/components/BosDurum';
 import { MiniBar } from '@/components/MiniBar';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -79,7 +80,7 @@ export function KritikStok() {
       title: t('stok.kritik_esik'),
       dataIndex: 'kritik_stok',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     ...(yazabilir
       ? [

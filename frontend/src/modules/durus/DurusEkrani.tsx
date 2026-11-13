@@ -34,6 +34,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { paretoSecenek } from '@/components/grafik/grafikSecenek';
@@ -261,7 +262,7 @@ export function DurusEkrani({ baslangicGorunum = 'kayitlar' }: { baslangicGorunu
       dataIndex: 'sure_dk',
       key: 'sure_dk',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v.toFixed(1)}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v, 1)}</span>,
     },
     { title: t('durus.aciklama'), dataIndex: 'aciklama', key: 'aciklama', ellipsis: true },
   ];
@@ -470,7 +471,7 @@ export function DurusEkrani({ baslangicGorunum = 'kayitlar' }: { baslangicGorunu
                     dataIndex: 'toplam_dk',
                     key: 'toplam_dk',
                     align: 'right',
-                    render: (v: number) => <span className="sayisal">{v.toFixed(1)}</span>,
+                    render: (v: number) => <span className="sayisal">{sayiMetni(v, 1)}</span>,
                   },
                   {
                     title: t('durus.yuzde'),

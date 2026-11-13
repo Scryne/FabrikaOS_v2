@@ -20,6 +20,7 @@ import type { CSSProperties } from 'react';
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { kolonlardanSutunlar } from '@/components/disaAktar';
 import { DurumPim } from '@/components/DurumPim';
 import { EGrafik } from '@/components/grafik/EGrafik';
@@ -136,7 +137,7 @@ export function MalzemeListesi() {
       key: 'mevcut_miktar',
       sorter: true,
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     {
       title: t('stok.seviye'),
@@ -157,7 +158,7 @@ export function MalzemeListesi() {
       dataIndex: 'kritik_stok',
       key: 'kritik_stok',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     {
       title: t('stok.durum'),

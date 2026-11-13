@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { Card, Col, Empty, Input, Row, Table, Tag, Typography } from 'antd';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { BosDurum } from '@/components/BosDurum';
 import { OzetSerit, type OzetMetrik } from '@/components/OzetSerit';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
@@ -127,7 +128,7 @@ export function IzlenebilirlikSayfasi() {
                         key: 'miktar',
                         align: 'right',
                         render: (v: number | null) =>
-                          v != null ? <span className="sayisal">{v}</span> : '—',
+                          v != null ? <span className="sayisal">{sayiMetni(v)}</span> : '—',
                       },
                     ]}
                   />
@@ -171,7 +172,7 @@ export function IzlenebilirlikSayfasi() {
                         dataIndex: 'miktar',
                         key: 'miktar',
                         align: 'right',
-                        render: (v: number) => <span className="sayisal">{v}</span>,
+                        render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
                       },
                       {
                         title: t('isemri.kod'),
@@ -217,14 +218,14 @@ export function IzlenebilirlikSayfasi() {
                         dataIndex: 'toplam_adet',
                         key: 'toplam_adet',
                         align: 'right',
-                        render: (v: number) => <span className="sayisal">{v}</span>,
+                        render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
                       },
                       {
                         title: t('uretim.saglam_adet'),
                         dataIndex: 'saglam_adet',
                         key: 'saglam_adet',
                         align: 'right',
-                        render: (v: number) => <span className="sayisal">{v}</span>,
+                        render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
                       },
                       {
                         title: t('uretim.iz_son_kayit'),

@@ -23,6 +23,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { BosDurum } from '@/components/BosDurum';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
@@ -71,13 +72,13 @@ export function SayimDetay() {
       title: t('sayim.sistem'),
       dataIndex: 'sistem_miktari',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     {
       title: t('sayim.sayilan'),
       dataIndex: 'sayilan_miktar',
       align: 'right',
-      render: (v: number) => <span className="sayisal">{v}</span>,
+      render: (v: number) => <span className="sayisal">{sayiMetni(v)}</span>,
     },
     {
       title: t('sayim.fark'),
