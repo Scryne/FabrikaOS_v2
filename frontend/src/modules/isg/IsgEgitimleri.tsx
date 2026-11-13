@@ -19,7 +19,6 @@ import {
   Form,
   Input,
   InputNumber,
-  List,
   Modal,
   Popconfirm,
   Select,
@@ -29,6 +28,7 @@ import {
   Tag,
   Tooltip,
 } from 'antd';
+import { SadeListe } from '@/components/SadeListe';
 import type { ColumnsType } from 'antd/es/table';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
@@ -216,16 +216,16 @@ function EgitimCekmecesi({ id, kapat }: { id: number | null; kapat: () => void }
               aria-label={t('isg26.katilimcilar')}
             />
           ) : null}
-          <List
+          <SadeListe
             size="small"
             header={<strong>{t('isg26.katilimci_sayisi', { adet: e.katilimcilar.length })}</strong>}
             dataSource={e.katilimcilar}
             locale={{ emptyText: t('isg26.katilimci_yok') }}
             renderItem={(k) => (
-              <List.Item>
+              <SadeListe.Oge>
                 <span>{k.ad_soyad}</span>
                 <span className="varlik-alt">{k.departman || '—'}</span>
-              </List.Item>
+              </SadeListe.Oge>
             )}
           />
         </>
@@ -509,13 +509,13 @@ function GereksinimListesi({ tur, departmanlar }: { tur: GereksinimTuru; departm
           </Button>
         </Form>
       )}
-      <List
+      <SadeListe
         size="small"
         loading={isPending}
         dataSource={data ?? []}
         locale={{ emptyText: t('isg26.gereksinim_bos') }}
         renderItem={(g) => (
-          <List.Item
+          <SadeListe.Oge
             actions={
               yazabilir
                 ? [
@@ -540,7 +540,7 @@ function GereksinimListesi({ tur, departmanlar }: { tur: GereksinimTuru; departm
           >
             <span>{tur === 'egitim' ? konuEtiketi(g.ad) : g.ad}</span>
             <Tag variant="filled">{g.departman || t('isg26.herkes')}</Tag>
-          </List.Item>
+          </SadeListe.Oge>
         )}
       />
     </Card>

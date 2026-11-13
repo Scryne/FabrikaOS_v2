@@ -7,8 +7,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PlusOutlined } from '@ant-design/icons';
-import { Avatar, Button, Descriptions, Drawer, List, Tag, Tooltip } from 'antd';
+import { Avatar, Button, Descriptions, Drawer, Tag, Tooltip } from 'antd';
 
+import { SadeListe } from '@/components/SadeListe';
 import { DetayIstatSira } from '@/components/DetayOgeleri';
 import { OranSatiri } from '@/components/OranSatiri';
 import { useAuthStore } from '@/store/authStore';
@@ -182,13 +183,13 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
               </Button>
             )}
           </div>
-          <List
+          <SadeListe
             size="small"
             dataSource={liste}
             locale={{ emptyText: t('crm.ortak_bos') }}
             renderItem={(o) => (
-              <List.Item>
-                <List.Item.Meta
+              <SadeListe.Oge>
+                <SadeListe.Meta
                   avatar={
                     <Avatar style={{ background: 'var(--yuzey-ust)', color: 'var(--metin)' }}>
                       {basHarf(o.ad_soyad)}
@@ -206,7 +207,7 @@ export function FirmaDetay({ id, kapat }: { id: number | null; kapat: () => void
                   }
                   description={[o.unvan, o.telefon, o.eposta].filter(Boolean).join(' · ') || '—'}
                 />
-              </List.Item>
+              </SadeListe.Oge>
             )}
           />
 

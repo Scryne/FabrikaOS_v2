@@ -7,7 +7,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadOutlined, UploadOutlined } from '@ant-design/icons';
-import { App, Button, Descriptions, Drawer, Input, List, Space, Tag, Upload } from 'antd';
+import { App, Button, Descriptions, Drawer, Input, Space, Tag, Upload } from 'antd';
+import { SadeListe } from '@/components/SadeListe';
 import type { UploadFile } from 'antd';
 
 import { DetayIstatSira } from '@/components/DetayOgeleri';
@@ -107,12 +108,12 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
           )}
 
           <div className="detay-bolum-baslik">{t('dys.surumler')}</div>
-          <List
+          <SadeListe
             size="small"
             dataSource={surumler ?? []}
             locale={{ emptyText: t('dys.surum_bos') }}
             renderItem={(s) => (
-              <List.Item
+              <SadeListe.Oge
                 actions={[
                   <Button
                     key="indir"
@@ -124,7 +125,7 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
                   </Button>,
                 ]}
               >
-                <List.Item.Meta
+                <SadeListe.Meta
                   title={
                     <Space size={8}>
                       <span className="sayisal">
@@ -139,7 +140,7 @@ export function BelgeDetay({ id, kapat }: { id: number | null; kapat: () => void
                   }
                   description={`${(s.boyut / 1024).toFixed(1)} KB${s.aciklama ? ` · ${s.aciklama}` : ''}`}
                 />
-              </List.Item>
+              </SadeListe.Oge>
             )}
           />
         </>

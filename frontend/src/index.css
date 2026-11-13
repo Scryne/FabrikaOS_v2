@@ -745,6 +745,64 @@ body {
   font-size: clamp(40px, 6vw, 60px);
 }
 
+/* SadeListe (antd List yerine): küçük liste ritmi — satır 8px dikey, ince ayraç. */
+.sade-liste ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.sade-liste li + li {
+  border-top: 1px solid var(--kenarlik);
+}
+.sade-liste-baslik {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--kenarlik);
+}
+.sade-liste-bos {
+  padding: 12px 0;
+}
+.sade-liste-oge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+.sade-liste-icerik {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sade-liste-eylem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.sade-liste-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.sade-liste-metin {
+  min-width: 0;
+}
+.sade-liste-ad {
+  color: var(--metin);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sade-liste-aciklama {
+  color: var(--metin-soluk);
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 /* Onaylarım: iş özeti tek satır, okunur genişlikte kısaltılır (tamamı title'da). */
 .onay-ozet {
   display: block;

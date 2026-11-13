@@ -11,7 +11,8 @@ import {
   FileProtectOutlined,
   InboxOutlined,
 } from '@ant-design/icons';
-import { Card, Col, List, Row, Table, Tag } from 'antd';
+import { Card, Col, Row, Table, Tag } from 'antd';
+import { SadeListe } from '@/components/SadeListe';
 import type { ColumnsType } from 'antd/es/table';
 
 import { KpiKart } from '@/components/KpiKart';
@@ -116,20 +117,20 @@ export function TicariPano() {
         </Col>
         <Col xs={24} lg={9}>
           <Card title={t('ticari.son_duyurular')} styles={{ body: { padding: 12 } }}>
-            <List<Duyuru>
+            <SadeListe<Duyuru>
               size="small"
               dataSource={data?.son_duyurular ?? []}
               locale={{ emptyText: t('ticari.duyuru_bos') }}
               renderItem={(d) => (
-                <List.Item>
-                  <List.Item.Meta
+                <SadeListe.Oge>
+                  <SadeListe.Meta
                     title={d.baslik}
                     description={<span className="sayisal">{d.kod}</span>}
                   />
                   <Tag color={ONEM_RENK[d.onem] ?? 'default'} variant="filled">
                     {t(`duyuru.onem_${d.onem}`)}
                   </Tag>
-                </List.Item>
+                </SadeListe.Oge>
               )}
             />
           </Card>

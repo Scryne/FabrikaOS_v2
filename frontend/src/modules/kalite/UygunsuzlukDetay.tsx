@@ -8,8 +8,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Button, Descriptions, Drawer, Form, Input, List, Modal, Select, Space, Tag } from 'antd';
+import { Button, Descriptions, Drawer, Form, Input, Modal, Select, Space, Tag } from 'antd';
 
+import { SadeListe } from '@/components/SadeListe';
 import { DetayIstatSira, DurumZamanCizelgesi } from '@/components/DetayOgeleri';
 import { useAuthStore } from '@/store/authStore';
 import { RENKLER } from '@/tema/tema';
@@ -182,12 +183,12 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
               </Button>
             )}
           </div>
-          <List
+          <SadeListe
             size="small"
             locale={{ emptyText: t('kalite.aksiyon_yok') }}
             dataSource={u.aksiyonlar}
             renderItem={(a) => (
-              <List.Item
+              <SadeListe.Oge
                 actions={
                   yazabilir && a.durum === 'planlandi'
                     ? [
@@ -210,7 +211,7 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
                     : undefined
                 }
               >
-                <List.Item.Meta
+                <SadeListe.Meta
                   title={
                     <Space>
                       <Tag variant="filled">{t(`kalite.aksiyon_${a.tur}`)}</Tag>
@@ -224,7 +225,7 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
                   }
                   description={a.aciklama}
                 />
-              </List.Item>
+              </SadeListe.Oge>
             )}
           />
 
