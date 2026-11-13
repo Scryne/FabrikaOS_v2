@@ -1157,13 +1157,29 @@ def raporlar(c: Istemci) -> None:
 
 def ai_egit(c: Istemci) -> None:
     """Modelleri güncel veriyle yeniden eğitir (tahmin ekranı taze veriye dayansın)."""
-    egitilen = []
+    # /egit 202 döner, eğitim arka planda biter: "başlatıldı" "eğitildi" değildir. Her kaydın
+    # sonucunu bekleyip gerçeği yaz (ör. nesne deposu kapalıysa model kaydedilemez → başarısız).
+    baslatilan: dict[str, int] = {}
     for tur in ["kestirimci_bakim", "anomali", "oee", "stok"]:
         try:
-            c.post("/api/v1/tahmin/egit", {"tur": tur})
+            baslatilan[tur] = c.post("/api/v1/tahmin/egit", {"tur": tur})["id"]
+        except RuntimeError as exc:
+            print(f"  ! {tur} eğitimi başlatılamadı: {exc}")
+    egitilen = []
+    son = time.monotonic() + 180
+    for tur, kayit_id in baslatilan.items():
+        kayit: dict[str, Any] = {}
+        while time.monotonic() < son:
+            kayitlar = c.get(f"/api/v1/tahmin/modeller?tur={tur}") or []
+            kayit = next((k for k in kayitlar if k["id"] == kayit_id), {})
+            if kayit.get("durum") != "egitiliyor":
+                break
+            time.sleep(1)
+        if kayit.get("durum") == "hazir":
             egitilen.append(tur)
-        except RuntimeError as exc:  # yetersiz veri: model "başarısız" kalır, seed durmaz
-            print(f"  ! {tur} eğitilemedi: {exc}")
+        else:  # yetersiz veri ya da depo hatası: model "başarısız" kalır, seed durmaz
+            neden = kayit.get("hata") or "süre doldu, hâlâ eğitiliyor"
+            print(f"  ! {tur} eğitilemedi: {neden[:160]}")
     print(f"  AI modelleri eğitildi: {', '.join(egitilen) or '-'}")
 
 
