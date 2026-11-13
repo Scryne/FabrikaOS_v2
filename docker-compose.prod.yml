@@ -25,8 +25,10 @@ services:
     ports: !reset []
     labels: !override
       - "traefik.enable=true"
-      # Tenant = alt alan adı (fabrika-a.fabrikaos.com.tr); kök alan da API'ye gider.
-      - "traefik.http.routers.fabrikaos-api.rule=HostRegexp(`^([a-z0-9-]+\\.)?${FABRIKAOS_ALAN_ADI}$`)"
+      # Tenant = alt alan adı (fabrika-a.fabrikaos.com.tr). Aynı alanda API yalnız kendi
+      # yollarını alır; geri kalan her yol `web` servisindeki SPA'ya düşer.
+      - "traefik.http.routers.fabrikaos-api.rule=HostRegexp(`^([a-z0-9-]+\\.)?${FABRIKAOS_ALAN_ADI}$`) && (PathPrefix(`/api`) || PathPrefix(`/saglik`) || Path(`/docs`) || Path(`/openapi.json`))"
+      - "traefik.http.routers.fabrikaos-api.priority=100"
       - "traefik.http.routers.fabrikaos-api.entrypoints=websecure"
       - "traefik.http.routers.fabrikaos-api.tls.certresolver=le"
       - "traefik.http.routers.fabrikaos-api.tls.domains[0].main=${FABRIKAOS_ALAN_ADI}"
@@ -40,6 +42,21 @@ services:
       - "traefik.http.routers.fabrikaos-metrik.service=noop@internal"
       - "traefik.http.routers.fabrikaos-metrik.tls=true"
       - "traefik.http.middlewares.fabrikaos-engel.ipallowlist.sourcerange=127.0.0.1/32"
+    restart: unless-stopped
+
+  web:
+    # Ön yüz (SPA): nginx statik sunucu. API ile aynı alan adı, en düşük öncelik.
+    build:
+      context: ./frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fabrikaos-web.rule=HostRegexp(`^([a-z0-9-]+\\.)?${FABRIKAOS_ALAN_ADI}$`)"
+      - "traefik.http.routers.fabrikaos-web.priority=10"
+      - "traefik.http.routers.fabrikaos-web.entrypoints=websecure"
+      - "traefik.http.routers.fabrikaos-web.tls.certresolver=le"
+      - "traefik.http.services.fabrikaos-web.loadbalancer.server.port=80"
+    depends_on:
+      - api
     restart: unless-stopped
 
   ingestion:

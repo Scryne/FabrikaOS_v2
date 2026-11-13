@@ -6,7 +6,12 @@
  * dener; her denemede güncel access token okunur (``tokenAl``) → rotasyon sonrası geçerli kalır.
  */
 
-const WS_TABANI = (import.meta.env.VITE_API_URL ?? 'http://localhost:8000').replace(/^http/, 'ws');
+// Üretim imajı VITE_API_URL'i boş derler (API aynı alan adında): o zaman sayfanın kendi
+// kökenine bağlanılır (https → wss). Göreli WS adresini her tarayıcı kabul etmez.
+const WS_TABANI = (
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.VITE_API_URL === '' ? window.location.origin : 'http://localhost:8000')
+).replace(/^http/, 'ws');
 const YENIDEN_GECIKME = 2000;
 
 export type Olay = { tur: string } & Record<string, unknown>;
