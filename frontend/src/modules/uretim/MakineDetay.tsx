@@ -308,8 +308,7 @@ export function MakineDetay() {
                   />
                   <Statistic
                     title={t('uretim.oee_hedefi')}
-                    value={m.oee_hedefi != null ? Math.round(m.oee_hedefi * 100) : '—'}
-                    suffix={m.oee_hedefi != null ? '%' : ''}
+                    value={m.oee_hedefi != null ? `%${Math.round(m.oee_hedefi * 100)}` : '—'}
                     styles={{
                       content: {
                         fontFamily: 'var(--font-mono)',

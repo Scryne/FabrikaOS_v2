@@ -7,7 +7,11 @@
 
 import type { EChartsOption } from 'echarts';
 
+import { sayiMetni } from '@/i18n/sayi';
 import { GRAFIK_PALETI, RENKLER } from '@/tema/tema';
+
+/** Değer ekseni etiketleri etkin dilin biçimiyle (echarts varsayılanı "1,200" yazar). */
+const eksenSayisi = (v: number) => sayiMetni(v);
 
 const MONO = "'JetBrains Mono Variable', ui-monospace, monospace";
 const GOVDE = "'Inter Variable', system-ui, sans-serif";
@@ -173,7 +177,7 @@ export function cizgiSecenek(veri: { zaman: string; deger: number }[]): EChartsO
       type: 'value',
       min: 0,
       splitLine: { lineStyle: { color: IZGARA_RENK } },
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO },
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, formatter: eksenSayisi },
     },
     series: [
       {
@@ -213,7 +217,7 @@ export function alanSecenek(kategoriler: string[], seriler: SeriVeri[]): ECharts
       type: 'value',
       min: 0,
       splitLine: { lineStyle: { color: IZGARA_RENK } },
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO },
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, formatter: eksenSayisi },
     },
     series: seriler.map((s, i) => {
       const renk = s.renk ?? GRAFIK_PALETI[i % GRAFIK_PALETI.length]!;
@@ -262,7 +266,7 @@ export function yiginCubukSecenek(kategoriler: string[], seriler: SeriVeri[]): E
     yAxis: {
       type: 'value',
       splitLine: { lineStyle: { color: IZGARA_RENK } },
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO },
+      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, formatter: eksenSayisi },
     },
     series: seriler.map((s, i) => ({
       name: s.ad,
@@ -293,7 +297,11 @@ export function isiHaritaSecenek(
       type: 'category',
       data: xEtiketler,
       splitArea: { show: false },
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, fontSize: 10 },
+      axisLabel: {
+        color: RENKLER.metinSoluk,
+        fontFamily: MONO,
+        fontSize: 10,
+      },
       axisLine: { lineStyle: { color: RENKLER.kenarlik } },
       axisTick: { show: false },
     },
@@ -388,7 +396,7 @@ export function paretoSecenek(veri: { ad: string; deger: number }[]): EChartsOpt
       {
         type: 'value',
         splitLine: { lineStyle: { color: IZGARA_RENK } },
-        axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO },
+        axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, formatter: eksenSayisi },
       },
       {
         type: 'value',
@@ -479,7 +487,11 @@ export function kontrolKartiSecenek(girdi: {
     xAxis: {
       type: 'category',
       data: siralar.map(String),
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, fontSize: 10 },
+      axisLabel: {
+        color: RENKLER.metinSoluk,
+        fontFamily: MONO,
+        fontSize: 10,
+      },
       axisLine: { lineStyle: { color: RENKLER.kenarlik } },
       axisTick: { show: false },
     },
@@ -488,7 +500,12 @@ export function kontrolKartiSecenek(girdi: {
       min: Number((enKucuk - pay).toFixed(ondalik)),
       max: Number((enBuyuk + pay).toFixed(ondalik)),
       splitLine: { lineStyle: { color: IZGARA_RENK } },
-      axisLabel: { color: RENKLER.metinSoluk, fontFamily: MONO, fontSize: 10 },
+      axisLabel: {
+        color: RENKLER.metinSoluk,
+        fontFamily: MONO,
+        fontSize: 10,
+        formatter: eksenSayisi,
+      },
     },
     series: [
       {
