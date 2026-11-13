@@ -99,8 +99,8 @@ export function MakineListesi() {
         {
           anahtar: 'oee',
           baslik: t('uretim.kpi_oee'),
-          deger: String(Math.round(ozet.ortalama_oee * 100)),
-          birim: '%',
+          // Ürünün geri kalanıyla aynı Türkçe yazım: "%77" (birim sonek olunca "77 %" çıkıyordu).
+          deger: `%${Math.round(ozet.ortalama_oee * 100)}`,
           ikon: <LineChartOutlined />,
         },
       ]

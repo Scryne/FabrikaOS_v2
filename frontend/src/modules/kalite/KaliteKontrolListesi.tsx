@@ -54,8 +54,8 @@ export function KaliteKontrolListesi() {
         {
           anahtar: 'oran',
           baslik: t('kalite.kpi_gecti_orani'),
-          deger: String(Math.round(ozet.gecti_orani * 100)),
-          birim: '%',
+          // Ürünün geri kalanıyla aynı Türkçe yazım: "%77" (birim sonek olunca "77 %" çıkıyordu).
+          deger: `%${Math.round(ozet.gecti_orani * 100)}`,
           ikon: <PercentageOutlined />,
         },
         {
