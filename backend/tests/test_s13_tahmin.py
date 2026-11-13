@@ -73,6 +73,28 @@ async def test_aktif_model_yokken_404(
             )
 
 
+async def test_artefakt_depoda_yoksa_404_ve_yeniden_egit_mesaji(
+    ai_ortam: async_sessionmaker[AsyncSession], test_db: str
+) -> None:
+    """Kayıt var ama artefakt depoda yok (depo sıfırlandı): 500 değil, ne yapılacağını söyler."""
+    await egitim_yardimci._alfa_seed(ai_ortam)
+    await _egitilmis(ai_ortam, "alfa", "oee")
+    async with ai_ortam() as db:
+        await search_path_ayarla(db, "alfa")
+        kayit = await repository.aktif_kayit(db, "oee")
+        assert kayit is not None
+        anahtar = kayit.nesne_anahtari
+    depo = egitim_yardimci._DEPO
+    yedek = depo.indir(anahtar)
+    depo.sil(anahtar)
+    artefakt.onbellek_temizle()
+    try:
+        with pytest.raises(KaynakBulunamadi, match="yeniden eğitin"):
+            await _tahmin(ai_ortam, "alfa", "oee")
+    finally:
+        depo.yukle(anahtar, yedek, "application/octet-stream")  # sonraki testler için
+
+
 async def test_oee_tahmini_ufuk_ve_gecmis(
     ai_ortam: async_sessionmaker[AsyncSession], test_db: str
 ) -> None:

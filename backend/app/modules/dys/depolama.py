@@ -112,8 +112,17 @@ class MinioNesneDepo:
         )
 
     def indir(self, anahtar: str) -> bytes:
+        from minio.error import S3Error
+
         self._bucket_sagla()
-        yanit = self._istemci.get_object(self._bucket, anahtar)
+        try:
+            yanit = self._istemci.get_object(self._bucket, anahtar)
+        except S3Error as exc:
+            # Sözleşme BellekNesneDepo ile aynı: olmayan anahtar KeyError'dur (çağıran
+            # "nesne yok"u depo türünden bağımsız yakalar).
+            if exc.code == "NoSuchKey":
+                raise KeyError(anahtar) from exc
+            raise
         try:
             return yanit.read()
         finally:

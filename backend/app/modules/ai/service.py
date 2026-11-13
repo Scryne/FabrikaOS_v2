@@ -209,7 +209,13 @@ async def tahmin_calistir(
     kayit = await repository.aktif_kayit(db, tur)
     if kayit is None:
         raise KaynakBulunamadi("Bu tür için hazır model yok; önce eğitim başlatın")
-    nesne = await asyncio.to_thread(artefakt.artefakt_yukle_onbellekli, kayit.nesne_anahtari)
+    try:
+        nesne = await asyncio.to_thread(artefakt.artefakt_yukle_onbellekli, kayit.nesne_anahtari)
+    except KeyError as exc:
+        # Kayıt var ama artefakt depoda yok (depo sıfırlandı/taşındı): 500 yerine ne
+        # yapılacağını söyleyen 404. Yeni eğitim yeni sürüm ve yeni anahtar üretir.
+        logger.warning("model artefaktı depoda yok: %s", kayit.nesne_anahtari)
+        raise KaynakBulunamadi("Modelin dosyası depoda bulunamadı; modeli yeniden eğitin") from exc
     cerceveler = await _cikarim_veri_hazirla(db, tur)
     sonuclar, veri_ozeti = await asyncio.to_thread(_tahmin, tur, nesne, cerceveler)
     if tur != "stok":  # makine-bazlı çıktılar insan-okur kodla zenginleşir
