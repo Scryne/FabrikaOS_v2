@@ -6,6 +6,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { MiniBar } from '@/components/MiniBar';
+import { sayiMetni } from '@/i18n/sayi';
 import { UyariKarti } from '@/components/UyariKarti';
 import { useKritikStok, useSatinalmaOzet, useStokOzet } from '@/modules/stok/hooks';
 
@@ -68,9 +69,9 @@ export function StokPaneli() {
                         style={{ fontSize: 12.5, color: 'var(--metin-soluk)' }}
                       >
                         <span style={{ color: kritikMi ? 'var(--hata)' : 'var(--metin)' }}>
-                          {m.mevcut_miktar}
+                          {sayiMetni(m.mevcut_miktar)}
                         </span>{' '}
-                        / {m.kritik_stok} {m.birim}
+                        / {sayiMetni(m.kritik_stok)} {m.birim}
                       </span>
                       <MiniBar
                         deger={m.mevcut_miktar}
