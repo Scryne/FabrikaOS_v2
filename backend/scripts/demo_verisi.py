@@ -1779,6 +1779,35 @@ def finans(c: Istemci) -> None:
     )
 
 
+DIS_PORTAL_KULLANICI = ("portal@demo.test", "Gökhan Erdem", ["dis-panel"])
+
+
+def dis_portal(c: Istemci) -> None:
+    """S18 dış portal: kurgusal müşteri temsilcisi, ilk müşteri firmaya bağlı ``dis-panel``
+    kullanıcısı. /dis ekranı yalnız kendi firmasının taleplerini görür. Var olan tenant'ta
+    kullanıcı varsa (409) dokunulmaz."""
+    firmalar = _liste(c, "/api/v1/firmalar?sayfa=1&adet=100")
+    musteri = next((f for f in firmalar if f["tip"] in ("musteri", "her_ikisi")), None)
+    if musteri is None:
+        return
+    eposta, ad, roller = DIS_PORTAL_KULLANICI
+    try:
+        c.post(
+            "/api/v1/kullanicilar",
+            {
+                "eposta": eposta,
+                "parola": "Demo1234!",
+                "ad_soyad": ad,
+                "roller": roller,
+                "firma_id": musteri["id"],
+            },
+        )
+        print(f"  dış portal: {eposta} → {musteri['ad']}")
+    except RuntimeError as e:
+        if "409" not in str(e):
+            raise
+
+
 def tamamla(c: Istemci, ben: dict) -> None:
     """Var olan tenant: eksik modülleri doldur, zaman serisini bugüne getir, modelleri eğit."""
     m = _makineler_profilli(c)
@@ -1788,6 +1817,7 @@ def tamamla(c: Istemci, ben: dict) -> None:
     urun_recete_uretim(c, m, ben["id"])
     planlama(c, m)
     satis(c, m)
+    dis_portal(c)
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, m)
     tedarik_zinciri(c)
@@ -1856,6 +1886,7 @@ def main() -> int:
     urun_recete_uretim(c, m, ben["id"])
     planlama(c, m)
     satis(c, _makineler_profilli(c))
+    dis_portal(c)
     lot_uretim_kayitlari(c, m)
     makine_konumlari(c, _makineler_profilli(c))
     tedarik_zinciri(c)

@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LogoutOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Drawer, Form, Input, Select, Steps, Tag, Tabs } from 'antd';
+import { Button, Card, Drawer, Form, Grid, Input, Select, Steps, Tag, Tabs } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 
@@ -64,6 +64,7 @@ function TalepDetayCekmece({ talep, kapat }: { talep: DisTalep | null; kapat: ()
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
             <DurumEtiketi durum={talep.durum} />
+            <Tag variant="filled">{t(`dis.tur_${talep.tur}`, talep.tur)}</Tag>
             <span style={{ color: 'var(--metin-soluk)', fontSize: 12, marginLeft: 8 }}>
               {new Date(talep.olusturma_tarihi).toLocaleString('tr-TR')}
             </span>
@@ -93,34 +94,55 @@ function Taleplerim() {
   const { data, isPending, isError } = useDisTalepler(param);
   const [secili, setSecili] = useState<DisTalep | null>(null);
 
+  // Telefonda (md altı) tablo yatay kaydırıyordu: başlık talep numarasının altına iner,
+  // tür ve tarih çekmecede görünür; numara + başlık + durum ekrana sığar.
+  const dar = !Grid.useBreakpoint().md;
   const kolonlar: ColumnsType<DisTalep> = [
     {
-      title: t('dis.kod'),
+      title: dar ? t('dis.baslik') : t('dis.kod'),
       dataIndex: 'kod',
       key: 'kod',
-      render: (v: string) => <span className="sayisal">{v}</span>,
+      render: (v: string, k) =>
+        dar ? (
+          <span>
+            <span className="varlik-ad" style={{ display: 'block', whiteSpace: 'normal' }}>
+              {k.baslik}
+            </span>
+            <span className="varlik-alt sayisal">{v}</span>
+          </span>
+        ) : (
+          <span className="sayisal">{v}</span>
+        ),
     },
-    { title: t('dis.baslik'), dataIndex: 'baslik', key: 'baslik' },
-    {
-      title: t('dis.tur'),
-      dataIndex: 'tur',
-      key: 'tur',
-      render: (v: string) => <Tag variant="filled">{t(`dis.tur_${v}`, v)}</Tag>,
-    },
+    ...(dar ? [] : [{ title: t('dis.baslik'), dataIndex: 'baslik', key: 'baslik' }]),
+    ...(dar
+      ? []
+      : [
+          {
+            title: t('dis.tur'),
+            dataIndex: 'tur',
+            key: 'tur',
+            render: (v: string) => <Tag variant="filled">{t(`dis.tur_${v}`, v)}</Tag>,
+          },
+        ]),
     {
       title: t('dis.durum'),
       dataIndex: 'durum',
       key: 'durum',
       render: (durum: string) => <DurumEtiketi durum={durum} />,
     },
-    {
-      title: t('dis.tarih'),
-      dataIndex: 'olusturma_tarihi',
-      key: 'olusturma_tarihi',
-      render: (v: string) => (
-        <span className="sayisal">{new Date(v).toLocaleDateString('tr-TR')}</span>
-      ),
-    },
+    ...(dar
+      ? []
+      : [
+          {
+            title: t('dis.tarih'),
+            dataIndex: 'olusturma_tarihi',
+            key: 'olusturma_tarihi',
+            render: (v: string) => (
+              <span className="sayisal">{new Date(v).toLocaleDateString('tr-TR')}</span>
+            ),
+          },
+        ]),
   ];
 
   return (
@@ -201,15 +223,7 @@ export function DisPortalSayfasi() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Üst bar: marka + firma (tenant markalama alanı) + kullanıcı/çıkış */}
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          padding: '14px 28px',
-          borderBottom: '1px solid var(--cizgi, rgba(148,163,184,0.15))',
-        }}
-      >
+      <header className="dis-ust">
         <LogoIsareti boyut={28} />
         <div>
           <div style={{ fontWeight: 700, lineHeight: 1.2 }}>{t('dis.portal_baslik')}</div>
@@ -217,11 +231,11 @@ export function DisPortalSayfasi() {
         </div>
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           {durum && (
-            <span style={{ fontSize: 13, color: 'var(--metin-soluk)' }}>
+            <span className="dis-ust-ikincil" style={{ color: 'var(--metin-soluk)' }}>
               {t('dis.acik_talep', { adet: durum.acik })}
             </span>
           )}
-          <span style={{ fontSize: 13 }}>{kullanici?.ad_soyad || kullanici?.eposta}</span>
+          <span className="dis-ust-ikincil">{kullanici?.ad_soyad || kullanici?.eposta}</span>
           <Button
             size="small"
             icon={<LogoutOutlined />}

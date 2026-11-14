@@ -1984,3 +1984,24 @@ a.varlik-ad:hover {
 .onay-dar-eylem {
   margin-top: 8px;
 }
+
+/* Dış portal üst barı: telefonda marka + çıkış kalır, sayaç ve ad gizlenir (sarmayı önler). */
+.dis-ust {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 28px;
+  border-bottom: 1px solid var(--kenarlik);
+}
+.dis-ust-ikincil {
+  font-size: 13px;
+}
+@media (max-width: 575px) {
+  .dis-ust {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+  .dis-ust-ikincil {
+    display: none;
+  }
+}
