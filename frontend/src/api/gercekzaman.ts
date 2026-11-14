@@ -58,7 +58,12 @@ export function gercekZamanBaglan(secenek: GercekZamanSecenek): GercekZamanBagla
     };
   };
 
-  baglan();
+  // İlk bağlantı bir sonraki makro göreve ertelenir: React StrictMode (geliştirme) efekti
+  // bağla → temizle → bağla diye çift çalıştırır; ilk soket CONNECTING iken kapanınca tarayıcı
+  // "WebSocket is closed before the connection is established" hatası basıyordu (sızıntı değil,
+  // ölçüldü: ikinci soket tek açık kalan). Ertelenince temizlik zamanlayıcıyı iptal eder,
+  // gereksiz soket hiç açılmaz. Üretimde fark yalnız bir tik gecikme.
+  zamanlayici = setTimeout(baglan, 0);
 
   return {
     kapat: () => {
