@@ -7,7 +7,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, InputNumber, Modal, Select } from 'antd';
 
-import { useKontrolOlustur } from './hooks';
+import { useKaliteMakineSecenekleri, useKontrolOlustur } from './hooks';
 
 const KONTROL_TURLERI = ['uretim', 'giris', 'final'];
 const SONUCLAR = ['gecti', 'kaldi', 'sartli'];
@@ -15,6 +15,7 @@ const SONUCLAR = ['gecti', 'kaldi', 'sartli'];
 export function KaliteKontrolFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
+  const makineler = useKaliteMakineSecenekleri();
   const olustur = useKontrolOlustur();
 
   useEffect(() => {
@@ -53,8 +54,17 @@ export function KaliteKontrolFormu({ acik, kapat }: { acik: boolean; kapat: () =
         <Form.Item name="sonuc" label={t('kalite.sonuc')} rules={[{ required: true }]}>
           <Select options={SONUCLAR.map((x) => ({ value: x, label: t(`kalite.sonuc_${x}`) }))} />
         </Form.Item>
+        {/* Ham makine numarası yerine kod · ad seçicisi (kalite:oku ile dar uç). */}
         <Form.Item name="makine_id" label={t('kalite.makine')}>
-          <InputNumber min={1} style={{ width: '100%' }} />
+          <Select
+            allowClear
+            showSearch={{ optionFilterProp: 'label' }}
+            loading={makineler.isPending}
+            options={(makineler.data ?? []).map((m) => ({
+              value: m.id,
+              label: `${m.kod} · ${m.ad}`,
+            }))}
+          />
         </Form.Item>
         <Form.Item name="is_emri_id" label={t('kalite.is_emri')}>
           <InputNumber min={1} style={{ width: '100%' }} />

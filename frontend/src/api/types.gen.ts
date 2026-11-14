@@ -1983,6 +1983,23 @@ export interface paths {
         patch: operations["aksiyon_guncelle_api_v1_uygunsuzluklar__uygunsuzluk_id__aksiyonlar__aksiyon_id__patch"];
         trace?: never;
     };
+    "/api/v1/kalite/makine-secenekleri": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Makine seçenekleri (kalite formları için: kimlik, kod, ad) */
+        get: operations["kalite_makine_secenekleri_api_v1_kalite_makine_secenekleri_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/kalite/ozet": {
         parameters: {
             query?: never;
@@ -7227,6 +7244,21 @@ export interface components {
             gecme_orani: number | null;
             /** Acik Uygunsuzluk */
             acik_uygunsuzluk: number;
+        };
+        /**
+         * KaliteMakineSecenekDTO
+         * @description Uygunsuzluk/kontrol formunun makine seçicisi: yalnız kimlik + kod + ad (S-denetim).
+         *
+         *     Kalite rolü ``uretim:oku`` taşımaz; makine durumu, OEE hedefi, konum gibi üretim
+         *     verisini açmadan formun ihtiyacı kadarı ``kalite:oku`` ile verilir.
+         */
+        KaliteMakineSecenekDTO: {
+            /** Id */
+            id: number;
+            /** Kod */
+            kod: string;
+            /** Ad */
+            ad: string;
         };
         /**
          * KaliteOzetDTO
@@ -12872,6 +12904,22 @@ export interface components {
             data?: components["schemas"]["KaliteKontrolCevapDTO"][] | null;
             meta?: components["schemas"]["SayfaMeta"] | null;
         };
+        /** Zarf[list[KaliteMakineSecenekDTO]] */
+        Zarf_list_KaliteMakineSecenekDTO__: {
+            /**
+             * Success
+             * @default true
+             */
+            success: boolean;
+            /**
+             * Message
+             * @default İşlem başarılı
+             */
+            message: string;
+            /** Data */
+            data?: components["schemas"]["KaliteMakineSecenekDTO"][] | null;
+            meta?: components["schemas"]["SayfaMeta"] | null;
+        };
         /** Zarf[list[KkdEksikDTO]] */
         Zarf_list_KkdEksikDTO__: {
             /**
@@ -18110,6 +18158,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    kalite_makine_secenekleri_api_v1_kalite_makine_secenekleri_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Zarf_list_KaliteMakineSecenekDTO__"];
                 };
             };
         };

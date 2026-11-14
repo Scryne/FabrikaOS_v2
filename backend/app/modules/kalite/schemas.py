@@ -126,3 +126,15 @@ class KaliteOzetDTO(BaseModel):
     toplam_kontrol: int
     gecti_kontrol: int
     gecti_orani: float  # 0–1 (kalite kontrol geçme oranı)
+
+
+class KaliteMakineSecenekDTO(BaseModel):
+    """Uygunsuzluk/kontrol formunun makine seçicisi: yalnız kimlik + kod + ad (S-denetim).
+
+    Kalite rolü ``uretim:oku`` taşımaz; makine durumu, OEE hedefi, konum gibi üretim
+    verisini açmadan formun ihtiyacı kadarı ``kalite:oku`` ile verilir.
+    """
+
+    id: int
+    kod: str
+    ad: str

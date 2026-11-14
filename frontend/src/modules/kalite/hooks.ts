@@ -26,6 +26,17 @@ export const KALITE_ANAHTAR = {
 };
 
 /** Kalite/CAPA KPI özeti (OzetSerit). */
+export type KaliteMakineSecenek = components['schemas']['KaliteMakineSecenekDTO'];
+
+/** Kalite formlarının makine seçicisi: kalite:oku ile yalnız id/kod/ad (uretim:oku gerekmez). */
+export function useKaliteMakineSecenekleri() {
+  return useQuery({
+    queryKey: ['kalite', 'makine-secenekleri'],
+    queryFn: () => istek<KaliteMakineSecenek[]>('GET', `${PREFIX}/kalite/makine-secenekleri`),
+    staleTime: 60_000,
+  });
+}
+
 export function useKaliteOzet() {
   return useQuery({
     queryKey: KALITE_ANAHTAR.ozet,

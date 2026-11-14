@@ -7690,6 +7690,32 @@
         }
       }
     },
+    "/api/v1/kalite/makine-secenekleri": {
+      "get": {
+        "tags": [
+          "Kalite"
+        ],
+        "summary": "Makine seçenekleri (kalite formları için: kimlik, kod, ad)",
+        "operationId": "kalite_makine_secenekleri_api_v1_kalite_makine_secenekleri_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Zarf_list_KaliteMakineSecenekDTO__"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
     "/api/v1/kalite/ozet": {
       "get": {
         "tags": [
@@ -25849,6 +25875,30 @@
         ],
         "title": "KaliteKpiDTO"
       },
+      "KaliteMakineSecenekDTO": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "kod": {
+            "type": "string",
+            "title": "Kod"
+          },
+          "ad": {
+            "type": "string",
+            "title": "Ad"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kod",
+          "ad"
+        ],
+        "title": "KaliteMakineSecenekDTO",
+        "description": "Uygunsuzluk/kontrol formunun makine seçicisi: yalnız kimlik + kod + ad (S-denetim).\n\nKalite rolü ``uretim:oku`` taşımaz; makine durumu, OEE hedefi, konum gibi üretim\nverisini açmadan formun ihtiyacı kadarı ``kalite:oku`` ile verilir."
+      },
       "KaliteOzetDTO": {
         "properties": {
           "acik_uygunsuzluk": {
@@ -40942,6 +40992,46 @@
         },
         "type": "object",
         "title": "Zarf[list[KaliteKontrolCevapDTO]]"
+      },
+      "Zarf_list_KaliteMakineSecenekDTO__": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": "İşlem başarılı"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/KaliteMakineSecenekDTO"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "meta": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SayfaMeta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "Zarf[list[KaliteMakineSecenekDTO]]"
       },
       "Zarf_list_KkdEksikDTO__": {
         "properties": {

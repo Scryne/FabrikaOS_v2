@@ -39,12 +39,14 @@ from app.modules.kalite.schemas import (
     DurumGecisDTO,
     KaliteKontrolCevapDTO,
     KaliteKontrolOlusturDTO,
+    KaliteMakineSecenekDTO,
     KaliteOzetDTO,
     UygunsuzlukCevapDTO,
     UygunsuzlukDetayDTO,
     UygunsuzlukGuncelleDTO,
     UygunsuzlukOlusturDTO,
 )
+from app.modules.uretim.models import Makine
 
 router = APIRouter(tags=["Kalite"], dependencies=[Depends(modul_gerekli("kalite"))])
 
@@ -525,6 +527,25 @@ async def aksiyon_guncelle(
     tam = await repository.uygunsuzluk_getir_aksiyonlu(db, uygunsuzluk_id)
     assert tam is not None
     return basari(_uygunsuzluk_detay_cevap(tam), mesaj="Aksiyon güncellendi")
+
+
+@router.get(
+    "/kalite/makine-secenekleri",
+    response_model=Zarf[list[KaliteMakineSecenekDTO]],
+    summary="Makine seçenekleri (kalite formları için: kimlik, kod, ad)",
+)
+async def kalite_makine_secenekleri(
+    _kullanici: Annotated[Kullanici, Depends(izin_gerekli("kalite:oku"))],
+    db: Annotated[AsyncSession, Depends(get_session)],
+    _tenant: Annotated[Tenant, Depends(tenant_cozumle)],
+) -> dict[str, Any]:
+    satirlar = (
+        await db.execute(select(Makine.id, Makine.kod, Makine.ad).order_by(Makine.kod))
+    ).all()
+    return basari(
+        [KaliteMakineSecenekDTO(id=i, kod=k, ad=a).model_dump() for i, k, a in satirlar],
+        mesaj="Makine seçenekleri",
+    )
 
 
 @router.get("/kalite/ozet", response_model=Zarf[KaliteOzetDTO], summary="Kalite/CAPA özeti (KPI)")
