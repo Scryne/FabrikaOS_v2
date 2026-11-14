@@ -731,7 +731,11 @@
     "iz_isemri_yok": "Bu lota bağlı iş emri yok.",
     "iz_tuketilen_yok": "BOM tüketimi kaydı yok.",
     "iz_uretim_yok": "Bu lota bağlı üretim kaydı yok.",
-    "iz_son_kayit": "Son kayıt"
+    "iz_son_kayit": "Son kayıt",
+    "ariza_baslik": "Makine arızada",
+    "ariza_aciklama": "Açık bir arıza kaydı var. Onarım için bu kayda bağlı bir iş emri açın; arıza kapanınca onarım süresi MTTR'ye yazılır.",
+    "ariza_is_emri": "Arıza iş emri aç",
+    "ariza_is_emri_baslik": "Arıza onarımı: {{kod}}"
   },
   "isemri": {
     "durum_acik": "Açık",

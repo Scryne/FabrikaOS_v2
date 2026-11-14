@@ -13686,7 +13686,7 @@
           "Entegrasyon"
         ],
         "summary": "Günlük üretim özeti + OEE (API anahtarı; kapsam uretim:oku)",
-        "description": "``gun`` (UTC, varsayılan bugün) için makine başına üretim/fire + OEE.",
+        "description": "``gun`` (iş günü, varsayılan bugün) için makine başına üretim/fire + OEE.",
         "operationId": "uretim_ozeti_api_v1_entegrasyon_uretim_ozeti_get",
         "parameters": [
           {
@@ -21923,8 +21923,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Sure Saat",
@@ -22087,8 +22086,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Tuketim"
@@ -22477,8 +22475,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,8}|(?=[\\d.]{1,15}0*$)\\d{0,8}\\.\\d{0,6}0*$)"
+                "type": "string"
               }
             ],
             "title": "Deger"
@@ -22845,8 +22842,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,3}0*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -22866,8 +22862,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,4}0*$"
+                "type": "string"
               }
             ],
             "title": "Birim Fiyat"
@@ -23042,8 +23037,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Saat"
@@ -23624,8 +23618,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -24583,8 +24576,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25754,8 +25746,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25769,8 +25760,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25784,8 +25774,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25941,8 +25930,7 @@
           "nominal": {
             "anyOf": [
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25953,8 +25941,7 @@
           "alt_tolerans": {
             "anyOf": [
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -25965,8 +25952,7 @@
           "ust_tolerans": {
             "anyOf": [
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -26050,8 +26036,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -26065,8 +26050,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -26080,8 +26064,7 @@
                 "type": "number"
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -26964,6 +26947,17 @@
               }
             ],
             "title": "Boylam"
+          },
+          "acik_ariza_kaydi_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acik Ariza Kaydi Id"
           }
         },
         "type": "object",
@@ -27365,8 +27359,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -27381,8 +27374,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -27397,8 +27389,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -27476,8 +27467,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Min Stok",
@@ -27490,8 +27480,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -27506,8 +27495,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Kritik Stok",
@@ -28080,8 +28068,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d{0,2}0*$"
+                "type": "string"
               }
             ],
             "title": "Tutar"
@@ -30218,8 +30205,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -30762,8 +30748,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -30781,8 +30766,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -31412,8 +31396,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,15}|(?=[\\d.]{1,19}0*$)\\d{0,15}\\.\\d{0,3}0*$)"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -31425,8 +31408,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,19}0*$)\\d{0,14}\\.\\d{0,4}0*$)"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -31869,8 +31851,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Sayilan Miktar"
@@ -32020,8 +32001,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -32037,8 +32017,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Fazla Teslim Toleransi Yuzde",
@@ -32311,8 +32290,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               },
               {
                 "type": "null"
@@ -32394,8 +32372,7 @@
                 "minimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Tutar",
@@ -32704,8 +32681,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -33903,8 +33879,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"
@@ -34157,8 +34132,7 @@
                 "exclusiveMinimum": 0.0
               },
               {
-                "type": "string",
-                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$"
+                "type": "string"
               }
             ],
             "title": "Miktar"

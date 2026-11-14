@@ -35,7 +35,9 @@ import { PanelKart } from '@/components/PanelKart';
 import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { SunucuTablo } from '@/components/SunucuTablo';
+import { UyariKarti } from '@/components/UyariKarti';
 import { useBakimMetrikleri } from '@/modules/bakim/hooks';
+import { IsEmriFormu } from '@/modules/isemri/IsEmriFormu';
 import { useSayfaParam } from '@/modules/ortak/useSayfaParam';
 import { GRAFIK_PALETI, RENKLER } from '@/tema/tema';
 import { useAuthStore } from '@/store/authStore';
@@ -72,6 +74,8 @@ export function MakineDetay() {
   });
   const uretim = useUretimVerileri(param);
   const [formAcik, setFormAcik] = useState(false);
+  const [arizaIeAcik, setArizaIeAcik] = useState(false);
+  const isEmriYazabilir = useAuthStore((s) => s.izinVar('isemri:yaz'));
 
   // Güvenilirlik metrikleri (S24) — bakim:oku olmayan kullanıcıda sorgu hiç atılmaz.
   const bakimOku = useAuthStore((s) => s.izinVar('bakim:oku'));
@@ -263,6 +267,24 @@ export function MakineDetay() {
         }
       />
 
+      {/* Arıza → bakım iş emri: açık arıza kaydına bağlı İE tek adımda (MTTR izi korunur). */}
+      {m.durum === 'ariza' && m.acik_ariza_kaydi_id != null && (
+        <div style={{ marginBottom: 16 }}>
+          <UyariKarti
+            onem="kritik"
+            baslik={t('uretim.ariza_baslik')}
+            aciklama={t('uretim.ariza_aciklama')}
+            aksiyon={
+              isEmriYazabilir && (
+                <Button type="primary" danger onClick={() => setArizaIeAcik(true)}>
+                  {t('uretim.ariza_is_emri')}
+                </Button>
+              )
+            }
+          />
+        </div>
+      )}
+
       <div style={{ marginBottom: 16 }}>
         <OzetSerit metrikler={ozetMetrikler} renk={HAT} yukleniyor={oee.isPending} />
       </div>
@@ -443,6 +465,17 @@ export function MakineDetay() {
       )}
 
       <UretimGirisFormu acik={formAcik} kapat={() => setFormAcik(false)} makineId={id} />
+      {m.acik_ariza_kaydi_id != null && (
+        <IsEmriFormu
+          acik={arizaIeAcik}
+          kapat={() => setArizaIeAcik(false)}
+          ariza={{
+            makineId: m.id,
+            arizaKaydiId: m.acik_ariza_kaydi_id,
+            baslik: t('uretim.ariza_is_emri_baslik', { kod: m.kod }),
+          }}
+        />
+      )}
     </SayfaKapsayici>
   );
 }

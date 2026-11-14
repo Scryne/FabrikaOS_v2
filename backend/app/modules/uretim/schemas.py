@@ -37,6 +37,9 @@ class MakineCevapDTO(BaseModel):
     oee_hedefi: float | None = None
     enlem: float | None = None
     boylam: float | None = None
+    # Yalnız detay ucunda dolar: makine arızadayken açık arıza kaydı (arıza iş emrini
+    # bu kayda bağlamak için). Listede ve arıza yokken null.
+    acik_ariza_kaydi_id: int | None = None
 
 
 class UretimGirisDTO(BaseModel):

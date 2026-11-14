@@ -105,3 +105,34 @@ async def test_ariza_otomasyonu_ve_mtbf_mttr_ucu(test_db: str, kurulu_istemci: A
     # Var olmayan makine 404.
     r = await kurulu_istemci.get("/api/v1/bakim/metrikler?makine_id=999999", headers=h)
     assert r.status_code == 404
+
+
+async def test_makine_detayi_acik_arizayi_verir_ve_is_emri_ona_baglanir(
+    test_db: str, kurulu_istemci: AsyncClient
+) -> None:
+    """Arıza → bakım iş emri: detay açık arıza kaydını verir, İE o kayda bağlanır."""
+    h = await _giris(kurulu_istemci, ALFA)
+    mid = await _makine(kurulu_istemci, h, "S24-ARZ")
+
+    r = await kurulu_istemci.get(f"/api/v1/makineler/{mid}", headers=h)
+    assert r.json()["data"]["acik_ariza_kaydi_id"] is None  # arıza yok
+
+    await kurulu_istemci.patch(f"/api/v1/makineler/{mid}/durum", json={"durum": "ariza"}, headers=h)
+    r = await kurulu_istemci.get(f"/api/v1/makineler/{mid}", headers=h)
+    ariza_id = r.json()["data"]["acik_ariza_kaydi_id"]
+    assert isinstance(ariza_id, int)
+
+    r = await kurulu_istemci.post(
+        "/api/v1/is-emirleri",
+        json={"baslik": "Arıza onarımı", "makine_id": mid, "ariza_kaydi_id": ariza_id},
+        headers=h,
+    )
+    assert r.status_code == 201, r.text
+    assert r.json()["data"]["ariza_kaydi_id"] == ariza_id
+
+    # Arızadan çıkınca kayıt kapanır: detayda açık arıza kalmaz.
+    await kurulu_istemci.patch(
+        f"/api/v1/makineler/{mid}/durum", json={"durum": "calisiyor"}, headers=h
+    )
+    r = await kurulu_istemci.get(f"/api/v1/makineler/{mid}", headers=h)
+    assert r.json()["data"]["acik_ariza_kaydi_id"] is None

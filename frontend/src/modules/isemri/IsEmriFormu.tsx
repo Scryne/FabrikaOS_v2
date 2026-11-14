@@ -26,7 +26,18 @@ type Alanlar = {
   lot_no?: string;
 };
 
-export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
+/** Arıza iş emri: makine ve başlık dolu gelir, İE açık arıza kaydına bağlanır (MTTR izi). */
+export type ArizaBaglami = { makineId: number; arizaKaydiId: number; baslik: string };
+
+export function IsEmriFormu({
+  acik,
+  kapat,
+  ariza,
+}: {
+  acik: boolean;
+  kapat: () => void;
+  ariza?: ArizaBaglami;
+}) {
   const { t } = useTranslation();
   const [form] = Form.useForm<Alanlar>();
   const olustur = useIsEmriOlustur();
@@ -49,6 +60,7 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
       urun_id: v.urun_id ?? null,
       miktar: v.miktar != null ? String(v.miktar) : null,
       lot_no: v.lot_no?.trim() || null,
+      ariza_kaydi_id: ariza?.arizaKaydiId ?? null,
     });
     form.resetFields();
     kapat();
@@ -75,7 +87,11 @@ export function IsEmriFormu({ acik, kapat }: { acik: boolean; kapat: () => void 
         layout="vertical"
         requiredMark="optional"
         preserve={false}
-        initialValues={{ oncelik: 'orta' }}
+        initialValues={
+          ariza
+            ? { oncelik: 'yuksek', makine_id: ariza.makineId, baslik: ariza.baslik }
+            : { oncelik: 'orta' }
+        }
       >
         <Form.Item
           name="baslik"

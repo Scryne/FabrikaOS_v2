@@ -3262,7 +3262,7 @@ export interface paths {
         };
         /**
          * Günlük üretim özeti + OEE (API anahtarı; kapsam uretim:oku)
-         * @description ``gun`` (UTC, varsayılan bugün) için makine başına üretim/fire + OEE.
+         * @description ``gun`` (iş günü, varsayılan bugün) için makine başına üretim/fire + OEE.
          */
         get: operations["uretim_ozeti_api_v1_entegrasyon_uretim_ozeti_get"];
         put?: never;
@@ -7625,6 +7625,8 @@ export interface components {
             enlem?: number | null;
             /** Boylam */
             boylam?: number | null;
+            /** Acik Ariza Kaydi Id */
+            acik_ariza_kaydi_id?: number | null;
         };
         /** MakineCizelgesiDTO */
         MakineCizelgesiDTO: {

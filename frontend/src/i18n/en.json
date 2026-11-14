@@ -731,7 +731,11 @@
     "iz_isemri_yok": "No work orders linked to this lot.",
     "iz_tuketilen_yok": "No BOM consumption records.",
     "iz_uretim_yok": "No production records for this lot.",
-    "iz_son_kayit": "Last record"
+    "iz_son_kayit": "Last record",
+    "ariza_baslik": "Machine is down",
+    "ariza_aciklama": "There is an open breakdown record. Open a work order linked to it; when the breakdown closes, the repair time feeds MTTR.",
+    "ariza_is_emri": "Open breakdown work order",
+    "ariza_is_emri_baslik": "Breakdown repair: {{kod}}"
   },
   "isemri": {
     "durum_acik": "Open",

@@ -123,7 +123,15 @@ async def makine_detay(
     makine = await repository.makine_getir(db, makine_id)
     if makine is None:
         raise KaynakBulunamadi("Makine bulunamadı")
-    return basari(_makine_cevap(makine), mesaj="Makine detayı")
+    cevap = _makine_cevap(makine)
+    if makine.durum == "ariza":
+        cevap["acik_ariza_kaydi_id"] = await db.scalar(
+            select(ArizaKaydi.id)
+            .where(ArizaKaydi.makine_id == makine.id, ArizaKaydi.bitis.is_(None))
+            .order_by(ArizaKaydi.baslangic.desc())
+            .limit(1)
+        )
+    return basari(cevap, mesaj="Makine detayı")
 
 
 @router.patch(
