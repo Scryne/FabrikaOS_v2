@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { App } from 'antd';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -33,13 +34,41 @@ const kart: SpcKart = {
     r_lcl: 0,
   },
   noktalar: [
-    { sira: 1, zaman: '2026-10-31T10:00:00Z', xbar: 10, r: 0.01, kayitli_ihlaller: [] },
-    { sira: 2, zaman: '2026-10-31T11:00:00Z', xbar: 10.03, r: 0.01, kayitli_ihlaller: [] },
+    {
+      alt_grup_id: 41,
+      sira: 1,
+      degerler: [10, 10.01, 9.99],
+      uygunsuzluk_id: null,
+      uygunsuzluk_kod: null,
+      zaman: '2026-10-31T10:00:00Z',
+      xbar: 10,
+      r: 0.01,
+      kayitli_ihlaller: [],
+    },
+    {
+      alt_grup_id: 42,
+      sira: 2,
+      degerler: [10.03, 10.035, 10.025],
+      uygunsuzluk_id: null,
+      uygunsuzluk_kod: null,
+      zaman: '2026-10-31T11:00:00Z',
+      xbar: 10.03,
+      r: 0.01,
+      kayitli_ihlaller: [],
+    },
   ],
   ihlaller: [{ kart: 'xbar', kural: 1, indeks: 1, aciklama: '3σ dışında' }],
   yetenek: { sigma_ic: 0.006, cp: 2.78, cpk: 1.11 },
   uyarilar: [],
 };
+
+const olustur = vi.fn().mockResolvedValue({ id: 99 });
+vi.mock('./hooks', () => ({
+  useUygunsuzlukOlustur: () => ({ mutateAsync: olustur, isPending: false }),
+  useKaliteMakineSecenekleri: () => ({ data: [], isPending: false }),
+}));
+vi.mock('@/modules/kimlik/hooks', () => ({ useFirmaSecenekleri: () => ({ data: [] }) }));
+vi.mock('@/modules/isemri/hooks', () => ({ useKullaniciSecenekleri: () => ({ data: [] }) }));
 
 vi.mock('./spcHooks', () => ({
   useSpcKart: () => ({ data: kart, isPending: false }),
@@ -71,6 +100,21 @@ describe('SpcKarti', () => {
     expect(screen.getByLabelText('3. ölçüm')).toBeInTheDocument();
     expect(screen.queryByLabelText('4. ölçüm')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Limitleri sabitle/ })).toBeInTheDocument();
+  });
+
+  it('ihlal satırından uygunsuzluk açılır: form ihlal bilgisiyle dolu, kayıt alt gruba bağlı', async () => {
+    kur(['kalite:oku', 'kalite:yaz']);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Uygunsuzluk aç' }));
+    expect(
+      await screen.findByDisplayValue('SPC ihlali: Mil çapı · alt grup #2'),
+    ).toBeInTheDocument();
+    const aciklama = screen.getByLabelText(/Açıklama/) as HTMLTextAreaElement;
+    expect(aciklama.value).toContain('X̄ kartı kural 1');
+    expect(aciklama.value).toContain('10,030; 10,035; 10,025 mm');
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Kaydet' }));
+    expect(olustur).toHaveBeenCalledWith(
+      expect.objectContaining({ kaynak_spc_alt_grup_id: 42, onem: 'yuksek' }),
+    );
   });
 
   it('yalnız okuma izniyle ölçüm girişi ve sabitleme gizlenir', () => {

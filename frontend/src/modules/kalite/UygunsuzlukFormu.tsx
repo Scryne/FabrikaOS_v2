@@ -80,20 +80,45 @@ function IliskiAlanlari() {
   );
 }
 
-export function UygunsuzlukFormu({ acik, kapat }: { acik: boolean; kapat: () => void }) {
+/** SPC kartından açılan vaka: alanlar ihlal bilgisiyle dolu gelir, kayıt alt gruba bağlanır. */
+export type SpcKaynagi = {
+  altGrupId: number;
+  baslik: string;
+  aciklama: string;
+  onem: string;
+};
+
+export function UygunsuzlukFormu({
+  acik,
+  kapat,
+  spc,
+  olustu,
+}: {
+  acik: boolean;
+  kapat: () => void;
+  spc?: SpcKaynagi;
+  olustu?: (id: number) => void;
+}) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const olustur = useUygunsuzlukOlustur();
 
   useEffect(() => {
-    if (acik) form.setFieldsValue({ onem: 'orta' });
-  }, [acik, form]);
+    if (!acik) return;
+    form.setFieldsValue(
+      spc ? { onem: spc.onem, baslik: spc.baslik, aciklama: spc.aciklama } : { onem: 'orta' },
+    );
+  }, [acik, form, spc]);
 
   const gonder = async () => {
     const v = await form.validateFields();
-    await olustur.mutateAsync(v);
+    const u = await olustur.mutateAsync({
+      ...v,
+      kaynak_spc_alt_grup_id: spc?.altGrupId ?? null,
+    });
     form.resetFields();
     kapat();
+    olustu?.(u.id);
   };
 
   return (

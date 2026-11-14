@@ -34778,6 +34778,28 @@
             ],
             "title": "Tedarikci Firma Id"
           },
+          "kaynak_spc_alt_grup_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kaynak Spc Alt Grup Id"
+          },
+          "kaynak_spc_karakteristik_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kaynak Spc Karakteristik Id"
+          },
           "onem": {
             "type": "string",
             "title": "Onem"
@@ -34898,6 +34920,28 @@
               }
             ],
             "title": "Tedarikci Firma Id"
+          },
+          "kaynak_spc_alt_grup_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kaynak Spc Alt Grup Id"
+          },
+          "kaynak_spc_karakteristik_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kaynak Spc Karakteristik Id"
           },
           "onem": {
             "type": "string",
@@ -35093,6 +35137,17 @@
               }
             ],
             "title": "Sorumlu Kullanici Id"
+          },
+          "kaynak_spc_alt_grup_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kaynak Spc Alt Grup Id"
           }
         },
         "type": "object",

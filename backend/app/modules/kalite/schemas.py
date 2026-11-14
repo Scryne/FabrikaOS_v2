@@ -54,6 +54,8 @@ class UygunsuzlukOlusturDTO(BaseModel):
     makine_id: int | None = None
     tedarikci_firma_id: int | None = None
     sorumlu_kullanici_id: int | None = None
+    # SPC kartından açılan vaka: kural ihlali taşıyan alt grup (ihlalsiz alt grup 422).
+    kaynak_spc_alt_grup_id: int | None = None
 
 
 class UygunsuzlukGuncelleDTO(BaseModel):
@@ -101,6 +103,8 @@ class UygunsuzlukCevapDTO(BaseModel):
     kaynak_kontrol_id: int | None = None
     makine_id: int | None = None
     tedarikci_firma_id: int | None = None
+    kaynak_spc_alt_grup_id: int | None = None
+    kaynak_spc_karakteristik_id: int | None = None
     onem: str
     durum: str
     kok_neden: str

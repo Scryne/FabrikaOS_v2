@@ -10385,6 +10385,10 @@ export interface components {
             makine_id?: number | null;
             /** Tedarikci Firma Id */
             tedarikci_firma_id?: number | null;
+            /** Kaynak Spc Alt Grup Id */
+            kaynak_spc_alt_grup_id?: number | null;
+            /** Kaynak Spc Karakteristik Id */
+            kaynak_spc_karakteristik_id?: number | null;
             /** Onem */
             onem: string;
             /** Durum */
@@ -10421,6 +10425,10 @@ export interface components {
             makine_id?: number | null;
             /** Tedarikci Firma Id */
             tedarikci_firma_id?: number | null;
+            /** Kaynak Spc Alt Grup Id */
+            kaynak_spc_alt_grup_id?: number | null;
+            /** Kaynak Spc Karakteristik Id */
+            kaynak_spc_karakteristik_id?: number | null;
             /** Onem */
             onem: string;
             /** Durum */
@@ -10476,6 +10484,8 @@ export interface components {
             tedarikci_firma_id?: number | null;
             /** Sorumlu Kullanici Id */
             sorumlu_kullanici_id?: number | null;
+            /** Kaynak Spc Alt Grup Id */
+            kaynak_spc_alt_grup_id?: number | null;
         };
         /**
          * VadeTaramaCevapDTO

@@ -34,6 +34,7 @@ from app.modules.kalite.models import (
     KontrolPlani,
     OlcumCihazi,
     SpcAltGrup,
+    Uygunsuzluk,
 )
 
 OLAY_SPC_IHLAL = "kalite.spc_ihlal"
@@ -205,11 +206,21 @@ async def _alt_gruplar(db: AsyncSession, karakteristik_id: int) -> list[SpcAltGr
     )
 
 
-def kart_hesapla(k: KontrolKarakteristigi, gruplar: list[SpcAltGrup]) -> dict[str, Any]:
+def kart_hesapla(
+    k: KontrolKarakteristigi,
+    gruplar: list[SpcAltGrup],
+    bagli_vakalar: dict[int, tuple[int, str]] | None = None,
+) -> dict[str, Any]:
+    """``bagli_vakalar``: alt grup id → (uygunsuzluk id, kod); SPC → CAPA bağı karta yansır."""
     degerler = [[float(v) for v in g.degerler] for g in gruplar]
+    bagli = bagli_vakalar or {}
     noktalar = [
         {
+            "alt_grup_id": g.id,
             "sira": g.sira,
+            "degerler": d,
+            "uygunsuzluk_id": bagli[g.id][0] if g.id in bagli else None,
+            "uygunsuzluk_kod": bagli[g.id][1] if g.id in bagli else None,
             "zaman": g.zaman,
             "xbar": spc.ortalama(d),
             "r": spc.aralik(d),
@@ -258,7 +269,14 @@ def kart_hesapla(k: KontrolKarakteristigi, gruplar: list[SpcAltGrup]) -> dict[st
 
 
 async def kart(db: AsyncSession, k: KontrolKarakteristigi) -> dict[str, Any]:
-    return kart_hesapla(k, await _alt_gruplar(db, k.id))
+    gruplar = await _alt_gruplar(db, k.id)
+    satirlar = await db.execute(
+        select(Uygunsuzluk.kaynak_spc_alt_grup_id, Uygunsuzluk.id, Uygunsuzluk.kod).where(
+            Uygunsuzluk.kaynak_spc_alt_grup_id.in_([g.id for g in gruplar])
+        )
+    )
+    bagli = {int(g): (int(i), str(kod)) for g, i, kod in satirlar.all() if g is not None}
+    return kart_hesapla(k, gruplar, bagli)
 
 
 async def karakteristik_kilitli(db: AsyncSession, karakteristik_id: int) -> KontrolKarakteristigi:

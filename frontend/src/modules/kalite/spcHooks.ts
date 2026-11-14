@@ -42,7 +42,12 @@ export interface SpcLimitler {
 }
 
 export interface SpcNokta {
+  alt_grup_id: number;
   sira: number;
+  degerler: number[];
+  /** SPC → CAPA: bu alt gruba bağlı uygunsuzluk (varsa). */
+  uygunsuzluk_id: number | null;
+  uygunsuzluk_kod: string | null;
   zaman: string;
   xbar: number;
   r: number;

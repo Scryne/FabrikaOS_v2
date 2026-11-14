@@ -631,7 +631,9 @@
     "ist_tamam": "Completed",
     "tedarikci": "Supplier",
     "tedarikci_ipucu": "Pick the supplier when the source is incoming inspection; it shows on the company card.",
-    "tedarikci_kaydi": "Open company card"
+    "tedarikci_kaydi": "Open company card",
+    "kaynak": "Source",
+    "spc_karti": "SPC chart (rule violation)"
   },
   "enerji": {
     "alt": "Energy consumption measurements and hourly/daily trend.",
@@ -2104,7 +2106,13 @@
     "kural_2": "2 of 3 points beyond 2σ",
     "kural_3": "4 of 5 points beyond 1σ",
     "kural_4": "8 points on one side of center",
-    "nominal": "Nominal"
+    "nominal": "Nominal",
+    "vaka": "Case",
+    "uygunsuzluk_ac": "Open nonconformity",
+    "ukl": "UCL",
+    "akl": "LCL",
+    "vaka_baslik": "SPC violation: {{ad}} · subgroup #{{sira}}",
+    "vaka_aciklama": "{{kart}} chart rule {{kural}}: {{kural_metni}}. Measurements: {{olcumler}} {{birim}}. X̄ = {{xbar}}, R = {{r}}{{sinir}}."
   },
   "ik26": {
     "kalan_izin": "Annual leave left",

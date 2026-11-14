@@ -289,3 +289,56 @@ async def test_uygunsuzluk_tedarikci_baglantisi(kurulu_istemci: AsyncClient) -> 
         await kurulu_istemci.get(f"{API}/uygunsuzluklar?tedarikci_firma_id={tedarikci}", headers=h)
     ).json()["data"]
     assert [u["tedarikci_firma_id"] for u in liste] == [tedarikci]
+
+
+async def test_spc_ihlalinden_uygunsuzluk_bagli_ve_tek(kurulu_istemci: AsyncClient) -> None:
+    """SPC → CAPA: ihlalli alt gruba bağlı vaka açılır, kart bağı gösterir, ikinci vaka 409."""
+    h = await _giris(kurulu_istemci, ALFA)
+    _pid, kid = await _plan(kurulu_istemci, h, None)
+    for i in range(20):
+        await _olc(kurulu_istemci, h, kid, KARARLI[i % 4])
+    await kurulu_istemci.post(
+        f"{API}/karakteristikler/{kid}/limitleri-sabitle", json={"ilk": 20}, headers=h
+    )
+    await _olc(kurulu_istemci, h, kid, KARARLI[0])  # ihlalsiz alt grup
+    await _olc(kurulu_istemci, h, kid, [10.4, 10.5, 10.45, 10.42, 10.48])  # 3σ dışı
+    kart = (await kurulu_istemci.get(f"{API}/karakteristikler/{kid}/kart", headers=h)).json()[
+        "data"
+    ]
+    temiz, ihlalli = kart["noktalar"][20], kart["noktalar"][21]
+    assert ihlalli["kayitli_ihlaller"] and ihlalli["uygunsuzluk_id"] is None
+
+    # İhlalsiz alt gruba vaka bağlanamaz.
+    r = await kurulu_istemci.post(
+        f"{API}/uygunsuzluklar",
+        json={"baslik": "Yanlış bağ", "kaynak_spc_alt_grup_id": temiz["alt_grup_id"]},
+        headers=h,
+    )
+    assert r.status_code == 422, r.text
+
+    r = await kurulu_istemci.post(
+        f"{API}/uygunsuzluklar",
+        json={"baslik": "SPC ihlali: Mil çapı", "kaynak_spc_alt_grup_id": ihlalli["alt_grup_id"]},
+        headers=h,
+    )
+    assert r.status_code == 201, r.text
+    vaka = r.json()["data"]
+    assert vaka["kaynak_spc_alt_grup_id"] == ihlalli["alt_grup_id"]
+    assert vaka["kaynak_spc_karakteristik_id"] == kid  # SPC kartına geri bağlantı
+
+    kart = (await kurulu_istemci.get(f"{API}/karakteristikler/{kid}/kart", headers=h)).json()[
+        "data"
+    ]
+    assert kart["noktalar"][21]["uygunsuzluk_id"] == vaka["id"]
+    assert kart["noktalar"][21]["uygunsuzluk_kod"] == vaka["kod"]
+
+    # Aynı ihlal için ikinci vaka açılmaz.
+    r = await kurulu_istemci.post(
+        f"{API}/uygunsuzluklar",
+        json={"baslik": "Tekrar", "kaynak_spc_alt_grup_id": ihlalli["alt_grup_id"]},
+        headers=h,
+    )
+    assert r.status_code == 409, r.text
+    # Detay ve liste de bağı taşır.
+    r = await kurulu_istemci.get(f"{API}/uygunsuzluklar/{vaka['id']}", headers=h)
+    assert r.json()["data"]["kaynak_spc_karakteristik_id"] == kid

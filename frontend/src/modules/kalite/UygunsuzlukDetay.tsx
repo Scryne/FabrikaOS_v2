@@ -118,7 +118,11 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
             ]}
           />
 
-          {(u.aciklama || u.kok_neden || u.dogrulama_notu || u.tedarikci_firma_id) && (
+          {(u.aciklama ||
+            u.kok_neden ||
+            u.dogrulama_notu ||
+            u.tedarikci_firma_id ||
+            u.kaynak_spc_karakteristik_id) && (
             <>
               <div className="detay-bolum-baslik">{t('ortak.kunye')}</div>
               <Descriptions column={1} size="small" styles={{ label: { width: 130 } }}>
@@ -126,6 +130,13 @@ export function UygunsuzlukDetay({ id, kapat }: { id: number | null; kapat: () =
                   <Descriptions.Item label={t('kalite.tedarikci')}>
                     <Link to={`/firmalar?firma=${u.tedarikci_firma_id}`}>
                       {t('kalite.tedarikci_kaydi')}
+                    </Link>
+                  </Descriptions.Item>
+                )}
+                {u.kaynak_spc_karakteristik_id && (
+                  <Descriptions.Item label={t('kalite.kaynak')}>
+                    <Link to={`/karakteristikler/${u.kaynak_spc_karakteristik_id}/spc`}>
+                      {t('kalite.spc_karti')}
                     </Link>
                   </Descriptions.Item>
                 )}

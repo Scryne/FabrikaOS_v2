@@ -96,6 +96,15 @@ class Uygunsuzluk(KimlikMixin, ZamanDamgaliMixin, TenantBase):
         index=True,
         nullable=True,
     )
+    # SPC → CAPA köprüsü: kural ihlali taşıyan alt grup başına tek vaka (UNIQUE). Karakteristiğe
+    # (SPC kartına) geri bağlantı alt grup üzerinden okunur.
+    kaynak_spc_alt_grup_id: Mapped[int | None] = mapped_column(
+        BigInteger,
+        ForeignKey("spc_alt_gruplari.id", ondelete="SET NULL"),
+        unique=True,
+        index=True,
+        nullable=True,
+    )
     onem: Mapped[str] = mapped_column(String(20), default="orta", index=True, nullable=False)
     durum: Mapped[str] = mapped_column(String(20), default=ILK_DURUM, index=True, nullable=False)
     kok_neden: Mapped[str] = mapped_column(String(2000), default="", nullable=False)
@@ -108,6 +117,7 @@ class Uygunsuzluk(KimlikMixin, ZamanDamgaliMixin, TenantBase):
     dogrulama_notu: Mapped[str] = mapped_column(String(2000), default="", nullable=False)
     kapanis_tarihi: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
+    kaynak_spc_alt_grup: Mapped[SpcAltGrup | None] = relationship(lazy="selectin")
     aksiyonlar: Mapped[list[CapaAksiyon]] = relationship(
         back_populates="uygunsuzluk",
         cascade="all, delete-orphan",

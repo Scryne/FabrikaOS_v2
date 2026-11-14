@@ -8,7 +8,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { LockOutlined } from '@ant-design/icons';
 import { Alert, App, Button, Card, Form, InputNumber, Popconfirm, Table, Tag } from 'antd';
 
@@ -20,6 +20,7 @@ import { SayfaBaslik } from '@/components/SayfaBaslik';
 import { SayfaKapsayici } from '@/components/SayfaKapsayici';
 import { useAuthStore } from '@/store/authStore';
 
+import { type SpcKaynagi, UygunsuzlukFormu } from './UygunsuzlukFormu';
 import { type SpcIhlal, useLimitSabitle, useOlcumGir, useSpcKart } from './spcHooks';
 
 const f = (v: number | null | undefined, d = 3) =>
@@ -36,6 +37,8 @@ export function SpcKarti() {
   const sabitle = useLimitSabitle(id);
   const [form] = Form.useForm<{ degerler: (number | null)[] }>();
   const [formAnahtari, setFormAnahtari] = useState(0);
+  const [vaka, setVaka] = useState<SpcKaynagi | null>(null);
+  const navigate = useNavigate();
 
   const ihlalIndeksleri = useMemo(() => {
     const x = new Set<number>();
@@ -73,6 +76,36 @@ export function SpcKarti() {
   const ihlalSatirlari = (k?.ihlaller ?? [])
     .map((i) => ({ ...i, sira: k?.noktalar[i.indeks]?.sira ?? i.indeks + 1 }))
     .sort((a, b) => b.sira - a.sira);
+
+  // SPC → CAPA: ihlalden açılan vakanın başlığı/açıklaması ihlal bilgisiyle dolar
+  // (karakteristik, alt grup, kural, ölçümler, X̄/R ve kontrol limitleri).
+  const vakaAc = (i: SpcIhlal & { sira: number }) => {
+    const n = k?.noktalar[i.indeks];
+    if (!k || !n) return;
+    const kartAdi = i.kart === 'xbar' ? 'X̄' : 'R';
+    const lim = k.limitler;
+    const sinir =
+      lim && i.kart === 'xbar'
+        ? ` (${t('spc.ukl')} ${f(lim.xbar_ucl)}, ${t('spc.akl')} ${f(lim.xbar_lcl)})`
+        : lim
+          ? ` (${t('spc.ukl')} ${f(lim.r_ucl, 4)})`
+          : '';
+    setVaka({
+      altGrupId: n.alt_grup_id,
+      onem: i.kural === 1 ? 'yuksek' : 'orta',
+      baslik: t('spc.vaka_baslik', { ad: k.ad, sira: n.sira }),
+      aciklama: t('spc.vaka_aciklama', {
+        kart: kartAdi,
+        kural: i.kural,
+        kural_metni: t(`spc.kural_${i.kural}`),
+        olcumler: n.degerler.map((d) => f(d)).join('; '),
+        birim: k.birim,
+        xbar: f(n.xbar),
+        r: f(n.r, 4),
+        sinir,
+      }),
+    });
+  };
 
   const gonder = (v: { degerler: (number | null)[] }) => {
     const degerler = v.degerler.map(Number);
@@ -225,9 +258,33 @@ export function SpcKarti() {
                         <Tag color={i.kart === 'xbar' ? 'red' : 'orange'}>
                           {i.kart === 'xbar' ? 'X̄' : 'R'} · {i.kural}
                         </Tag>
-                        <span className="varlik-alt">{t(`spc.kural_${i.kural}`)}</span>
+                        <span className="varlik-alt" style={{ display: 'block', marginTop: 2 }}>
+                          {t(`spc.kural_${i.kural}`)}
+                        </span>
                       </span>
                     ),
+                  },
+                  {
+                    title: t('spc.vaka'),
+                    key: 'vaka',
+                    align: 'right',
+                    render: (_v, i) => {
+                      const n = k?.noktalar[i.indeks];
+                      if (n?.uygunsuzluk_id)
+                        return (
+                          <Link
+                            to={`/uygunsuzluklar?uygunsuzluk=${n.uygunsuzluk_id}`}
+                            className="sayisal"
+                          >
+                            {n.uygunsuzluk_kod}
+                          </Link>
+                        );
+                      return yazabilir ? (
+                        <Button size="small" onClick={() => vakaAc(i)}>
+                          {t('spc.uygunsuzluk_ac')}
+                        </Button>
+                      ) : null;
+                    },
                   },
                 ]}
               />
@@ -235,6 +292,12 @@ export function SpcKarti() {
           </Card>
         </div>
       </div>
+      <UygunsuzlukFormu
+        acik={vaka !== null}
+        kapat={() => setVaka(null)}
+        spc={vaka ?? undefined}
+        olustu={(uid) => navigate(`/uygunsuzluklar?uygunsuzluk=${uid}`)}
+      />
     </SayfaKapsayici>
   );
 }

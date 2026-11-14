@@ -31,7 +31,7 @@ from app.modules.kalite.birimler import (
     KONTROL_TURLERI,
     UYGUNSUZLUK_ONEMLERI,
 )
-from app.modules.kalite.models import CapaAksiyon, KaliteKontrol, Uygunsuzluk
+from app.modules.kalite.models import CapaAksiyon, KaliteKontrol, SpcAltGrup, Uygunsuzluk
 from app.modules.kalite.schemas import (
     AksiyonCevapDTO,
     AksiyonGuncelleDTO,
@@ -211,6 +211,15 @@ def _aksiyon_cevap(a: CapaAksiyon) -> dict[str, Any]:
     ).model_dump()
 
 
+def _spc_kaynagi(u: Uygunsuzluk) -> dict[str, int | None]:
+    """SPC → CAPA bağı: alt grup ve (SPC kartına dönüş için) karakteristiği."""
+    g = u.kaynak_spc_alt_grup
+    return {
+        "kaynak_spc_alt_grup_id": u.kaynak_spc_alt_grup_id,
+        "kaynak_spc_karakteristik_id": g.karakteristik_id if g is not None else None,
+    }
+
+
 def _uygunsuzluk_cevap(u: Uygunsuzluk) -> dict[str, Any]:
     return UygunsuzlukCevapDTO(
         id=u.id,
@@ -220,6 +229,7 @@ def _uygunsuzluk_cevap(u: Uygunsuzluk) -> dict[str, Any]:
         kaynak_kontrol_id=u.kaynak_kontrol_id,
         makine_id=u.makine_id,
         tedarikci_firma_id=u.tedarikci_firma_id,
+        **_spc_kaynagi(u),
         onem=u.onem,
         durum=u.durum,
         kok_neden=u.kok_neden,
@@ -240,6 +250,7 @@ def _uygunsuzluk_detay_cevap(u: Uygunsuzluk) -> dict[str, Any]:
         kaynak_kontrol_id=u.kaynak_kontrol_id,
         makine_id=u.makine_id,
         tedarikci_firma_id=u.tedarikci_firma_id,
+        **_spc_kaynagi(u),
         onem=u.onem,
         durum=u.durum,
         kok_neden=u.kok_neden,
@@ -289,6 +300,23 @@ async def uygunsuzluk_olustur(
                 "Firma tedarikçi değil",
                 detaylar=[{"alan": "tedarikci_firma_id", "mesaj": "Firma tipi müşteri"}],
             )
+    grup: SpcAltGrup | None = None
+    if govde.kaynak_spc_alt_grup_id is not None:
+        grup = await db.get(SpcAltGrup, govde.kaynak_spc_alt_grup_id)
+        if grup is None:
+            raise KaynakBulunamadi("SPC alt grubu bulunamadı")
+        if not grup.ihlaller:
+            raise DogrulamaHatasi(
+                "Alt grupta kural ihlali yok",
+                detaylar=[{"alan": "kaynak_spc_alt_grup_id", "mesaj": "İhlalsiz alt grup"}],
+            )
+        mevcut = await db.scalar(
+            select(Uygunsuzluk.kod).where(
+                Uygunsuzluk.kaynak_spc_alt_grup_id == govde.kaynak_spc_alt_grup_id
+            )
+        )
+        if mevcut is not None:
+            raise CakismaHatasi(f"Bu ihlal için uygunsuzluk zaten açık: {mevcut}")
     u = Uygunsuzluk(
         kod=service.uygunsuzluk_gecici_kod(),
         baslik=govde.baslik,
@@ -298,8 +326,11 @@ async def uygunsuzluk_olustur(
         makine_id=govde.makine_id,
         tedarikci_firma_id=govde.tedarikci_firma_id,
         sorumlu_kullanici_id=govde.sorumlu_kullanici_id,
+        kaynak_spc_alt_grup_id=govde.kaynak_spc_alt_grup_id,
         acan_kullanici_id=kullanici.id,
     )
+    # İlişki açıkça kurulur: yeni nesnede tembel yükleme async oturumda patlar.
+    u.kaynak_spc_alt_grup = grup
     await repository.uygunsuzluk_ekle(db, u)
     u.kod = service.uygunsuzluk_kalici_kod(u.id)
     await db.flush()

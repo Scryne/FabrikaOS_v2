@@ -631,7 +631,9 @@
     "ist_tamam": "Tamamlanan",
     "tedarikci": "Tedarikçi",
     "tedarikci_ipucu": "Giriş muayenesinde kaynak bir tedarikçiyse seçin; firma kartında görünür.",
-    "tedarikci_kaydi": "Firma kartını aç"
+    "tedarikci_kaydi": "Firma kartını aç",
+    "kaynak": "Kaynak",
+    "spc_karti": "SPC kartı (kural ihlali)"
   },
   "enerji": {
     "alt": "Enerji tüketim ölçümleri ve saatlik/günlük trend.",
@@ -2104,7 +2106,13 @@
     "kural_2": "3 noktanın 2'si 2σ ötesinde",
     "kural_3": "5 noktanın 4'ü 1σ ötesinde",
     "kural_4": "8 nokta merkezin aynı tarafında",
-    "nominal": "Nominal"
+    "nominal": "Nominal",
+    "vaka": "Vaka",
+    "uygunsuzluk_ac": "Uygunsuzluk aç",
+    "ukl": "ÜKL",
+    "akl": "AKL",
+    "vaka_baslik": "SPC ihlali: {{ad}} · alt grup #{{sira}}",
+    "vaka_aciklama": "{{kart}} kartı kural {{kural}}: {{kural_metni}}. Ölçümler: {{olcumler}} {{birim}}. X̄ = {{xbar}}, R = {{r}}{{sinir}}."
   },
   "ik26": {
     "kalan_izin": "Kalan yıllık izin",
