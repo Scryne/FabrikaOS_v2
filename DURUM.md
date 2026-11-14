@@ -3,16 +3,16 @@
 > **Ne bu dosya:** sertifika değil **envanter**. Ölçülen gerçek durum; "çalışmıyor" yazan satır
 > kusur değil, kayıt. Kapanış standardı: `ScryneOS/🎯 100-Command-Center/Kapanis-Standardi.md`
 
-**Ölçüm tarihi:** 2026-09-26 (önceki: 2026-08-27)
-**Tek cümle:** Backend 667 + frontend 214 test yeşil, CI 07-30'dan beri ilk kez tam kapıdan
-geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriyor.
+**Ölçüm tarihi:** 2026-11-13 (önceki: 2026-09-26)
+**Tek cümle:** Backend 897 + frontend 267 test yeşil, CI main'de yeşil; üç asıl akış (sipariş → MRP →
+iş emri + satınalma → onay, SPC ihlali → CAPA, arıza → bakım iş emri) gerçek arayüzden uçtan uca sınandı.
 
 ## Ne çalışıyor (ölçüldü)
 
-- **Backend:** 667 test (birim + gerçek PostgreSQL/TimescaleDB entegrasyon), MinIO kapalıyken
-  de 657/657 → testler dış servise bağlı değil. `ruff`, `ruff format`, `mypy` temiz, `pip-audit` 0.
-- **Frontend:** 214 test, `tsc --strict`, ESLint, Prettier, Vite 8 derlemesi temiz. `npm audit`
-  yüksek/kritik 0 (kalan 2 orta: react-router 6, bkz. README güvenlik notları).
+- **Backend:** 897 test (birim + gerçek PostgreSQL/TimescaleDB entegrasyon); MQTT gidiş-dönüş testi
+  Docker yoksa atlanır. `ruff`, `ruff format`, `mypy` temiz, `pip-audit` 0 (2026-11-13).
+- **Frontend:** 267 test, `tsc --strict`, ESLint, Prettier, Vite 8 derlemesi temiz. `npm audit`
+  yüksek/kritik 0 (10 orta: geliştirme zinciri minimatch, bkz. 2026-11-13 bölümü).
 - **CI benzetimi:** `node:22` konteynerinde temiz `npm ci` + tam frontend kapısı geçti.
 - **Docker:** API imajı derleniyor (`.dockerignore` README'yi dışlıyordu → düzeltildi);
   compose'da `bildirim` ve `webhook-relay` süreçleri var.
@@ -21,6 +21,32 @@ geçecek durumda; demo tenant tüm modülleriyle dolu ve kendini bugüne getiriy
   izlenebilirliği, 3 rapor, 144 bildirim, 3/4 AI modeli eğitilmiş.
 - **Arayüz:** 43 tenant + 6 platform ekranı masaüstü ve mobilde (390 px) yatay taşmasız ve konsol
   hatasız; 10 etkileşimli görünüm (lot sorgusu, harita, takvim, Pareto, kanban, komut paleti) hatasız.
+
+## 2026-11-13 — Bitirme denetimi (arayüz gezisi + asıl akışlar)
+
+- **Ölçüm:** pytest 895 geçti + 1 atlandı (MQTT gidiş-dönüş, Docker kapalı), sonra eklenen 2 test
+  hedefli koşuda yeşil; mypy 318 dosya, ruff, pip-audit 0; vitest 267/267, tsc, ESLint, Vite derlemesi.
+  `npm audit`: 10 orta, hepsi geliştirme zinciri (eslint → minimatch <11.0.1; 10.x yaması yok, risk yalnız
+  lint sırasında). CI (main, 11-13): backend 3.12/3.15, frontend, mutasyon, sertleştirme, sbom yeşil.
+- **Gezi:** 61 rota × 390/768/1280/1440, koyu tema, gerçek tarayıcı. Düzeltilen: bilinmeyen adres
+  sessizce /pano'ya gidiyordu → 404 ekranı; sekme başlığı her yerde "FabrikaOS" → ekran adı; üst barda
+  Ctrl K çerçevesi barın dışına taşıyordu; grafik eksenleri, SPC limitleri ve Cp/Cpk İngilizce ondalıkla
+  ("1,200", "25.000"), KPI yüzdeleri "77 %" yazıyordu → Türkçe biçim; Onaylarım'da uzun MRP özeti onay/red
+  düğmelerini görünür alanın dışına itiyordu (dar ekranda düğmeler satırın altında); kalite rolü
+  uygunsuzluk formunda /makineler'den 403 alıyordu (izin yoksa alan gizli); antd uyarıları (Statistic
+  valueStyle, List kullanımdan kalktı → `SadeListe`) temizlendi.
+- **Asıl akışlar (Playwright, arayüzden):** satış siparişi onayı → İE (12 adet) + satınalma talebi; talep
+  kalemleri MRP eksikleriyle birebir (168 kg / 38,4 m / 10,8 kg / 192 adet) → satınalma onaylayıcısı
+  Onaylarım'dan onayladı. SPC'ye sınır dışı alt grup → "kural ihlali kalite ekibine bildirildi" →
+  uygunsuzluk + düzeltici aksiyon. Makine Arıza → yeni "Arıza iş emri aç" düğmesi → İE açık arıza
+  kaydına bağlı (`ariza_kaydi_id`; önceden arayüzden kurulamıyordu) → Çalışıyor'a dönüşte MTTR kaydı kapandı.
+- **Sağlamlık:** AI artefaktı depoda yokken (depo sıfırlandı) tahmin 500 veriyordu → 404 + "modeli yeniden
+  eğitin"; MQTT testi Docker kapalıyken ERROR yerine atlıyor.
+- **Dağıtım:** prod compose'da ön yüzü sunan servis yoktu (Traefik tüm yolları API'ye yolluyordu) → `web`
+  (nginx SPA) servisi; API yalnız /api, /saglik, /docs, /openapi.json alıyor. CI'a api + web imaj derlemesi
+  ve `nginx -t` eklendi (ilk koşu push sonrası).
+- **Açık kararlar:** kalite rolüne `uretim:oku` verilsin mi (uygunsuzluğa makine bağlayabilsin); SPC ihlali
+  CAPA'yı kendiliğinden açmıyor ve SPC kartından "uygunsuzluk aç" kısayolu yok (özellik kararı).
 
 ## 2026-11-03 — Kabuk yüksekliği + okunur adlar (arayüz düzeltmesi)
 
