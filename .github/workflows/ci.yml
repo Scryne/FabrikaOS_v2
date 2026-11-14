@@ -207,6 +207,20 @@ jobs:
           if-no-files-found: ignore
 
   # S28 (ADR-0047): her build'de CycloneDX SBOM (backend ortamı + ön yüz üretim bağımlılıkları).
+  # Prod imajları derleniyor mu: compose'daki api ve web (nginx SPA) imajları başka hiçbir yerde
+  # derlenmiyordu; bir Dockerfile kırığı ancak sunucuda fark edilirdi. Push yok, yalnız derleme
+  # ve nginx yapılandırma sınaması.
+  imajlar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: API imajı
+        run: docker build -f backend/Dockerfile -t fabrikaos-api:ci .
+      - name: Ön yüz imajı (web)
+        run: docker build -t fabrikaos-web:ci frontend
+      - name: nginx yapılandırması geçerli mi
+        run: docker run --rm fabrikaos-web:ci nginx -t
+
   sbom:
     runs-on: ubuntu-latest
     steps:
