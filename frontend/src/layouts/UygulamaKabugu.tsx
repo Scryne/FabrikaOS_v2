@@ -18,6 +18,7 @@ import { Avatar, Dropdown, Layout, Menu } from 'antd';
 import type { CSSProperties } from 'react';
 import type { MenuProps, MenuRef } from 'antd';
 
+import { useSekmeBasligi } from '@/components/sekmeBasligi';
 import { SayfaYukleniyor } from '@/components/SayfaYukleniyor';
 import { cikisYap } from '@/api/kimlik';
 import { cozumleTenant } from '@/api/tenant';
@@ -67,6 +68,12 @@ function BarSaat() {
     </span>
   );
 }
+
+/** [alt ekran öneki, menüdeki üst ekran yolu] */
+const ALT_EKRANLAR: ReadonlyArray<readonly [string, string]> = [
+  ['/karakteristikler', '/kontrol-planlari'],
+  ['/vardiyalar', '/durus-kayitlari'],
+];
 
 export function UygulamaKabugu() {
   const { t } = useTranslation();
@@ -121,19 +128,22 @@ export function UygulamaKabugu() {
     }));
   }, [gorunur, t]);
 
+  // Menüde kendi öğesi olmayan alt ekranlar üst ekranlarının öğesine bağlanır (menü vurgusu ve
+  // sekme başlığı): SPC kartı kontrol planının, vardiya görünümü vardiya & duruşun altında.
+  const yolAdi = ALT_EKRANLAR.reduce(
+    (p, [on, ust]) => (p === on || p.startsWith(`${on}/`) ? ust : p),
+    konum.pathname,
+  );
   const seciliYol =
     gorunur
       .map((o) => o.yol)
-      .filter((y) => konum.pathname === y || (y !== '/' && konum.pathname.startsWith(y)))
+      .filter((y) => yolAdi === y || (y !== '/' && yolAdi.startsWith(y)))
       .sort((a, b) => b.length - a.length)[0] ?? '/';
 
   // Sekme başlığı etkin ekranın adını taşır ("Makineler · FabrikaOS"); birkaç sekme açıkken
-  // hepsi "FabrikaOS" yazıyordu. Menüde karşılığı olmayan yollar ürün adında kalır.
+  // hepsi "FabrikaOS" yazıyordu.
   const seciliOge = gorunur.find((o) => o.yol === seciliYol);
-  const sekmeBasligi = seciliOge ? `${t(seciliOge.etiketAnahtari)} · FabrikaOS` : 'FabrikaOS';
-  useEffect(() => {
-    document.title = sekmeBasligi;
-  }, [sekmeBasligi]);
+  useSekmeBasligi(seciliOge ? t(seciliOge.etiketAnahtari) : null);
 
   // Menü artık kendi içinde kaydığı için seçili öğe (ör. derin bağlantı, sayfa yenileme ya da
   // komut paletiyle gelinen alt bölüm) görünür alanın dışında kalabilir: görünüme getir.

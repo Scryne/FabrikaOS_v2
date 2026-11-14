@@ -15,6 +15,7 @@ import { Button, Card, Drawer, Form, Input, Select, Steps, Tag, Tabs } from 'ant
 import type { ColumnsType } from 'antd/es/table';
 import { useNavigate } from 'react-router-dom';
 
+import { useSekmeBasligi } from '@/components/sekmeBasligi';
 import { cikisYap } from '@/api/kimlik';
 import { LogoIsareti } from '@/components/Marka';
 import { SunucuTablo } from '@/components/SunucuTablo';
@@ -191,6 +192,7 @@ function YeniTalep({ tamamlandi }: { tamamlandi: () => void }) {
 
 export function DisPortalSayfasi() {
   const { t } = useTranslation();
+  useSekmeBasligi(t('dis.portal_baslik'));
   const navigate = useNavigate();
   const kullanici = useAuthStore((s) => s.kullanici);
   const { data: durum } = useDisDurum();

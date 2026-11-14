@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { useSekmeBasligi } from '@/components/sekmeBasligi';
 import { LogoIsareti } from '@/components/Marka';
 import { useGercekZaman } from '@/modules/ortak/gercekZamanBaglam';
 
@@ -116,6 +117,7 @@ function MakineKaro({ karo }: { karo: KioskKaro }) {
 
 export function KioskSayfasi() {
   const { t } = useTranslation();
+  useSekmeBasligi(t('kiosk.baslik'));
   const { bagli } = useGercekZaman();
   const { data, isError, dataUpdatedAt } = useIkizDurum(24, YOKLAMA_MS);
 

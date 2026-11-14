@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, Divider, Form, Input, Space, Typography } from 'antd';
 
+import { useSekmeBasligi } from '@/components/sekmeBasligi';
 import { ApiHata } from '@/api/client';
 import { girisYap, ikiAsamaDogrula, ssoAcikMi, ssoBaslat } from '@/api/kimlik';
 import { subdomainSlug } from '@/api/tenant';
@@ -103,6 +104,7 @@ function HatSemasi() {
 
 export function GirisSayfasi() {
   const { t } = useTranslation();
+  useSekmeBasligi(t('kimlik.giris_basligi'));
   const navigate = useNavigate();
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState(false);
