@@ -5,10 +5,8 @@
 
 import { useTranslation } from 'react-i18next';
 
+import { MAKINE_DURUMLARI, type MakineDurum } from '@/components/makineDurum';
 import { RENKLER } from '@/tema/tema';
-
-export const MAKINE_DURUMLARI = ['calisiyor', 'durdu', 'bakimda', 'ariza'] as const;
-export type MakineDurum = (typeof MAKINE_DURUMLARI)[number];
 
 const RENK: Record<string, string> = {
   calisiyor: RENKLER.basari,

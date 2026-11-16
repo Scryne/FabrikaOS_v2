@@ -20,7 +20,8 @@ import { Button, Col, Result, Row, Segmented, Select, Skeleton, Space, Statistic
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
-import { DurumRozet, MAKINE_DURUMLARI } from '@/components/DurumRozet';
+import { DurumRozet } from '@/components/DurumRozet';
+import { MAKINE_DURUMLARI } from '@/components/makineDurum';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import {
   alanSecenek,

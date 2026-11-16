@@ -45,8 +45,12 @@ iş emri + satınalma → onay, SPC ihlali → CAPA, arıza → bakım iş emri)
 - **Dağıtım:** prod compose'da ön yüzü sunan servis yoktu (Traefik tüm yolları API'ye yolluyordu) → `web`
   (nginx SPA) servisi; API yalnız /api, /saglik, /docs, /openapi.json alıyor. CI'a api + web imaj derlemesi
   ve `nginx -t` eklendi (ilk koşu push sonrası).
-- **Açık kararlar:** kalite rolüne `uretim:oku` verilsin mi (uygunsuzluğa makine bağlayabilsin); SPC ihlali
-  CAPA'yı kendiliğinden açmıyor ve SPC kartından "uygunsuzluk aç" kısayolu yok (özellik kararı).
+- **Kapanan kararlar (11-14/15):** kalite rolüne geniş `uretim:oku` verilmedi; `/kalite/makine-secenekleri`
+  (`kalite:oku`, yalnız id/kod/ad) ile formlarda makine seçici (`3dce08f`). SPC kural ihlalinden bağlı uygunsuzluk
+  tek adımda, ihlalli alt grup başına tek vaka (göç `e7a9c1d3f5b2`, `061068b`). Ayrıca dış portal demo kullanıcısı
+  ve telefonda taşmayan ekran (`943871f`), StrictMode'da çift WebSocket açılmıyor (`1724d38`).
+- **11-16:** `DurumRozet` sabitleri ayrı modülde (eslint hızlı yenileme uyarısı 0).
+  Yerel PG 55432 + Redis 56379 ile backend pytest 900 geçti / 1 atlandı (MQTT, Docker ister); vitest 270, tsc, eslint 0.
 
 ## 2026-11-03 — Kabuk yüksekliği + okunur adlar (arayüz düzeltmesi)
 

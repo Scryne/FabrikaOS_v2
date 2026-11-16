@@ -3,7 +3,7 @@
  * durum dağılımı, OEE özetinden makine-bazlı çubuklar. Oranlar 0–1'den yüzdeye (0–100) çevrilir.
  */
 
-import { MAKINE_DURUMLARI } from '@/components/DurumRozet';
+import { MAKINE_DURUMLARI } from '@/components/makineDurum';
 import type { components } from '@/api/types.gen';
 
 type OeeOzetSatir = components['schemas']['OeeOzetSatirDTO'];

@@ -21,7 +21,8 @@ import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 
 import { kolonlardanSutunlar } from '@/components/disaAktar';
-import { DurumRozet, MAKINE_DURUMLARI } from '@/components/DurumRozet';
+import { DurumRozet } from '@/components/DurumRozet';
+import { MAKINE_DURUMLARI } from '@/components/makineDurum';
 import { EGrafik } from '@/components/grafik/EGrafik';
 import { cubukSecenek, donutSecenek, oeeRenk } from '@/components/grafik/grafikSecenek';
 import { GorunumGecis, type Gorunum } from '@/components/GorunumGecis';
