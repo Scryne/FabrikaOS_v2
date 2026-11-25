@@ -26,12 +26,13 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pandas as pd
+import urllib3
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.db.session import get_sessionmaker
 from app.core.db.tenancy import search_path_ayarla
-from app.core.exceptions import DogrulamaHatasi, KaynakBulunamadi
+from app.core.exceptions import DogrulamaHatasi, HizmetKullanilamaz, KaynakBulunamadi
 from app.core.gercekzaman import yayinla
 from app.core.olaylar import GidenOlay, olay_yayinla
 from app.modules.ai import artefakt, modeller, ozellikler, repository
@@ -216,6 +217,12 @@ async def tahmin_calistir(
         # yapılacağını söyleyen 404. Yeni eğitim yeni sürüm ve yeni anahtar üretir.
         logger.warning("model artefaktı depoda yok: %s", kayit.nesne_anahtari)
         raise KaynakBulunamadi("Modelin dosyası depoda bulunamadı; modeli yeniden eğitin") from exc
+    except urllib3.exceptions.HTTPError as exc:
+        # Nesne deposuna hiç ulaşılamıyor (2026-11-25: MinIO kapalıyken 500 ve sonsuz yükleme): geçici, 503.
+        logger.warning("model deposuna ulaşılamadı: %s", exc)
+        raise HizmetKullanilamaz(
+            "Model deposuna şu an ulaşılamıyor; birazdan yeniden deneyin"
+        ) from exc
     cerceveler = await _cikarim_veri_hazirla(db, tur)
     sonuclar, veri_ozeti = await asyncio.to_thread(_tahmin, tur, nesne, cerceveler)
     if tur != "stok":  # makine-bazlı çıktılar insan-okur kodla zenginleşir
