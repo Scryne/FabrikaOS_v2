@@ -218,7 +218,7 @@ async def tahmin_calistir(
         logger.warning("model artefaktı depoda yok: %s", kayit.nesne_anahtari)
         raise KaynakBulunamadi("Modelin dosyası depoda bulunamadı; modeli yeniden eğitin") from exc
     except urllib3.exceptions.HTTPError as exc:
-        # Nesne deposuna hiç ulaşılamıyor (2026-11-25: MinIO kapalıyken 500 ve sonsuz yükleme): geçici, 503.
+        # Nesne deposuna ulaşılamıyor (2026-11-25: MinIO kapalıyken 500, sonsuz yükleme): 503.
         logger.warning("model deposuna ulaşılamadı: %s", exc)
         raise HizmetKullanilamaz(
             "Model deposuna şu an ulaşılamıyor; birazdan yeniden deneyin"
