@@ -67,7 +67,7 @@ async def olay_akisi(
     finally:
         try:
             await pubsub.unsubscribe(kanal)
-            await pubsub.aclose()  # type: ignore[no-untyped-call]
+            await pubsub.aclose()  # type: ignore[no-untyped-call, unused-ignore]  # redis 8.2+ tipli, öncesi değil
         except Exception:  # noqa: BLE001 — kapanış temizliği hatayı yutar
             logger.debug("pubsub kapanış temizliği başarısız", exc_info=True)
 

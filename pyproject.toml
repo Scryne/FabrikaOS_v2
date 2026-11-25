@@ -32,7 +32,9 @@ dependencies = [
     "reportlab>=4.2",       # S14: PDF rapor üretimi
     "openpyxl>=3.1",        # S14: Excel (xlsx) rapor üretimi
     # --- S19: gözlemlenebilirlik (ADR-0040) ---
-    "sentry-sdk>=2.20",                            # hata izleme (DSN yoksa kapalı)
+    # <3: 3.0 send_default_pii / include_local_variables seçeneklerini kaldırdı (yerine data_collection). Yığın yerelleri
+    # 11-01'de Authorization taşıyordu; 3.x varsayılanları doğrulanmadan göç edilmez (DURUM, v2 fikirleri; 2026-11-25).
+    "sentry-sdk>=2.20,<3",                         # hata izleme (DSN yoksa kapalı)
     "prometheus-client>=0.21",                     # /metrics
     "opentelemetry-sdk>=1.30",                     # dağıtık izleme (OTEL_ENDPOINT yoksa kapalı)
     "opentelemetry-exporter-otlp-proto-http>=1.30",
