@@ -277,3 +277,20 @@ def test_stok_tuketimsiz_malzeme_atlanir() -> None:
     )
     tahminler = modeller.stok_tahmin(sonuc.nesne, malzemeler)
     assert {t["malzeme_id"] for t in tahminler} == {5, 7}
+
+
+def test_egitim_hatasi_kullaniciya_ham_istisna_olarak_gitmez() -> None:
+    """2026-11-25: model deposu kapalıyken kart "HTTPConnectionPool(host='minio'…" gösteriyordu."""
+    import urllib3
+
+    from app.modules.ai.service import kullanici_hata_metni
+
+    depo = urllib3.exceptions.MaxRetryError(None, "/fabrikaos", "Failed to resolve 'minio'")
+    assert "minio" not in kullanici_hata_metni(
+        depo
+    ) and "deposuna ulaşılamadı" in kullanici_hata_metni(depo)
+    assert (
+        kullanici_hata_metni(modeller.YetersizVeri("En az 10 gözlem gerekli"))
+        == "En az 10 gözlem gerekli"
+    )
+    assert "beklenmedik" in kullanici_hata_metni(ValueError("Traceback… /opt/app/x.py"))

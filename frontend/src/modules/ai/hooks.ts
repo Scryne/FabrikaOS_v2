@@ -44,7 +44,10 @@ export function useTahmin(tur: ModelTuru) {
   return useQuery({
     queryKey: AI_ANAHTAR.tahmin(tur),
     queryFn: () => istek<TahminCevap>('GET', `${PREFIX}/tahmin/${TAHMIN_YOLU[tur]}`),
-    retry: (deneme, hata) => !(hata instanceof ApiHata && hata.durum === 404) && deneme < 2,
+    // 404 (model yok) ve 503 (model deposu yok, sunucu "birazdan dene" diyor) yeniden denenmez: depo
+    // erişilemezken her deneme saniyeler sürüyor, panel ~20 sn iskelette kalıyordu (2026-11-25).
+    retry: (deneme, hata) =>
+      !(hata instanceof ApiHata && (hata.durum === 404 || hata.durum === 503)) && deneme < 2,
   });
 }
 

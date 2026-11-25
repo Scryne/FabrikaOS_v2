@@ -3,7 +3,45 @@
 > **Ne bu dosya:** sertifika değil **envanter**. Ölçülen gerçek durum; "çalışmıyor" yazan satır
 > kusur değil, kayıt. Kapanış standardı: `ScryneOS/🎯 100-Command-Center/Kapanis-Standardi.md`
 
-**Ölçüm tarihi:** 2026-11-13 (önceki: 2026-09-26)
+**Ölçüm tarihi:** 2026-11-25 (yayına hazır turu; önceki: 2026-11-13)
+
+**Yayına hazır karnesi (2026-11-25):** Kod ✅ · Ürün ✅ · Ön yüz ✅ (vitrin: cila + Scryne notu: "modüllerin her biri en iyi ve
+en doğru şekilde, kurumsal; tüm ekranların mantıklı akışı") · Belge ✅ · Kapı ✅ · Dış: pilot, UAT, GA. Bundan sonra bulunan
+"v2 fikirleri"ne girer.
+
+## 2026-11-25: modül modül ekran denetimi
+
+- **CI kırılmak üzereydi:** kilitsiz kurulum sentry-sdk 3.0 aldı (`send_default_pii` / `include_local_variables` kaldırıldı;
+  yerine `data_collection`). Yığın yerelleri 11-01'de Authorization taşımıştı → 3.x varsayılanları doğrulanmadan `<3`.
+  redis 8.2 `aclose` tipli: ignore iki sürümde geçerli. Temiz ortamda mypy 318 dosya temiz (`f6ecd9e`).
+- **Dependabot:** #20 react-i18next 18, #21 schemathesis, #22 globals, #23 npm grubu, #24 npm grubu, #25 jest-dom 8 birleşti;
+  #19 TypeScript 7 reddedildi (baseUrl kaldırıldı, typescript-eslint yüklenemiyor) → `dependabot.yml` TS ana sürümünü atlar.
+- **Ölçüm:** backend pytest (yerel PG/Redis) yeşil, ruff/format/mypy temiz; ön yüz lint, tsc, vitest 270/270, build, audit 0.
+- **Gezi:** yerel yığın (`fabrikaos_dev` + demo tohumu, admin) ile 52 menü ekranı + 5 detay × 1440 ve × 390 = 114 kare;
+  taşma 0, sızmış `undefined/NaN` 0, İngilizce kalıntı 0, konsol hatası yalnız aşağıdaki.
+- **Bulunan → düzeltilen:**
+  - `/tahmin/*` model deposuna ulaşılamayınca 500 veriyor, panel sonsuz iskelette kalıyordu → 503 + "birazdan yeniden deneyin";
+    ön yüz 503'ü yeniden denemiyor (her deneme depoya bağlanmaya çalışırken saniyeler sürüyordu).
+  - Model kartı eğitim hatasını ham istisna olarak gösteriyordu (`HTTPConnectionPool(host='minio'…`) → kullanıcı metni
+    (`kullanici_hata_metni`, test), ayrıntı günlükte.
+  - Satış özeti "Üretimde 3" kartı "Onaylandı" durumunu sayıyordu; "Onay bekleyen" tabloda "Taslak" → kartlar durum adlarıyla
+    ("Taslak · onay bekliyor", "Onaylandı · üretimde"; TR + EN).
+  - 64 ekranda başlık `h3`'tü, sayfada `h1` yoktu → `SayfaBaslik` `h1` (görünüm 3. seviye token'larıyla aynı).
+  - Telefonda özet kartları tek sütuna düşüyor, 4-6 tam genişlik kart tabloyu çok aşağı itiyordu → 480 px altında iki sütun,
+    değer 22 px, tek kalan son kart satırı doldurur (13 ekranda yeniden ölçüldü, taşma 0).
+- **Ortama bağlı (kusur değil):** yerelde MinIO yok → belgeler boş, raporlar "Başarısız", AI modelleri eğitilemiyor.
+
+## v2 fikirleri
+
+- **Demo yaşlanıyor:** tohum tazelemesi üretim/enerji serisini bugüne taşıyor ama açık satış siparişleri, bakım planları ve
+  üretim planı tarihleri taşınmıyor; birkaç hafta sonra hepsi "gecikti". Tazelemeye açık kayıtların tarih kaydırması.
+- sentry-sdk 3.x göçü (`data_collection`; yığın yerellerinin kapalı kaldığı testle).
+- TypeScript 7 göçü (tsconfig `paths`), typescript-eslint desteğinden sonra.
+- Liste satırları fareyle açılıyor; klavyeyle satır odağı (işlem menüsündeki "Detay" bugün klavye yolu).
+
+---
+
+**Önceki ölçüm: 2026-11-13**
 **Tek cümle:** Backend 897 + frontend 267 test yeşil, CI main'de yeşil; üç asıl akış (sipariş → MRP →
 iş emri + satınalma → onay, SPC ihlali → CAPA, arıza → bakım iş emri) gerçek arayüzden uçtan uca sınandı.
 

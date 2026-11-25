@@ -537,6 +537,24 @@ body {
   grid-template-columns: repeat(auto-fit, minmax(196px, 1fr));
   gap: 14px;
 }
+/* Telefon: 196 px tabanı tek sütuna düşürüyordu; 4-6 tam genişlik kart tabloyu ekranın çok altına itiyordu
+   (2026-11-25, 390 px gezisi). İki sütun, değer biraz küçük; tek kalan son kart satırı doldurur. */
+@media (max-width: 480px) {
+  .ozet-serit {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .ozet-serit > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  .ozet-serit .ant-card-body {
+    padding: 14px !important;
+  }
+  .ozet-serit .kpi-deger {
+    font-size: 22px;
+    overflow-wrap: anywhere;
+  }
+}
 
 /* Enstrüman-panel kart — üst iç ışık çizgisi + başlıkta hat aksanı. */
 .panel-kart {

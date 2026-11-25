@@ -7,7 +7,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInRouterContext, useLocation } from 'react-router-dom';
-import { Typography } from 'antd';
+import { Typography, theme } from 'antd';
 
 import { yolKimlik, type ModulKimlik } from '@/tema/modulKimlik';
 
@@ -23,6 +23,7 @@ function BaslikGovde({
   kimlik: ModulKimlik;
 }) {
   const { t } = useTranslation();
+  const { token } = theme.useToken();
   return (
     <div
       style={
@@ -46,7 +47,16 @@ function BaslikGovde({
             <span className="kirinti-nokta" aria-hidden="true" />
             {t(kimlik.bolum)}
           </div>
-          <Typography.Title level={3} style={{ margin: 0, letterSpacing: '-0.02em' }}>
+          {/* Ekranın tek h1'i (2026-11-25: 64 ekranda başlık h3'tü, h1 yoktu); görünüm 3. seviyede kalır. */}
+          <Typography.Title
+            level={1}
+            style={{
+              margin: 0,
+              letterSpacing: '-0.02em',
+              fontSize: token.fontSizeHeading3,
+              lineHeight: token.lineHeightHeading3,
+            }}
+          >
             {baslik}
           </Typography.Title>
           {alt && (

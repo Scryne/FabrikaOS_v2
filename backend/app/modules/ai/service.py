@@ -134,6 +134,18 @@ async def _egitim_dene(kayit_id: int, slug: str, tur: str, baslangic: float) -> 
     logger.info("model eğitimi tamam (tur=%s, surum=%s, tenant=%s)", tur, kayit.surum, slug)
 
 
+def kullanici_hata_metni(hata: Exception) -> str:
+    """Model kartında gösterilecek metin.
+
+    Ham istisna (2026-11-25: "HTTPConnectionPool(host='minio'…") kullanıcıya gösterilmez;
+    ayrıntı sunucu günlüğünde (çağıran ``logger.warning`` ile yazar)."""
+    if isinstance(hata, modeller.YetersizVeri):
+        return str(hata)
+    if isinstance(hata, urllib3.exceptions.HTTPError):
+        return "Model deposuna ulaşılamadı; altyapı düzelince modeli yeniden eğitin."
+    return "Eğitim beklenmedik bir hatayla durdu; ayrıntı sunucu günlüğünde."
+
+
 async def _basarisiz_isaretle(kayit_id: int, slug: str, hata: Exception, baslangic: float) -> None:
     try:
         async with _fabrika()() as db:
@@ -142,7 +154,7 @@ async def _basarisiz_isaretle(kayit_id: int, slug: str, hata: Exception, baslang
             if kayit is None:
                 return
             kayit.durum = "basarisiz"
-            kayit.hata = str(hata)[:1000]
+            kayit.hata = kullanici_hata_metni(hata)[:1000]
             kayit.egitim_suresi_sn = round(time.monotonic() - baslangic, 3)
             await db.commit()
     except Exception:  # noqa: BLE001 — işaretleme de düşerse yalnız logla
