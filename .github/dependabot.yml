@@ -19,6 +19,11 @@ updates:
     groups:
       npm-kucuk:
         update-types: [minor, patch]
+    # TypeScript 7 (2026-11-25, #19): baseUrl kaldırıldı ve typescript-eslint TS 7 ile yüklenemiyor. Üst akım
+    # destekleyince bu blok silinir ve göç (tsconfig paths) tek PR'da yapılır.
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
